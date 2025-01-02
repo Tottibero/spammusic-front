@@ -23,13 +23,23 @@ a:hover {
   color: #535bf2;
 }
 
-body {
+html, body, #app {
+  height: 100%; /* Asegura que todo ocupe el 100% del alto */
   margin: 0;
   display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  flex-direction: column;
 }
+
+body {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+main {
+  flex: 1; /* Permite que el contenido principal ocupe el espacio restante */
+}
+
 
 h1 {
   font-size: 3.2em;
@@ -79,3 +89,6 @@ button:focus-visible {
   }
 }
 
+ #app-container{
+  height: 100%;
+ }

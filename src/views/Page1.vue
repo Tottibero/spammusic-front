@@ -1,133 +1,119 @@
 <template>
-  <div class="p-6">
-    <h1 class="text-3xl font-bold mb-4">Data Fetcher</h1>
-
-    <!-- Input de fecha -->
-    <div class="mb-4">
-      <label for="date" class="block text-sm font-medium text-gray-700 mb-2">Select Date:</label>
-      <input
-        id="date"
-        type="date"
-        v-model="selectedDate"
-        class="block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-      />
-    </div>
-
-    <!-- Select de API -->
-    <div class="mb-4">
-      <label for="api" class="block text-sm font-medium text-gray-700 mb-2">Select API:</label>
-      <select
-        id="api"
-        v-model="selectedApi"
-        class="block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
-        <option value="">-- Select an API --</option>
-        <option value="boolintunes">Boolintunes</option>
-        <option value="heavymusichq">HeavyMusicHQ</option>
-      </select>
-    </div>
-
-    <!-- Botón para enviar -->
-    <div class="mt-4">
-      <button
-        @click="fetchData"
-        :disabled="!selectedDate || !selectedApi"
-        class="px-4 py-2 bg-blue-500 text-white font-medium rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
-        Fetch Data
-      </button>
-    </div>
-
-    <!-- Resultados -->
-    <div v-if="responseData" class="mt-6">
-      <h2 class="text-xl font-semibold mb-4">{{ responseData.message }}</h2>
-      <div v-for="entry in responseData.data" :key="entry.date" class="mb-4">
-        <h3 class="text-lg font-semibold">{{ entry.date }}</h3>
-        <ul class="list-disc ml-6">
-          <li v-for="album in entry.albums" :key="album">{{ album }}</li>
+  <div class="max-w-7xl mx-auto mt-10">
+    <h1 class="text-4xl font-bold mb-8 text-center">Discs by Release Date</h1>
+    <div>
+      <!-- Lista de discos agrupados -->
+      <div
+        v-for="group in groupedDiscs"
+        :key="group.releaseDate"
+        class="mb-8"
+      >
+        <h3 class="text-2xl font-bold mb-4">{{ group.releaseDate }}</h3>
+        <ul>
+          <li
+            v-for="disc in group.discs"
+            :key="disc.id"
+            class="flex justify-between p-4 border-b"
+          >
+            <span class="font-medium">{{ disc.artist.name }}</span>
+            <span>-</span>
+            <span>{{ disc.name }}</span>
+          </li>
         </ul>
       </div>
     </div>
-
-    <div v-if="error" class="mt-6 text-red-500">
-      <p>Error: {{ error }}</p>
+    <!-- Cargar más -->
+    <div ref="loadMore" class="text-center py-6">
+      <span v-if="loading" class="text-gray-600">Loading more discs...</span>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
-import { fetchScrapingData } from '../services/scraping';
-
-interface AlbumData {
-  date: string;
-  albums: string[];
-}
-
-interface ScrapingResponse {
-  message: string;
-  data: AlbumData[];
-}
-
-const MONTHS = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
+import { defineComponent, ref, onMounted } from 'vue';
+import { getDiscsDated } from '../services/discDated';
 
 export default defineComponent({
-  name: 'DataFetcher',
+  name: 'DiscsList',
   setup() {
-    const selectedDate = ref('');
-    const selectedApi = ref('');
-    const responseData = ref<ScrapingResponse | null>(null);
-    const error = ref('');
+    const groupedDiscs = ref<any[]>([]); // Lista agrupada por fecha
+    const limit = ref(30); // Número de discos por página
+    const offset = ref(1); // Página actual
+    const totalItems = ref(0); // Total de discos
+    const loading = ref(false); // Estado de carga
+    const hasMore = ref(true); // Si hay más discos para cargar
+    const loadMore = ref<HTMLDivElement | null>(null); // Referencia al contenedor para scroll infinito
 
-    const fetchData = async () => {
-      error.value = '';
-      responseData.value = null;
+    // Cargar discos desde la API
+    const fetchDiscs = async () => {
+      if (loading.value || !hasMore.value) return;
+
+      loading.value = true;
 
       try {
-        const [month, day] = selectedDate.value.split('-');
-        const monthName = MONTHS[parseInt(month, 10) - 1]; // Convert month number to name
-        const response = await fetchScrapingData(
-          selectedApi.value,
-          monthName,
-          day ? parseInt(day, 10) : undefined
-        );
-        responseData.value = response;
-      } catch (err) {
-        if (err instanceof Error && err.message) {
-          error.value = err.message;
-        } else if (err && typeof err === 'object' && 'response' in err) {
-          error.value = (err as any).response?.data?.message || 'An error occurred while fetching data.';
-        } else {
-          error.value = 'An unexpected error occurred.';
-        }
+        const response = await getDiscsDated(limit.value, offset.value);
+
+        response.data.forEach((newGroup: any) => {
+          // Verificar si la fecha ya existe en groupedDiscs
+          const existingGroup = groupedDiscs.value.find(
+            (group) => group.releaseDate === newGroup.releaseDate
+          );
+
+          if (existingGroup) {
+            // Si la fecha existe, agregar los discos nuevos al grupo existente
+            existingGroup.discs.push(...newGroup.discs);
+          } else {
+            // Si la fecha no existe, agregar un nuevo grupo
+            groupedDiscs.value.push(newGroup);
+          }
+        });
+
+        totalItems.value = response.totalItems;
+        offset.value += limit.value;
+
+        hasMore.value = offset.value < totalItems.value;
+      } catch (error) {
+        console.error('Error fetching discs:', error);
+      } finally {
+        loading.value = false;
       }
     };
 
+    // Observador para scroll infinito
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        fetchDiscs();
+      }
+    });
+
+    // Montar el observador
+    onMounted(() => {
+      if (loadMore.value) {
+        observer.observe(loadMore.value);
+      }
+
+      // Cargar la primera página
+      fetchDiscs();
+    });
+
     return {
-      selectedDate,
-      selectedApi,
-      fetchData,
-      responseData,
-      error,
+      groupedDiscs,
+      loadMore,
+      loading,
+      hasMore,
     };
   },
 });
 </script>
 
 <style scoped>
-  pre {
-    white-space: pre-wrap;
-    word-wrap: break-word;
+  h3 {
+    color: #4a5568;
+  }
+  li {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #e2e8f0;
   }
 </style>
