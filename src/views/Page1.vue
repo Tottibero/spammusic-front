@@ -38,8 +38,13 @@
 
     <!-- Resultados -->
     <div v-if="responseData" class="mt-6">
-      <h2 class="text-xl font-semibold mb-4">Response Data:</h2>
-      <pre class="bg-gray-100 p-4 rounded-md overflow-auto">{{ responseData }}</pre>
+      <h2 class="text-xl font-semibold mb-4">{{ responseData.message }}</h2>
+      <div v-for="entry in responseData.data" :key="entry.date" class="mb-4">
+        <h3 class="text-lg font-semibold">{{ entry.date }}</h3>
+        <ul class="list-disc ml-6">
+          <li v-for="album in entry.albums" :key="album">{{ album }}</li>
+        </ul>
+      </div>
     </div>
 
     <div v-if="error" class="mt-6 text-red-500">
@@ -51,6 +56,16 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { fetchScrapingData } from '../services/scraping';
+
+interface AlbumData {
+  date: string;
+  albums: string[];
+}
+
+interface ScrapingResponse {
+  message: string;
+  data: AlbumData[];
+}
 
 const MONTHS = [
   'January',
@@ -72,7 +87,7 @@ export default defineComponent({
   setup() {
     const selectedDate = ref('');
     const selectedApi = ref('');
-    const responseData = ref(null);
+    const responseData = ref<ScrapingResponse | null>(null);
     const error = ref('');
 
     const fetchData = async () => {
@@ -80,8 +95,8 @@ export default defineComponent({
       responseData.value = null;
 
       try {
-        const [year, month, day] = selectedDate.value.split('-');
-        const monthName = MONTHS[parseInt(month, 10) - 1]; // Convertir número de mes a nombre
+        const [month, day] = selectedDate.value.split('-');
+        const monthName = MONTHS[parseInt(month, 10) - 1]; // Convert month number to name
         const response = await fetchScrapingData(
           selectedApi.value,
           monthName,
@@ -89,7 +104,13 @@ export default defineComponent({
         );
         responseData.value = response;
       } catch (err) {
-        error.value = err.response?.data?.message || 'An error occurred while fetching data.';
+        if (err instanceof Error && err.message) {
+          error.value = err.message;
+        } else if (err && typeof err === 'object' && 'response' in err) {
+          error.value = (err as any).response?.data?.message || 'An error occurred while fetching data.';
+        } else {
+          error.value = 'An unexpected error occurred.';
+        }
       }
     };
 
