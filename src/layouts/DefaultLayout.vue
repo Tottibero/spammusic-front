@@ -11,21 +11,21 @@
             class="block px-4 py-2 rounded hover:bg-gray-700"
             active-class="bg-gray-700"
           >
-            Home
+            Discos
           </router-link>
           <router-link
             to="/page1"
             class="block px-4 py-2 rounded hover:bg-gray-700"
             active-class="bg-gray-700"
           >
-            Page 1
+            Calendario de discos
           </router-link>
           <router-link
             to="/page2"
             class="block px-4 py-2 rounded hover:bg-gray-700"
             active-class="bg-gray-700"
           >
-            Page 2
+            Scrapping Discos
           </router-link>
         </nav>
       </aside>
