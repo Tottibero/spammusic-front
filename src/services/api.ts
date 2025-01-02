@@ -1,10 +1,16 @@
-import axios from 'axios';
-import { useAuthStore } from '../stores/auth';
+import axios from "axios";
+import { useAuthStore } from "../stores/auth";
+
+// Determina la URL base dependiendo del entorno
+const baseURL =
+  import.meta.env.MODE === "development"
+    ? "http://localhost:3000/api"
+    : import.meta.env.VITE_API_BASE_URL;
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
