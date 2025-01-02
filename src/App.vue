@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="app-container">
     <!-- Determina el layout según la ruta -->
     <component :is="layoutComponent">
       <router-view />

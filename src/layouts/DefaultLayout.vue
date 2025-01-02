@@ -1,5 +1,5 @@
 <template>
-    <div class="flex">
+    <div class="flex" style="height: auto; min-height: 100%;">
       <!-- Barra lateral -->
       <aside class="w-64 bg-gray-800 text-white flex flex-col">
         <div class="p-4 text-xl font-bold border-b border-gray-700">
