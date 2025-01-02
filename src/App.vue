@@ -17,7 +17,7 @@ export default {
     layoutComponent() {
       // Determina el layout según el nombre de la ruta
       const routeName = this.$route.name;
-      return routeName === 'login' ? LoginLayout : DefaultLayout;
+      return routeName === 'Login' ? LoginLayout : DefaultLayout;
     },
   },
 };
