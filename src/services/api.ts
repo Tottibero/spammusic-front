@@ -1,9 +1,9 @@
-import axios, { AxiosInstance } from "axios";
+import axios from "axios";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 
-const api: AxiosInstance = axios.create({
-  baseURL: "https://your-api-url.com", // Cambia esto por tu URL base
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL, // Cambia esto por tu URL base
   headers: {
     "Content-Type": "application/json",
   },
