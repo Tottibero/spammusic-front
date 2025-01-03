@@ -57,7 +57,6 @@ import { defineComponent, ref, onMounted } from 'vue';
 import { getDiscsDated,  } from '../services/discDated';
 import {updateDisc} from '../services/discs';
 import { getGenres,  } from '../services/genres'; // <--- Importa tu servicio de géneros
-import type {Genre} from '../services/genres';
 
 export default defineComponent({
   name: 'DiscsList',
@@ -67,7 +66,6 @@ export default defineComponent({
 
     // Paginación
     const limit = ref(30);
-    const limitGenres = ref(60);
 
     const offset = ref(0);
     const totalItems = ref(0);
@@ -156,7 +154,8 @@ export default defineComponent({
          genreId,
         }
       );
-      
+      console.log("response:" , response);
+
       } catch (err) {
         console.log("err", err)
       }
