@@ -1,18 +1,15 @@
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
+import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 
-// Determina la URL base dependiendo del entorno
-const baseURL =
-  import.meta.env.MODE === "development"
-    ? "http://localhost:3000/api"
-    : import.meta.env.VITE_API_BASE_URL;
-
-const api = axios.create({
-  baseURL,
+const api: AxiosInstance = axios.create({
+  baseURL: "https://your-api-url.com", // Cambia esto por tu URL base
   headers: {
     "Content-Type": "application/json",
   },
 });
+
+const router = useRouter();
 
 // Interceptor para agregar el token en cada solicitud
 api.interceptors.request.use((config) => {
@@ -23,5 +20,21 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// Interceptor para manejar errores 401
+api.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      console.warn("Sesión expirada o no autorizada, redirigiendo al login...");
+      router.push({ name: "Login" }); // Cambia "Login" por el nombre de tu ruta de login
+    }
+    return Promise.reject(error);
+  }
+);
+
+
 
 export default api;
