@@ -31,9 +31,38 @@
       </aside>
   
       <!-- Menú hamburguesa para móvil -->
-      <button class="menu-hamburguesa bg-gray-800 text-white px-4 py-2 flex md:hidden">
+      <button class="menu-hamburguesa bg-gray-800 text-white px-4 py-2 flex md:hidden" @click="toggleMenu">
         ☰ Menu
       </button>
+
+      <aside v-if="menuVisible" class="w-64 bg-gray-800 text-white flex flex-col md:hidden">
+        <div class="p-4 text-xl font-bold border-b border-gray-700">
+          Navigation
+        </div>
+        <nav class="flex-1 p-4 space-y-2">
+          <router-link
+            to="/"
+            class="block px-4 py-2 rounded hover:bg-gray-700"
+            active-class="bg-gray-700"
+          >
+            Discos
+          </router-link>
+          <router-link
+            to="/page1"
+            class="block px-4 py-2 rounded hover:bg-gray-700"
+            active-class="bg-gray-700"
+          >
+            Calendario de discos
+          </router-link>
+          <router-link
+            to="/page2"
+            class="block px-4 py-2 rounded hover:bg-gray-700"
+            active-class="bg-gray-700"
+          >
+            Scrapping Discos
+          </router-link>
+        </nav>
+      </aside>
   
       <!-- Contenido principal -->
       <main class="flex-1 bg-gray-100 p-6">
@@ -43,8 +72,22 @@
   </template>
   
   <script lang="ts">
+  import { ref } from 'vue';
+
   export default {
     name: 'DefaultLayout',
+    setup() {
+      const menuVisible = ref(false);
+
+      const toggleMenu = () => {
+        menuVisible.value = !menuVisible.value;
+      };
+
+      return {
+        menuVisible,
+        toggleMenu,
+      };
+    },
   };
   </script>
 
