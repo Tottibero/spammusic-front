@@ -50,7 +50,6 @@
 import { defineComponent, ref, reactive, onMounted } from 'vue';
 import { getDiscs } from '../services/discs';
 import { postRate, updateRate } from '../services/rates';
-import { useToaster } from "vue3-toaster";
 import Swal from "sweetalert2";
 
 type Disc = {
@@ -168,7 +167,7 @@ export default defineComponent({
                 await postRate(payload);
                 Swal.fire({
                     title: "¡Éxito!",
-                    text: "La calificación se actualizó correctamente.",
+                    text: message,
                     icon: "success",
                     position: "top-end", // Posición en la esquina superior derecha
                     timer: 3000,        // Duración del mensaje en milisegundos
