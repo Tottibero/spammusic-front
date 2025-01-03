@@ -25,8 +25,8 @@
             class="block px-4 py-2 rounded hover:bg-gray-700"
             active-class="bg-gray-700"
           >
-            Scrapping Discos
-          </router-link>
+          Añadir Discos
+        </router-link>
         </nav>
       </aside>
   
@@ -59,7 +59,7 @@
             class="block px-4 py-2 rounded hover:bg-gray-700"
             active-class="bg-gray-700"
           >
-            Scrapping Discos
+            Añadir Discos
           </router-link>
         </nav>
       </aside>
