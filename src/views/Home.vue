@@ -2,8 +2,8 @@
     <div class="max-w-7xl mx-auto mt-10 px-4">
         <h1 class="text-4xl font-bold mb-8 text-center">Albumes</h1>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div v-for="disc in discs" :key="disc.id" class="card border p-4 rounded shadow-lg flex flex-col">
-                <div class="flex flex-col sm:flex-row items-start justify-start mb-4">
+            <div v-for="disc in discs" :key="disc.id" class="card border p-4 rounded shadow-lg flex flex-col bg-white">
+                <div class="flex flex-col sm:flex-row items-start justify-start mb-4 ">
                     <!-- Columna principal (fecha, disco, artista) -->
                     <div class="flex-1 text-left">
                         <p class="text-sm">{{ disc.releaseDate }}</p>
