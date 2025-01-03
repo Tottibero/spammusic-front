@@ -16,16 +16,16 @@
                         <span class="text-sm text-gray-700">Rate:</span>
                         <input type="number" :value="ratings[disc.id]?.rate !== null ? ratings[disc.id].rate : ''"
                             @input="updateRating(disc.id, 'rate', ($event.target as HTMLInputElement)?.value || '')"
-                            min="1" max="10" class="w-full px-2 py-1 border rounded" />
+                            min="1" max="10" class=" px-2 py-1 border rounded" />
                     </label>
                     <label class="flex items-center space-x-2 mb-2 sm:mb-0">
                         <span class="text-sm text-gray-700">Cover:</span>
                         <input type="number" :value="ratings[disc.id]?.cover !== null ? ratings[disc.id].cover : ''"
                             @input="updateRating(disc.id, 'cover', ($event.target as HTMLInputElement)?.value || '')"
-                            min="1" max="10" class="w-full px-2 py-1 border rounded" />
+                            min="1" max="10" class=" px-2 py-1 border rounded" />
                     </label>
                     <button @click="submitRating(disc.id)"
-                        class="bg-green-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full">
+                        class="bg-green-500 text-white px-4 py-2 rounded hover:bg-blue-600">
                         Votar
                     </button>
                 </div>
@@ -152,7 +152,7 @@ export default defineComponent({
     button {
         font-size: 14px;
         /* Reducir tamaño del texto en botones */
-        padding: 8px 12px;
+        padding: 8px 8px;
         width: 100%;
         /* Botones ocupan el ancho completo */
     }
