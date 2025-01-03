@@ -2,14 +2,21 @@
     <div class="max-w-7xl mx-auto mt-10 px-4">
         <h1 class="text-4xl font-bold mb-8 text-center">Albumes</h1>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div v-for="disc in discs" :key="disc.id" :class="['card border p-4 rounded shadow-lg flex flex-col', `bg-${disc.genre?.color}-100` ]">
-                <div class="flex flex-col sm:flex-row items-start justify-between mb-4">
-                    <div>
+            <div v-for="disc in discs" :key="disc.id" class="card border p-4 rounded shadow-lg flex flex-col">
+                <div class="flex flex-col sm:flex-row items-start justify-start mb-4">
+                    <!-- Columna principal (fecha, disco, artista) -->
+                    <div class="flex-1 text-left">
+                        <p class="text-sm">{{ disc.releaseDate }}</p>
                         <h2 class="text-xl font-semibold">{{ disc.name }}</h2>
                         <p class="text-gray-600">{{ disc.artist.name }}</p>
                     </div>
-                    <p class="bg-gray-100 p-2 rounded text-sm font-medium">{{ disc.releaseDate }}</p>
+
+                    <!-- Género al final (derecha) -->
+                    <p class="p-2 rounded text-sm font-medium" :class="`bg-${disc.genre?.color}-100`">
+                        <span>{{ disc.genre?.name }}</span>
+                    </p>
                 </div>
+
                 <div class="flex flex-col sm:flex-row items-center justify-between">
                     <label class="flex items-center space-x-2 mb-2 sm:mb-0">
                         <span class="text-sm text-gray-700">Rate:</span>
@@ -44,7 +51,7 @@ type Disc = {
     artist: { name: string };
     releaseDate: string;
     userRate?: { rate: string; cover: string };
-    genre?: { color: string }
+    genre?: { color: string, name: string }
 };
 
 export default defineComponent({
