@@ -12,7 +12,7 @@
                     </div>
 
                     <!-- Género al final (derecha) -->
-                    <p class="p-2 rounded text-sm font-medium" :class="`bg-${disc.genre?.color}-100`">
+                    <p class="p-2 rounded text-sm font-medium text-white" :style="{ backgroundColor: disc.genre?.color || 'grey' }">
                         <span>{{ disc.genre?.name }}</span>
                     </p>
                 </div>
