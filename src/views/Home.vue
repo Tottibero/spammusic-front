@@ -1,30 +1,31 @@
 <template>
-    <div class="max-w-7xl mx-auto mt-10">
+    <div class="max-w-7xl mx-auto mt-10 px-4">
         <h1 class="text-4xl font-bold mb-8 text-center">Albumes</h1>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div v-for="disc in discs" :key="disc.id" class="border p-4 rounded shadow-lg flex flex-col bg-red-100">
-                <div class="flex items-start justify-between mb-4">
+            <div v-for="disc in discs" :key="disc.id"
+                class="card border p-4 rounded shadow-lg flex flex-col bg-red-100">
+                <div class="flex flex-col sm:flex-row items-start justify-between mb-4">
                     <div>
                         <h2 class="text-xl font-semibold">{{ disc.name }}</h2>
                         <p class="text-gray-600">{{ disc.artist.name }}</p>
                     </div>
                     <p class="bg-gray-100 p-2 rounded text-sm font-medium">{{ disc.releaseDate }}</p>
                 </div>
-                <div class="flex items-center justify-between">
-                    <label class="flex items-center space-x-2">
+                <div class="flex flex-col sm:flex-row items-center justify-between">
+                    <label class="flex items-center space-x-2 mb-2 sm:mb-0">
                         <span class="text-sm text-gray-700">Rate:</span>
                         <input type="number" :value="ratings[disc.id]?.rate !== null ? ratings[disc.id].rate : ''"
                             @input="updateRating(disc.id, 'rate', ($event.target as HTMLInputElement)?.value || '')"
                             min="1" max="10" class="w-full px-2 py-1 border rounded" />
                     </label>
-                    <label class="flex items-center space-x-2">
+                    <label class="flex items-center space-x-2 mb-2 sm:mb-0">
                         <span class="text-sm text-gray-700">Cover:</span>
                         <input type="number" :value="ratings[disc.id]?.cover !== null ? ratings[disc.id].cover : ''"
                             @input="updateRating(disc.id, 'cover', ($event.target as HTMLInputElement)?.value || '')"
                             min="1" max="10" class="w-full px-2 py-1 border rounded" />
                     </label>
                     <button @click="submitRating(disc.id)"
-                        class="bg-green-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                        class="bg-green-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full">
                         Votar
                     </button>
                 </div>
@@ -133,3 +134,27 @@ export default defineComponent({
     },
 });
 </script>
+
+<style>
+@media (max-width: 768px) {
+    .grid {
+        grid-template-columns: 1fr;
+        /* Una columna en móviles */
+    }
+
+    .card {
+        margin: 8px;
+        /* Menos margen en tarjetas */
+        padding: 12px;
+        /* Reducir espacio interno */
+    }
+
+    button {
+        font-size: 14px;
+        /* Reducir tamaño del texto en botones */
+        padding: 8px 12px;
+        width: 100%;
+        /* Botones ocupan el ancho completo */
+    }
+}
+</style>
