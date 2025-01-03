@@ -22,10 +22,6 @@ export interface DiscsResponse {
   data: Disc[];
 }
 
-interface UpdateDiscPayload {
-  id: string; // ID del disco
-  data: { [key: string]: any }; // Datos a actualizar, dinámico según tus necesidades
-}
 
 export async function getDiscs(
   limit: number,
