@@ -35,7 +35,7 @@
                         class="bg-green-500 text-white px-4 py-2 rounded hover:bg-blue-600">
                         Votar
                     </button>
-                    <button @click="update(disc.id, ratings[disc.id]?.rate.id)" v-if="ratings[disc.id]?.rate !== null"
+                    <button @click="update(disc.id)" v-if="ratings[disc.id]?.rate !== null"
                         class="bg-green-500 text-white px-4 py-2 rounded hover:bg-blue-600">
                         Actualizar
                     </button>
@@ -64,7 +64,7 @@ type Disc = {
 export default defineComponent({
     setup() {
         const discs = ref<Disc[]>([]);
-        const ratings = reactive<Record<string, { rate: number | null; cover: number | null, id: string , discId: string | null }>>({});
+        const ratings = reactive<Record<string, { rate: number | null; cover: number | null, id: string | null , discId: string | null }>>({});
         const limit = ref(20);
         const offset = ref(0);
         const totalItems = ref(0);
@@ -106,7 +106,7 @@ export default defineComponent({
 
         const updateRating = (discId: string, field: 'rate' | 'cover', value: string) => {
             if (!ratings[discId]) {
-                ratings[discId] = { rate: null, cover: null };
+                ratings[discId] = { rate: null, cover: null, id: null, discId: null };
             }
             ratings[discId][field] = value ? parseInt(value, 10) : null;
         };
@@ -196,7 +196,7 @@ export default defineComponent({
             }
         };
 
-        const update = async (discRate: string,) => {
+        const update = async (discRate: string) => {
             const { rate, cover, id, discId } = ratings[discRate];
             const rateId = id;
             const payload: any = {  rate, cover, discId };
