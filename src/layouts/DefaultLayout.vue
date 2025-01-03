@@ -1,7 +1,7 @@
 <template>
-    <div class="flex" style="height: auto; min-height: 100%;">
+    <div class="flex flex-col md:flex-row" style="height: auto; min-height: 100%;">
       <!-- Barra lateral -->
-      <aside class="w-64 bg-gray-800 text-white flex flex-col">
+      <aside class="w-64 bg-gray-800 text-white hidden md:flex flex-col">
         <div class="p-4 text-xl font-bold border-b border-gray-700">
           Navigation
         </div>
@@ -30,6 +30,11 @@
         </nav>
       </aside>
   
+      <!-- Menú hamburguesa para móvil -->
+      <button class="menu-hamburguesa bg-gray-800 text-white px-4 py-2 flex md:hidden">
+        ☰ Menu
+      </button>
+  
       <!-- Contenido principal -->
       <main class="flex-1 bg-gray-100 p-6">
         <slot />
@@ -42,4 +47,14 @@
     name: 'DefaultLayout',
   };
   </script>
-  
+
+  <style>
+  @media (max-width: 768px) {
+    aside {
+      display: none; /* Ocultar barra lateral en pantallas pequeñas */
+    }
+    .menu-hamburguesa {
+      display: block; /* Mostrar botón hamburguesa */
+    }
+  }
+  </style>
