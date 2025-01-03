@@ -51,6 +51,7 @@ import { defineComponent, ref, reactive, onMounted } from 'vue';
 import { getDiscs } from '../services/discs';
 import { postRate, updateRate } from '../services/rates';
 import { useToaster } from "vue3-toaster";
+import Swal from "sweetalert2";
 
 type Disc = {
     id: string;
@@ -64,7 +65,7 @@ type Disc = {
 export default defineComponent({
     setup() {
         const discs = ref<Disc[]>([]);
-        const ratings = reactive<Record<string, { rate: number | null; cover: number | null, id: string | null , discId: string | null }>>({});
+        const ratings = reactive<Record<string, { rate: number | null; cover: number | null, id: string | null, discId: string | null }>>({});
         const limit = ref(20);
         const offset = ref(0);
         const totalItems = ref(0);
@@ -165,33 +166,29 @@ export default defineComponent({
 
             try {
                 await postRate(payload);
-                useToaster().add
-                    ({
-                        title: 'Success',
-                        text: message,
-                        type: 'success',
-                        options: {
-                            duration: 3,
-                            closable: true,
-                            pauseOnHover: true
-                        }
-                    }
-                    );
+                Swal.fire({
+                    title: "¡Éxito!",
+                    text: "La calificación se actualizó correctamente.",
+                    icon: "success",
+                    position: "top-end", // Posición en la esquina superior derecha
+                    timer: 3000,        // Duración del mensaje en milisegundos
+                    timerProgressBar: true, // Barra de progreso
+                    showConfirmButton: false, // Ocultar el botón de confirmación
+                    toast: true,        // Modo de notificación tipo toast
+                });
 
             } catch (error) {
                 console.error('Error submitting rating:', error);
-                useToaster().add
-                    ({
-                        title: 'Error',
-                        text: 'Failed submitting rating:',
-                        type: 'error',
-                        options: {
-                            duration: 3,
-                            closable: true,
-                            pauseOnHover: true
-                        }
-                    }
-                    );
+                Swal.fire({
+                    title: "Error",
+                    text: "No se pudo actualizar la calificación. Por favor, inténtalo de nuevo.",
+                    icon: "error",
+                    position: "top-end", // Posición en la esquina superior derecha
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                    toast: true,
+                });
 
             }
         };
@@ -199,7 +196,7 @@ export default defineComponent({
         const update = async (discRate: string) => {
             const { rate, cover, id, discId } = ratings[discRate];
             const rateId = id;
-            const payload: any = {  rate, cover, discId };
+            const payload: any = { rate, cover, discId };
             console.log(discId);
             const ratingValue = rate; // e.g. 6.5
 
@@ -221,7 +218,7 @@ export default defineComponent({
                     message = 'No está mal, tu rating es de 3.';
                     break;
                 case 4:
-                    message = 'Tu rating es de 4. ¡Gracias!';
+                    message = 'Un poco pocho';
                     break;
                 case 5:
                     message = 'Has puesto un 5. ¡Ni tan mal!';
@@ -233,7 +230,7 @@ export default defineComponent({
                     message = 'No esta mal';
                     break;
                 case 8:
-                    message = 'Bueno bueno...';
+                    message = 'No te olvides de pasarlo!';
                     break;
                 case 9:
                     message = 'A recomendados ¿no?';
@@ -249,34 +246,21 @@ export default defineComponent({
 
 
             try {
+                Swal.fire({
+                    title: "Derechito a la base de datos",
+                    text: message,
+                    icon: "success",
+                    position: "top-end", // Posición en la esquina superior derecha
+                    timer: 4000,        // Duración del mensaje en milisegundos
+                    timerProgressBar: true, // Barra de progreso
+                    showConfirmButton: false, // Ocultar el botón de confirmación
+                    toast: true,        // Modo de notificación tipo toast
+                });
+
                 await updateRate(rateId, payload);
-                useToaster().add
-                    ({
-                        title: 'Success',
-                        text: message,
-                        type: 'success',
-                        options: {
-                            duration: 3,
-                            closable: true,
-                            pauseOnHover: true
-                        }
-                    }
-                    );
 
             } catch (error) {
                 console.error('Error submitting rating:', error);
-                useToaster().add
-                    ({
-                        title: 'Error',
-                        text: 'Failed submitting rating:',
-                        type: 'error',
-                        options: {
-                            duration: 3,
-                            closable: true,
-                            pauseOnHover: true
-                        }
-                    }
-                    );
 
             }
         };

@@ -1,17 +1,16 @@
-import { createApp } from "vue";
-import { createPinia } from "pinia";
-import ToastPlugin from "vue3-toaster";
-import App from "./App.vue";
-import router from "./router";
-import "./style.css";
-import "./index.css";
+import { createApp } from 'vue';
+import { createPinia } from 'pinia';
+import App from './App.vue';
+import router from './router';
+import VueSweetalert2 from 'vue-sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
+
+import './style.css';
+import './index.css';
 
 const app = createApp(App);
 app.use(createPinia());
 app.use(router);
-app.use(ToastPlugin, {
-  closable: false,
-  //.. other options
-});
+app.use(VueSweetalert2);
 
-app.mount("#app");
+app.mount('#app');
