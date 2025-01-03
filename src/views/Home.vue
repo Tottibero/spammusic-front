@@ -12,7 +12,8 @@
                     </div>
 
                     <!-- Género al final (derecha) -->
-                    <p class="p-2 rounded text-sm font-medium text-white" :style="{ backgroundColor: disc.genre?.color || 'grey' }">
+                    <p class="p-2 rounded text-sm font-medium text-white"
+                        :style="{ backgroundColor: disc.genre?.color || 'grey' }">
                         <span>{{ disc.genre?.name }}</span>
                     </p>
                 </div>
@@ -30,10 +31,15 @@
                             @input="updateRating(disc.id, 'cover', ($event.target as HTMLInputElement)?.value || '')"
                             min="1" max="10" class=" px-2 py-1 border rounded" />
                     </label>
-                    <button @click="submitRating(disc.id)"
+                    <button @click="submitRating(disc.id)" v-if="ratings[disc.id]?.rate === null"
                         class="bg-green-500 text-white px-4 py-2 rounded hover:bg-blue-600">
                         Votar
                     </button>
+                    <button @click="update(disc.id, ratings[disc.id]?.rate.id)" v-if="ratings[disc.id]?.rate !== null"
+                        class="bg-green-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                        Actualizar
+                    </button>
+
                 </div>
             </div>
         </div>
@@ -43,21 +49,22 @@
 <script lang="ts">
 import { defineComponent, ref, reactive, onMounted } from 'vue';
 import { getDiscs } from '../services/discs';
-import { postRate } from '../services/rates';
+import { postRate, updateRate } from '../services/rates';
+import { useToaster } from "vue3-toaster";
 
 type Disc = {
     id: string;
     name: string;
     artist: { name: string };
     releaseDate: string;
-    userRate?: { rate: string; cover: string };
+    userRate?: { rate: string; cover: string, id: string };
     genre?: { color: string, name: string }
 };
 
 export default defineComponent({
     setup() {
         const discs = ref<Disc[]>([]);
-        const ratings = reactive<Record<string, { rate: number | null; cover: number | null }>>({});
+        const ratings = reactive<Record<string, { rate: number | null; cover: number | null, id: string , discId: string | null }>>({});
         const limit = ref(20);
         const offset = ref(0);
         const totalItems = ref(0);
@@ -83,6 +90,8 @@ export default defineComponent({
                         ratings[disc.id] = {
                             rate: userRate ? parseFloat(userRate.rate) : null,
                             cover: userRate ? parseFloat(userRate.cover) : null,
+                            id: userRate ? userRate.id : null,
+                            discId: disc.id
                         };
                     }
                 });
@@ -102,18 +111,176 @@ export default defineComponent({
             ratings[discId][field] = value ? parseInt(value, 10) : null;
         };
 
+
         const submitRating = async (discId: string) => {
             const { rate, cover } = ratings[discId];
             const payload: any = { discId, rate, cover };
 
+            const ratingValue = rate; // e.g. 6.5
+
+            const integerRating = ratingValue != null ? Math.floor(ratingValue) : 0;
+
+            let message = '';
+
+            switch (integerRating) {
+                case 0:
+                    message = '¿Tan malo es?';
+                    break;
+                case 1:
+                    message = 'Ouch, fue muy bajo. ¡Gracias por tu rating de 1!';
+                    break;
+                case 2:
+                    message = 'Aún se puede mejorar. Tu rating es de 2.';
+                    break;
+                case 3:
+                    message = 'No está mal, tu rating es de 3.';
+                    break;
+                case 4:
+                    message = 'Tu rating es de 4. ¡Gracias!';
+                    break;
+                case 5:
+                    message = 'Has puesto un 5. ¡Ni tan mal!';
+                    break;
+                case 6:
+                    message = 'Muy buen rating, un sólido 6.';
+                    break;
+                case 7:
+                    message = 'No esta mal';
+                    break;
+                case 8:
+                    message = 'Bueno bueno...';
+                    break;
+                case 9:
+                    message = 'A recomendados ¿no?';
+                    break;
+                case 10:
+                    message = '¡Va al top fijo!';
+                    break;
+                default:
+                    // Por si el rating se sale del rango esperado o no es un número
+                    message = `Tu rating es de ${integerRating}, ¡gracias por evaluar!`;
+                    break;
+            }
+
+
             try {
                 await postRate(payload);
-                alert('Rating submitted successfully!');
+                useToaster().add
+                    ({
+                        title: 'Success',
+                        text: message,
+                        type: 'success',
+                        options: {
+                            duration: 3,
+                            closable: true,
+                            pauseOnHover: true
+                        }
+                    }
+                    );
+
             } catch (error) {
                 console.error('Error submitting rating:', error);
-                alert('Failed to submit rating.');
+                useToaster().add
+                    ({
+                        title: 'Error',
+                        text: 'Failed submitting rating:',
+                        type: 'error',
+                        options: {
+                            duration: 3,
+                            closable: true,
+                            pauseOnHover: true
+                        }
+                    }
+                    );
+
             }
         };
+
+        const update = async (discRate: string,) => {
+            const { rate, cover, id, discId } = ratings[discRate];
+            const rateId = id;
+            const payload: any = {  rate, cover, discId };
+            console.log(discId);
+            const ratingValue = rate; // e.g. 6.5
+
+            const integerRating = ratingValue != null ? Math.floor(ratingValue) : 0;
+
+            let message = '';
+
+            switch (integerRating) {
+                case 0:
+                    message = '¿Tan malo es?';
+                    break;
+                case 1:
+                    message = 'Ouch, fue muy bajo. ¡Gracias por tu rating de 1!';
+                    break;
+                case 2:
+                    message = 'Aún se puede mejorar. Tu rating es de 2.';
+                    break;
+                case 3:
+                    message = 'No está mal, tu rating es de 3.';
+                    break;
+                case 4:
+                    message = 'Tu rating es de 4. ¡Gracias!';
+                    break;
+                case 5:
+                    message = 'Has puesto un 5. ¡Ni tan mal!';
+                    break;
+                case 6:
+                    message = 'Muy buen rating, un sólido 6.';
+                    break;
+                case 7:
+                    message = 'No esta mal';
+                    break;
+                case 8:
+                    message = 'Bueno bueno...';
+                    break;
+                case 9:
+                    message = 'A recomendados ¿no?';
+                    break;
+                case 10:
+                    message = '¡Va al top fijo!';
+                    break;
+                default:
+                    // Por si el rating se sale del rango esperado o no es un número
+                    message = `Tu rating es de ${integerRating}, ¡gracias por evaluar!`;
+                    break;
+            }
+
+
+            try {
+                await updateRate(rateId, payload);
+                useToaster().add
+                    ({
+                        title: 'Success',
+                        text: message,
+                        type: 'success',
+                        options: {
+                            duration: 3,
+                            closable: true,
+                            pauseOnHover: true
+                        }
+                    }
+                    );
+
+            } catch (error) {
+                console.error('Error submitting rating:', error);
+                useToaster().add
+                    ({
+                        title: 'Error',
+                        text: 'Failed submitting rating:',
+                        type: 'error',
+                        options: {
+                            duration: 3,
+                            closable: true,
+                            pauseOnHover: true
+                        }
+                    }
+                    );
+
+            }
+        };
+
 
         const observer = new IntersectionObserver((entries) => {
             if (entries[0].isIntersecting) {
@@ -137,6 +304,7 @@ export default defineComponent({
             ratings,
             updateRating,
             submitRating,
+            update
         };
     },
 });
