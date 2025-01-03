@@ -42,6 +42,7 @@ import { defineComponent, ref, onMounted } from 'vue';
 import { getDiscsDated, } from '../services/discDated';
 import { updateDisc } from '../services/discs';
 import { getGenres, } from '../services/genres'; // <--- Importa tu servicio de géneros
+import Swal from "sweetalert2";
 
 export default defineComponent({
   name: 'DiscsList',
@@ -139,6 +140,18 @@ export default defineComponent({
         }
         );
         console.log("response:", response);
+
+        Swal.fire({
+          title: "¡Éxito!",
+          text: 'Genero cambiado correctamente',
+          icon: "success",
+          position: "top-end", // Posición en la esquina superior derecha
+          timer: 3000,        // Duración del mensaje en milisegundos
+          timerProgressBar: true, // Barra de progreso
+          showConfirmButton: false, // Ocultar el botón de confirmación
+          toast: true,        // Modo de notificación tipo toast
+        });
+
 
       } catch (err) {
         console.log("err", err)
