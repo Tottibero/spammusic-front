@@ -38,7 +38,7 @@ export default defineComponent({
   setup() {
     const groupedDiscs = ref<any[]>([]); // Lista agrupada por fecha
     const limit = ref(30); // Número de discos por página
-    const offset = ref(1); // Página actual
+    const offset = ref(0); // Página actual
     const totalItems = ref(0); // Total de discos
     const loading = ref(false); // Estado de carga
     const hasMore = ref(true); // Si hay más discos para cargar
