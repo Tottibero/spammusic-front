@@ -13,11 +13,34 @@
           <li
             v-for="disc in group.discs"
             :key="disc.id"
-            class="flex justify-between p-4 border-b"
+            class="flex flex-col md:flex-row md:justify-between p-4 border-b"
           >
-            <span class="font-medium">{{ disc.artist.name }}</span>
-            <span>-</span>
-            <span>{{ disc.name }}</span>
+            <!-- Información del disco -->
+            <div>
+              <span class="font-medium">{{ disc.artist.name }}</span>
+              <span>-</span>
+              <span>{{ disc.name }}</span>
+            </div>
+
+            <!-- Select para género -->
+            <div class="mt-2 md:mt-0">
+              <label for="genreSelect" class="mr-2">Género:</label>
+              <select
+                id="genreSelect"
+                v-model="disc.genreId"
+                @change="onGenreChange(disc, disc.genreId)"
+                class="border rounded p-1"
+              >
+                <option value="" disabled>Seleccione un género</option>
+                <option
+                  v-for="genre in genres"
+                  :key="genre.id"
+                  :value="genre.id"
+                >
+                  {{ genre.name }}
+                </option>
+              </select>
+            </div>
           </li>
         </ul>
       </div>
@@ -31,20 +54,37 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import { getDiscsDated } from '../services/discDated';
+import { getDiscsDated,  } from '../services/discDated';
+import {updateDisc} from '../services/discs';
+import { getGenres,  } from '../services/genres'; // <--- Importa tu servicio de géneros
+import type {Genre} from '../services/genres';
 
 export default defineComponent({
   name: 'DiscsList',
   setup() {
-    const groupedDiscs = ref<any[]>([]); // Lista agrupada por fecha
-    const limit = ref(30); // Número de discos por página
-    const offset = ref(0); // Página actual
-    const totalItems = ref(0); // Total de discos
-    const loading = ref(false); // Estado de carga
-    const hasMore = ref(true); // Si hay más discos para cargar
-    const loadMore = ref<HTMLDivElement | null>(null); // Referencia al contenedor para scroll infinito
+    // Lista agrupada de discos
+    const groupedDiscs = ref<any[]>([]);
 
-    // Cargar discos desde la API
+    // Paginación
+    const limit = ref(30);
+    const limitGenres = ref(60);
+
+    const offset = ref(0);
+    const totalItems = ref(0);
+    const hasMore = ref(true);
+
+    // Estado de carga
+    const loading = ref(false);
+
+    // Referencia para scroll infinito
+    const loadMore = ref<HTMLDivElement | null>(null);
+
+    // Lista de géneros
+    const genres = ref<any>([]);
+
+    // ---------------------------
+    // Función para obtener discos
+    // ---------------------------
     const fetchDiscs = async () => {
       if (loading.value || !hasMore.value) return;
 
@@ -54,13 +94,19 @@ export default defineComponent({
         const response = await getDiscsDated(limit.value, offset.value);
 
         response.data.forEach((newGroup: any) => {
+          
           // Verificar si la fecha ya existe en groupedDiscs
+
+          newGroup.discs.forEach((disc: any) => {
+        // ...guardamos en disc.genreId el id del género
+        disc.genreId = disc.genre?.id || '';
+      });
+
           const existingGroup = groupedDiscs.value.find(
             (group) => group.releaseDate === newGroup.releaseDate
           );
-
           if (existingGroup) {
-            // Si la fecha existe, agregar los discos nuevos al grupo existente
+            // Si la fecha existe, agregar los discos nuevos
             existingGroup.discs.push(...newGroup.discs);
           } else {
             // Si la fecha no existe, agregar un nuevo grupo
@@ -70,7 +116,6 @@ export default defineComponent({
 
         totalItems.value = response.totalItems;
         offset.value += limit.value;
-
         hasMore.value = offset.value < totalItems.value;
       } catch (error) {
         console.error('Error fetching discs:', error);
@@ -79,41 +124,88 @@ export default defineComponent({
       }
     };
 
+    // --------------------------------
+    // Función para obtener todos los géneros
+    // --------------------------------
+    const fetchGenres = async () => {
+      try {
+        // Si quieres usar paginación, podrías usar getGenres(limit, offset) en vez de getAllGenres()
+        const genresResponse = await getGenres(50, 0);
+        genres.value = genresResponse.data;
+      } catch (error) {
+        console.error('Error fetching genres:', error);
+      }
+    };
+
+    // -------------------------------------------------
+    // Función que se ejecuta al cambiar de género un disco
+    // -------------------------------------------------
+    const onGenreChange = async (disc: any, genreId: string) => {
+      // Aquí podrías hacer una llamada a tu API para actualizar el disco
+      // Por ahora, solo hacemos console.log
+
+      // Ejemplo de actualización en el disco local:
+      // disc.genreId = genreId;
+      // O si deseas actualizar un objeto anidado 
+      // Ajusta según tu modelo de datos
+      try {
+        disc.genre.id = genreId
+        const response = await updateDisc(
+          disc.id, {
+          name: disc.name,
+         genreId,
+        }
+      );
+      
+      } catch (err) {
+        console.log("err", err)
+      }
+
+      
+    };
+
+    // -------------------------------------------------
     // Observador para scroll infinito
+    // -------------------------------------------------
     const observer = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
         fetchDiscs();
       }
     });
 
-    // Montar el observador
+    // ----------------
+    // onMounted
+    // ----------------
     onMounted(() => {
+      // Iniciar el observador
       if (loadMore.value) {
         observer.observe(loadMore.value);
       }
 
-      // Cargar la primera página
+      // Cargar la primera tanda de discos
       fetchDiscs();
+
+      // Cargar la lista de géneros
+      fetchGenres();
     });
 
     return {
       groupedDiscs,
+      genres, // Lo usamos en el template
       loadMore,
       loading,
       hasMore,
+      onGenreChange, // Para invocarla desde el template
     };
   },
 });
 </script>
 
 <style scoped>
-  h3 {
-    color: #4a5568;
-  }
-  li {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid #e2e8f0;
-  }
+h3 {
+  color: #4a5568;
+}
+li {
+  border-bottom: 1px solid #e2e8f0;
+}
 </style>
