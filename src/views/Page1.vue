@@ -141,13 +141,12 @@ export default defineComponent({
     const onGenreChange = async (disc: any, genreId: string) => {
       // Aquí podrías hacer una llamada a tu API para actualizar el disco
       // Por ahora, solo hacemos console.log
-
+      
       // Ejemplo de actualización en el disco local:
       // disc.genreId = genreId;
       // O si deseas actualizar un objeto anidado 
       // Ajusta según tu modelo de datos
       try {
-        disc.genre.id = genreId
         const response = await updateDisc(
           disc.id, {
           name: disc.name,
