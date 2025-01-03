@@ -66,7 +66,7 @@
       const discs = ref<Disc[]>([]);
       const ratings = reactive<Record<string, { rate: number | null; cover: number | null }>>({});
       const limit = ref(20);
-      const offset = ref(1);
+      const offset = ref(0);
       const totalItems = ref(0);
       const loading = ref(false);
       const hasMore = ref(true);
