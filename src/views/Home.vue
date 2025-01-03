@@ -2,8 +2,7 @@
     <div class="max-w-7xl mx-auto mt-10 px-4">
         <h1 class="text-4xl font-bold mb-8 text-center">Albumes</h1>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div v-for="disc in discs" :key="disc.id"
-                class="card border p-4 rounded shadow-lg flex flex-col bg-red-100">
+            <div v-for="disc in discs" :key="disc.id" :class="['card border p-4 rounded shadow-lg flex flex-col', `bg-${disc.genre?.color}-100` ]">
                 <div class="flex flex-col sm:flex-row items-start justify-between mb-4">
                     <div>
                         <h2 class="text-xl font-semibold">{{ disc.name }}</h2>
@@ -45,6 +44,7 @@ type Disc = {
     artist: { name: string };
     releaseDate: string;
     userRate?: { rate: string; cover: string };
+    genre?: { color: string }
 };
 
 export default defineComponent({
