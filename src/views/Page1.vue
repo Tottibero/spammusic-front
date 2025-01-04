@@ -99,7 +99,7 @@ export default defineComponent({
           });
 
           const existingGroup = groupedDiscs.value.find(
-            (group) => group.releaseDate === newGroup.releaseDate
+            (group:any) => group.releaseDate === newGroup.releaseDate
           );
           if (existingGroup) {
             existingGroup.discs.push(...newGroup.discs);
@@ -135,7 +135,7 @@ export default defineComponent({
     // -------------------------------------------------
     const onGenreChange = async (disc: any, genreId: string) => {
       try {
-        const response = await updateDisc(
+         await updateDisc(
           disc.id, {
           name: disc.name,
           genreId,
