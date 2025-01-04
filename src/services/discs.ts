@@ -12,6 +12,7 @@ export interface Disc {
     description: string;
     image: string;
   };
+  userRate: any;
 }
 
 export interface DiscsResponse {

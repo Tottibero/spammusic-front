@@ -5,8 +5,9 @@
             <div v-for="disc in discs" :key="disc.id"
                 class="card border p-4 rounded shadow-lg flex flex-col md:flex-row bg-white">
                 <!-- Imagen del disco -->
-                <div  class="mb-4 md:mb-0 md:mr-4 flex-shrink-0">
-                    <img :src="disc.image && disc.image.length > 3 ? disc.image : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1BhBgvAdx2cQwiyvb-89VbGVzgQbB983tfw&s'" :alt="disc.name" class="w-48 h-48 object-cover rounded mx-auto md:mx-0" />
+                <div class="mb-4 md:mb-0 md:mr-4 flex-shrink-0">
+                    <img :src="disc.image && disc.image.length > 3 ? disc.image : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1BhBgvAdx2cQwiyvb-89VbGVzgQbB983tfw&s'"
+                        :alt="disc.name" class="w-48 h-48 object-cover rounded mx-auto md:mx-0" />
 
                 </div>
 
@@ -52,11 +53,11 @@
                                     min="1" max="10" class="px-2 py-1 border rounded w-16" />
                             </label>
                         </div>
-                        <button @click="submitRating(disc.id)" v-if="ratings[disc.id]?.rate === null"
+                        <button @click="submitRating(disc.id)" v-if="ratings[disc.id]?.isNew"
                             class="bg-green-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full">
                             Votar
                         </button>
-                        <button @click="update(disc.id)" v-if="ratings[disc.id]?.rate !== null"
+                        <button @click="updateRate(disc.id, ratings[disc.id].id)" v-if="!ratings[disc.id]?.isNew"
                             class="bg-green-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full">
                             Actualizar
                         </button>
@@ -70,19 +71,52 @@
 <script lang="ts">
 import { defineComponent, ref, reactive, onMounted } from 'vue';
 import { getDiscs } from '../services/discs';
-import { postRate, updateRate } from '../services/rates';
+import { postRateService, updateRateService } from '../services/rates';
 import Swal from "sweetalert2";
+
+// Define types for the Disc and related structures
+interface Artist {
+    name: string;
+}
+
+interface Genre {
+    name: string;
+    color: string;
+}
+
+interface Disc {
+    id: string;
+    image: string;
+    name: string;
+    releaseDate: string;
+    artist: Artist;
+    genre?: Genre;
+    link?: string;
+    userRate?: {
+        id: string;
+        rate: number | null;
+        cover: number | null;
+    };
+}
+
+interface Rating {
+    rate: number | null;
+    cover: number | null;
+    id: string | null;
+    discId: string;
+    isNew: boolean;
+}
 
 export default defineComponent({
     setup() {
-        const discs = ref([]);
-        const ratings = reactive({});
+        const discs = ref<Disc[]>([]); // Define type for discs
+        const ratings: Record<string, Rating> = reactive({});
         const limit = ref(20);
         const offset = ref(0);
         const totalItems = ref(0);
         const loading = ref(false);
         const hasMore = ref(true);
-        const loadMore = ref(null);
+        const loadMore = ref<HTMLDivElement | null>(null);
 
         const fetchDiscs = async () => {
             if (loading.value || !hasMore.value) return;
@@ -96,14 +130,15 @@ export default defineComponent({
 
                 offset.value += limit.value;
 
-                response.data.forEach((disc) => {
+                response.data.forEach((disc: Disc) => {
                     if (!ratings[disc.id]) {
                         const userRate = disc.userRate;
                         ratings[disc.id] = {
-                            rate: userRate ? parseFloat(userRate.rate) : null,
-                            cover: userRate ? parseFloat(userRate.cover) : null,
+                            rate: userRate ? userRate.rate : null,
+                            cover: userRate ? userRate.cover : null,
                             id: userRate ? userRate.id : null,
-                            discId: disc.id
+                            discId: disc.id,
+                            isNew: userRate ? false : true, // Indica si es un dato nuevoW
                         };
                     }
                 });
@@ -116,19 +151,149 @@ export default defineComponent({
             }
         };
 
-        const updateRating = (discId, field, value) => {
+        const updateRating = (discId: string, field: keyof Rating, value: string) => {
             if (!ratings[discId]) {
-                ratings[discId] = { rate: null, cover: null, id: null, discId: null };
+                ratings[discId] = { rate: null, cover: null, id: null, discId, isNew: true };
             }
-            ratings[discId][field] = value ? parseFloat(value) : null;
+
+            if (field === 'rate' || field === 'cover') {
+                ratings[discId][field] = value ? parseFloat(value) : null;
+            } else if (field === 'id' || field === 'discId') {
+                ratings[discId][field] = value;
+            }
         };
 
-        const submitRating = async (discId) => {
-            // Existing logic for submitting a rating
+        const submitRating = async (discId: string) => {
+            const { rate, cover } = ratings[discId];
+            const payload = { discId, rate, cover };
+
+            ratings[discId].isNew = false;
+            let message = "";
+            if (rate != null) {
+                message = customMessage(rate)
+            } else if (cover != null) {
+                message = customMessage(cover)
+            }
+
+            try {
+                await postRateService(payload);
+                Swal.fire({
+                    title: "¡Éxito!",
+                    text: message,
+                    icon: "success",
+                    position: "top-end",
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                    toast: true,
+                });
+            } catch (error) {
+                console.error('Error submitting rating:', error);
+                Swal.fire({
+                    title: "Error",
+                    text: "No se pudo enviar tu evaluación.",
+                    icon: "error",
+                    position: "top-end",
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                    toast: true,
+                });
+            }
         };
 
-        const update = async (discRate) => {
-            // Existing logic for updating a rating
+        const customMessage = (integerRating: number) => {
+
+            let message = '';
+
+            switch (integerRating) {
+                case 0:
+                    message = '¿Tan malo es?';
+                    break;
+                case 1:
+                    message = 'Ouch, fue muy bajo. ¡Gracias por tu rating de 1!';
+                    break;
+                case 2:
+                    message = 'Aún se puede mejorar. Tu rating es de 2.';
+                    break;
+                case 3:
+                    message = 'No está mal, tu rating es de 3.';
+                    break;
+                case 4:
+                    message = 'Tu rating es de 4. ¡Gracias!';
+                    break;
+                case 5:
+                    message = 'Has puesto un 5. ¡Ni tan mal!';
+                    break;
+                case 6:
+                    message = 'Muy buen rating, un sólido 6.';
+                    break;
+                case 7:
+                    message = 'No esta mal';
+                    break;
+                case 8:
+                    message = 'Bueno bueno...';
+                    break;
+                case 9:
+                    message = 'A recomendados ¿no?';
+                    break;
+                case 10:
+                    message = '¡Va al top fijo!';
+                    break;
+                default:
+                    // Por si el rating se sale del rango esperado o no es un número
+                    message = `Tu rating es de ${integerRating}, ¡gracias por evaluar!`;
+                    break;
+            }
+
+            return message;
+        }
+
+        const updateRate = async (discId: string, ratingId: string | null) => {
+            const { rate, cover } = ratings[discId];
+
+            if (ratingId == null) {
+                return;
+            }
+
+            const validRate = parseFloat(rate as unknown as string); // Cast explícito
+            const validCover = parseFloat(cover as unknown as string);
+
+            let message = "";
+            if (rate != null) {
+                message = customMessage(rate)
+            } else if (!rate && cover != null) {
+                message = customMessage(cover)
+            }
+
+
+            const payload = { rate: validRate, cover: validCover };
+
+            try {
+                await updateRateService(ratingId, payload);
+                Swal.fire({
+                    title: "¡Éxito!",
+                    text: message,
+                    icon: "success",
+                    position: "top-end",
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                    toast: true,
+                });
+            } catch (error) {
+                console.error('Error updating rating:', error);
+                Swal.fire({
+                    title: "Error",
+                    text: "No se pudo actualizar tu evaluación.",
+                    icon: "error",
+                    position: "top-end",
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                    toast: true,
+                });
+            }
         };
 
         const observer = new IntersectionObserver((entries) => {
@@ -153,11 +318,12 @@ export default defineComponent({
             ratings,
             updateRating,
             submitRating,
-            update
+            updateRate,
         };
     },
 });
 </script>
+
 
 <style>
 @media (max-width: 768px) {

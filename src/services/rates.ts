@@ -6,12 +6,12 @@ export interface RatePayload {
   cover: number;
 }
 
-export async function postRate(payload: RatePayload): Promise<void> {
+export async function postRateService(payload: any): Promise<void> {
   await api.post('/rates', payload);
 }
 
-export async function updateRate(rateId: string | null, updateRateDto: any) {
+export async function updateRateService( ratingId: string, updateRateDto: any) {
   // PATCH /rates/:id
   console.log("update rate", updateRateDto)
-  return api.patch(`/rates/${rateId}`, updateRateDto);
+  return api.patch(`/rates/${ratingId}`, updateRateDto);
 }
