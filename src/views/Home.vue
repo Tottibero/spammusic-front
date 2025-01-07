@@ -8,6 +8,18 @@
                 <div class="mb-4 md:mb-0 md:mr-4 flex-shrink-0">
                     <img :src="disc.image && disc.image.length > 3 ? disc.image : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1BhBgvAdx2cQwiyvb-89VbGVzgQbB983tfw&s'"
                         :alt="disc.name" class="w-48 h-48 object-cover rounded mx-auto md:mx-0" />
+                    <div class="flex justify-around mt-4">
+                        <!-- Caja Average Rate -->
+                        <div class="flex flex-col items-center w-20 h-20 border rounded-lg shadow-md p-2 bg-gray-100">
+                            <p class="text-lg font-bold text-blue-600">{{ disc.averageRate || '-' }}</p>
+                            <p class="text-sm text-gray-700">Rate</p>
+                        </div>
+                        <!-- Caja Average Cover -->
+                        <div class="flex flex-col items-center w-20 h-20 border rounded-lg shadow-md p-2 bg-gray-100">
+                            <p class="text-lg font-bold text-green-600">{{ disc.averageCover || '-' }}</p>
+                            <p class="text-sm text-gray-700">Cover</p>
+                        </div>
+                    </div>
 
                 </div>
 
@@ -61,7 +73,8 @@
                             class="bg-green-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full">
                             Actualizar
                         </button>
-                        <button @click="toggleVotes(disc.id)" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full mt-2">
+                        <button @click="toggleVotes(disc.id)"
+                            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full mt-2">
                             {{ showVotes[disc.id] ? 'Ocultar Votos' : 'Ver Votos' }}
                         </button>
                     </div>
@@ -69,9 +82,11 @@
                     <!-- Lista de votos -->
                     <div v-if="showVotes[disc.id]" class="mt-4 overflow-y-auto max-h-40 border-t pt-2">
                         <ul>
-                            <li v-for="vote in votes[disc.id]" :key="vote.id" class="text-sm flex justify-between items-center border-b py-2">
+                            <li v-for="vote in votes[disc.id]" :key="vote.id"
+                                class="text-sm flex justify-between items-center border-b py-2">
                                 <div>
-                                    <p><strong>{{ vote.user.username }}: Rate: {{ vote.rate }}, Cover: {{ vote.cover }}</strong></p>
+                                    <p><strong>{{ vote.user.username }}: Rate: {{ vote.rate }}, Cover: {{ vote.cover
+                                            }}</strong></p>
                                 </div>
                             </li>
                         </ul>
@@ -86,7 +101,7 @@
 import { defineComponent, ref, reactive, onMounted } from 'vue';
 import { getDiscs } from '../services/discs';
 import { postRateService, updateRateService } from '../services/rates';
-import  {getDiscRates} from '../services/discUserRates'
+import { getDiscRates } from '../services/discUserRates'
 import Swal from "sweetalert2";
 
 // Define types for the Disc and related structures
@@ -107,6 +122,8 @@ interface Disc {
     artist: Artist;
     genre?: Genre;
     link?: string;
+    averageRate?: number;
+    averageCover?: number;
     userRate?: {
         id: string;
         rate: number | null;
