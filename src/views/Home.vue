@@ -61,6 +61,21 @@
                             class="bg-green-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full">
                             Actualizar
                         </button>
+                        <button @click="toggleVotes(disc.id)" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full mt-2">
+                            {{ showVotes[disc.id] ? 'Ocultar Votos' : 'Ver Votos' }}
+                        </button>
+                    </div>
+
+                    <!-- Lista de votos -->
+                    <div v-if="showVotes[disc.id]" class="mt-4 overflow-y-auto max-h-40 border-t pt-2">
+                        <ul>
+                            <li v-for="vote in votes[disc.id]" :key="vote.id" class="text-sm flex justify-between items-center border-b py-2">
+                                <div>
+                                    <p><strong>{{ vote.user.username }}</strong></p>
+                                    <p>Rate: {{ vote.rate }}, Cover: {{ vote.cover }}</p>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -72,6 +87,7 @@
 import { defineComponent, ref, reactive, onMounted } from 'vue';
 import { getDiscs } from '../services/discs';
 import { postRateService, updateRateService } from '../services/rates';
+import  {getDiscRates} from '../services/discUserRates'
 import Swal from "sweetalert2";
 
 // Define types for the Disc and related structures
@@ -107,10 +123,22 @@ interface Rating {
     isNew: boolean;
 }
 
+interface Vote {
+    id: string;
+    rate: string;
+    cover: string;
+    user: {
+        username: string;
+        email: string;
+    };
+}
+
 export default defineComponent({
     setup() {
         const discs = ref<Disc[]>([]); // Define type for discs
         const ratings: Record<string, Rating> = reactive({});
+        const votes: Record<string, Vote[]> = reactive({});
+        const showVotes: Record<string, boolean> = reactive({});
         const limit = ref(20);
         const offset = ref(0);
         const totalItems = ref(0);
@@ -138,9 +166,10 @@ export default defineComponent({
                             cover: userRate ? userRate.cover : null,
                             id: userRate ? userRate.id : null,
                             discId: disc.id,
-                            isNew: userRate ? false : true, // Indica si es un dato nuevoW
+                            isNew: userRate ? false : true, // Indica si es un dato nuevo
                         };
                     }
+                    showVotes[disc.id] = false;
                 });
 
                 hasMore.value = offset.value < totalItems.value;
@@ -148,6 +177,22 @@ export default defineComponent({
                 console.error('Error fetching discs:', error);
             } finally {
                 loading.value = false;
+            }
+        };
+
+        const fetchVotes = async (discId: string) => {
+            try {
+                const response = await getDiscRates(discId);
+                votes[discId] = response;
+            } catch (error) {
+                console.error('Error fetching votes:', error);
+            }
+        };
+
+        const toggleVotes = (discId: string) => {
+            showVotes[discId] = !showVotes[discId];
+            if (showVotes[discId] && !votes[discId]) {
+                fetchVotes(discId);
             }
         };
 
@@ -170,9 +215,9 @@ export default defineComponent({
             ratings[discId].isNew = false;
             let message = "";
             if (rate != null) {
-                message = customMessage(rate)
+                message = customMessage(rate);
             } else if (cover != null) {
-                message = customMessage(cover)
+                message = customMessage(cover);
             }
 
             try {
@@ -203,7 +248,6 @@ export default defineComponent({
         };
 
         const customMessage = (integerRating: number) => {
-
             let message = '';
 
             switch (integerRating) {
@@ -241,7 +285,6 @@ export default defineComponent({
                     message = '¡Va al top fijo!';
                     break;
                 default:
-                    // Por si el rating se sale del rango esperado o no es un número
                     message = `Tu rating es de ${integerRating}, ¡gracias por evaluar!`;
                     break;
             }
@@ -261,11 +304,10 @@ export default defineComponent({
 
             let message = "";
             if (rate != null) {
-                message = customMessage(rate)
+                message = customMessage(rate);
             } else if (!rate && cover != null) {
-                message = customMessage(cover)
+                message = customMessage(cover);
             }
-
 
             const payload = { rate: validRate, cover: validCover };
 
@@ -316,6 +358,9 @@ export default defineComponent({
             loading,
             hasMore,
             ratings,
+            votes,
+            showVotes,
+            toggleVotes,
             updateRating,
             submitRating,
             updateRate,
@@ -323,7 +368,6 @@ export default defineComponent({
     },
 });
 </script>
-
 
 <style>
 @media (max-width: 768px) {
