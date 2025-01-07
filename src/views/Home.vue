@@ -71,8 +71,7 @@
                         <ul>
                             <li v-for="vote in votes[disc.id]" :key="vote.id" class="text-sm flex justify-between items-center border-b py-2">
                                 <div>
-                                    <p><strong>{{ vote.user.username }}</strong></p>
-                                    <p>Rate: {{ vote.rate }}, Cover: {{ vote.cover }}</p>
+                                    <p><strong>{{ vote.user.username }}: Rate: {{ vote.rate }}, Cover: {{ vote.cover }}</strong></p>
                                 </div>
                             </li>
                         </ul>
