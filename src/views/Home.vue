@@ -242,6 +242,9 @@ export default defineComponent({
 
             try {
                 await postRateService(payload);
+                await fetchVotes(discId);
+                updateAverages(discId);
+
                 Swal.fire({
                     title: "¡Éxito!",
                     text: message,
@@ -333,6 +336,9 @@ export default defineComponent({
 
             try {
                 await updateRateService(ratingId, payload);
+                await fetchVotes(discId);
+                updateAverages(discId);
+
                 Swal.fire({
                     title: "¡Éxito!",
                     text: message,
@@ -371,6 +377,21 @@ export default defineComponent({
 
             fetchDiscs();
         });
+
+        const updateAverages = (discId: string) => {
+            const allVotes = votes[discId];
+            const averageRate =
+                allVotes.reduce((sum, vote) => sum + parseFloat(vote.rate), 0) / allVotes.length;
+            const averageCover =
+                allVotes.reduce((sum, vote) => sum + parseFloat(vote.cover), 0) / allVotes.length;
+
+            const disc = discs.value.find(disc => disc.id === discId);
+            if (disc) {
+                disc.averageRate = parseFloat(averageRate.toFixed(2));
+                disc.averageCover = parseFloat(averageCover.toFixed(2));
+            }
+        };
+
 
         return {
             discs,
