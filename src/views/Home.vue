@@ -11,12 +11,16 @@
                     <div class="flex justify-around mt-4">
                         <!-- Caja Average Rate -->
                         <div class="flex flex-col items-center w-20 h-20 border rounded-lg shadow-md p-2 bg-gray-100">
-                            <p class="text-lg font-bold text-blue-600">{{ disc.averageRate || '-' }}</p>
+                            <p class="text-lg font-bold text-blue-600">
+                                {{ disc.averageRate ? disc.averageRate.toFixed(2) : '-' }}
+                            </p>
                             <p class="text-sm text-gray-700">Rate</p>
                         </div>
                         <!-- Caja Average Cover -->
                         <div class="flex flex-col items-center w-20 h-20 border rounded-lg shadow-md p-2 bg-gray-100">
-                            <p class="text-lg font-bold text-green-600">{{ disc.averageCover || '-' }}</p>
+                            <p class="text-lg font-bold text-green-600">
+                                {{ disc.averageCover ? disc.averageCover.toFixed(2) : '-' }}
+                            </p>
                             <p class="text-sm text-gray-700">Cover</p>
                         </div>
                     </div>
