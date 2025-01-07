@@ -8,12 +8,17 @@
         <button v-if="new Date(group.releaseDate) < new Date()" @click="buscarEnlacesSpotify(group.discs)"
           class="bg-blue-500 text-white px-4 py-2 rounded mb-4">Buscar
           Enlaces en Spotify</button>
+        <button @click="exportarHtml" class="bg-green-500 text-white px-4 py-2 rounded mt-4">
+          Exportar HTML
+        </button>
+
         <ul>
           <li v-for="disc in group.discs" :key="disc.id"
             class="flex flex-col md:flex-row md:justify-between p-4 border-b">
             <!-- Información del disco -->
             <div class="flex items-center">
-              <img v-if="disc.image" :src="disc.image" alt="Disc cover" class="w-24 h-24 mr-4" style="width: 100px; height: 100px; object-fit: cover;">
+              <img v-if="disc.image" :src="disc.image" alt="Disc cover" class="w-24 h-24 mr-4"
+                style="width: 100px; height: 100px; object-fit: cover;">
               <div>
                 <span class="font-medium">{{ disc.artist.name }}</span>
                 <span>-</span>
@@ -99,7 +104,7 @@ export default defineComponent({
           });
 
           const existingGroup = groupedDiscs.value.find(
-            (group:any) => group.releaseDate === newGroup.releaseDate
+            (group: any) => group.releaseDate === newGroup.releaseDate
           );
           if (existingGroup) {
             existingGroup.discs.push(...newGroup.discs);
@@ -135,7 +140,7 @@ export default defineComponent({
     // -------------------------------------------------
     const onGenreChange = async (disc: any, genreId: string) => {
       try {
-         await updateDisc(
+        await updateDisc(
           disc.id, {
           name: disc.name,
           genreId,
@@ -219,6 +224,45 @@ export default defineComponent({
       }
     };
 
+    const exportarHtml = () => {
+      let html = `
+      <figure class="wp-block-table is-style-stripes">
+        <table>
+          <tbody>`;
+
+      groupedDiscs.value.forEach(group => {
+        group.discs.forEach((disc:any) => {
+          const genreName = genres.value.find(genre => genre.id === disc.genreId)?.name || 'Sin género';
+          if (disc.link) {
+            html += `
+              <tr>
+                <td class="has-text-align-left" data-align="left">${genreName}</td>
+                <td><strong><a href="${disc.link}" target="_blank" rel="noreferrer noopener">${disc.artist.name} - ${disc.name}</a></strong></td>
+              </tr>`;
+          } else {
+            html += `
+              <tr>
+                <td class="has-text-align-left" data-align="left">${genreName}</td>
+                <td><strong>${disc.artist.name} - ${disc.name}</strong></td>
+              </tr>`;
+          }
+        });
+      });
+
+      html += `
+          </tbody>
+        </table>
+      </figure>`;
+
+      // Crear un blob con el HTML y descargarlo
+      const blob = new Blob([html], { type: 'text/html' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'discs.html';
+      link.click();
+      URL.revokeObjectURL(link.href);
+    };
+
     // ----------------
     // onMounted
     // ----------------
@@ -244,6 +288,7 @@ export default defineComponent({
       hasMore,
       onGenreChange,
       buscarEnlacesSpotify,
+      exportarHtml,
     };
   },
 });
