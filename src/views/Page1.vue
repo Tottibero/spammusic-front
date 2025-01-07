@@ -23,7 +23,11 @@
               <div>
                 <span class="font-medium">{{ disc.artist.name }}</span>
                 <span>-</span>
-                <span>{{ disc.name }}</span>
+                <span v-if="!editing[disc.id]" @click="enableEditing(disc.id)" class="cursor-pointer hover:underline">
+                  {{ disc.name }}
+                </span>
+                <input v-else v-model="disc.newName" @keyup.enter="saveNameChange(disc)" @blur="saveNameChange(disc)"
+                  class="border rounded px-2 py-1" placeholder="Edit name" />
               </div>
             </div>
 
@@ -67,7 +71,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
+import { defineComponent, ref, onMounted, reactive } from 'vue';
 import axios from 'axios';
 import { getDiscsDated, } from '../services/discDated';
 import { updateDisc } from '../services/discs';
@@ -79,6 +83,7 @@ export default defineComponent({
   setup() {
     // Lista agrupada de discos
     const groupedDiscs = ref<any[]>([]);
+    const editing = reactive<Record<string, boolean>>({});
 
     // Paginación
     const limit = ref(30);
@@ -387,6 +392,58 @@ export default defineComponent({
       }
     });
 
+    const findDiscById = (discId: string) => {
+      for (const group of groupedDiscs.value) {
+        const disc = group.discs.find((d: any) => d.id === discId);
+        if (disc) return disc;
+      }
+      return null;
+    };
+
+    const enableEditing = (discId: string) => {
+      const disc = findDiscById(discId);
+      if (disc) {
+        editing[discId] = true;
+        disc.newName = disc.name; // Almacena el nombre actual como punto de partida
+      }
+    };
+
+
+    const saveNameChange = async (disc: any) => {
+      const newName = disc.newName || disc.name;
+      editing[disc.id] = false;
+
+      // Evita guardar si el nombre no cambió
+      if (newName === disc.name) return;
+
+      try {
+        await updateDisc(disc.id, { name: newName, genreId: disc.genreId });
+        disc.name = newName; // Actualiza el nombre en la interfaz
+
+        Swal.fire({
+          title: '¡Éxito!',
+          text: 'El nombre del disco se ha actualizado correctamente.',
+          icon: 'success',
+          timer: 3000,
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+        });
+      } catch (error) {
+        console.error('Error al actualizar el nombre:', error);
+        Swal.fire({
+          title: 'Error',
+          text: 'No se pudo actualizar el nombre del disco.',
+          icon: 'error',
+          timer: 3000,
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+        });
+      }
+    };
+
+
     return {
       groupedDiscs,
       genres,
@@ -396,7 +453,10 @@ export default defineComponent({
       onGenreChange,
       buscarEnlacesSpotify,
       exportarHtml,
-      buscarGeneroSpotify
+      buscarGeneroSpotify,
+      editing,
+      enableEditing,
+      saveNameChange,
     };
   },
 });
