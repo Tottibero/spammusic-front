@@ -8,7 +8,7 @@
         <button v-if="new Date(group.releaseDate) < new Date()" @click="buscarEnlacesSpotify(group.discs)"
           class="bg-blue-500 text-white px-4 py-2 rounded mb-4">Buscar
           Enlaces en Spotify</button>
-        <button @click="exportarHtml(group)" class="bg-green-500 text-white px-4 py-2 rounded mt-4">
+        <button @click="exportarHtml(group)" class="bg-green-500 text-white px-4 py-2 rounded mt-4 ml-3">
           Exportar HTML de esta semana
         </button>
 
