@@ -16,8 +16,7 @@
         <ul>
           <li v-for="disc in group.discs" :key="disc.id"
             class="flex flex-col md:flex-row md:justify-between p-4 border-b"
-            :style="{ backgroundColor: getGenreColor(disc.genreId), opacity: '0.9' }"
-            >
+            :style="{ backgroundColor: getGenreColor(disc.genreId), opacity: '0.9' }">
             <!-- Información del disco -->
             <div class="flex items-center">
               <img v-if="disc.image" :src="disc.image" alt="Disc cover" class="w-24 h-24 mr-4"
@@ -43,24 +42,26 @@
             </div>
 
             <!-- Select para género -->
-            <div class="mt-2 md:mt-0">
-              <label for="genreSelect" class="mr-2">Género:</label>
+            <div class="mt-2 md:mt-0 flex items-center space-x-4">
+              <label for="genreSelect" class="mr-2 text-gray-700 font-medium">Género:</label>
               <select id="genreSelect" v-model="disc.genreId" @change="onGenreChange(disc, disc.genreId)"
-                class="border rounded p-1">
+                class="border rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="" disabled>Seleccione un género</option>
                 <option v-for="genre in genres" :key="genre.id" :value="genre.id">
                   {{ genre.name }}
                 </option>
               </select>
-              <div class="mt-2 md:mt-0">
-                <button @click="buscarGeneroSpotify(disc)" class="bg-yellow-500 text-white px-4 py-2 rounded">
-                  Buscar género en Spotify
-                </button>
-                <div v-if="disc.genero" class="mt-2 text-gray-700">
-                  Género encontrado: <strong>{{ disc.genero }}</strong>
-                </div>
-              </div>
+              <button @click="buscarGeneroSpotify(disc)"
+                class="bg-yellow-500 hover:bg-yellow-600 text-white font-medium px-4 py-2 rounded shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                Buscar género en Spotify
+              </button>
             </div>
+            <p>
+              <span v-if="disc.loading" class="text-gray-500 italic">Buscando...</span>
+              <small v-else-if="disc.genero" class="text-gray-700 italic">Género encontrado: <strong>{{ disc.genero
+                  }}</strong></small>
+            </p>
+
           </li>
         </ul>
       </div>
