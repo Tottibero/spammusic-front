@@ -35,7 +35,7 @@ export async function getDiscs(
 
 export async function updateDisc(
   id: string,
-  data: { name?: string; genreId?: string; link?: string; image?: string }
+  data: { name?: string; genreId?: string; link?: string; image?: string, releaseDate?: any }
 ): Promise<void> {
   console.log("entra", id);
   console.log("Datos enviados al backend:", data); // Asegúrate de que 'image' esté presente aquí
