@@ -17,8 +17,15 @@
           <li v-for="disc in group.discs" :key="disc.id"
             class="flex flex-col md:flex-row md:justify-between p-4 border-b"
             :style="{ backgroundColor: getGenreColor(disc.genreId), opacity: '0.9' }"
-            :class="{ 'text-white': getGenreColor(disc.genreId) !== 'transparent' }"
-            >
+            :class="{ 'text-white': getGenreColor(disc.genreId) !== 'transparent' }">
+            <div class="flex items-center space-x-4">
+              <button @click="enableDateEditing(disc.id)" class="text-gray-600 hover:text-blue-500 focus:outline-none">
+                <i class="fas fa-calendar-alt"></i>
+              </button>
+              <input v-if="editingDate[disc.id]" type="date" v-model="disc.newDate" @blur="saveDateChange(disc)"
+                @keyup.enter="saveDateChange(disc)" class="border rounded px-2 py-1 text-gray-600" />
+            </div>
+
             <!-- Información del disco -->
             <div class="flex items-center">
               <img v-if="disc.image" :src="disc.image" alt="Disc cover" class="w-24 h-24 mr-4"
@@ -30,9 +37,9 @@
                   {{ truncateText(disc.name, 40) }}
                 </span>
                 <input v-else v-model="disc.newName" @keyup.enter="saveNameChange(disc)" @blur="saveNameChange(disc)"
-                  class="border rounded px-2 py-1" placeholder="Edit name" />
+                  class="border rounded px-2 py-1 text-gray-600" placeholder="Edit name" />
                 <span class="ml-5" v-if="disc.link">
-                  <a :href="disc.link" target="_blank" >Abrir en Spotify</a>
+                  <a :href="disc.link" target="_blank">Abrir en Spotify</a>
                 </span>
                 <span class="ml-5" v-else>
                   Sin enlace disponible
@@ -86,9 +93,12 @@ import Swal from "sweetalert2";
 export default defineComponent({
   name: 'DiscsList',
   setup() {
+
+
     // Lista agrupada de discos
     const groupedDiscs = ref<any[]>([]);
     const editing = reactive<Record<string, boolean>>({});
+    const editingDate: Record<string, boolean> = reactive({});
 
     // Paginación
     const limit = ref(30);
@@ -448,6 +458,47 @@ export default defineComponent({
       }
     };
 
+    const enableDateEditing = (discId: any) => {
+      editingDate[discId] = true;
+    };
+
+    const saveDateChange = async (disc: any) => {
+
+      const newDate = new Date(disc.newDate);
+      editingDate[disc.id] = false;
+
+      if (newDate === disc.releaseDate) return;
+
+      try {
+
+
+        await updateDisc(disc.id, { releaseDate: newDate });
+        disc.releaseDate = newDate;
+        window.location.reload()
+        Swal.fire({
+          title: '¡Éxito!',
+          text: 'La fecha del disco se ha actualizado correctamente.',
+          icon: 'success',
+          timer: 3000,
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+        });
+      } catch (error) {
+        console.error('Error al actualizar la fecha:', error);
+        Swal.fire({
+          title: 'Error',
+          text: 'No se pudo actualizar la fecha del disco.',
+          icon: 'error',
+          timer: 3000,
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+        });
+      }
+    };
+
+
     const getGenreColor = (genreId: string) => {
       const genre = genres.value.find((g) => g.id === genreId);
       return genre?.color || 'transparent'; // Devuelve el color o un valor predeterminado
@@ -459,6 +510,8 @@ export default defineComponent({
         ? text.slice(0, maxLength) + '...' // Trunca y añade "..."
         : text; // Devuelve el texto sin cambios si no excede el límite
     };
+
+
 
     return {
       groupedDiscs,
@@ -474,7 +527,11 @@ export default defineComponent({
       enableEditing,
       saveNameChange,
       getGenreColor,
-      truncateText
+      truncateText,
+      editingDate,
+      enableDateEditing,
+      saveDateChange,
+
     };
   },
 });
