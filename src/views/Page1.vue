@@ -15,7 +15,9 @@
 
         <ul>
           <li v-for="disc in group.discs" :key="disc.id"
-            class="flex flex-col md:flex-row md:justify-between p-4 border-b">
+            class="flex flex-col md:flex-row md:justify-between p-4 border-b"
+            :style="{ backgroundColor: getGenreColor(disc.genreId), opacity: '0.9' }"
+            >
             <!-- Información del disco -->
             <div class="flex items-center">
               <img v-if="disc.image" :src="disc.image" alt="Disc cover" class="w-24 h-24 mr-4"
@@ -443,6 +445,10 @@ export default defineComponent({
       }
     };
 
+    const getGenreColor = (genreId: string) => {
+      const genre = genres.value.find((g) => g.id === genreId);
+      return genre?.color || 'transparent'; // Devuelve el color o un valor predeterminado
+    };
 
     return {
       groupedDiscs,
@@ -457,6 +463,7 @@ export default defineComponent({
       editing,
       enableEditing,
       saveNameChange,
+      getGenreColor
     };
   },
 });
