@@ -16,7 +16,9 @@
         <ul>
           <li v-for="disc in group.discs" :key="disc.id"
             class="flex flex-col md:flex-row md:justify-between p-4 border-b"
-            :style="{ backgroundColor: getGenreColor(disc.genreId), opacity: '0.9' }">
+            :style="{ backgroundColor: getGenreColor(disc.genreId), opacity: '0.9' }"
+            :class="{ 'text-white': getGenreColor(disc.genreId) !== 'transparent' }"
+            >
             <!-- Información del disco -->
             <div class="flex items-center">
               <img v-if="disc.image" :src="disc.image" alt="Disc cover" class="w-24 h-24 mr-4"
@@ -25,25 +27,25 @@
                 <span class="font-medium">{{ disc.artist.name }}</span>
                 <span>-</span>
                 <span v-if="!editing[disc.id]" @click="enableEditing(disc.id)" class="cursor-pointer hover:underline">
-                  {{ disc.name }}
+                  {{ truncateText(disc.name, 40) }}
                 </span>
                 <input v-else v-model="disc.newName" @keyup.enter="saveNameChange(disc)" @blur="saveNameChange(disc)"
                   class="border rounded px-2 py-1" placeholder="Edit name" />
+                <span class="ml-5" v-if="disc.link">
+                  <a :href="disc.link" target="_blank" >Abrir en Spotify</a>
+                </span>
+                <span class="ml-5" v-else>
+                  Sin enlace disponible
+                </span>
+
               </div>
             </div>
 
             <!-- Enlace de Spotify -->
-            <div v-if="disc.link" class="mt-2 md:mt-0">
-              <a :href="disc.link" target="_blank" class="text-blue-500 underline">Abrir en Spotify</a>
-            </div>
-
-            <div v-else class="mt-2 md:mt-0">
-              <span class="text-gray-500">Sin enlace disponible</span>
-            </div>
 
             <!-- Select para género -->
             <div class="mt-2 md:mt-0 flex items-center space-x-4">
-              <label for="genreSelect" class="mr-2 text-gray-700 font-medium">Género:</label>
+              <label for="genreSelect" class="mr-2 font-medium">Género:</label>
               <select id="genreSelect" v-model="disc.genreId" @change="onGenreChange(disc, disc.genreId)"
                 class="border rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="" disabled>Seleccione un género</option>
@@ -451,6 +453,13 @@ export default defineComponent({
       return genre?.color || 'transparent'; // Devuelve el color o un valor predeterminado
     };
 
+    const truncateText = (text: string, maxLength: number) => {
+      if (!text) return ''; // Si el texto está vacío, devuelve una cadena vacía
+      return text.length > maxLength
+        ? text.slice(0, maxLength) + '...' // Trunca y añade "..."
+        : text; // Devuelve el texto sin cambios si no excede el límite
+    };
+
     return {
       groupedDiscs,
       genres,
@@ -464,7 +473,8 @@ export default defineComponent({
       editing,
       enableEditing,
       saveNameChange,
-      getGenreColor
+      getGenreColor,
+      truncateText
     };
   },
 });
