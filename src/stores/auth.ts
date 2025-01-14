@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia';
 import { login, type LoginPayload } from '../services/auth'; // Nota el uso de `type` para LoginPayload
+import api from '../services/api'; // Asegúrate de configurar Axios
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     token: localStorage.getItem('token') as string | null,
-    username: null as string | null,
+    username: localStorage.getItem('username') as string | null,
   }),
   actions: {
     async login(payload: LoginPayload) {
@@ -14,6 +15,9 @@ export const useAuthStore = defineStore('auth', {
         this.username = response.username;
         localStorage.setItem('token', response.token);
         localStorage.setItem('username', response.username);
+
+        // Configura el token en Axios para futuras solicitudes
+        api.defaults.headers.common['Authorization'] = `Bearer ${response.token}`;
       } catch (error) {
         console.error('Login failed:', error);
         throw new Error('Invalid credentials');
@@ -24,6 +28,15 @@ export const useAuthStore = defineStore('auth', {
       this.username = null;
       localStorage.removeItem('token');
       localStorage.removeItem('username');
+
+      // Elimina el token de las cabeceras globales
+      delete api.defaults.headers.common['Authorization'];
+    },
+    initializeAuth() {
+      if (this.token) {
+        // Configura el token en Axios si existe
+        api.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+      }
     },
   },
   getters: {
