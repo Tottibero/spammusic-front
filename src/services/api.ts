@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useRouter } from "vue-router";
+import router from "../router"; // Asegúrate de ajustar la ruta según tu estructura
 import { useAuthStore } from "../stores/auth";
 
 const api = axios.create({
@@ -8,8 +8,6 @@ const api = axios.create({
     "Content-Type": "application/json",
   },
 });
-
-const router = useRouter();
 
 // Interceptor para agregar el token en cada solicitud
 api.interceptors.request.use((config) => {
@@ -29,12 +27,12 @@ api.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       console.warn("Sesión expirada o no autorizada, redirigiendo al login...");
-      router.push({ name: "Login" }); // Cambia "Login" por el nombre de tu ruta de login
+      const authStore = useAuthStore();
+      authStore.logout(); // Limpia el estado de autenticación
+      router.push({ name: "Login" }); // Redirige al login
     }
     return Promise.reject(error);
   }
 );
-
-
 
 export default api;
