@@ -70,6 +70,10 @@
               <small v-else-if="disc.genero" class="text-gray-700 italic">Género encontrado: <strong>{{ disc.genero
                   }}</strong></small>
             </p>
+            <button @click="handleDeleteDisc(disc.id, group)"
+              class="bg-red-500 hover:bg-red-600 text-white font-medium px-4 py-2 rounded shadow-md focus:outline-none focus:ring-2 focus:ring-red-400">
+              Borrar
+            </button>
 
           </li>
         </ul>
@@ -86,7 +90,7 @@
 import { defineComponent, ref, onMounted, reactive } from 'vue';
 import axios from 'axios';
 import { getDiscsDated, } from '../services/discDated';
-import { updateDisc } from '../services/discs';
+import { updateDisc, deleteDisc } from '../services/discs';
 import { getGenres, } from '../services/genres'; // <--- Importa tu servicio de géneros
 import Swal from "sweetalert2";
 
@@ -512,6 +516,52 @@ export default defineComponent({
     };
 
 
+    const handleDeleteDisc  = async (discId: string, group: any) => {
+      const confirm = await Swal.fire({
+        title: "¿Estás seguro?",
+        text: "¡Esta acción no se puede deshacer!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Sí, eliminarlo",
+      });
+
+      if (!confirm.isConfirmed) return;
+
+      try {
+        // Llama al servicio de eliminación
+        await deleteDisc(discId);
+
+        // Elimina el disco del grupo
+        const discIndex = group.discs.findIndex((disc: any) => disc.id === discId);
+        if (discIndex > -1) {
+          group.discs.splice(discIndex, 1);
+        }
+
+        Swal.fire({
+          title: "Eliminado",
+          text: "El disco se eliminó correctamente.",
+          icon: "success",
+          timer: 3000,
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+        });
+      } catch (error) {
+        console.error("Error al eliminar el disco:", error);
+        Swal.fire({
+          title: "Error",
+          text: "No se pudo eliminar el disco.",
+          icon: "error",
+          timer: 3000,
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+        });
+      }
+    };
+
 
     return {
       groupedDiscs,
@@ -531,7 +581,7 @@ export default defineComponent({
       editingDate,
       enableDateEditing,
       saveDateChange,
-
+      handleDeleteDisc ,
     };
   },
 });
