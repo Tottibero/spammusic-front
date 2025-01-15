@@ -42,3 +42,8 @@ export async function updateDisc(
 
   await api.patch(`/discs/${id}`, data);
 }
+
+export async function deleteDisc(id: string): Promise<void> {
+  console.log(`Deleting disc with id: ${id}`);
+  await api.delete(`/discs/${id}`);
+}
