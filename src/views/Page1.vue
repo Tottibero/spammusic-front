@@ -38,12 +38,27 @@
                 </span>
                 <input v-else v-model="disc.newName" @keyup.enter="saveNameChange(disc)" @blur="saveNameChange(disc)"
                   class="border rounded px-2 py-1 text-gray-600" placeholder="Edit name" />
-                <span class="ml-5" v-if="disc.link">
-                  <a :href="disc.link" target="_blank">Abrir en Spotify</a>
-                </span>
-                <span class="ml-5" v-else>
-                  Sin enlace disponible
-                </span>
+
+                <div class="mt-2">
+                  <!-- Botón con icono de enlace -->
+                  <button @click="toggleEditingLink(disc)"
+                    class="text-gray-600 hover:text-blue-500 focus:outline-none mr-2">
+                    <i class="fas fa-link"></i>
+                  </button>
+
+                  <!-- Input editable solo visible si está en modo edición -->
+                  <input v-if="editingLink[disc.id]" type="text" v-model="disc.newLink"
+                    @keyup.enter="saveLinkChange(disc)" @blur="saveLinkChange(disc)"
+                    class="border rounded px-2 py-1 text-gray-600 w-full md:w-auto" placeholder="Introduce un enlace" />
+
+                  <!-- Enlace mostrado cuando no está en modo edición -->
+                  <span v-else>
+                    <a v-if="disc.link" :href="disc.link" target="_blank" class="text-blue-500 hover:underline">
+                      {{ getLinkText(disc.link) }}
+                    </a>
+                    <span v-else class="text-gray-500">Sin enlace disponible</span>
+                  </span>
+                </div>
 
               </div>
             </div>
@@ -103,6 +118,7 @@ export default defineComponent({
     const groupedDiscs = ref<any[]>([]);
     const editing = reactive<Record<string, boolean>>({});
     const editingDate: Record<string, boolean> = reactive({});
+    const editingLink = reactive<Record<string, boolean>>({});
 
     // Paginación
     const limit = ref(30);
@@ -516,7 +532,7 @@ export default defineComponent({
     };
 
 
-    const handleDeleteDisc  = async (discId: string, group: any) => {
+    const handleDeleteDisc = async (discId: string, group: any) => {
       const confirm = await Swal.fire({
         title: "¿Estás seguro?",
         text: "¡Esta acción no se puede deshacer!",
@@ -562,6 +578,55 @@ export default defineComponent({
       }
     };
 
+    const toggleEditingLink = (disc: any) => {
+      // Si no está en modo edición, inicializa el enlace editable
+      if (!editingLink[disc.id]) {
+        disc.newLink = disc.link || ""; // Establece el enlace existente o una cadena vacía
+      }
+      // Cambia el estado de edición
+      editingLink[disc.id] = !editingLink[disc.id];
+    };
+
+    const saveLinkChange = async (disc: any) => {
+      const newLink = disc.newLink || disc.link;
+
+      // Evita guardar si el enlace no cambió
+      if (newLink === disc.link) return;
+
+      try {
+        await updateDisc(disc.id, { link: newLink });
+        disc.link = newLink; // Actualiza el enlace en la interfaz
+
+        Swal.fire({
+          title: "¡Éxito!",
+          text: "El enlace se ha actualizado correctamente.",
+          icon: "success",
+          timer: 3000,
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+        });
+      } catch (error) {
+        console.error("Error al actualizar el enlace:", error);
+        Swal.fire({
+          title: "Error",
+          text: "No se pudo actualizar el enlace.",
+          icon: "error",
+          timer: 3000,
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+        });
+      }
+    };
+
+    const getLinkText = (link: string) => {
+      if (link.includes("bandcamp.com")) return "Abrir en Bandcamp";
+      if (link.includes("youtube.com") || link.includes("youtu.be")) return "Abrir en YouTube";
+      if (link.includes("spotify.com")) return "Abrir en Spotify";
+      return "Abrir enlace";
+    };
+
 
     return {
       groupedDiscs,
@@ -581,7 +646,12 @@ export default defineComponent({
       editingDate,
       enableDateEditing,
       saveDateChange,
-      handleDeleteDisc ,
+      handleDeleteDisc,
+      saveLinkChange,
+      getLinkText,
+      toggleEditingLink, // Agregado
+      editingLink, // Agregado
+
     };
   },
 });
