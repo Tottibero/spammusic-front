@@ -643,8 +643,26 @@ export default defineComponent({
       disc.verified = !disc.verified;
       try {
         await updateDisc(disc.id, { verified: disc.verified });
+        Swal.fire({
+          title: "¡Éxito!",
+          text: "Disco verificado.",
+          icon: "success",
+          timer: 3000,
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+        });
       } catch (error) {
         console.error('Error al actualizar verified:', error);
+        Swal.fire({
+          title: "Error",
+          text: "No se pudo actualizar el disco.",
+          icon: "error",
+          timer: 3000,
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+        });
       }
     };
 
