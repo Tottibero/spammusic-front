@@ -41,9 +41,16 @@
 
                 <div class="mt-2">
 
-                  <button v-if="!disc.link" @click="toggleVerified(disc)" class="text-gray-600 hover:text-yellow-500 focus:outline-none">
+
+                  <button v-if="!disc.link" @click="toggleVerified(disc)"
+                    class="text-gray-600 hover:text-yellow-500 focus:outline-none">
                     <i class="fas fa-star" :class="{ 'text-yellow-500': disc.verified }"></i>
                   </button>
+
+                  <button @click="toggleEp(disc)" class="text-gray-600 hover:text-blue-500 focus:outline-none ml-4">
+                    <i class="fas fa-music" :class="{ 'text-blue-500': disc.ep }"></i>
+                  </button>
+
 
                   <button v-else class="text-yellow-500 focus:outline-none" disabled>
                     <i class="fas fa-star"></i>
@@ -666,6 +673,32 @@ export default defineComponent({
       }
     };
 
+    const toggleEp = async (disc: any) => {
+      disc.ep = !disc.ep;
+      try {
+        await updateDisc(disc.id, { ep: disc.ep });
+        Swal.fire({
+          title: "¡Éxito!",
+          text: "Disco modificado.",
+          icon: "success",
+          timer: 3000,
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+        });
+      } catch (error) {
+        console.error('Error al actualizar ep:', error);
+        Swal.fire({
+          title: "Error",
+          text: "No se pudo actualizar el disco.",
+          icon: "error",
+          timer: 3000,
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+        });
+      }
+    };
 
 
     return {
@@ -691,7 +724,8 @@ export default defineComponent({
       getLinkText,
       toggleEditingLink, // Agregado
       editingLink, // Agregado
-      toggleVerified
+      toggleVerified,
+      toggleEp
     };
   },
 });
