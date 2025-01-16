@@ -40,6 +40,15 @@
                   class="border rounded px-2 py-1 text-gray-600" placeholder="Edit name" />
 
                 <div class="mt-2">
+
+                  <button v-if="!disc.link" @click="toggleVerified(disc)" class="text-gray-600 hover:text-yellow-500 focus:outline-none">
+                    <i class="fas fa-star" :class="{ 'text-yellow-500': disc.verified }"></i>
+                  </button>
+
+                  <button v-else class="text-yellow-500 focus:outline-none" disabled>
+                    <i class="fas fa-star"></i>
+                  </button>
+
                   <!-- Botón con icono de enlace -->
                   <button @click="toggleEditingLink(disc)"
                     class="text-gray-600 hover:text-blue-500 focus:outline-none mr-2">
@@ -627,6 +636,18 @@ export default defineComponent({
       return "Abrir enlace";
     };
 
+    const toggleVerified = async (disc: any) => {
+      if (disc.link) return; // No permitir cambiar verified si tiene link
+
+      disc.verified = !disc.verified;
+      try {
+        await updateDisc(disc.id, { verified: disc.verified });
+      } catch (error) {
+        console.error('Error al actualizar verified:', error);
+      }
+    };
+
+
 
     return {
       groupedDiscs,
@@ -651,7 +672,7 @@ export default defineComponent({
       getLinkText,
       toggleEditingLink, // Agregado
       editingLink, // Agregado
-
+      toggleVerified
     };
   },
 });
