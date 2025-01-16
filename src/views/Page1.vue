@@ -249,7 +249,8 @@ export default defineComponent({
 
             await updateDisc(disc.id, {
               link: disc.link,
-              image: disc.image
+              image: disc.image,
+              verified: true
             });
 
 
