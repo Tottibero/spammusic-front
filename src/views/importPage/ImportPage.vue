@@ -48,7 +48,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import { fetchManualData } from '../services/scraping';
+import { fetchManualData } from '@services/imports/imports';
 
 const MONTHS = [
   'January',

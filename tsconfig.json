@@ -1,7 +1,8 @@
 {
   "files": [],
   "types": [
-    "vue-sweetalert2"
+    "vue-sweetalert2",
+    "node"
   ],
   "references": [
     { "path": "./tsconfig.app.json" },
@@ -9,10 +10,17 @@
   ],
   "compilerOptions": {
     "strict": true,
-    "moduleResolution": "node16", // O "nodenext"
-    "module": "ESNext",
+    "moduleResolution": "node16", 
+    "module": "Node16", // Cambiado para ser compatible con "moduleResolution: node16"
     "verbatimModuleSyntax": true,
-    "target": "ESNext"
+    "target": "ESNext",
+    "baseUrl": ".",
+    "paths": {
+      "@stores/*": ["src/stores/*"],
+      "@views/*": ["src/views/*"],
+      "@components/*": ["src/components/*"],
+      "@services/*": ["src/services/*"],
+      "@interfaces/*": ["src/interfaces/*"]
+    }
   }
-
 }
