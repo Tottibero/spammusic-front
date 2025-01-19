@@ -47,3 +47,14 @@ export async function deleteDisc(id: string): Promise<void> {
   console.log(`Deleting disc with id: ${id}`);
   await api.delete(`/discs/${id}`);
 }
+
+export interface DiscsStatsResponse {
+  discs: Disc[];
+  totalDiscs: number;
+  totalVotes: number;
+}
+
+export async function getTopRatedOrFeaturedAndStats(): Promise<DiscsStatsResponse> {
+  const response = await api.get<DiscsStatsResponse>("/discs/top-rated-or-featured");
+  return response.data;
+}
