@@ -20,7 +20,7 @@
           :image="disc.image"
           :name="disc.name"
           :releaseDate="disc.releaseDate"
-          :artistName="disc.artistName || 'Desconocido'"
+          :artistName="disc.artistName"
           :genreName="disc.genre?.name"
           :genreColor="disc.genre?.color"
           :link="disc.link"

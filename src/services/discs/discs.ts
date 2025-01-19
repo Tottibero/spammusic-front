@@ -53,10 +53,15 @@ export async function getDiscsDated(
 
 export async function getDiscs(
   limit: number,
-  offset: number
+  offset: number,
+  query?: string // Nuevo parámetro opcional
 ): Promise<DiscsResponse> {
   const response = await api.get<DiscsResponse>("/discs", {
-    params: { limit, offset }, // Usa limit y offset según PaginationDto
+    params: {
+      limit,
+      offset,
+      query, // Incluye el query en los parámetros si está definido
+    },
   });
   return response.data;
 }
