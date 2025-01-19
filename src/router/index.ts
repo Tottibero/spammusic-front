@@ -3,13 +3,19 @@ import type { RouteRecordRaw } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 
 import Login from "../views/Login.vue";
-import Home from "../views/Home.vue";
+import Home from "../views/HomePage.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
     name: "Home",
-    component: Home,
+    component: HomePage,
+    meta: { requiresAuth: true }, // Indica que esta ruta requiere autenticación
+  },
+  {
+    path: "/",
+    name: "Votes",
+    component: () => import("../views/VotesPage.vue"),
     meta: { requiresAuth: true }, // Indica que esta ruta requiere autenticación
   },
   {
