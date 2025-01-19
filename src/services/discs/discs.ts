@@ -54,13 +54,15 @@ export async function getDiscsDated(
 export async function getDiscs(
   limit: number,
   offset: number,
-  query?: string // Nuevo parámetro opcional
+  query?: string,
+  dateRange?: any
 ): Promise<DiscsResponse> {
   const response = await api.get<DiscsResponse>("/discs", {
     params: {
       limit,
       offset,
       query, // Incluye el query en los parámetros si está definido
+      dateRange
     },
   });
   return response.data;

@@ -3,12 +3,18 @@
     <h1 class="text-4xl font-bold mb-8 text-center">Álbumes</h1>
 
     <!-- Campo de búsqueda -->
-    <div class="mb-6">
+    <div class="mb-6 flex flex-col sm:flex-row sm:space-x-4">
       <input
         v-model="searchQuery"
         type="text"
         placeholder="Buscar por álbum o artista..."
-        class="w-full p-2 border border-gray-300 rounded"
+        class="flex-[7] p-2 border border-gray-300 rounded mb-4 sm:mb-0"
+      />
+      <Datepicker
+        v-model="selectedWeek"
+        :weekPicker="true"
+        placeholder="Selecciona una semana"
+        class="flex-[3] p-2 border border-gray-300 rounded"
       />
     </div>
 
@@ -48,10 +54,12 @@
 import { defineComponent, ref, reactive, onMounted, watch } from "vue";
 import { getDiscs } from "@services/discs/discs";
 import DiscCard from "@components/DiscCardComponent.vue";
+import Datepicker from "@vuepic/vue-datepicker";
 
 export default defineComponent({
   components: {
     DiscCard,
+    Datepicker,
   },
   setup() {
     const discs = ref([]); // Lista de discos
@@ -63,6 +71,7 @@ export default defineComponent({
     const hasMore = ref(true); // Si hay más discos para cargar
     const loadMore = ref(null); // Elemento para el observador
     const searchQuery = ref(""); // Valor de búsqueda
+    const selectedWeek = ref(null); // Valor del selector de semana
 
     /**
      * Función para cargar discos desde la API
@@ -79,11 +88,13 @@ export default defineComponent({
           offset.value = 0;
           hasMore.value = true;
         }
+        
 
         const response = await getDiscs(
           limit.value,
           offset.value,
-          searchQuery.value
+          searchQuery.value,
+          selectedWeek.value
         );
         discs.value.push(...response.data);
         totalItems.value = response.totalItems;
@@ -123,6 +134,11 @@ export default defineComponent({
       fetchDiscs(true); // Reinicia los discos al cambiar el texto de búsqueda
     });
 
+    watch(selectedWeek, () => {
+      fetchDiscs(true); // Reinicia los discos al cambiar la semana seleccionada
+    });
+
+
     /**
      * Montar el componente y cargar discos iniciales
      */
@@ -136,6 +152,7 @@ export default defineComponent({
       loadMore,
       loading,
       searchQuery,
+      selectedWeek,
     };
   },
 });
