@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
-import { login, type LoginPayload } from '../services/auth'; // Nota el uso de `type` para LoginPayload
-import api from '../services/api'; // Asegúrate de configurar Axios
+import { login, type LoginPayload } from '../../services/auth/auth'; 
+import api from '../../services/api/api'; 
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({

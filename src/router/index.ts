@@ -1,9 +1,9 @@
 import { createRouter, createWebHistory } from "vue-router";
 import type { RouteRecordRaw } from "vue-router";
-import { useAuthStore } from "../stores/auth";
+import { useAuthStore } from "../stores/auth/auth";
 
-import Login from "../views/Login.vue";
-import Home from "../views/HomePage.vue";
+import Login from "@views/loginPage/LoginPage.vue";
+import HomePage from "@views/homePage/HomePage.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -13,21 +13,21 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresAuth: true }, // Indica que esta ruta requiere autenticación
   },
   {
-    path: "/",
-    name: "Votes",
-    component: () => import("../views/VotesPage.vue"),
+    path: "/list",
+    name: "List",
+    component: () => import("/src/views/discsList/DiscList.vue"),
     meta: { requiresAuth: true }, // Indica que esta ruta requiere autenticación
   },
   {
-    path: "/page1",
-    name: "Page1",
-    component: () => import("../views/Page1.vue"),
+    path: "/calendar",
+    name: "Calendar",
+    component: () => import("/src/views/discsCalendar/DiscCalendar.vue"),
     meta: { requiresAuth: true }, // Indica que esta ruta requiere autenticación
   },
   {
-    path: "/page2",
-    name: "Page2",
-    component: () => import("../views/Page2.vue"),
+    path: "/import",
+    name: "Import",
+    component: () => import("/src/views/importPage/ImportPage.vue"),
     meta: { requiresAuth: true }, // Indica que esta ruta requiere autenticación
   },
   {

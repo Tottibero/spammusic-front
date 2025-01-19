@@ -12,8 +12,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import DefaultLayout from './layouts/DefaultLayout.vue';
-import LoginLayout from './layouts/LoginLayout.vue';
+import DefaultLayout from './layouts/default/DefaultLayout.vue';
+import LoginLayout from './layouts/auth/LoginLayout.vue';
 // Remove this if "vue3-toaster/styles" is causing errors and isn't required:
 
 export default defineComponent({

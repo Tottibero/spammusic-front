@@ -120,9 +120,8 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted, reactive } from 'vue';
 import axios from 'axios';
-import { getDiscsDated, } from '../services/discDated';
-import { updateDisc, deleteDisc } from '../services/discs';
-import { getGenres, } from '../services/genres'; // <--- Importa tu servicio de géneros
+import { updateDisc, deleteDisc, getDiscsDated } from '@services/discs/discs';
+import { getGenres, } from '@services/genres/genres'; 
 import Swal from "sweetalert2";
 
 export default defineComponent({

@@ -1,0 +1,28 @@
+[
+    {
+      "to": "/",
+      "label": "Home",
+      "activeClass": "bg-gray-700"
+    },
+    {
+      "to": "/list",
+      "label": "Discos",
+      "activeClass": "bg-gray-700"
+    },
+    {
+      "to": "/calendar",
+      "label": "Calendario de discos",
+      "activeClass": "bg-gray-700"
+    },
+    {
+      "to": "/import",
+      "label": "Añadir Discos",
+      "activeClass": "bg-gray-700"
+    },
+    {
+      "to": "/",
+      "label": "Logout",
+      "activeClass": "bg-red-600"
+    }
+  ]
+  
