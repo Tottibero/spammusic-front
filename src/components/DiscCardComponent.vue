@@ -128,7 +128,6 @@
 </template>
 
 <script lang="ts">
-
 interface Vote {
   id: string; // o el tipo correcto, como number
   user: {
@@ -157,7 +156,7 @@ export default defineComponent({
     link: { type: String, required: false, default: "" },
     averageRate: { type: Number, required: false, default: null },
     averageCover: { type: Number, required: false, default: null },
-    userDiscRate: { type: Number, required: false, default: null },
+    userDiscRate: { type: String, required: false, default: null },
     rate: { type: Number, required: false, default: null },
     cover: { type: Number, required: false, default: null },
     isNew: { type: Boolean, required: true },
@@ -204,10 +203,9 @@ export default defineComponent({
     const submitRating = async () => {
       const payload = {
         discId: props.id,
-        rate: localRating.value.rate,
-        cover: localRating.value.cover,
+        rate: Number(localRating.value.rate),
+        cover: Number(localRating.value.cover),
       };
-
       try {
         if (props.isNew) {
           await postRateService(payload);
