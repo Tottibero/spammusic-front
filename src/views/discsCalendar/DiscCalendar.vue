@@ -60,13 +60,6 @@
                 v-for="disc in group.discs"
                 :key="disc.id"
                 class="flex flex-col md:flex-row md:justify-between p-4 border-b"
-                :style="{
-                  backgroundColor: getGenreColor(disc.genreId),
-                  opacity: '0.9',
-                }"
-                :class="{
-                  'text-white': getGenreColor(disc.genreId) !== 'transparent',
-                }"
               >
                 <DiscComponent
                   :disc="disc"
