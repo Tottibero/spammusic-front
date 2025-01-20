@@ -251,7 +251,7 @@ export default defineComponent({
     };
 
     // Paginación
-    const limit = ref(30);
+    const limit = ref(90);
 
     const offset = ref(0);
     const totalItems = ref(0);
