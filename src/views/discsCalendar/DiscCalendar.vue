@@ -242,11 +242,18 @@ export default defineComponent({
     };
 
     const initGroupState = () => {
+      // Calcula el último viernes
       const today = new Date();
+      const dayOfWeek = today.getDay(); // 0 es domingo, 1 es lunes, ..., 5 es viernes
+      const lastFriday = new Date(today); // Copia la fecha actual
+      lastFriday.setDate(today.getDate() - ((dayOfWeek + 2) % 7)); // Retrocede hasta el último viernes
+
+      // Inicializa el estado del grupo
       groupedDiscs.value.forEach((group, index) => {
         const groupDate = new Date(group.releaseDate);
+        // Expande solo el grupo correspondiente al último viernes
         groupState[index] =
-          groupDate >= today.setDate(today.getDate() - 7) && groupDate <= today;
+          groupDate.toDateString() === lastFriday.toDateString();
       });
     };
 
