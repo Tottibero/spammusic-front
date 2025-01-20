@@ -305,6 +305,14 @@ export default defineComponent({
           startDate,
           endDate,
         ]);
+
+        response.data.forEach((newGroup: any) => {
+          newGroup.discs.forEach((disc: any) => {
+            disc.genreId = disc.genre?.id || "";
+          });
+        
+        })
+
         console.log("grouped Disc final", groupedDiscs.value);
         groupedDiscs.value = response.data;
         totalItems.value = response.totalItems;
