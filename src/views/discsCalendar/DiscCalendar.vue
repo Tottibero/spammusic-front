@@ -298,6 +298,7 @@ export default defineComponent({
       endDate: string
     ) => {
       loading.value = true;
+      groupedDiscs.value = []; // Limpia los discos cargados
       try {
         const response = await getDiscsDated(limit.value, offset.value, [
           startDate,
