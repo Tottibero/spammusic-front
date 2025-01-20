@@ -1,91 +1,84 @@
 <template>
   <div
-    class="p-4 border rounded-md flex flex-col md:flex-row md:justify-between"
-    :style="{ backgroundColor: getGenreColor(disc.genreId), opacity: '0.9' }"
+    class="p-4 border rounded-md flex flex-wrap items-center justify-between"
+    :style="{ backgroundColor: getGenreColor(disc.genreId) }"
     :class="{ 'text-white': getGenreColor(disc.genreId) !== 'transparent' }"
   >
-    <!-- Información principal -->
-    <div class="flex items-center">
-      <img
-        v-if="disc.image"
-        :src="disc.image"
-        alt="Disc cover"
-        class="w-24 h-24 mr-4 rounded"
-        style="object-fit: cover"
-      />
-      <div>
-        <h3 class="font-bold text-lg">{{ disc.artist.name }}</h3>
-        <p class="text-sm">
-          <span
-            v-if="!editingName"
-            @click="enableEditing('name')"
-            class="cursor-pointer hover:underline"
-          >
-            {{ disc.name }}
-          </span>
-          <input
-            v-else
-            v-model="editedData.name"
-            @keyup.enter="saveChanges('name')"
-            @blur="saveChanges('name')"
-            class="border rounded px-2 py-1 text-gray-600"
-          />
-        </p>
+    <!-- Imagen del disco -->
+    <img
+      v-if="disc.image"
+      :src="disc.image"
+      alt="Disc cover"
+      class="w-16 h-16 mr-4 rounded-md flex-shrink-0"
+    />
 
-        <!-- Enlace -->
-        <p class="text-sm mt-2">
-          <a
-            v-if="!editingLink && disc.link"
-            :href="disc.link"
-            target="_blank"
-            class="text-blue-500 hover:underline"
-          >
-            {{ getLinkText(disc.link) }}
-          </a>
-          <span v-else-if="!disc.link" class="text-gray-500"
-            >Sin enlace disponible</span
-          >
-          <input
-            v-if="editingLink"
-            v-model="editedData.link"
-            @keyup.enter="saveChanges('link')"
-            @blur="saveChanges('link')"
-            class="border rounded px-2 py-1 text-gray-600"
-          />
-          <button
-            @click="enableEditing('link')"
-            class="ml-2 text-gray-600 hover:text-blue-500"
-          >
-            <i class="fas fa-link"></i>
-          </button>
-        </p>
-        <p class="text-sm mt-2">
-          <button
-            @click="enableEditing('releaseDate')"
-            class="text-gray-600 hover:text-blue-500"
-          >
-            <i class="fas fa-calendar-alt"></i>
-          </button>
-          <input
-            v-if="editingDate"
-            type="date"
-            v-model="editedData.releaseDate"
-            @blur="saveChanges('releaseDate')"
-            @keyup.enter="saveChanges('releaseDate')"
-            class="border rounded px-2 py-1 text-gray-600"
-          />
-          <span v-else>{{ formattedDate }}</span>
-        </p>
-      </div>
+    <!-- Información principal -->
+    <div class="flex flex-col flex-grow mr-4">
+      <h3 class="font-bold text-lg truncate">{{ disc.artist.name }}</h3>
+      <p class="text-sm truncate">
+        <span
+          v-if="!editingName"
+          @click="enableEditing('name')"
+          class="cursor-pointer hover:underline"
+        >
+          {{ disc.name }}
+        </span>
+        <input
+          v-else
+          v-model="editedData.name"
+          @keyup.enter="saveChanges('name')"
+          @blur="saveChanges('name')"
+          class="border rounded px-2 py-1 text-gray-600 w-full"
+        />
+      </p>
+      <p class="text-sm mt-2">
+        <a
+          v-if="!editingLink && disc.link"
+          :href="disc.link"
+          target="_blank"
+          class="text-blue-400 hover:underline truncate"
+        >
+          {{ getLinkText(disc.link) }}
+        </a>
+        <span v-else-if="!disc.link" class="text-gray-400">Sin enlace disponible</span>
+        <input
+          v-if="editingLink"
+          v-model="editedData.link"
+          @keyup.enter="saveChanges('link')"
+          @blur="saveChanges('link')"
+          class="border rounded px-2 py-1 text-gray-600 w-full"
+        />
+        <button
+          @click="enableEditing('link')"
+          class="ml-2 text-gray-400 hover:text-blue-400"
+        >
+          <i class="fas fa-link"></i>
+        </button>
+      </p>
+      <p class="text-sm mt-2">
+        <button
+          @click="enableEditing('releaseDate')"
+          class="text-gray-400 hover:text-blue-400"
+        >
+          <i class="fas fa-calendar-alt"></i>
+        </button>
+        <input
+          v-if="editingDate"
+          type="date"
+          v-model="editedData.releaseDate"
+          @blur="saveChanges('releaseDate')"
+          @keyup.enter="saveChanges('releaseDate')"
+          class="border rounded px-2 py-1 text-gray-600 w-full"
+        />
+        <span v-else>{{ formattedDate }}</span>
+      </p>
     </div>
 
     <!-- Opciones adicionales -->
-    <div class="mt-4 md:mt-0 flex items-center space-x-4">
+    <div class="flex items-center space-x-4">
       <!-- Género -->
-      <div>
-        <label for="genreSelect" class="block text-sm font-medium"
-          >Género:</label
-        >
+      <div class="flex items-center space-x-2">
+        <label for="genreSelect" class="block text-sm font-medium">Género:</label>
         <select
           id="genreSelect"
           v-model="editedData.genreId"
@@ -99,7 +92,7 @@
         </select>
       </div>
 
-      <!-- Botones de acciones -->
+      <!-- Botones -->
       <div class="flex space-x-2">
         <button
           @click="toggleEp()"
@@ -442,3 +435,45 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+.flex {
+  display: flex;
+}
+.flex-wrap {
+  flex-wrap: wrap;
+}
+.items-center {
+  align-items: center;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.bg-gray-700 {
+  background-color: #374151;
+}
+.text-gray-300 {
+  color: #d1d5db;
+}
+.text-white {
+  color: #ffffff;
+}
+.rounded-md {
+  border-radius: 0.375rem;
+}
+.p-4 {
+  padding: 1rem;
+}
+.w-16 {
+  width: 4rem;
+}
+.h-16 {
+  height: 4rem;
+}
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+</style>
