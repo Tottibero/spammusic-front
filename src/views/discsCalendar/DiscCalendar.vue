@@ -272,7 +272,7 @@ export default defineComponent({
     const selectMonth = async (monthIndex: number, monthChange: boolean) => {
       console.log("index: " + monthIndex);
       selectedMonth.value = monthIndex;
-
+      console.log(monthChange);
       if (monthChange) {
         offset.value = 0; // Reinicia la página
         groupedDiscs.value = []; // Limpia los discos cargados
