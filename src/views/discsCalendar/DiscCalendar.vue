@@ -226,11 +226,9 @@ import axios from "axios";
 import { updateDisc, deleteDisc, getDiscsDated } from "@services/discs/discs";
 import { getGenres } from "@services/genres/genres";
 import Swal from "sweetalert2";
-import VueMultiselect from "vue-multiselect";
 
 export default defineComponent({
   name: "DiscsList",
-  components: { VueMultiselect },
   setup() {
     // Lista agrupada de discos
     const groupedDiscs = ref<any[]>([]);
