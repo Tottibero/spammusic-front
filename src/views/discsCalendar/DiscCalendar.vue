@@ -3,111 +3,214 @@
     <h1 class="text-4xl font-bold mb-8 text-center">Discs by Release Date</h1>
     <div>
       <!-- Lista de discos agrupados -->
-      <div v-for="group in groupedDiscs" :key="group.releaseDate" class="mb-8">
-        <h3 class="text-2xl font-bold mb-4">{{ group.releaseDate }}</h3>
-        <button v-if="new Date(group.releaseDate) < new Date()" @click="buscarEnlacesSpotify(group.discs)"
-          class="bg-blue-500 text-white px-4 py-2 rounded mb-4">Buscar
-          Enlaces en Spotify</button>
-        <button @click="exportarHtml(group)" class="bg-green-500 text-white px-4 py-2 rounded mt-4 ml-3">
-          Exportar HTML de esta semana
-        </button>
+      <div
+        v-for="(group, index) in groupedDiscs"
+        :key="group.releaseDate"
+        class="mb-8"
+      >
+        <!-- Encabezado del grupo con botón de toggle -->
+        <div
+          class="flex justify-between items-center bg-gray-200 px-4 py-2 rounded cursor-pointer"
+          @click="toggleGroup(index)"
+        >
+          <h3 class="text-2xl font-bold">{{ group.releaseDate }}</h3>
+          <button v-if="groupState[index]">
+            <i
+              :class="
+                groupState[index] ? 'fas fa-chevron-up' : 'fas fa-chevron-down'
+              "
+            ></i>
+          </button>
+        </div>
 
-
-        <ul>
-          <li v-for="disc in group.discs" :key="disc.id"
-            class="flex flex-col md:flex-row md:justify-between p-4 border-b"
-            :style="{ backgroundColor: getGenreColor(disc.genreId), opacity: '0.9' }"
-            :class="{ 'text-white': getGenreColor(disc.genreId) !== 'transparent' }">
-            <div class="flex items-center space-x-4">
-              <button @click="enableDateEditing(disc.id)" class="text-gray-600 hover:text-blue-500 focus:outline-none">
-                <i class="fas fa-calendar-alt"></i>
-              </button>
-              <input v-if="editingDate[disc.id]" type="date" v-model="disc.newDate" @blur="saveDateChange(disc)"
-                @keyup.enter="saveDateChange(disc)" class="border rounded px-2 py-1 text-gray-600" />
-            </div>
-
-            <!-- Información del disco -->
-            <div class="flex items-center">
-              <img v-if="disc.image" :src="disc.image" alt="Disc cover" class="w-24 h-24 mr-4"
-                style="width: 100px; height: 100px; object-fit: cover;">
-              <div>
-                <span class="font-medium">{{ disc.artist.name }}</span>
-                <span>-</span>
-                <span v-if="!editing[disc.id]" @click="enableEditing(disc.id)" class="cursor-pointer hover:underline">
-                  {{ truncateText(disc.name, 40) }}
-                </span>
-                <input v-else v-model="disc.newName" @keyup.enter="saveNameChange(disc)" @blur="saveNameChange(disc)"
-                  class="border rounded px-2 py-1 text-gray-600" placeholder="Edit name" />
-
-                <div class="mt-2">
-
-
-                  <button @click="toggleEp(disc)" class="text-gray-600 hover:text-blue-500 focus:outline-none ml-4">
-                    <i class="fas fa-music" :class="{ 'text-blue-500': disc.ep }"></i>
-                  </button>
-
-
-                  <button v-if="!disc.link" @click="toggleVerified(disc)"
-                    class="text-gray-600 hover:text-yellow-500 focus:outline-none">
-                    <i class="fas fa-star" :class="{ 'text-yellow-500': disc.verified }"></i>
-                  </button>
-
-                  <button v-else class="text-yellow-500 focus:outline-none" disabled>
-                    <i class="fas fa-star"></i>
-                  </button>
-
-                  <!-- Botón con icono de enlace -->
-                  <button @click="toggleEditingLink(disc)"
-                    class="text-gray-600 hover:text-blue-500 focus:outline-none mr-2">
-                    <i class="fas fa-link"></i>
-                  </button>
-
-                  <!-- Input editable solo visible si está en modo edición -->
-                  <input v-if="editingLink[disc.id]" type="text" v-model="disc.newLink"
-                    @keyup.enter="saveLinkChange(disc)" @blur="saveLinkChange(disc)"
-                    class="border rounded px-2 py-1 text-gray-600 w-full md:w-auto" placeholder="Introduce un enlace" />
-
-                  <!-- Enlace mostrado cuando no está en modo edición -->
-                  <span v-else>
-                    <a v-if="disc.link" :href="disc.link" target="_blank" class="text-blue-500 hover:underline">
-                      {{ getLinkText(disc.link) }}
-                    </a>
-                    <span v-else class="text-gray-500">Sin enlace disponible</span>
-                  </span>
-                </div>
-
-              </div>
-            </div>
-
-            <!-- Enlace de Spotify -->
-
-            <!-- Select para género -->
-            <div class="mt-2 md:mt-0 flex items-center space-x-4">
-              <label for="genreSelect" class="mr-2 font-medium">Género:</label>
-              <select id="genreSelect" v-model="disc.genreId" @change="onGenreChange(disc, disc.genreId)"
-                class="border rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="" disabled>Seleccione un género</option>
-                <option v-for="genre in genres" :key="genre.id" :value="genre.id">
-                  {{ genre.name }}
-                </option>
-              </select>
-              <button @click="buscarGeneroSpotify(disc)"
-                class="bg-yellow-500 hover:bg-yellow-600 text-white font-medium px-4 py-2 rounded shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-400">
-                Buscar género en Spotify
-              </button>
-            </div>
-            <p>
-              <span v-if="disc.loading" class="text-gray-500 italic">Buscando...</span>
-              <small v-else-if="disc.genero" class="text-gray-700 italic">Género encontrado: <strong>{{ disc.genero
-                  }}</strong></small>
-            </p>
-            <button @click="handleDeleteDisc(disc.id, group)"
-              class="bg-red-500 hover:bg-red-600 text-white font-medium px-4 py-2 rounded shadow-md focus:outline-none focus:ring-2 focus:ring-red-400">
-              Borrar
+        <!-- Contenido del grupo desplegable -->
+        <transition name="fade">
+          <div v-if="groupState[index]" class="mt-4">
+            <button
+              v-if="new Date(group.releaseDate) < new Date()"
+              @click="buscarEnlacesSpotify(group.discs)"
+              class="bg-blue-500 text-white px-4 py-2 rounded mb-4"
+            >
+              Buscar Enlaces en Spotify
+            </button>
+            <button
+              @click="exportarHtml(group)"
+              class="bg-green-500 text-white px-4 py-2 rounded mt-4 ml-3"
+            >
+              Exportar HTML de esta semana
             </button>
 
-          </li>
-        </ul>
+            <ul>
+              <li
+                v-for="disc in group.discs"
+                :key="disc.id"
+                class="flex flex-col md:flex-row md:justify-between p-4 border-b"
+                :style="{
+                  backgroundColor: getGenreColor(disc.genreId),
+                  opacity: '0.9',
+                }"
+                :class="{
+                  'text-white': getGenreColor(disc.genreId) !== 'transparent',
+                }"
+              >
+                <div class="flex items-center space-x-4">
+                  <button
+                    @click="enableDateEditing(disc.id)"
+                    class="text-gray-600 hover:text-blue-500 focus:outline-none"
+                  >
+                    <i class="fas fa-calendar-alt"></i>
+                  </button>
+                  <input
+                    v-if="editingDate[disc.id]"
+                    type="date"
+                    v-model="disc.newDate"
+                    @blur="saveDateChange(disc)"
+                    @keyup.enter="saveDateChange(disc)"
+                    class="border rounded px-2 py-1 text-gray-600"
+                  />
+                </div>
+
+                <!-- Información del disco -->
+                <div class="flex items-center">
+                  <img
+                    v-if="disc.image"
+                    :src="disc.image"
+                    alt="Disc cover"
+                    class="w-24 h-24 mr-4"
+                    style="width: 100px; height: 100px; object-fit: cover"
+                  />
+                  <div>
+                    <span class="font-medium">{{ disc.artist.name }}</span>
+                    <span>-</span>
+                    <span
+                      v-if="!editing[disc.id]"
+                      @click="enableEditing(disc.id)"
+                      class="cursor-pointer hover:underline"
+                    >
+                      {{ truncateText(disc.name, 40) }}
+                    </span>
+                    <input
+                      v-else
+                      v-model="disc.newName"
+                      @keyup.enter="saveNameChange(disc)"
+                      @blur="saveNameChange(disc)"
+                      class="border rounded px-2 py-1 text-gray-600"
+                      placeholder="Edit name"
+                    />
+
+                    <div class="mt-2">
+                      <button
+                        @click="toggleEp(disc)"
+                        class="text-gray-600 hover:text-blue-500 focus:outline-none ml-4"
+                      >
+                        <i
+                          class="fas fa-music"
+                          :class="{ 'text-blue-500': disc.ep }"
+                        ></i>
+                      </button>
+
+                      <button
+                        v-if="!disc.link"
+                        @click="toggleVerified(disc)"
+                        class="text-gray-600 hover:text-yellow-500 focus:outline-none"
+                      >
+                        <i
+                          class="fas fa-star"
+                          :class="{ 'text-yellow-500': disc.verified }"
+                        ></i>
+                      </button>
+
+                      <button
+                        v-else
+                        class="text-yellow-500 focus:outline-none"
+                        disabled
+                      >
+                        <i class="fas fa-star"></i>
+                      </button>
+
+                      <!-- Botón con icono de enlace -->
+                      <button
+                        @click="toggleEditingLink(disc)"
+                        class="text-gray-600 hover:text-blue-500 focus:outline-none mr-2"
+                      >
+                        <i class="fas fa-link"></i>
+                      </button>
+
+                      <!-- Input editable solo visible si está en modo edición -->
+                      <input
+                        v-if="editingLink[disc.id]"
+                        type="text"
+                        v-model="disc.newLink"
+                        @keyup.enter="saveLinkChange(disc)"
+                        @blur="saveLinkChange(disc)"
+                        class="border rounded px-2 py-1 text-gray-600 w-full md:w-auto"
+                        placeholder="Introduce un enlace"
+                      />
+
+                      <!-- Enlace mostrado cuando no está en modo edición -->
+                      <span v-else>
+                        <a
+                          v-if="disc.link"
+                          :href="disc.link"
+                          target="_blank"
+                          class="text-blue-500 hover:underline"
+                        >
+                          {{ getLinkText(disc.link) }}
+                        </a>
+                        <span v-else class="text-gray-500"
+                          >Sin enlace disponible</span
+                        >
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Select para género -->
+                <div class="mt-2 md:mt-0 flex items-center space-x-4">
+                  <label for="genreSelect" class="mr-2 font-medium"
+                    >Género:</label
+                  >
+                  <select
+                    id="genreSelect"
+                    v-model="disc.genreId"
+                    @change="onGenreChange(disc, disc.genreId)"
+                    class="border rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="" disabled>Seleccione un género</option>
+                    <option
+                      v-for="genre in genres"
+                      :key="genre.id"
+                      :value="genre.id"
+                    >
+                      {{ genre.name }}
+                    </option>
+                  </select>
+
+                  <button
+                    @click="buscarGeneroSpotify(disc)"
+                    class="bg-yellow-500 hover:bg-yellow-600 text-white font-medium px-4 py-2 rounded shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  >
+                    Buscar género en Spotify
+                  </button>
+                </div>
+                <p>
+                  <span v-if="disc.loading" class="text-gray-500 italic"
+                    >Buscando...</span
+                  >
+                  <small v-else-if="disc.genero" class="text-gray-700 italic"
+                    >Género encontrado:
+                    <strong>{{ disc.genero }}</strong></small
+                  >
+                </p>
+                <button
+                  @click="handleDeleteDisc(disc.id, group)"
+                  class="bg-red-500 hover:bg-red-600 text-white font-medium px-4 py-2 rounded shadow-md focus:outline-none focus:ring-2 focus:ring-red-400"
+                >
+                  Borrar
+                </button>
+              </li>
+            </ul>
+          </div>
+        </transition>
       </div>
     </div>
     <!-- Cargar más -->
@@ -118,22 +221,36 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, reactive } from 'vue';
-import axios from 'axios';
-import { updateDisc, deleteDisc, getDiscsDated } from '@services/discs/discs';
-import { getGenres, } from '@services/genres/genres'; 
+import { defineComponent, ref, onMounted, reactive } from "vue";
+import axios from "axios";
+import { updateDisc, deleteDisc, getDiscsDated } from "@services/discs/discs";
+import { getGenres } from "@services/genres/genres";
 import Swal from "sweetalert2";
+import VueMultiselect from "vue-multiselect";
 
 export default defineComponent({
-  name: 'DiscsList',
+  name: "DiscsList",
+  components: { VueMultiselect },
   setup() {
-
-
     // Lista agrupada de discos
     const groupedDiscs = ref<any[]>([]);
     const editing = reactive<Record<string, boolean>>({});
     const editingDate: Record<string, boolean> = reactive({});
     const editingLink = reactive<Record<string, boolean>>({});
+    const groupState = reactive({});
+
+    const toggleGroup = (index) => {
+      groupState[index] = !groupState[index];
+    };
+
+    const initGroupState = () => {
+      const today = new Date();
+      groupedDiscs.value.forEach((group, index) => {
+        const groupDate = new Date(group.releaseDate);
+        groupState[index] =
+          groupDate >= today.setDate(today.getDate() - 7) && groupDate <= today;
+      });
+    };
 
     // Paginación
     const limit = ref(30);
@@ -150,6 +267,8 @@ export default defineComponent({
 
     // Lista de géneros
     const genres = ref<any[]>([]);
+    const genres2 = ref<any[]>([]);
+    genres2.value = ["list", "of", "options"];
 
     // ---------------------------
     // Función para obtener discos
@@ -164,7 +283,7 @@ export default defineComponent({
 
         response.data.forEach((newGroup: any) => {
           newGroup.discs.forEach((disc: any) => {
-            disc.genreId = disc.genre?.id || '';
+            disc.genreId = disc.genre?.id || "";
           });
 
           const existingGroup = groupedDiscs.value.find(
@@ -181,7 +300,7 @@ export default defineComponent({
         offset.value += limit.value;
         hasMore.value = offset.value < totalItems.value;
       } catch (error) {
-        console.error('Error fetching discs:', error);
+        console.error("Error fetching discs:", error);
       } finally {
         loading.value = false;
       }
@@ -195,7 +314,7 @@ export default defineComponent({
         const genresResponse = await getGenres(50, 0);
         genres.value = genresResponse.data;
       } catch (error) {
-        console.error('Error fetching genres:', error);
+        console.error("Error fetching genres:", error);
       }
     };
 
@@ -204,15 +323,13 @@ export default defineComponent({
     // -------------------------------------------------
     const onGenreChange = async (disc: any, genreId: string) => {
       try {
-        await updateDisc(
-          disc.id, {
+        await updateDisc(disc.id, {
           name: disc.name,
           genreId,
-        }
-        );
+        });
         Swal.fire({
           title: "¡Éxito!",
-          text: 'Genero cambiado correctamente',
+          text: "Genero cambiado correctamente",
           icon: "success",
           position: "top-end",
           timer: 3000,
@@ -221,7 +338,7 @@ export default defineComponent({
           toast: true,
         });
       } catch (err) {
-        console.log("err", err)
+        console.log("err", err);
       }
     };
 
@@ -229,43 +346,46 @@ export default defineComponent({
     const buscarEnlacesSpotify = async (discs: any[]) => {
       const token = await obtenerTokenSpotify();
       if (!token) {
-        console.error('No se pudo obtener el token de Spotify');
+        console.error("No se pudo obtener el token de Spotify");
         return;
       }
 
       for (const disc of discs) {
         try {
-          const query = encodeURIComponent(`album:${disc.name} artist:${disc.artist.name}`);
-          const response = await axios.get(`https://api.spotify.com/v1/search?q=${query}&type=album&limit=1`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-          });
+          const query = encodeURIComponent(
+            `album:${disc.name} artist:${disc.artist.name}`
+          );
+          const response = await axios.get(
+            `https://api.spotify.com/v1/search?q=${query}&type=album&limit=1`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
 
           if (response.data.albums.items.length > 0) {
             const album = response.data.albums.items[0];
             disc.link = album.external_urls.spotify;
             disc.image = album.images?.[0]?.url || null; // Obtiene la URL de la imagen
-            console.log("disc.image", disc.image)
+            console.log("disc.image", disc.image);
 
             console.log("Datos enviados al backend:", {
               link: disc.link,
-              image: disc.image
+              image: disc.image,
             });
 
             await updateDisc(disc.id, {
               link: disc.link,
               image: disc.image,
-              verified: true
+              verified: true,
             });
-
-
           } else {
-            disc.link = 'No se encontró el álbum';
+            disc.link = "No se encontró el álbum";
           }
         } catch (error) {
           console.error(`Error al buscar el álbum ${disc.name}:`, error);
-          disc.link = 'Error al realizar la búsqueda';
+          disc.link = "Error al realizar la búsqueda";
         }
       }
     };
@@ -277,15 +397,19 @@ export default defineComponent({
       const credentials = btoa(`${client_id}:${client_secret}`);
 
       try {
-        const response = await axios.post('https://accounts.spotify.com/api/token', 'grant_type=client_credentials', {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': `Basic ${credentials}`,
-          },
-        });
+        const response = await axios.post(
+          "https://accounts.spotify.com/api/token",
+          "grant_type=client_credentials",
+          {
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              Authorization: `Basic ${credentials}`,
+            },
+          }
+        );
         return response.data.access_token;
       } catch (error) {
-        console.error('Error al obtener el token de Spotify:', error);
+        console.error("Error al obtener el token de Spotify:", error);
       }
     };
 
@@ -296,7 +420,9 @@ export default defineComponent({
           <tbody>`;
 
       group.discs.forEach((disc: any) => {
-        const genreName = genres.value.find(genre => genre.id === disc.genreId)?.name || 'Sin género';
+        const genreName =
+          genres.value.find((genre) => genre.id === disc.genreId)?.name ||
+          "Sin género";
         if (disc.link) {
           html += `
             <tr>
@@ -318,51 +444,56 @@ export default defineComponent({
       </figure>`;
 
       // Crear un blob con el HTML y descargarlo
-      const blob = new Blob([html], { type: 'text/html' });
-      const link = document.createElement('a');
+      const blob = new Blob([html], { type: "text/html" });
+      const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
       link.download = `discs_${group.releaseDate}.html`;
       link.click();
       URL.revokeObjectURL(link.href);
     };
 
-
     const buscarGeneroSpotify = async (disc: any) => {
       const token = await obtenerTokenSpotify();
       if (!token) {
-        console.error('No se pudo obtener el token de Spotify');
+        console.error("No se pudo obtener el token de Spotify");
         return;
       }
 
       try {
         // Paso 1: Busca el artista
         const query = encodeURIComponent(`artist:${disc.artist.name}`);
-        const response = await axios.get(`https://api.spotify.com/v1/search?q=${query}&type=artist&limit=1`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          `https://api.spotify.com/v1/search?q=${query}&type=artist&limit=1`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (response.data.artists.items.length > 0) {
           const artist = response.data.artists.items[0];
           const artistId = artist.id;
 
           // Paso 2: Obtén los álbumes/tracks más recientes del artista
-          const albumsResponse = await axios.get(`https://api.spotify.com/v1/artists/${artistId}/albums`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-            params: {
-              include_groups: "album,single", // Solo álbumes y sencillos
-              limit: 1, // Solo el lanzamiento más reciente
-            },
-          });
+          const albumsResponse = await axios.get(
+            `https://api.spotify.com/v1/artists/${artistId}/albums`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+              params: {
+                include_groups: "album,single", // Solo álbumes y sencillos
+                limit: 1, // Solo el lanzamiento más reciente
+              },
+            }
+          );
 
           if (albumsResponse.data.items.length > 0) {
             const genres = artist.genres; // Géneros asociados al artista
 
             if (genres.length > 0) {
-              disc.genero = genres.join(', '); // Agrega los géneros al disco
+              disc.genero = genres.join(", "); // Agrega los géneros al disco
               Swal.fire({
                 title: "¡Éxito!",
                 text: `El género del último track: ${disc.genero}`,
@@ -410,7 +541,7 @@ export default defineComponent({
           });
         }
       } catch (error) {
-        console.error('Error al buscar el género por último track:', error);
+        console.error("Error al buscar el género por último track:", error);
         Swal.fire({
           title: "Error",
           text: "Ocurrió un error al buscar el género del último track.",
@@ -422,9 +553,7 @@ export default defineComponent({
           toast: true,
         });
       }
-
     };
-
 
     // ----------------
     // onMounted
@@ -435,6 +564,7 @@ export default defineComponent({
       }
       fetchDiscs();
       fetchGenres();
+      initGroupState();
     });
 
     const observer = new IntersectionObserver((entries) => {
@@ -459,7 +589,6 @@ export default defineComponent({
       }
     };
 
-
     const saveNameChange = async (disc: any) => {
       const newName = disc.newName || disc.name;
       editing[disc.id] = false;
@@ -472,23 +601,23 @@ export default defineComponent({
         disc.name = newName; // Actualiza el nombre en la interfaz
 
         Swal.fire({
-          title: '¡Éxito!',
-          text: 'El nombre del disco se ha actualizado correctamente.',
-          icon: 'success',
+          title: "¡Éxito!",
+          text: "El nombre del disco se ha actualizado correctamente.",
+          icon: "success",
           timer: 3000,
           toast: true,
-          position: 'top-end',
+          position: "top-end",
           showConfirmButton: false,
         });
       } catch (error) {
-        console.error('Error al actualizar el nombre:', error);
+        console.error("Error al actualizar el nombre:", error);
         Swal.fire({
-          title: 'Error',
-          text: 'No se pudo actualizar el nombre del disco.',
-          icon: 'error',
+          title: "Error",
+          text: "No se pudo actualizar el nombre del disco.",
+          icon: "error",
           timer: 3000,
           toast: true,
-          position: 'top-end',
+          position: "top-end",
           showConfirmButton: false,
         });
       }
@@ -499,54 +628,49 @@ export default defineComponent({
     };
 
     const saveDateChange = async (disc: any) => {
-
       const newDate = new Date(disc.newDate);
       editingDate[disc.id] = false;
 
       if (newDate === disc.releaseDate) return;
 
       try {
-
-
         await updateDisc(disc.id, { releaseDate: newDate });
         disc.releaseDate = newDate;
-        window.location.reload()
+        window.location.reload();
         Swal.fire({
-          title: '¡Éxito!',
-          text: 'La fecha del disco se ha actualizado correctamente.',
-          icon: 'success',
+          title: "¡Éxito!",
+          text: "La fecha del disco se ha actualizado correctamente.",
+          icon: "success",
           timer: 3000,
           toast: true,
-          position: 'top-end',
+          position: "top-end",
           showConfirmButton: false,
         });
       } catch (error) {
-        console.error('Error al actualizar la fecha:', error);
+        console.error("Error al actualizar la fecha:", error);
         Swal.fire({
-          title: 'Error',
-          text: 'No se pudo actualizar la fecha del disco.',
-          icon: 'error',
+          title: "Error",
+          text: "No se pudo actualizar la fecha del disco.",
+          icon: "error",
           timer: 3000,
           toast: true,
-          position: 'top-end',
+          position: "top-end",
           showConfirmButton: false,
         });
       }
     };
 
-
     const getGenreColor = (genreId: string) => {
       const genre = genres.value.find((g) => g.id === genreId);
-      return genre?.color || 'transparent'; // Devuelve el color o un valor predeterminado
+      return genre?.color || "transparent"; // Devuelve el color o un valor predeterminado
     };
 
     const truncateText = (text: string, maxLength: number) => {
-      if (!text) return ''; // Si el texto está vacío, devuelve una cadena vacía
+      if (!text) return ""; // Si el texto está vacío, devuelve una cadena vacía
       return text.length > maxLength
-        ? text.slice(0, maxLength) + '...' // Trunca y añade "..."
+        ? text.slice(0, maxLength) + "..." // Trunca y añade "..."
         : text; // Devuelve el texto sin cambios si no excede el límite
     };
-
 
     const handleDeleteDisc = async (discId: string, group: any) => {
       const confirm = await Swal.fire({
@@ -566,7 +690,9 @@ export default defineComponent({
         await deleteDisc(discId);
 
         // Elimina el disco del grupo
-        const discIndex = group.discs.findIndex((disc: any) => disc.id === discId);
+        const discIndex = group.discs.findIndex(
+          (disc: any) => disc.id === discId
+        );
         if (discIndex > -1) {
           group.discs.splice(discIndex, 1);
         }
@@ -638,7 +764,8 @@ export default defineComponent({
 
     const getLinkText = (link: string) => {
       if (link.includes("bandcamp.com")) return "Abrir en Bandcamp";
-      if (link.includes("youtube.com") || link.includes("youtu.be")) return "Abrir en YouTube";
+      if (link.includes("youtube.com") || link.includes("youtu.be"))
+        return "Abrir en YouTube";
       if (link.includes("spotify.com")) return "Abrir en Spotify";
       return "Abrir enlace";
     };
@@ -659,7 +786,7 @@ export default defineComponent({
           showConfirmButton: false,
         });
       } catch (error) {
-        console.error('Error al actualizar verified:', error);
+        console.error("Error al actualizar verified:", error);
         Swal.fire({
           title: "Error",
           text: "No se pudo actualizar el disco.",
@@ -686,7 +813,7 @@ export default defineComponent({
           showConfirmButton: false,
         });
       } catch (error) {
-        console.error('Error al actualizar ep:', error);
+        console.error("Error al actualizar ep:", error);
         Swal.fire({
           title: "Error",
           text: "No se pudo actualizar el disco.",
@@ -699,9 +826,9 @@ export default defineComponent({
       }
     };
 
-
     return {
       groupedDiscs,
+      groupState,
       genres,
       loadMore,
       loading,
@@ -724,7 +851,8 @@ export default defineComponent({
       toggleEditingLink, // Agregado
       editingLink, // Agregado
       toggleVerified,
-      toggleEp
+      toggleEp,
+      toggleGroup,
     };
   },
 });
