@@ -270,6 +270,7 @@ export default defineComponent({
     const selectedMonth = ref(new Date().getMonth()); // Mes actual por defecto
 
     const selectMonth = async (monthIndex: number) => {
+      console.log("index: " + monthIndex)
       selectedMonth.value = monthIndex;
 
       // Calcular el rango de fechas del mes seleccionado
@@ -308,7 +309,6 @@ export default defineComponent({
         offset.value = limit.value;
         hasMore.value = offset.value < totalItems.value;
 
-        initGroupState();
       } catch (error) {
         console.error("Error fetching discs by date range:", error);
       } finally {
@@ -320,21 +320,6 @@ export default defineComponent({
       groupState[index] = !groupState[index];
     };
 
-    const initGroupState = () => {
-      // Calcula el último viernes
-      const today = new Date();
-      const dayOfWeek = today.getDay(); // 0 es domingo, 1 es lunes, ..., 5 es viernes
-      const lastFriday = new Date(today); // Copia la fecha actual
-      lastFriday.setDate(today.getDate() - ((dayOfWeek + 2) % 7)); // Retrocede hasta el último viernes
-
-      // Inicializa el estado del grupo
-      groupedDiscs.value.forEach((group, index) => {
-        const groupDate = new Date(group.releaseDate);
-        // Expande solo el grupo correspondiente al último viernes
-        groupState[index] =
-          groupDate.toDateString() === lastFriday.toDateString();
-      });
-    };
 
     // Paginación
     const limit = ref(90);
@@ -649,7 +634,6 @@ export default defineComponent({
 
       selectMonth(new Date().getMonth());
       fetchGenres();
-      initGroupState();
     });
 
     const observer = new IntersectionObserver((entries) => {
