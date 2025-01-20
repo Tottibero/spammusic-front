@@ -6,7 +6,7 @@
         <button
           v-for="(month, index) in months"
           :key="index"
-          @click="selectMonth(index)"
+          @click="selectMonth(index, true)"
           :class="{
             'bg-blue-500 text-white': selectedMonth === index,
             'bg-gray-200 text-gray-800': selectedMonth !== index,
@@ -269,9 +269,15 @@ export default defineComponent({
 
     const selectedMonth = ref(new Date().getMonth()); // Mes actual por defecto
 
-    const selectMonth = async (monthIndex: number) => {
-      console.log("index: " + monthIndex)
+    const selectMonth = async (monthIndex: number, monthChange: boolean) => {
+      console.log("index: " + monthIndex);
       selectedMonth.value = monthIndex;
+
+      if (monthChange) {
+        offset.value = 0; // Reinicia la página
+        groupedDiscs.value = []; // Limpia los discos cargados
+        selectedMonth.value = monthIndex;
+      }
 
       // Calcular el rango de fechas del mes seleccionado
       const year = new Date().getFullYear();
@@ -285,9 +291,6 @@ export default defineComponent({
         59,
         999
       ).toISOString();
-
-      offset.value = 0; // Reinicia la página
-      groupedDiscs.value = []; // Limpia los discos cargados
 
       // Llamar al servicio con el nuevo rango de fechas
       await fetchDiscsByDateRange(startDate, endDate);
@@ -304,12 +307,11 @@ export default defineComponent({
           startDate,
           endDate,
         ]);
-
+        console.log("grouped Disc final", groupedDiscs.value);
         groupedDiscs.value = response.data;
         totalItems.value = response.totalItems;
         offset.value = limit.value;
         hasMore.value = offset.value < totalItems.value;
-
       } catch (error) {
         console.error("Error fetching discs by date range:", error);
       } finally {
@@ -320,7 +322,6 @@ export default defineComponent({
     const toggleGroup = (index) => {
       groupState[index] = !groupState[index];
     };
-
 
     // Paginación
     const limit = ref(90);
@@ -633,13 +634,13 @@ export default defineComponent({
         observer.observe(loadMore.value);
       }
 
-      selectMonth(new Date().getMonth());
+      selectMonth(new Date().getMonth(), true);
       fetchGenres();
     });
 
     const observer = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
-        fetchDiscs();
+        selectMonth(selectedMonth.value, false);
       }
     });
 
