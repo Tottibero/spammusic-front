@@ -275,7 +275,8 @@ export default defineComponent({
 
       // Calcular el rango de fechas del mes seleccionado
       const year = new Date().getFullYear();
-      const startDate = new Date(year, monthIndex, 1).toISOString();
+      const startDate = new Date(Date.UTC(year, monthIndex, 1)).toISOString();
+      console.log("startDate: " + startDate);
       const endDate = new Date(
         year,
         monthIndex + 1,
@@ -350,7 +351,7 @@ export default defineComponent({
       try {
         // Calcular el rango de fechas del mes seleccionado
         const year = new Date().getFullYear();
-        const startDate = new Date(year, selectedMonth.value, 1).toISOString();
+        const startDate = new Date(Date.UTC(year, selectedMonth.value, 1)).toISOString();
         const endDate = new Date(
           year,
           selectedMonth.value + 1,
