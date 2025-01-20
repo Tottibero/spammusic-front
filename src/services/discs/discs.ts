@@ -42,10 +42,11 @@ export interface DiscsStatsResponse {
 // Servicios
 export async function getDiscsDated(
   limit: number,
-  offset: number
+  offset: number,
+  dateRange?: any
 ): Promise<DiscsResponse> {
   const response = await api.get<DiscsResponse>("/discs/date", {
-    params: { limit, offset }, // Pasa limit y offset como parámetros
+    params: { limit, offset, dateRange }, // Pasa limit y offset como parámetros
   });
 
   return response.data;
