@@ -68,160 +68,12 @@
                   'text-white': getGenreColor(disc.genreId) !== 'transparent',
                 }"
               >
-                <div class="flex items-center space-x-4">
-                  <button
-                    @click="enableDateEditing(disc.id)"
-                    class="text-gray-600 hover:text-blue-500 focus:outline-none"
-                  >
-                    <i class="fas fa-calendar-alt"></i>
-                  </button>
-                  <input
-                    v-if="editingDate[disc.id]"
-                    type="date"
-                    v-model="disc.newDate"
-                    @blur="saveDateChange(disc)"
-                    @keyup.enter="saveDateChange(disc)"
-                    class="border rounded px-2 py-1 text-gray-600"
-                  />
-                </div>
-
-                <!-- Información del disco -->
-                <div class="flex items-center">
-                  <img
-                    v-if="disc.image"
-                    :src="disc.image"
-                    alt="Disc cover"
-                    class="w-24 h-24 mr-4"
-                    style="width: 100px; height: 100px; object-fit: cover"
-                  />
-                  <div>
-                    <span class="font-medium">{{ disc.artist.name }}</span>
-                    <span>-</span>
-                    <span
-                      v-if="!editing[disc.id]"
-                      @click="enableEditing(disc.id)"
-                      class="cursor-pointer hover:underline"
-                    >
-                      {{ truncateText(disc.name, 40) }}
-                    </span>
-                    <input
-                      v-else
-                      v-model="disc.newName"
-                      @keyup.enter="saveNameChange(disc)"
-                      @blur="saveNameChange(disc)"
-                      class="border rounded px-2 py-1 text-gray-600"
-                      placeholder="Edit name"
-                    />
-
-                    <div class="mt-2">
-                      <button
-                        @click="toggleEp(disc)"
-                        class="text-gray-600 hover:text-blue-500 focus:outline-none ml-4"
-                      >
-                        <i
-                          class="fas fa-music"
-                          :class="{ 'text-blue-500': disc.ep }"
-                        ></i>
-                      </button>
-
-                      <button
-                        v-if="!disc.link"
-                        @click="toggleVerified(disc)"
-                        class="text-gray-600 hover:text-yellow-500 focus:outline-none"
-                      >
-                        <i
-                          class="fas fa-star"
-                          :class="{ 'text-yellow-500': disc.verified }"
-                        ></i>
-                      </button>
-
-                      <button
-                        v-else
-                        class="text-yellow-500 focus:outline-none"
-                        disabled
-                      >
-                        <i class="fas fa-star"></i>
-                      </button>
-
-                      <!-- Botón con icono de enlace -->
-                      <button
-                        @click="toggleEditingLink(disc)"
-                        class="text-gray-600 hover:text-blue-500 focus:outline-none mr-2"
-                      >
-                        <i class="fas fa-link"></i>
-                      </button>
-
-                      <!-- Input editable solo visible si está en modo edición -->
-                      <input
-                        v-if="editingLink[disc.id]"
-                        type="text"
-                        v-model="disc.newLink"
-                        @keyup.enter="saveLinkChange(disc)"
-                        @blur="saveLinkChange(disc)"
-                        class="border rounded px-2 py-1 text-gray-600 w-full md:w-auto"
-                        placeholder="Introduce un enlace"
-                      />
-
-                      <!-- Enlace mostrado cuando no está en modo edición -->
-                      <span v-else>
-                        <a
-                          v-if="disc.link"
-                          :href="disc.link"
-                          target="_blank"
-                          class="text-blue-500 hover:underline"
-                        >
-                          {{ getLinkText(disc.link) }}
-                        </a>
-                        <span v-else class="text-gray-500"
-                          >Sin enlace disponible</span
-                        >
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <!-- Select para género -->
-                <div class="mt-2 md:mt-0 flex items-center space-x-4">
-                  <label for="genreSelect" class="mr-2 font-medium"
-                    >Género:</label
-                  >
-                  <select
-                    id="genreSelect"
-                    v-model="disc.genreId"
-                    @change="onGenreChange(disc, disc.genreId)"
-                    class="border rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="" disabled>Seleccione un género</option>
-                    <option
-                      v-for="genre in genres"
-                      :key="genre.id"
-                      :value="genre.id"
-                    >
-                      {{ genre.name }}
-                    </option>
-                  </select>
-
-                  <button
-                    @click="buscarGeneroSpotify(disc)"
-                    class="bg-yellow-500 hover:bg-yellow-600 text-white font-medium px-4 py-2 rounded shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                  >
-                    Buscar género en Spotify
-                  </button>
-                </div>
-                <p>
-                  <span v-if="disc.loading" class="text-gray-500 italic"
-                    >Buscando...</span
-                  >
-                  <small v-else-if="disc.genero" class="text-gray-700 italic"
-                    >Género encontrado:
-                    <strong>{{ disc.genero }}</strong></small
-                  >
-                </p>
-                <button
-                  @click="handleDeleteDisc(disc.id, group)"
-                  class="bg-red-500 hover:bg-red-600 text-white font-medium px-4 py-2 rounded shadow-md focus:outline-none focus:ring-2 focus:ring-red-400"
-                >
-                  Borrar
-                </button>
+                <DiscComponent
+                  :disc="disc"
+                  :genres="genres"
+                  @disc-deleted="removeDisc"
+                  @date-changed="handleDateChange"
+                />
               </li>
             </ul>
           </div>
@@ -241,8 +93,10 @@ import axios from "axios";
 import { updateDisc, deleteDisc, getDiscsDated } from "@services/discs/discs";
 import { getGenres } from "@services/genres/genres";
 import Swal from "sweetalert2";
+import DiscComponent from "./components/DiscComponent.vue";
 
 export default defineComponent({
+  components: { DiscComponent },
   name: "DiscsList",
   setup() {
     // Lista agrupada de discos
@@ -310,8 +164,7 @@ export default defineComponent({
           newGroup.discs.forEach((disc: any) => {
             disc.genreId = disc.genre?.id || "";
           });
-        
-        })
+        });
 
         console.log("grouped Disc final", groupedDiscs.value);
         groupedDiscs.value = response.data;
@@ -359,7 +212,9 @@ export default defineComponent({
       try {
         // Calcular el rango de fechas del mes seleccionado
         const year = new Date().getFullYear();
-        const startDate = new Date(Date.UTC(year, selectedMonth.value, 1)).toISOString();
+        const startDate = new Date(
+          Date.UTC(year, selectedMonth.value, 1)
+        ).toISOString();
         const endDate = new Date(
           year,
           selectedMonth.value + 1,
@@ -921,6 +776,46 @@ export default defineComponent({
       }
     };
 
+    const removeDisc = (discId) => {
+      groupedDiscs.value.forEach((group) => {
+        group.discs = group.discs.filter((disc) => disc.id !== discId);
+      });
+    };
+
+    const handleDateChange = (updatedDisc) => {
+      // Encuentra el grupo actual
+      const currentGroup = groupedDiscs.value.find((group) =>
+        group.discs.some((disc) => disc.id === updatedDisc.id)
+      );
+
+      if (currentGroup) {
+        // Elimina el disco del grupo actual
+        currentGroup.discs = currentGroup.discs.filter(
+          (disc) => disc.id !== updatedDisc.id
+        );
+      }
+
+      // Encuentra o crea el grupo para la nueva fecha
+      let newGroup = groupedDiscs.value.find(
+        (group) => group.releaseDate === updatedDisc.releaseDate
+      );
+
+      if (!newGroup) {
+        // Si no existe, crea un nuevo grupo
+        newGroup = {
+          releaseDate: updatedDisc.releaseDate,
+          discs: [],
+        };
+        groupedDiscs.value.push(newGroup);
+        groupedDiscs.value.sort((a, b) =>
+          new Date(a.releaseDate) > new Date(b.releaseDate) ? 1 : -1
+        );
+      }
+
+      // Añade el disco al nuevo grupo
+      newGroup.discs.push(updatedDisc);
+    };
+
     return {
       groupedDiscs,
       groupState,
@@ -951,6 +846,8 @@ export default defineComponent({
       months,
       selectedMonth,
       selectMonth,
+      removeDisc,
+      handleDateChange 
     };
   },
 });
