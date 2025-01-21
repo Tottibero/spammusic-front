@@ -104,7 +104,7 @@
         @click="submitRating"
         class="bg-green-500 text-white text-xs px-2 py-1 rounded hover:bg-green-600 flex-1"
       >
-        {{ isNew ? "Votar" : "Actualizar" }}
+        {{ hasVoted ? "Actualizar" : "Votar" }}
       </button>
     </div>
 
@@ -167,6 +167,10 @@ export default defineComponent({
     const showVotes = ref(false); // Estado para mostrar/ocultar votos
     const votes = ref<Vote[]>([]); // Lista de votos obtenida del servicio
 
+    // Determinar si el usuario ya votó
+    const hasVoted = ref(!!props.userDiscRate);
+    const userDiscRateId = ref(props.userDiscRate); // Almacena el id del voto si ya existe
+
     // Formatear la fecha
     const formattedDate = computed(() => {
       const date = new Date(props.releaseDate);
@@ -207,10 +211,12 @@ export default defineComponent({
         cover: Number(localRating.value.cover),
       };
       try {
-        if (props.isNew) {
-          await postRateService(payload);
+        if (!hasVoted.value) {
+          const response = await postRateService(payload); // Asegúrate de que este servicio devuelva el `id` del nuevo voto
+          userDiscRateId.value = response.id; // Guardar el `id` del nuevo voto
+          hasVoted.value = true; // Cambiar estado a "ya votó"
         } else {
-          await updateRateService(props.userDiscRate, payload);
+          await updateRateService(userDiscRateId.value, payload);
         }
         Swal.fire({
           title: "¡Éxito!",
@@ -244,6 +250,7 @@ export default defineComponent({
       votes,
       toggleVotes,
       submitRating,
+      hasVoted
     };
   },
 });
