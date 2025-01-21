@@ -21,7 +21,8 @@
     <div class="flex items-center mt-3">
       <div class="flex flex-col items-center">
         <img
-          :src="image"
+          
+          :src="image ||  'src/assets/disco.png'"
           :alt="name"
           class="w-24 h-24 object-cover rounded mb-1"
         />
@@ -213,7 +214,7 @@ export default defineComponent({
       try {
         if (!hasVoted.value) {
           const response = await postRateService(payload); // Asegúrate de que este servicio devuelva el `id` del nuevo voto
-          console.log("response: " + response)
+          console.log("response: " + response.id);
           userDiscRateId.value = response.id; // Guardar el `id` del nuevo voto
           hasVoted.value = true; // Cambiar estado a "ya votó"
         } else {
@@ -251,7 +252,7 @@ export default defineComponent({
       votes,
       toggleVotes,
       submitRating,
-      hasVoted
+      hasVoted,
     };
   },
 });
