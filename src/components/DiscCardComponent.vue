@@ -213,6 +213,7 @@ export default defineComponent({
       try {
         if (!hasVoted.value) {
           const response = await postRateService(payload); // Asegúrate de que este servicio devuelva el `id` del nuevo voto
+          console.log("response: " + response)
           userDiscRateId.value = response.id; // Guardar el `id` del nuevo voto
           hasVoted.value = true; // Cambiar estado a "ya votó"
         } else {
