@@ -22,7 +22,7 @@
       <div class="flex flex-col items-center">
         <img
           
-          :src="image ||  'src/assets/disco.png'"
+          :src="computedImage"
           :alt="name"
           class="w-24 h-24 object-cover rounded mb-1"
         />
@@ -129,6 +129,8 @@
 </template>
 
 <script lang="ts">
+
+
 interface Vote {
   id: string; // o el tipo correcto, como number
   user: {
@@ -138,6 +140,7 @@ interface Vote {
   cover: number;
 }
 
+import defaultImage from '/src/assets/disco.png';
 import { defineComponent, ref, computed } from "vue";
 import {
   getDiscRates,
@@ -162,7 +165,11 @@ export default defineComponent({
     cover: { type: Number, required: false, default: null },
     isNew: { type: Boolean, required: true },
   },
-
+  computed: {
+    computedImage() {
+      return this.image || defaultImage;
+    },
+  },
   setup(props) {
     const localRating = ref({ rate: props.rate, cover: props.cover });
     const showVotes = ref(false); // Estado para mostrar/ocultar votos
