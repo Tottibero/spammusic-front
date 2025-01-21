@@ -118,7 +118,7 @@
           @click="buscarGeneroSpotify(disc)"
           class="bg-green-500 hover:bg-green-600 text-white font-medium px-4 py-2 rounded shadow-md"
         >
-          Buscar Genero
+          Buscar Género
         </button>
         <button
           @click="confirmDelete(disc.id)"
