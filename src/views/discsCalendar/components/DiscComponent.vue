@@ -82,7 +82,7 @@
         <select
           id="genreSelect"
           v-model="editedData.genreId"
-          @change="saveChanges('genre')"
+          @change="saveChanges('genreId')"
           class="border rounded px-3 py-2 text-gray-700 focus:outline-none"
         >
           <option value="" disabled>Seleccione un género</option>
@@ -121,7 +121,7 @@
           Buscar Genero
         </button>
         <button
-          @click="confirmDelete()"
+          @click="confirmDelete(disc.id)"
           class="bg-red-500 hover:bg-red-600 text-white font-medium px-4 py-2 rounded shadow-md"
         >
           Borrar
@@ -187,7 +187,7 @@ export default defineComponent({
     };
 
     const saveChanges = async (
-      field: "name" | "link" | "genre" | "releaseDate"
+      field: "name" | "link" | "genreId" | "releaseDate"
     ) => {
       try {
         await updateDisc(props.disc.id, { [field]: editedData[field] });
@@ -243,7 +243,7 @@ export default defineComponent({
       }
     };
 
-    const confirmDelete = async () => {
+    const confirmDelete = async (discId) => {
       const confirm = await Swal.fire({
         title: "¿Estás seguro?",
         text: "¡Esta acción no se puede deshacer!",
@@ -256,13 +256,13 @@ export default defineComponent({
       });
 
       if (confirm.isConfirmed) {
-        deleteDisc();
+        deleteDisc(discId);
       }
     };
 
-    const deleteDisc = async () => {
+    const deleteDisc = async (discId) => {
       try {
-        await deleteDisc(props.disc.id);
+        await deleteDisc(discId);
         Swal.fire({
           title: "¡Eliminado!",
           text: "El disco se eliminó correctamente.",
