@@ -9,7 +9,7 @@
       </div>
   
       <div class="text-center mb-6">
-        <h3 class="text-4xl font-bold">Álbumes de la semana</h3>
+        <h3 class="text-4xl font-bold">Álbumes mejor valorados</h3>
       </div>
   
       <div class="grid gap-6">
