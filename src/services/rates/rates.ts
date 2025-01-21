@@ -24,7 +24,7 @@ export interface DiscRate {
 
 
 export async function postRateService(payload: any): Promise<void> {
-  await api.post('/rates', payload);
+  return await api.post('/rates', payload);
 }
 
 export async function updateRateService( ratingId: string, updateRateDto: any) {
