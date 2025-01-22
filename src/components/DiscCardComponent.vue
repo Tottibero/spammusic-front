@@ -16,7 +16,7 @@
         </p>
         <p
           v-if="isEP"
-          class="px-1 py-0.5 rounded text-xs font-medium text-white bg-yellow-500"
+          class="px-1 py-0.5 rounded text-xs font-medium text-white bg-blue-500"
         >
           EP
         </p>
