@@ -8,14 +8,26 @@
         v-model="searchQuery"
         type="text"
         placeholder="Buscar por álbum o artista..."
-        class="flex-[7] p-2 border border-gray-300 rounded mb-4 sm:mb-0"
+        class="flex-[5] p-2 border border-gray-300 rounded mb-4 sm:mb-0"
       />
+      <select
+          id="genreSelect"
+          v-model="editedData.genreId"
+          @change="saveChanges('genreId')"
+          class="flex-[3] border rounded px-3 py-2 text-gray-700 focus:outline-none"
+        >
+          <option value="" disabled>Seleccione un género</option>
+          <option v-for="genre in genres" :key="genre.id" :value="genre.id">
+            {{ genre.name }}
+          </option>
+        </select>
       <Datepicker
         v-model="selectedWeek"
         :weekPicker="true"
         placeholder="Selecciona una semana"
-        class="flex-[3] p-2 border border-gray-300 rounded"
+        class="flex-[2] p-2 border border-gray-300 rounded"
       />
+
     </div>
 
     <!-- Contenedor de cuadrícula para las tarjetas -->
@@ -27,6 +39,7 @@
         v-for="disc in discs"
         :key="disc.id"
         :id="disc.id"
+        :ep="disc.ep"
         :image="disc.image"
         :name="disc.name"
         :releaseDate="disc.releaseDate"

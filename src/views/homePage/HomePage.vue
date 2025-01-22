@@ -17,6 +17,7 @@
           v-for="disc in discs"
           :key="disc.id"
           :id="disc.id"
+          :ep="disc.ep"
           :image="disc.image"
           :name="disc.name"
           :releaseDate="disc.releaseDate"
