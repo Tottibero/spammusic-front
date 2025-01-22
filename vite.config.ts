@@ -11,6 +11,7 @@ export default defineConfig({
       '@components': path.resolve(__dirname, 'src/components'),
       '@services': path.resolve(__dirname, 'src/services'),
       '@interfaces': path.resolve(__dirname, 'src/interfaces'),
+      '@helpers': path.resolve(__dirname, 'src/helpers'),
     },
   },
   plugins: [vue()]
