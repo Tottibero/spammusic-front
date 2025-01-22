@@ -14,6 +14,12 @@
         >
           {{ genreName || "Sin género" }}
         </p>
+        <p
+          v-if="isEP"
+          class="px-1 py-0.5 rounded text-xs font-medium text-white bg-yellow-500"
+        >
+          EP
+        </p>
       </div>
     </div>
 
@@ -21,7 +27,6 @@
     <div class="flex items-center mt-3">
       <div class="flex flex-col items-center">
         <img
-          
           :src="computedImage"
           :alt="name"
           class="w-24 h-24 object-cover rounded mb-1"
@@ -129,8 +134,6 @@
 </template>
 
 <script lang="ts">
-
-
 interface Vote {
   id: string; // o el tipo correcto, como number
   user: {
@@ -140,7 +143,7 @@ interface Vote {
   cover: number;
 }
 
-import defaultImage from '/src/assets/disco.png';
+import defaultImage from "/src/assets/disco.png";
 import { defineComponent, ref, computed } from "vue";
 import {
   getDiscRates,
@@ -164,6 +167,7 @@ export default defineComponent({
     rate: { type: Number, required: false, default: null },
     cover: { type: Number, required: false, default: null },
     isNew: { type: Boolean, required: true },
+    ep: { type: Boolean, required: false },
   },
   computed: {
     computedImage() {
@@ -174,6 +178,7 @@ export default defineComponent({
     const localRating = ref({ rate: props.rate, cover: props.cover });
     const showVotes = ref(false); // Estado para mostrar/ocultar votos
     const votes = ref<Vote[]>([]); // Lista de votos obtenida del servicio
+    const isEP = computed(() => props.ep);
 
     // Determinar si el usuario ya votó
     const hasVoted = ref(!!props.userDiscRate);
@@ -260,6 +265,7 @@ export default defineComponent({
       toggleVotes,
       submitRating,
       hasVoted,
+      isEP
     };
   },
 });
