@@ -85,8 +85,8 @@ import { defineComponent, ref, onMounted, reactive } from "vue";
 import axios from "axios";
 import { updateDisc, deleteDisc, getDiscsDated } from "@services/discs/discs";
 import { getGenres } from "@services/genres/genres";
-import Swal from "sweetalert2";
 import DiscComponent from "./components/DiscComponent.vue";
+import { obtenerTokenSpotify } from "@helpers/SpotifyFunctions.ts";
 
 export default defineComponent({
   components: { DiscComponent },
@@ -261,31 +261,9 @@ export default defineComponent({
       }
     };
 
-    // -------------------------------------------------
-    // Función que se ejecuta al cambiar de género un disco
-    // -------------------------------------------------
-    const onGenreChange = async (disc: any, genreId: string) => {
-      try {
-        await updateDisc(disc.id, {
-          name: disc.name,
-          genreId,
-        });
-        Swal.fire({
-          title: "¡Éxito!",
-          text: "Genero cambiado correctamente",
-          icon: "success",
-          position: "top-end",
-          timer: 3000,
-          timerProgressBar: true,
-          showConfirmButton: false,
-          toast: true,
-        });
-      } catch (err) {
-        console.log("err", err);
-      }
-    };
 
     // Función para buscar enlaces de Spotify para un grupo de discos
+
     const buscarEnlacesSpotify = async (discs: any[]) => {
       const token = await obtenerTokenSpotify();
       if (!token) {
@@ -334,27 +312,6 @@ export default defineComponent({
     };
 
     // Función para obtener el token de Spotify
-    const obtenerTokenSpotify = async () => {
-      const client_id = import.meta.env.VITE_CLIENT_ID;
-      const client_secret = import.meta.env.VITE_CLIENT_SECRET;
-      const credentials = btoa(`${client_id}:${client_secret}`);
-
-      try {
-        const response = await axios.post(
-          "https://accounts.spotify.com/api/token",
-          "grant_type=client_credentials",
-          {
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-              Authorization: `Basic ${credentials}`,
-            },
-          }
-        );
-        return response.data.access_token;
-      } catch (error) {
-        console.error("Error al obtener el token de Spotify:", error);
-      }
-    };
 
     const exportarHtml = (group: any) => {
       let html = `
@@ -395,108 +352,6 @@ export default defineComponent({
       URL.revokeObjectURL(link.href);
     };
 
-    const buscarGeneroSpotify = async (disc: any) => {
-      const token = await obtenerTokenSpotify();
-      if (!token) {
-        console.error("No se pudo obtener el token de Spotify");
-        return;
-      }
-
-      try {
-        // Paso 1: Busca el artista
-        const query = encodeURIComponent(`artist:${disc.artist.name}`);
-        const response = await axios.get(
-          `https://api.spotify.com/v1/search?q=${query}&type=artist&limit=1`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (response.data.artists.items.length > 0) {
-          const artist = response.data.artists.items[0];
-          const artistId = artist.id;
-
-          // Paso 2: Obtén los álbumes/tracks más recientes del artista
-          const albumsResponse = await axios.get(
-            `https://api.spotify.com/v1/artists/${artistId}/albums`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-              params: {
-                include_groups: "album,single", // Solo álbumes y sencillos
-                limit: 1, // Solo el lanzamiento más reciente
-              },
-            }
-          );
-
-          if (albumsResponse.data.items.length > 0) {
-            const genres = artist.genres; // Géneros asociados al artista
-
-            if (genres.length > 0) {
-              disc.genero = genres.join(", "); // Agrega los géneros al disco
-              Swal.fire({
-                title: "¡Éxito!",
-                text: `El género del último track: ${disc.genero}`,
-                icon: "success",
-                position: "top-end",
-                timer: 3000,
-                timerProgressBar: true,
-                showConfirmButton: false,
-                toast: true,
-              });
-            } else {
-              Swal.fire({
-                title: "Sin géneros",
-                text: `No se encontraron géneros asociados al artista "${disc.artist.name}".`,
-                icon: "warning",
-                position: "top-end",
-                timer: 3000,
-                timerProgressBar: true,
-                showConfirmButton: false,
-                toast: true,
-              });
-            }
-          } else {
-            Swal.fire({
-              title: "No se encontraron lanzamientos",
-              text: `No se encontraron tracks recientes para el artista "${disc.artist.name}".`,
-              icon: "warning",
-              position: "top-end",
-              timer: 3000,
-              timerProgressBar: true,
-              showConfirmButton: false,
-              toast: true,
-            });
-          }
-        } else {
-          Swal.fire({
-            title: "Artista no encontrado",
-            text: `No se encontró información para el artista "${disc.artist.name}" en Spotify.`,
-            icon: "warning",
-            position: "top-end",
-            timer: 3000,
-            timerProgressBar: true,
-            showConfirmButton: false,
-            toast: true,
-          });
-        }
-      } catch (error) {
-        console.error("Error al buscar el género por último track:", error);
-        Swal.fire({
-          title: "Error",
-          text: "Ocurrió un error al buscar el género del último track.",
-          icon: "error",
-          position: "top-end",
-          timer: 3000,
-          timerProgressBar: true,
-          showConfirmButton: false,
-          toast: true,
-        });
-      }
-    };
 
     // ----------------
     // onMounted
@@ -516,299 +371,6 @@ export default defineComponent({
       }
     });
 
-    const findDiscById = (discId: string) => {
-      for (const group of groupedDiscs.value) {
-        const disc = group.discs.find((d: any) => d.id === discId);
-        if (disc) return disc;
-      }
-      return null;
-    };
-
-    const enableEditing = (discId: string) => {
-      const disc = findDiscById(discId);
-      if (disc) {
-        editing[discId] = true;
-        disc.newName = disc.name; // Almacena el nombre actual como punto de partida
-      }
-    };
-
-    const saveNameChange = async (disc: any) => {
-      const newName = disc.newName || disc.name;
-      editing[disc.id] = false;
-
-      // Evita guardar si el nombre no cambió
-      if (newName === disc.name) return;
-
-      try {
-        await updateDisc(disc.id, { name: newName, genreId: disc.genreId });
-        disc.name = newName; // Actualiza el nombre en la interfaz
-
-        Swal.fire({
-          title: "¡Éxito!",
-          text: "El nombre del disco se ha actualizado correctamente.",
-          icon: "success",
-          timer: 3000,
-          toast: true,
-          position: "top-end",
-          showConfirmButton: false,
-        });
-      } catch (error) {
-        console.error("Error al actualizar el nombre:", error);
-        Swal.fire({
-          title: "Error",
-          text: "No se pudo actualizar el nombre del disco.",
-          icon: "error",
-          timer: 3000,
-          toast: true,
-          position: "top-end",
-          showConfirmButton: false,
-        });
-      }
-    };
-
-    const enableDateEditing = (discId: any) => {
-      editingDate[discId] = true;
-    };
-
-    const saveDateChange = async (disc: any) => {
-      const newDate = new Date(disc.newDate);
-      editingDate[disc.id] = false;
-
-      if (newDate === disc.releaseDate) return;
-
-      try {
-        await updateDisc(disc.id, { releaseDate: newDate });
-        disc.releaseDate = newDate;
-        window.location.reload();
-        Swal.fire({
-          title: "¡Éxito!",
-          text: "La fecha del disco se ha actualizado correctamente.",
-          icon: "success",
-          timer: 3000,
-          toast: true,
-          position: "top-end",
-          showConfirmButton: false,
-        });
-      } catch (error) {
-        console.error("Error al actualizar la fecha:", error);
-        Swal.fire({
-          title: "Error",
-          text: "No se pudo actualizar la fecha del disco.",
-          icon: "error",
-          timer: 3000,
-          toast: true,
-          position: "top-end",
-          showConfirmButton: false,
-        });
-      }
-    };
-
-    const getGenreColor = (genreId: string) => {
-      const genre = genres.value.find((g) => g.id === genreId);
-      return genre?.color || "transparent"; // Devuelve el color o un valor predeterminado
-    };
-
-    const truncateText = (text: string, maxLength: number) => {
-      if (!text) return ""; // Si el texto está vacío, devuelve una cadena vacía
-      return text.length > maxLength
-        ? text.slice(0, maxLength) + "..." // Trunca y añade "..."
-        : text; // Devuelve el texto sin cambios si no excede el límite
-    };
-
-    const handleDeleteDisc = async (discId: string, group: any) => {
-      const confirm = await Swal.fire({
-        title: "¿Estás seguro?",
-        text: "¡Esta acción no se puede deshacer!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-        confirmButtonText: "Sí, eliminarlo",
-      });
-
-      if (!confirm.isConfirmed) return;
-
-      try {
-        // Llama al servicio de eliminación
-        await deleteDisc(discId);
-
-        // Elimina el disco del grupo
-        const discIndex = group.discs.findIndex(
-          (disc: any) => disc.id === discId
-        );
-        if (discIndex > -1) {
-          group.discs.splice(discIndex, 1);
-        }
-
-        Swal.fire({
-          title: "Eliminado",
-          text: "El disco se eliminó correctamente.",
-          icon: "success",
-          timer: 3000,
-          toast: true,
-          position: "top-end",
-          showConfirmButton: false,
-        });
-      } catch (error) {
-        console.error("Error al eliminar el disco:", error);
-        Swal.fire({
-          title: "Error",
-          text: "No se pudo eliminar el disco.",
-          icon: "error",
-          timer: 3000,
-          toast: true,
-          position: "top-end",
-          showConfirmButton: false,
-        });
-      }
-    };
-
-    const toggleEditingLink = (disc: any) => {
-      // Si no está en modo edición, inicializa el enlace editable
-      if (!editingLink[disc.id]) {
-        disc.newLink = disc.link || ""; // Establece el enlace existente o una cadena vacía
-      }
-      // Cambia el estado de edición
-      editingLink[disc.id] = !editingLink[disc.id];
-    };
-
-    const saveLinkChange = async (disc: any) => {
-      const newLink = disc.newLink || disc.link;
-
-      // Evita guardar si el enlace no cambió
-      if (newLink === disc.link) return;
-
-      try {
-        await updateDisc(disc.id, { link: newLink });
-        disc.link = newLink; // Actualiza el enlace en la interfaz
-
-        Swal.fire({
-          title: "¡Éxito!",
-          text: "El enlace se ha actualizado correctamente.",
-          icon: "success",
-          timer: 3000,
-          toast: true,
-          position: "top-end",
-          showConfirmButton: false,
-        });
-      } catch (error) {
-        console.error("Error al actualizar el enlace:", error);
-        Swal.fire({
-          title: "Error",
-          text: "No se pudo actualizar el enlace.",
-          icon: "error",
-          timer: 3000,
-          toast: true,
-          position: "top-end",
-          showConfirmButton: false,
-        });
-      }
-    };
-
-    const getLinkText = (link: string) => {
-      if (link.includes("bandcamp.com")) return "Abrir en Bandcamp";
-      if (link.includes("youtube.com") || link.includes("youtu.be"))
-        return "Abrir en YouTube";
-      if (link.includes("spotify.com")) return "Abrir en Spotify";
-      return "Abrir enlace";
-    };
-
-    const toggleVerified = async (disc: any) => {
-      if (disc.link) return; // No permitir cambiar verified si tiene link
-
-      disc.verified = !disc.verified;
-      try {
-        await updateDisc(disc.id, { verified: disc.verified });
-        Swal.fire({
-          title: "¡Éxito!",
-          text: "Disco verificado.",
-          icon: "success",
-          timer: 3000,
-          toast: true,
-          position: "top-end",
-          showConfirmButton: false,
-        });
-      } catch (error) {
-        console.error("Error al actualizar verified:", error);
-        Swal.fire({
-          title: "Error",
-          text: "No se pudo actualizar el disco.",
-          icon: "error",
-          timer: 3000,
-          toast: true,
-          position: "top-end",
-          showConfirmButton: false,
-        });
-      }
-    };
-
-    const toggleEp = async (disc: any) => {
-      disc.ep = !disc.ep;
-      try {
-        await updateDisc(disc.id, { ep: disc.ep });
-        Swal.fire({
-          title: "¡Éxito!",
-          text: "Disco modificado.",
-          icon: "success",
-          timer: 3000,
-          toast: true,
-          position: "top-end",
-          showConfirmButton: false,
-        });
-      } catch (error) {
-        console.error("Error al actualizar ep:", error);
-        Swal.fire({
-          title: "Error",
-          text: "No se pudo actualizar el disco.",
-          icon: "error",
-          timer: 3000,
-          toast: true,
-          position: "top-end",
-          showConfirmButton: false,
-        });
-      }
-    };
-
-    const removeDisc = (discId) => {
-      groupedDiscs.value.forEach((group) => {
-        group.discs = group.discs.filter((disc) => disc.id !== discId);
-      });
-    };
-
-    const handleDateChange = (updatedDisc) => {
-      // Encuentra el grupo actual
-      const currentGroup = groupedDiscs.value.find((group) =>
-        group.discs.some((disc) => disc.id === updatedDisc.id)
-      );
-
-      if (currentGroup) {
-        // Elimina el disco del grupo actual
-        currentGroup.discs = currentGroup.discs.filter(
-          (disc) => disc.id !== updatedDisc.id
-        );
-      }
-
-      // Encuentra o crea el grupo para la nueva fecha
-      let newGroup = groupedDiscs.value.find(
-        (group) => group.releaseDate === updatedDisc.releaseDate
-      );
-
-      if (!newGroup) {
-        // Si no existe, crea un nuevo grupo
-        newGroup = {
-          releaseDate: updatedDisc.releaseDate,
-          discs: [],
-        };
-        groupedDiscs.value.push(newGroup);
-        groupedDiscs.value.sort((a, b) =>
-          new Date(a.releaseDate) > new Date(b.releaseDate) ? 1 : -1
-        );
-      }
-
-      // Añade el disco al nuevo grupo
-      newGroup.discs.push(updatedDisc);
-    };
-
     return {
       groupedDiscs,
       groupState,
@@ -816,31 +378,12 @@ export default defineComponent({
       loadMore,
       loading,
       hasMore,
-      onGenreChange,
       buscarEnlacesSpotify,
       exportarHtml,
-      buscarGeneroSpotify,
-      editing,
-      enableEditing,
-      saveNameChange,
-      getGenreColor,
-      truncateText,
-      editingDate,
-      enableDateEditing,
-      saveDateChange,
-      handleDeleteDisc,
-      saveLinkChange,
-      getLinkText,
-      toggleEditingLink, // Agregado
-      editingLink, // Agregado
-      toggleVerified,
-      toggleEp,
       toggleGroup,
       months,
       selectedMonth,
       selectMonth,
-      removeDisc,
-      handleDateChange 
     };
   },
 });
