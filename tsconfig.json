@@ -16,6 +16,7 @@
     "target": "ESNext",
     "baseUrl": ".",
     "paths": {
+      "@helpers/*": ["src/helpers/*"],
       "@stores/*": ["src/stores/*"],
       "@views/*": ["src/views/*"],
       "@components/*": ["src/components/*"],
