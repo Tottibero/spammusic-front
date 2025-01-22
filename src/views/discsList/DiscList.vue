@@ -10,13 +10,24 @@
         placeholder="Buscar por álbum o artista..."
         class="flex-[5] p-2 border border-gray-300 rounded mb-4 sm:mb-0"
       />
+      <select
+        id="genreSelect"
+        v-model="selectedGenre"
+        @change="fetchDiscs(true)"
+        class="flex-[2] border rounded px-3 py-2 text-gray-700 focus:outline-none"
+      >
+        <option value="" disabled>Seleccione un género</option>
+        <option v-for="genre in genres" :key="genre.id" :value="genre.id">
+          {{ genre.name }}
+        </option>
+      </select>
+
       <Datepicker
         v-model="selectedWeek"
         :weekPicker="true"
         placeholder="Selecciona una semana"
         class="flex-[2] p-2 border border-gray-300 rounded"
       />
-
     </div>
 
     <!-- Contenedor de cuadrícula para las tarjetas -->
@@ -57,6 +68,7 @@ import { defineComponent, ref, reactive, onMounted, watch } from "vue";
 import { getDiscs } from "@services/discs/discs";
 import DiscCard from "@components/DiscCardComponent.vue";
 import Datepicker from "@vuepic/vue-datepicker";
+import { getGenres } from "@services/genres/genres";
 
 export default defineComponent({
   components: {
@@ -74,6 +86,8 @@ export default defineComponent({
     const loadMore = ref(null); // Elemento para el observador
     const searchQuery = ref(""); // Valor de búsqueda
     const selectedWeek = ref(null); // Valor del selector de semana
+    const genres = ref<any[]>([]);
+    const selectedGenre = ref(""); // Valor seleccionado del género
 
     /**
      * Función para cargar discos desde la API
@@ -90,13 +104,14 @@ export default defineComponent({
           offset.value = 0;
           hasMore.value = true;
         }
-        
 
+        console.log(selectedGenre.value)
         const response = await getDiscs(
           limit.value,
           offset.value,
           searchQuery.value,
-          selectedWeek.value
+          selectedWeek.value,
+          selectedGenre.value // Agregar el género seleccionado al fetch
         );
         discs.value.push(...response.data);
         totalItems.value = response.totalItems;
@@ -110,6 +125,15 @@ export default defineComponent({
         console.error("Error fetching discs:", error);
       } finally {
         loading.value = false;
+      }
+    };
+
+    const fetchGenres = async () => {
+      try {
+        const genresResponse = await getGenres(50, 0);
+        genres.value = genresResponse.data;
+      } catch (error) {
+        console.error("Error fetching genres:", error);
       }
     };
 
@@ -140,12 +164,12 @@ export default defineComponent({
       fetchDiscs(true); // Reinicia los discos al cambiar la semana seleccionada
     });
 
-
     /**
      * Montar el componente y cargar discos iniciales
      */
     onMounted(() => {
       fetchDiscs();
+      fetchGenres();
       setupObserver();
     });
 
@@ -155,6 +179,9 @@ export default defineComponent({
       loading,
       searchQuery,
       selectedWeek,
+      selectedGenre,
+      genres,
+      fetchDiscs
     };
   },
 });

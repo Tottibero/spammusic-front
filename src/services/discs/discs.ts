@@ -56,14 +56,16 @@ export async function getDiscs(
   limit: number,
   offset: number,
   query?: string,
-  dateRange?: any
+  dateRange?: any,
+  genre?: string
 ): Promise<DiscsResponse> {
   const response = await api.get<DiscsResponse>("/discs", {
     params: {
       limit,
       offset,
       query, // Incluye el query en los parámetros si está definido
-      dateRange
+      dateRange,
+      genre
     },
   });
   return response.data;
