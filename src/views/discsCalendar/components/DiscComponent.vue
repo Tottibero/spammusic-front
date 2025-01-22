@@ -256,11 +256,11 @@ export default defineComponent({
       });
 
       if (confirm.isConfirmed) {
-        deleteDisc(discId);
+        deleteDiscFunction(discId);
       }
     };
 
-    const deleteDisc = async (discId) => {
+    const deleteDiscFunction = async (discId) => {
       try {
         await deleteDisc(discId);
         Swal.fire({
