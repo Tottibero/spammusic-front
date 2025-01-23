@@ -220,11 +220,15 @@ export default defineComponent({
     const submitRating = async () => {
       const payload = {
         discId: props.id,
-        rate: Number(localRating.value.rate),
-        cover: Number(localRating.value.cover),
+        rate: Number(localRating.value.rate) || null,
+        cover: Number(localRating.value.cover) || null,
       };
       try {
+        if (payload.rate == 0) payload.rate = null;
+        if (payload.rate == 0) payload.cover = null;
+
         if (!hasVoted.value) {
+          console.log("payload", payload);
           const response = await postRateService(payload); // Asegúrate de que este servicio devuelva el `id` del nuevo voto
           console.log("response: " + response.id);
           userDiscRateId.value = response.id; // Guardar el `id` del nuevo voto
