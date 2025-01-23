@@ -16,7 +16,7 @@
         @change="fetchDiscs(true)"
         class="flex-[2] border rounded px-3 py-2 text-gray-700 focus:outline-none"
       >
-        <option value="" disabled>Seleccione un género</option>
+        <option value=""> Seleccione un género</option>
         <option v-for="genre in genres" :key="genre.id" :value="genre.id">
           {{ genre.name }}
         </option>
