@@ -2,13 +2,12 @@
   <div class="max-w-[100rem] mx-auto mt-10 px-4">
     <h1 class="text-4xl font-bold mb-8 text-center">Álbumes</h1>
 
-    <!-- Campo de búsqueda -->
-    <div class="mb-6 flex flex-col sm:flex-row sm:space-x-4">
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:space-x-4">
       <input
         v-model="searchQuery"
         type="text"
         placeholder="Buscar por álbum o artista..."
-        class="flex-[5] p-2 border border-gray-300 rounded mb-4 sm:mb-0"
+        class="flex-[3] p-2 border border-gray-300 rounded mb-4 sm:mb-0"
       />
       <select
         id="genreSelect"
@@ -16,19 +15,29 @@
         @change="fetchDiscs(true)"
         class="flex-[2] border rounded px-3 py-2 text-gray-700 focus:outline-none"
       >
-        <option value=""> Seleccione un género</option>
+        <option value="">Seleccione un género</option>
         <option v-for="genre in genres" :key="genre.id" :value="genre.id">
           {{ genre.name }}
         </option>
       </select>
-
       <Datepicker
         v-model="selectedWeek"
         :weekPicker="true"
         placeholder="Selecciona una semana"
         class="flex-[2] p-2 border border-gray-300 rounded"
       />
+      <div class="flex flex-[2] items-center space-x-2">
+        <input
+          type="checkbox"
+          id="fetchRatesCheckbox"
+          v-model="fetchRates"
+          @change="handleFetchRates"
+          class="w-5 h-5 border border-gray-300 rounded"
+        />
+        <label for="fetchRatesCheckbox" class="text-gray-700">Mis votos</label>
+      </div>
     </div>
+    <!-- Campo de búsqueda -->
 
     <!-- Contenedor de cuadrícula para las tarjetas -->
     <div
@@ -69,6 +78,7 @@ import { getDiscs } from "@services/discs/discs";
 import DiscCard from "@components/DiscCardComponent.vue";
 import Datepicker from "@vuepic/vue-datepicker";
 import { getGenres } from "@services/genres/genres";
+import { getRatesByUser } from "@services/rates/rates";
 
 export default defineComponent({
   components: {
@@ -77,7 +87,6 @@ export default defineComponent({
   },
   setup() {
     const discs = ref([]); // Lista de discos
-    const ratings: Record<string, any> = reactive({}); // Ratings asociados a discos
     const limit = ref(20); // Cantidad de discos por carga
     const offset = ref(0); // Offset para la paginación
     const totalItems = ref(0); // Número total de discos disponibles
@@ -86,8 +95,9 @@ export default defineComponent({
     const loadMore = ref(null); // Elemento para el observador
     const searchQuery = ref(""); // Valor de búsqueda
     const selectedWeek = ref(null); // Valor del selector de semana
-    const genres = ref<any[]>([]);
-    const selectedGenre = ref(""); // Valor seleccionado del género
+    const genres = ref<any[]>([]); // Lista de géneros
+    const selectedGenre = ref(""); // Género seleccionado
+    const fetchRates = ref(false); // Estado del checkbox para votos
 
     /**
      * Función para cargar discos desde la API
@@ -105,7 +115,6 @@ export default defineComponent({
           hasMore.value = true;
         }
 
-        console.log(selectedGenre.value)
         const response = await getDiscs(
           limit.value,
           offset.value,
@@ -128,6 +137,46 @@ export default defineComponent({
       }
     };
 
+    /**
+     * Función para cargar discos votados por el usuario
+     */
+    const handleFetchRates = async () => {
+      if (loading.value) return;
+
+      loading.value = true;
+
+      try {
+        const response = await getRatesByUser(
+          limit.value,
+          offset.value,
+          searchQuery.value,
+          selectedWeek.value,
+          selectedGenre.value // Agregar el género seleccionado al fetch
+        );
+        // Mapea los datos para que coincidan con el formato esperado
+        if (offset.value === 0) {
+          discs.value = []; // Reinicia los discos si es el primer fetch
+        }
+        discs.value.push(
+          ...response.data.map((rate) => ({
+            ...rate.disc,
+            userRate: { rate: rate.rate, cover: rate.cover, id: rate.id },
+          }))
+        );
+        totalItems.value = response.totalItems;
+
+        // Incrementar offset para la carga perezosa
+        offset.value += limit.value;
+
+        // Determinar si hay más datos
+        hasMore.value = offset.value < totalItems.value;
+      } catch (error) {
+        console.error("Error fetching rates:", error);
+      } finally {
+        loading.value = false;
+      }
+    };
+
     const fetchGenres = async () => {
       try {
         const genresResponse = await getGenres(50, 0);
@@ -143,8 +192,8 @@ export default defineComponent({
      */
     const setupObserver = () => {
       const observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) {
-          fetchDiscs();
+        if (entries[0].isIntersecting && hasMore.value) {
+          fetchRates.value ? handleFetchRates() : fetchDiscs();
         }
       });
 
@@ -154,14 +203,36 @@ export default defineComponent({
     };
 
     /**
-     * Observar cambios en el campo de búsqueda y refrescar los datos.
+     * Observar cambios en fetchRates para alternar entre discos y votos
      */
-    watch(searchQuery, () => {
-      fetchDiscs(true); // Reinicia los discos al cambiar el texto de búsqueda
+    watch(fetchRates, (newValue) => {
+      if (newValue) {
+        // Reiniciar offset y limpiar discos al activar el checkbox
+        offset.value = 0;
+        discs.value = [];
+        handleFetchRates(); // Cargar discos votados
+      } else {
+        // Reiniciar offset y limpiar discos al desactivar el checkbox
+        offset.value = 0;
+        discs.value = [];
+        fetchDiscs(true); // Cargar discos normales
+      }
     });
 
-    watch(selectedWeek, () => {
-      fetchDiscs(true); // Reinicia los discos al cambiar la semana seleccionada
+    /**
+     * Observar cambios en el campo de búsqueda y refrescar los datos.
+     */
+
+    watch([searchQuery, selectedGenre, selectedWeek], () => {
+      if (fetchRates.value) {
+        // Si el checkbox está activado, utiliza handleFetchRates
+        offset.value = 0;
+        discs.value = [];
+        handleFetchRates();
+      } else {
+        // Si el checkbox está desactivado, utiliza fetchDiscs
+        fetchDiscs(true);
+      }
     });
 
     /**
@@ -181,7 +252,9 @@ export default defineComponent({
       selectedWeek,
       selectedGenre,
       genres,
-      fetchDiscs
+      fetchDiscs,
+      handleFetchRates,
+      fetchRates,
     };
   },
 });
@@ -214,5 +287,27 @@ export default defineComponent({
   .grid {
     grid-template-columns: repeat(4, 1fr);
   }
+}
+.mb-6 {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 640px) {
+  .mb-6 {
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem; /* Espacio horizontal entre los filtros */
+  }
+}
+
+.flex-[2] {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+}
+
+input[type="checkbox"] {
+  margin-right: 0.5rem;
 }
 </style>
