@@ -2,27 +2,50 @@
     {
       "to": "/",
       "label": "Home",
-      "activeClass": "bg-gray-700"
+      "activeClass": "bg-gray-700",
+      "type": "disc-app"
     },
     {
-      "to": "/list",
+      "to": "/disc-list",
       "label": "Discos",
-      "activeClass": "bg-gray-700"
+      "activeClass": "bg-gray-700",
+      "type": "disc-app"
     },
     {
       "to": "/calendar",
       "label": "Calendario de discos",
-      "activeClass": "bg-gray-700"
+      "activeClass": "bg-gray-700",
+      "type": "disc-app"
     },
     {
       "to": "/import",
       "label": "Añadir Discos",
-      "activeClass": "bg-gray-700"
+      "activeClass": "bg-gray-700",
+      "type": "disc-app"
+    },
+    {
+      "to": "/tasks",
+      "label": "La Semana",
+      "activeClass": "bg-gray-700",
+      "type": "riff-valley"
+    },
+    {
+      "to": "/list/lists",
+      "label": "Listas",
+      "activeClass": "bg-gray-700",
+      "type": "riff-valley"
+    },
+    {
+      "to": "/articles",
+      "label": "Articulos",
+      "activeClass": "bg-gray-700",
+      "type": "riff-valley"
     },
     {
       "to": "/",
       "label": "Logout",
-      "activeClass": "bg-red-600"
+      "activeClass": "bg-red-600",
+      "type": "bottom"
     }
   ]
   

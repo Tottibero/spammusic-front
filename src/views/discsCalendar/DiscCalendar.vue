@@ -94,9 +94,6 @@ export default defineComponent({
   setup() {
     // Lista agrupada de discos
     const groupedDiscs = ref<any[]>([]);
-    const editing = reactive<Record<string, boolean>>({});
-    const editingDate: Record<string, boolean> = reactive({});
-    const editingLink = reactive<Record<string, boolean>>({});
     const groupState = reactive({});
 
     const months = [
@@ -261,8 +258,6 @@ export default defineComponent({
       }
     };
 
-
-    // Función para buscar enlaces de Spotify para un grupo de discos
 
     const buscarEnlacesSpotify = async (discs: any[]) => {
       const token = await obtenerTokenSpotify();
