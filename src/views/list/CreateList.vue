@@ -1,0 +1,147 @@
+<template>
+  <div class="max-w-md mx-auto bg-white p-6 rounded-2xl shadow-md">
+    <form @submit.prevent="submitForm">
+      <!-- Name Input -->
+      <div class="mb-4">
+        <label for="name" class="block text-sm font-medium text-gray-700"
+          >Name</label
+        >
+        <input
+          id="name"
+          v-model="form.name"
+          type="text"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+          placeholder="Enter list name"
+          required
+        />
+      </div>
+
+      <!-- Type Select -->
+      <div class="mb-4">
+        <label for="type" class="block text-sm font-medium text-gray-700"
+          >Type</label
+        >
+        <select
+          id="type"
+          v-model="form.type"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+          required
+        >
+          <option disabled value="">Select a type</option>
+          <option :value="ListType.MONTH">Month</option>
+          <option :value="ListType.WEEK">Week</option>
+          <option :value="ListType.SPECIAL">Special</option>
+        </select>
+      </div>
+
+      <div class="mb-4">
+        <label for="specialDate" class="block text-sm font-medium text-gray-700"
+          >List Date (optional in special type)</label
+        >
+        <input
+          id="specialDate"
+          v-model="form.listDate"
+          type="date"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+        />
+      </div>
+
+      <div class="mb-4">
+        <label for="specialDate" class="block text-sm font-medium text-gray-700"
+          >Release Date (optional until is scheduled)</label
+        >
+        <input
+          id="releaseDate"
+          v-model="form.releaseDate"
+          type="date"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+        />
+      </div>
+
+
+
+      <!-- Link Input -->
+      <div class="mb-4">
+        <label for="link" class="block text-sm font-medium text-gray-700"
+          >Link</label
+        >
+        <input
+          id="link"
+          v-model="form.link"
+          type="text"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+          placeholder="Enter a link (optional)"
+        />
+      </div>
+      <div class="mb-4">
+      <p>Status: {{form.status}}</p>
+      </div>
+      <!-- Submit Button -->
+      <div>
+        <button
+          type="submit"
+          class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+        >
+          Create List
+        </button>
+      </div>
+    </form>
+  </div>
+</template>
+
+<script lang="ts">
+import { defineComponent, reactive } from "vue";
+import { postList } from "@services/list/list";
+export enum ListType {
+  MONTH = "month",
+  WEEK = "week",
+  SPECIAL = "special",
+}
+
+export default defineComponent({
+  name: "CreateListForm",
+  setup() {
+    const form = reactive({
+      name: "",
+      type: "",
+      listDate: "",
+      link: "",
+      status: "new",
+      releaseDate: "",
+    });
+
+    const submitForm = async () => {
+      try {
+        // Muestra los datos que se están enviando (opcional para depuración)
+        console.log("Submitting form data:", form);
+
+        // Llama a la función postList con los datos del formulario
+        const response = await postList({
+          name: form.name,
+          type: form.type,
+          listDate: form.listDate || null, // Envía null si no hay fecha
+          releaseDate: form.releaseDate || null, // Envía null si no hay fecha
+          link: form.link || null, // Envía null si no hay link
+          status: "new"
+        });
+
+        // Muestra la respuesta del servidor
+        console.log("List created successfully:", response);
+
+        // Opcional: muestra una notificación de éxito
+        alert("List created successfully!");
+      } catch (error) {
+        // Maneja errores de la solicitud
+        console.error("Error creating list:", error);
+        alert("An error occurred while creating the list. Please try again.");
+      }
+    };
+
+    return {
+      form,
+      submitForm,
+      ListType,
+    };
+  },
+});
+</script>

@@ -5,14 +5,15 @@
       menuVisible ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
     ]"
   >
-    <!-- Navegación superior -->
+    <!-- Disc-App -->
     <div>
       <div class="p-4 text-xl font-bold border-b border-gray-700">
         Spam Music
       </div>
       <nav class="p-4 space-y-2">
+        <div class="font-semibold text-gray-400 uppercase text-sm mb-2">Disc App</div>
         <router-link
-          v-for="route in topRoutes"
+          v-for="route in discAppRoutes"
           :key="route.to"
           :to="route.to"
           class="block px-4 py-2 rounded hover:bg-gray-700"
@@ -22,20 +23,26 @@
         </router-link>
       </nav>
     </div>
-    <!-- Navegación inferior -->
+
+    <!-- Riff-Valley -->
+    <div>
+      <nav class="p-4 space-y-2 border-t border-gray-700">
+        <div class="font-semibold text-gray-400 uppercase text-sm mb-2">Riff Valley</div>
+        <router-link
+          v-for="route in riffValleyRoutes"
+          :key="route.to"
+          :to="route.to"
+          class="block px-4 py-2 rounded hover:bg-gray-700"
+          :active-class="route.activeClass"
+        >
+          {{ route.label }}
+        </router-link>
+      </nav>
+    </div>
+
+    <!-- Bottom -->
     <nav class="p-4 space-y-2 border-t border-gray-700">
-      <router-link
-        v-for="route in bottomRoutes"
-        :key="route.to"
-        :to="route.to"
-        class="block px-4 py-2 rounded hover:bg-gray-700"
-        :active-class="route.activeClass"
-        v-if="route?.to" 
-      >
-        {{ route.label }}
-      </router-link>
       <button
-        v-else
         @click="handleLogout"
         class="block w-full text-left px-4 py-2 rounded hover:bg-red-600"
       >
@@ -66,11 +73,15 @@ export default defineComponent({
       window.location.href = "/"; // Redirige al usuario al inicio o a otra página tras el logout
     };
 
+    // Filtrar rutas por su tipo
+    const discAppRoutes = routes.filter(route => route.type === 'disc-app');
+    const riffValleyRoutes = routes.filter(route => route.type === 'riff-valley');
+
     return {
       handleLogout,
       logoutLabel: "Logout", // Etiqueta personalizada para el botón de logout
-      topRoutes: routes.slice(0, 4), // Rutas superiores
-      bottomRoutes: routes.slice(4).filter((route) => route.to), // Excluye logout si 'to' es null
+      discAppRoutes,
+      riffValleyRoutes,
     };
   },
 });

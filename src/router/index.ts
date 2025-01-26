@@ -13,8 +13,8 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresAuth: true }, // Indica que esta ruta requiere autenticación
   },
   {
-    path: "/list",
-    name: "List",
+    path: "/disc-list",
+    name: "DiscList",
     component: () => import("/src/views/discsList/DiscList.vue"),
     meta: { requiresAuth: true }, // Indica que esta ruta requiere autenticación
   },
@@ -29,6 +29,38 @@ const routes: Array<RouteRecordRaw> = [
     name: "Import",
     component: () => import("/src/views/importPage/ImportPage.vue"),
     meta: { requiresAuth: true }, // Indica que esta ruta requiere autenticación
+  },
+  {
+    path: "/list",
+    name: "List",
+    component: () => import("/src/layouts/list/ListLayout.vue"),
+    meta: { requiresAuth: true }, // Indica que esta ruta requiere autenticación
+    children: [
+      {
+        path: '', // Ruta por defecto
+        redirect: 'lists', // Redirige a una ruta hija por defecto
+      },
+      {
+        path: "lists",
+        name: "ListsList",
+        component: () => import("/src/views/list/ListsList.vue"),
+        meta: { requiresAuth: true },
+        props: true,
+      },
+      {
+        path: "edit/:id",
+        name: "EditList",
+        component: () => import("/src/views/list/EditList.vue"),
+        meta: { requiresAuth: true },
+        props: true,
+      },
+      {
+        path: "create",
+        name: "CreateList",
+        component: () => import("/src/views/list/CreateList.vue"),
+        meta: { requiresAuth: true },
+      },
+    ],
   },
   {
     path: "/login",
