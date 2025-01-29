@@ -94,7 +94,7 @@
               :key="point.id"
               class="bg-gray-100 p-3 rounded-lg"
             >
-              <div class="flex justify-between items-center">
+              <div class="flex justify-between items-right">
                 <div>
                   <input
                     class="mr-5"
@@ -110,11 +110,13 @@
                   @click="toggleContent(point.id)"
                   class="px-3 py-1 bg-green-500 text-white rounded-lg hover:bg-green-600"
                 >
-                  {{
-                    expandedPoint === point.id
-                      ? "Ocultar Contenido"
-                      : "Ver Contenido"
-                  }}
+                  <i
+                    :class="
+                      expandedPoint === point.id
+                        ? 'fa-solid fa-minus'
+                        : 'fa-solid fa-plus'
+                    "
+                  ></i>
                 </button>
               </div>
               <!-- Contenido del punto -->
@@ -179,7 +181,7 @@ export default {
         this.formData.titulo = "";
         this.formData.fecha = "";
         this.toggleForm(); // Ocultar el formulario después de crear la reunión
-        
+
         SwalService.success("Reunión creada con éxito.");
       } catch (error) {
         console.error("Error al crear la reunión:", error);
