@@ -39,9 +39,7 @@
             <tr class="bg-gray-100">
               <th class="border border-gray-300 px-2 py-1 text-left">Artista</th>
               <th class="border border-gray-300 px-2 py-1 text-left">Disco</th>
-              <th class="border border-gray-300 px-2 py-1 text-center">
-                Acciones
-              </th>
+              <th class="border border-gray-300 px-2 py-1 text-center">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -88,20 +86,26 @@
 import { defineComponent, ref, onMounted, computed } from "vue";
 import { getLists } from "@services/list/list";
 import { useRouter } from "vue-router";
-import { useAuthStore } from "@stores/auth/auth"; // Importa la store
+import { useAuthStore } from "@stores/auth/auth";
 
 export default defineComponent({
   name: "StyledList",
-  setup() {
+  props: {
+    exclusions: {
+      type: Array as () => string[],
+      required: true,
+    },
+  },
+  setup(props) {
     const lists = ref<any[]>([]);
     const router = useRouter();
-    const authStore = useAuthStore(); // Instancia de la store
-    const user = computed(() => authStore.loggedUser); // Usa el getter para obtener el usuario logueado
-    console.log(user)
+    const authStore = useAuthStore();
+    const user = computed(() => authStore.loggedUser);
+
     // Llamada para obtener listas
     const fetchLists = async () => {
       try {
-        const response = await getLists(100, 0);
+        const response = await getLists(20, 0, props.exclusions);
         lists.value = response.data;
       } catch (error) {
         console.error("Error fetching lists:", error);
