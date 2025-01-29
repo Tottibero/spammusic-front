@@ -1,12 +1,17 @@
 <template>
-  <div class="max-w-4xl mx-auto p-8">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold">{{ reunion.titulo }}</h1>
+  <div class="container mx-auto px-4 py-8">
+    <!-- Cabecera de la reunión -->
+    <div class="flex justify-between items-center mb-4">
+      <div>
+        <h1 class="text-2xl font-bold">{{ reunion.titulo }}</h1>
+        <!-- Fecha de la reunión formateada -->
+        <p class="text-sm text-gray-600">{{ formatDate(reunion.fecha) }}</p>
+      </div>
       <button
         @click="toggleEditReunionForm"
         class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 flex items-center"
       >
-        <i class="fas fa-edit"></i>
+        <i class="fa-solid fa-pen-to-square"></i>
       </button>
     </div>
 
@@ -56,13 +61,14 @@
       </form>
     </div>
 
+    <!-- Sección de puntos de la reunión -->
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-bold">Puntos de la Reunión</h2>
       <button
         @click="toggleNewPointForm"
         class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center"
       >
-        <i class="fas fa-plus"></i>
+        <i class="fa-solid fa-plus"></i>
       </button>
     </div>
 
@@ -113,11 +119,11 @@
     </div>
 
     <!-- Listado de puntos -->
-    <ul>
+    <ul class="space-y-4">
       <li
         v-for="(point, index) in points"
         :key="point.id"
-        class="border border-gray-300 rounded-lg p-4 bg-white shadow-md mb-4"
+        class="border border-gray-300 rounded-lg p-4 bg-white shadow-md"
       >
         <div class="flex justify-between items-center">
           <div class="flex items-center space-x-3">
@@ -127,35 +133,35 @@
               @change="togglePointDone(point.id, $event.target.checked)"
               class="form-checkbox h-6 w-6 text-blue-600"
             />
-
-            <div>
-              <h3 class="font-bold text-lg">{{ point.titulo }}</h3>
-            </div>
+            <strong class="text-ml">{{ point.titulo }}</strong>
           </div>
           <div class="flex space-x-2">
             <button
               @click="toggleEditPointForm(index)"
               class="px-3 py-1 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 flex items-center"
             >
-              <i class="fas fa-edit"></i>
+              <i class="fa-solid fa-pen-to-square"></i>
             </button>
             <button
               @click="deletePoint(point.id)"
               class="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 flex items-center"
             >
-              <i class="fas fa-trash"></i>
+              <i class="fa-solid fa-trash"></i>
             </button>
             <button
               @click="toggleContentVisibility(index)"
               class="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center"
             >
-              {{ point.showContent ? "Ocultar Contenido" : "Ver Contenido" }}
-            </button>
+            <i :class="point.showContent ? 'fa-solid fa-minus' : 'fa-solid fa-plus'"></i>
+          </button>
           </div>
         </div>
 
         <!-- Contenido del punto -->
-        <div v-if="point.showContent" class="mt-4 bg-gray-100 p-4 rounded-lg">
+        <div
+          v-if="point.showContent"
+          class="mt-4 bg-gray-100 p-4 rounded-lg"
+        >
           <p class="text-gray-600">{{ point.content }}</p>
         </div>
 
@@ -177,9 +183,7 @@
               />
             </div>
             <div>
-              <label for="edit-content" class="block font-medium"
-                >Contenido</label
-              >
+              <label for="edit-content" class="block font-medium">Contenido</label>
               <textarea
                 v-model="editPointData.content"
                 id="edit-content"
@@ -245,6 +249,10 @@ export default defineComponent({
       titulo: "",
       content: "",
     });
+
+    const formatDate = (dateString) => {
+      return new Date(dateString).toLocaleString();
+    };
 
     // Obtener la información de la reunión
     const fetchReunion = async () => {
@@ -375,6 +383,7 @@ export default defineComponent({
     fetchReunion();
 
     return {
+      formatDate,
       reunion,
       showEditReunionForm,
       newPoint,
