@@ -16,29 +16,41 @@ const routes: Array<RouteRecordRaw> = [
     path: "/disc-list",
     name: "DiscList",
     component: () => import("/src/views/discsList/DiscList.vue"),
-    meta: { requiresAuth: true }, // Indica que esta ruta requiere autenticación
+    meta: { requiresAuth: true },
   },
   {
     path: "/calendar",
     name: "Calendar",
     component: () => import("/src/views/discsCalendar/DiscCalendar.vue"),
-    meta: { requiresAuth: true }, // Indica que esta ruta requiere autenticación
+    meta: { requiresAuth: true },
   },
   {
     path: "/import",
     name: "Import",
     component: () => import("/src/views/importPage/ImportPage.vue"),
-    meta: { requiresAuth: true }, // Indica que esta ruta requiere autenticación
+    meta: { requiresAuth: true },
   },
+  {
+    path: "/recap",
+    name: "Recap",
+    component: () => import("/src/views/weekRecap/WeekRecap.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/articles",
+    name: "Articles",
+    component: () => import("/src/views/articles/ArticlesList.vue"),
+  },  
   {
     path: "/list",
     name: "List",
     component: () => import("/src/layouts/list/ListLayout.vue"),
-    meta: { requiresAuth: true }, // Indica que esta ruta requiere autenticación
+    meta: { requiresAuth: true },
     children: [
       {
-        path: '', // Ruta por defecto
-        redirect: 'lists', // Redirige a una ruta hija por defecto
+        path: "", // Ruta por defecto
+        name: "ListDefault", // Añadir nombre a la ruta por defecto
+        redirect: "/list/lists", // Redirige explícitamente
       },
       {
         path: "lists",
@@ -59,6 +71,33 @@ const routes: Array<RouteRecordRaw> = [
         name: "CreateList",
         component: () => import("/src/views/list/CreateList.vue"),
         meta: { requiresAuth: true },
+      },
+    ],
+  },
+  {
+    path: "/reunions",
+    name: "Reunions",
+    component: () => import("/src/layouts/reunions/ReunionLayout.vue"),
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: "", // Ruta por defecto
+        name: "ReunionsDefault", // Añadir nombre a la ruta por defecto
+        redirect: "/reunions/list", // Redirige explícitamente
+      },
+      {
+        path: "list",
+        name: "ReunionsList",
+        component: () => import("/src/views/reunions/ListReunion.vue"),
+        meta: { requiresAuth: true },
+        props: true,
+      },
+      {
+        path: ":id",
+        name: "EditReunion",
+        component: () => import("/src/views/reunions/EditReunion.vue"),
+        meta: { requiresAuth: true },
+        props: true,
       },
     ],
   },

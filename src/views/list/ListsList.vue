@@ -161,5 +161,4 @@ export default defineComponent({
 </script>
 
 <style scoped>
-/***** Styling is handled with TailwindCSS *****/
 </style>
