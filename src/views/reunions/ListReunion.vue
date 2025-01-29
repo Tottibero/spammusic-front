@@ -135,6 +135,7 @@
 <script>
 import { ref } from "vue";
 import { postReunion, getReunions } from "@services/reunions/reunions";
+import SwalService from "@services/swal/SwalService";
 
 export default {
   name: "ReunionManager",
@@ -178,10 +179,11 @@ export default {
         this.formData.titulo = "";
         this.formData.fecha = "";
         this.toggleForm(); // Ocultar el formulario después de crear la reunión
-        alert("Reunión creada con éxito.");
+        
+        SwalService.success("Reunión creada con éxito.");
       } catch (error) {
         console.error("Error al crear la reunión:", error);
-        alert("No se pudo crear la reunión.");
+        SwalService.error("No se pudo crear la reunión.");
       }
     },
     async fetchReuniones() {
@@ -190,7 +192,7 @@ export default {
         this.reuniones = response;
       } catch (error) {
         console.error("Error al obtener las reuniones:", error);
-        alert("No se pudieron obtener las reuniones.");
+        SwalService.error("No se pudieron obtener las reuniones.");
       }
     },
   },
