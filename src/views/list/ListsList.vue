@@ -1,98 +1,121 @@
 <template>
-  <div class="p-6 bg-gray-100 min-h-screen">
-    <h1 class="text-2xl font-bold mb-6">Listas</h1>
-
-    <button
-      @click="goToCreate"
-      class="mb-4 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
-    >
-      Crear Nuevo
-    </button>
-
-    <table
-      class="w-full table-auto bg-white shadow-md rounded-lg border-collapse"
-    >
-      <thead class="bg-gray-200">
-        <tr>
-          <th class="px-4 py-2 text-left text-gray-600 font-medium">ID</th>
-          <th class="px-4 py-2 text-left text-gray-600 font-medium">Nombre</th>
-          <th class="px-4 py-2 text-left text-gray-600 font-medium">Tipo</th>
-          <th class="px-4 py-2 text-left text-gray-600 font-medium">Estado</th>
-          <th class="px-4 py-2 text-left text-gray-600 font-medium">
-            Fecha de Lista
-          </th>
-          <th class="px-4 py-2 text-left text-gray-600 font-medium">
-            Fecha de Lanzamiento
-          </th>
-          <th class="px-4 py-2 text-left text-gray-600 font-medium">
-            Acciones
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="item in lists"
-          :key="item.id"
-          class="odd:bg-white even:bg-gray-50"
+  <div class="p-6 bg-gray-100 min-h-screen flex flex-col items-center">
+    <div class="bg-white p-6 rounded-2xl shadow-md w-full max-w-5xl mb-6">
+      <div class="flex justify-between items-center mb-4">
+        <h4 class="text-xl font-bold">Listas Actuales</h4>
+        <button
+          @click="goToCreate"
+          class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
         >
-          <td class="px-4 py-2 border-t border-gray-200 text-gray-700">
-            {{ item.id }}
-          </td>
-          <td class="px-4 py-2 border-t border-gray-200 text-gray-700">
-            {{ item.name }}
-          </td>
-          <td class="px-4 py-2 border-t border-gray-200 text-gray-700">
-            {{ item.type }}
-          </td>
-          <td class="px-4 py-2 border-t border-gray-200 text-gray-700">
-            {{ item.status }}
-          </td>
-          <td class="px-4 py-2 border-t border-gray-200 text-gray-700">
-            {{ item.listDate }}
-          </td>
-          <td class="px-4 py-2 border-t border-gray-200 text-gray-700">
-            {{ item.releaseDate }}
-          </td>
-          <td class="px-4 py-2 border-t border-gray-200 text-gray-700">
-            <button
-              @click="goToEdit(item.id)"
-              class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-            >
-              Editar
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="flex justify-between items-center mt-6">
-      <button
-        @click="goToPage(currentPage - 1)"
-        :disabled="currentPage === 1"
-        class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 disabled:bg-gray-200 disabled:cursor-not-allowed"
-      >
-        Anterior
-      </button>
-
-      <div class="flex gap-2">
-        <span
-          v-for="page in totalPages"
-          :key="page"
-          @click="goToPage(page)"
-          :class="{ 'bg-blue-500 text-white': page === currentPage }"
-          class="cursor-pointer px-4 py-2 rounded-md border border-gray-300 hover:bg-blue-100"
-        >
-          {{ page }}
-        </span>
+          <i class="fa-solid fa-plus"></i>
+        </button>
       </div>
+      <div class="overflow-x-auto">
+        <table class="w-full table-auto border-collapse">
+          <thead class="bg-gray-200">
+            <tr>
+              <th class="px-4 py-2 text-left text-gray-600 font-medium">
+                Nombre
+              </th>
+              <th class="px-4 py-2 text-left text-gray-600 font-medium">
+                Tipo
+              </th>
+              <th class="px-4 py-2 text-left text-gray-600 font-medium">
+                Estado
+              </th>
+              <th class="px-4 py-2 text-left text-gray-600 font-medium">
+                Fecha de Lista
+              </th>
+              <th class="px-4 py-2 text-left text-gray-600 font-medium">
+                Fecha de Lanzamiento
+              </th>
+              <th class="px-4 py-2 text-left text-gray-600 font-medium">
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="item in lists"
+              :key="item.id"
+              class="odd:bg-white even:bg-gray-50"
+            >
+              <td class="px-4 py-2 border-t border-gray-200 text-gray-700">
+                {{ item.name }}
+              </td>
+              <td class="px-4 py-2 border-t border-gray-200 text-gray-700">
+                {{ item.type }}
+              </td>
+              <td class="px-4 py-2 border-t border-gray-200 text-gray-700">
+                <span
+                  :class="statusClass(item.status)"
+                  class="px-2 py-1 rounded-full text-xs font-bold"
+                >
+                  {{ readableStatus(item.status) }}
+                </span>
+              </td>
+              <td class="px-4 py-2 border-t border-gray-200 text-gray-700">
+                {{ item.listDate }}
+              </td>
+              <td class="px-4 py-2 border-t border-gray-200 text-gray-700">
+                {{ item.releaseDate }}
+              </td>
+              <td class="px-4 py-2 border-t border-gray-200 text-gray-700">
+                <button
+                  @click="goToEdit(item.id)"
+                  class="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                >
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="bg-white p-6 rounded-2xl shadow-md w-full max-w-5xl">
+      <div class="mb-4 cursor-pointer" @click="togglePastLists">
+        <h4 class="text-xl font-bold">Listas Pasadas</h4>
+      </div>
+      <div v-if="showPastLists" class="overflow-y-auto max-h-96">
+        <ul>
+          <li
+            v-for="item in pastLists"
+            :key="item.id"
+            class="flex justify-between items-center py-2 border-b border-gray-200"          
+            >
+            <span class="text-gray-700">{{ item.name }}</span>
+            <div class="flex space-x-2">
+              {{ item.type }}
+            </div>
+            <div class="flex space-x-2">
+              {{ item.listDate }}
+            </div>
+            <div class="flex space-x-2">
+              {{ item.releaseDate }}
+            </div>
 
-      <button
-        @click="goToPage(currentPage + 1)"
-        :disabled="currentPage === totalPages"
-        class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 disabled:bg-gray-200 disabled:cursor-not-allowed"
-      >
-        Siguiente
-      </button>
+            <div class="flex space-x-2">
+              <a
+                v-if="item.link"
+                :href="item.link"
+                target="_blank"
+                class="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 flex items-center space-x-1"
+              >
+                <i class="fa-solid fa-link"></i>
+                <span>Ir al enlace</span>
+              </a>
+              <button
+                @click="goToEdit(item.id)"
+                class="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center space-x-1"
+              >
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>Editar</span>
+              </button>
+            </div>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
@@ -102,40 +125,63 @@ import { defineComponent, ref, onMounted } from "vue";
 import { getLists } from "@services/list/list";
 import { useRouter } from "vue-router";
 
+const statusMap: Record<string, string> = {
+  new: "New",
+  assigned: "Assigned",
+  completed: "Completed",
+  revised: "Revised",
+  withimage: "With Image",
+  scheduled: "Scheduled",
+  webpublished: "Web Published",
+  smpublished: "Social Media Published",
+};
+
 export default defineComponent({
   name: "PaginatedTable",
   setup() {
     const lists = ref<any[]>([]);
-    const totalItems = ref(0);
-    const totalPages = ref(0);
-    const currentPage = ref(1);
-    const limit = 10; // Número de elementos por página
+    const pastLists = ref<any[]>([]);
+    const showPastLists = ref(false);
     const router = useRouter();
 
-    const fetchLists = async (page: number) => {
-      const offset = (page - 1) * limit;
+    const fetchLists = async () => {
       try {
-        const response = await getLists(limit, offset);
+        const response = await getLists(20, 0, ["smpublished"]);
         lists.value = response.data;
-        totalItems.value = response.totalItems;
-        totalPages.value = Math.ceil(response.totalItems / limit);
-        currentPage.value = page;
       } catch (error) {
         console.error("Error fetching lists:", error);
       }
     };
 
-    const goToPage = (page: number) => {
-      if (page >= 1 && page <= totalPages.value) {
-        fetchLists(page);
+    const fetchPastLists = async () => {
+      try {
+        const exclusions = Object.keys(statusMap).filter(
+          (status) => status !== "smpublished"
+        );
+        const response = await getLists(20, 0, exclusions);
+        pastLists.value = response.data;
+      } catch (error) {
+        console.error("Error fetching past lists:", error);
       }
     };
 
+    const readableStatus = (status: string) => statusMap[status] || "Unknown";
+
+    const statusClass = (status: string) => {
+      const statusColors: Record<string, string> = {
+        new: "bg-red-100 text-red-800",
+        assigned: "bg-orange-100 text-orange-800",
+        completed: "bg-yellow-100 text-yellow-800",
+        revised: "bg-green-100 text-green-800",
+        withimage: "bg-teal-100 text-teal-800",
+        scheduled: "bg-blue-100 text-blue-800",
+        webpublished: "bg-indigo-100 text-indigo-800",
+        smpublished: "bg-purple-100 text-purple-800",
+      };
+      return statusColors[status] || "bg-gray-100 text-gray-800";
+    };
+
     const goToEdit = (id: string) => {
-      if (!id) {
-        console.error("ID is undefined");
-        return;
-      }
       router.push({ name: "EditList", params: { id } });
     };
 
@@ -143,22 +189,31 @@ export default defineComponent({
       router.push({ name: "CreateList" });
     };
 
+    const togglePastLists = () => {
+      showPastLists.value = !showPastLists.value;
+    };
+
     onMounted(() => {
-      fetchLists(currentPage.value);
+      fetchLists();
+      fetchPastLists();
     });
 
     return {
       lists,
-      totalItems,
-      totalPages,
-      currentPage,
-      goToPage,
+      pastLists,
+      showPastLists,
       goToEdit,
       goToCreate,
+      togglePastLists,
+      readableStatus,
+      statusClass,
     };
   },
 });
 </script>
 
 <style scoped>
+.max-h-96 {
+  max-height: 24rem;
+}
 </style>

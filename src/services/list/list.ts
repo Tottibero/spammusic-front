@@ -6,9 +6,9 @@ export async function postList(payload: any): Promise<void> {
 }
 
 export async function getListDetails(listId: string): Promise<void> {
-    console.log("listId", listId);
-    const response = await api.get<any>(`/lists/${listId}`); // Usamos la ruta correcta para obtener un detalle específico
-    return response.data;
+  console.log("listId", listId);
+  const response = await api.get<any>(`/lists/${listId}`); // Usamos la ruta correcta para obtener un detalle específico
+  return response.data;
 }
 
 export async function updateList(id: string, data: any): Promise<void> {
@@ -19,12 +19,12 @@ export async function updateList(id: string, data: any): Promise<void> {
 }
 
 export async function getLists(
-    limit: number,
-    offset: number
-  ): Promise<any> {
-    const response = await api.get<any>("/lists", {
-      params: { limit, offset }, // Usa limit y offset según PaginationDto
-    });
-    return response.data;
-  }
-  
+  limit?: number,
+  offset?: number,
+  statusExclusions?: string[] // Nuevo parámetro para excluir estados
+): Promise<any> {
+  const response = await api.get<any>("/lists", {
+    params: { limit, offset, statusExclusions }, // Agregar statusExclusions como parámetro
+  });
+  return response.data;
+}
