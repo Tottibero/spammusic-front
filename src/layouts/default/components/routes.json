@@ -24,11 +24,18 @@
       "type": "disc-app"
     },
     {
-      "to": "/tasks",
-      "label": "La Semana",
+      "to": "/recap",
+      "label": "Resumen Semanal",
       "activeClass": "bg-gray-700",
       "type": "riff-valley"
     },
+    {
+      "to": "/reunions/list",
+      "label": "Reuniones",
+      "activeClass": "bg-gray-700",
+      "type": "riff-valley"
+    },
+
     {
       "to": "/list/lists",
       "label": "Listas",
