@@ -102,6 +102,7 @@
 import { defineComponent, ref, reactive, onMounted, watch } from "vue";
 import { getDiscsDated } from "@services/discs/discs";
 import { getUsers } from "@services/users/users";
+import SwalService from '@services/swal/SwalService';
 import { obtenerEnlaceArtistaSpotify } from "@helpers/SpotifyFunctions";
 import { postAsignationService } from "@services/asignation/asignation";
 import { useAsignationStore } from "@stores/asignation/asignation";
@@ -280,13 +281,13 @@ export default defineComponent({
             }
           }
 
-          alert("Assignment created successfully.");
+          SwalService.success('Assignment created successfully.');
         } catch (error) {
           console.error("Error creating assignment:", error);
-          alert("Failed to assign user. Please try again.");
+          SwalService.error('Failed to assign user. Please try again.');
         }
       } else {
-        alert("Please select a user before assigning.");
+        SwalService.error('Please select a user before assigning.');
       }
     };
 
@@ -338,11 +339,11 @@ export default defineComponent({
         if (enlace) {
           window.open(enlace, "_blank");
         } else {
-          alert("No se pudo encontrar el enlace del artista en Spotify.");
+          SwalService.error('No se pudo encontrar el enlace del artista en Spotify.');
         }
       } catch (error) {
         console.error("Error al obtener el enlace del artista:", error);
-        alert("Ocurrió un error al intentar abrir el enlace.");
+        SwalService.error('Ocurrió un error al intentar abrir el enlace.');
       }
     };
 
@@ -398,15 +399,13 @@ export default defineComponent({
 
           console.log("Assignment updated successfully:", response);
 
-          alert("Assignment updated successfully.");
+          SwalService.success('Assignment updated successfully.');
         } catch (error) {
           console.error("Error updating assignment:", error);
-          alert("Failed to update assignment. Please try again.");
+          SwalService.error('Failed to update assignment. Please try again.');
         }
       } else {
-        alert(
-          "Please select a user and ensure the assignment exists before updating."
-        );
+        SwalService.error("Please select a user and ensure the assignment exists before updating.");
       }
     };
 

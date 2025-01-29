@@ -136,6 +136,7 @@ import DiscsByDate from "./components/DiscByDate.vue";
 import AsignationList from "./components/AsignationList.vue";
 import { useAsignationStore } from "@stores/asignation/asignation";
 import { useUserStore } from "@stores/user/users";
+import SwalService from '@services/swal/SwalService';
 
 export enum ListType {
   MONTH = "month",
@@ -172,7 +173,7 @@ export default defineComponent({
         Object.assign(form, details); // Pre-fill form with list details
       } catch (error) {
         console.error("Error fetching list details:", error);
-        alert("Unable to load list details. Please try again.");
+        SwalService.success('Unable to load list details. Please try again');
       } finally {
         loading.value = false; // Stop loading after fetching data
       }
@@ -190,10 +191,10 @@ export default defineComponent({
           status: form.status,
         });
         console.log("List updated successfully:", response);
-        alert("List updated successfully!");
+        SwalService.success('List updated successfully!');
       } catch (error) {
         console.error("Error updating list:", error);
-        alert("An error occurred while updating the list. Please try again.");
+        SwalService.error('An error occurred while updating the list. Please try again.');
       }
     };
 
@@ -206,7 +207,7 @@ export default defineComponent({
       if (form.link) {
         window.open(form.link, "_blank");
       } else {
-        alert("No link provided!");
+        SwalService.error('No link provided!');
       }
     };
 

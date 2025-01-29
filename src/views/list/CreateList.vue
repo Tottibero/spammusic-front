@@ -92,6 +92,8 @@
 <script lang="ts">
 import { defineComponent, reactive } from "vue";
 import { postList } from "@services/list/list";
+import SwalService from '@services/swal/SwalService';
+
 export enum ListType {
   MONTH = "month",
   WEEK = "week",
@@ -129,11 +131,13 @@ export default defineComponent({
         console.log("List created successfully:", response);
 
         // Opcional: muestra una notificación de éxito
-        alert("List created successfully!");
+        SwalService.success('List created successfully!');
+
       } catch (error) {
         // Maneja errores de la solicitud
         console.error("Error creating list:", error);
-        alert("An error occurred while creating the list. Please try again.");
+        SwalService.error('An error occurred while creating the list. Please try again.');
+
       }
     };
 
