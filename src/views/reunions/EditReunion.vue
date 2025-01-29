@@ -127,6 +127,7 @@
               @change="togglePointDone(point.id, $event.target.checked)"
               class="form-checkbox h-6 w-6 text-blue-600"
             />
+
             <div>
               <h3 class="font-bold text-lg">{{ point.titulo }}</h3>
             </div>
@@ -209,8 +210,10 @@
 </template>
 
 <script>
-import axios from "axios";
 import { defineComponent, ref } from "vue";
+import SwalService from "@services/swal/SwalService";
+import { getReunionDetails, updateReunion } from "@services/reunions/reunions";
+import { deletePoint, updatePoint, postPoint } from "@services/points/point";
 
 export default defineComponent({
   name: "PointsManager",
@@ -246,29 +249,33 @@ export default defineComponent({
     // Obtener la información de la reunión
     const fetchReunion = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/reunions/${props.id}`);
+        const response = await getReunionDetails(props.id);
         reunion.value = {
-          titulo: response.data.titulo,
-          fecha: new Date(response.data.fecha).toISOString().slice(0, 16),
+          titulo: response.titulo,
+          fecha: new Date(response.fecha).toISOString().slice(0, 16),
         };
+        points.value = response.points.map((point) => ({
+          ...point,
+          showContent: false,
+        }));
       } catch (error) {
         console.error("Error al obtener la reunión:", error);
-        alert("No se pudo cargar la reunión.");
+        SwalService.error("No se pudo cargar la reunión.");
       }
     };
 
     // Actualizar la reunión
     const updateReunion = async () => {
       try {
-        await axios.put(`http://localhost:3000/api/reunions/${props.id}`, {
+        await updateReunion(props.id, {
           titulo: reunion.value.titulo,
           fecha: reunion.value.fecha,
         });
-        alert("Reunión actualizada con éxito.");
+        SwalService.success('Reunión actualizada con éxito.');
         showEditReunionForm.value = false;
       } catch (error) {
         console.error("Error al actualizar la reunión:", error);
-        alert("No se pudo actualizar la reunión.");
+        SwalService.error('No se pudo actualizar la reunión.');
       }
     };
 
@@ -276,22 +283,9 @@ export default defineComponent({
       showEditReunionForm.value = !showEditReunionForm.value;
     };
 
-    // Obtener los puntos de la reunión
-    const fetchPoints = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:3000/api/points?reunionId=${props.id}`
-        );
-        points.value = response.data.map(point => ({ ...point, showContent: false }));
-      } catch (error) {
-        console.error("Error al obtener los puntos:", error);
-        alert("No se pudieron obtener los puntos.");
-      }
-    };
-
     const addPoint = async () => {
       try {
-        const response = await axios.post("http://localhost:3000/api/points", {
+        const response = await postPoint({
           titulo: newPoint.value.titulo,
           content: newPoint.value.content,
           reunionId: props.id,
@@ -299,10 +293,10 @@ export default defineComponent({
         points.value.push({ ...response.data, showContent: false });
         newPoint.value = { titulo: "", content: "" };
         showNewPointForm.value = false;
-        alert("Punto añadido con éxito.");
+        SwalService.success("Punto añadido con éxito.");
       } catch (error) {
         console.error("Error al añadir el punto:", error);
-        alert("No se pudo añadir el punto.");
+        SwalService.error("No se pudo añadir el punto.");
       }
     };
 
@@ -326,19 +320,19 @@ export default defineComponent({
     const updatePoint = async (index) => {
       try {
         const point = points.value[index];
-        const response = await axios.put(
-          `http://localhost:3000/api/points/${point.id}`,
-          {
-            titulo: editPointData.value.titulo,
-            content: editPointData.value.content,
-          }
-        );
-        points.value[index] = { ...response.data, showContent: points.value[index].showContent };
+        const response = await updatePoint(point.id, {
+          titulo: editPointData.value.titulo,
+          content: editPointData.value.content,
+        });
+        points.value[index] = {
+          ...response.data,
+          showContent: points.value[index].showContent,
+        };
         editingIndex.value = null;
-        alert("Punto actualizado con éxito.");
+        SwalService.success("Punto actualizado con éxito.");
       } catch (error) {
         console.error("Error al actualizar el punto:", error);
-        alert("No se pudo actualizar el punto.");
+        SwalService.error("No se pudo actualizar el punto.");
       }
     };
 
@@ -350,18 +344,18 @@ export default defineComponent({
     const deletePoint = async (id) => {
       if (!confirm("¿Estás seguro de que deseas eliminar este punto?")) return;
       try {
-        await axios.delete(`http://localhost:3000/api/points/${id}`);
+        await deletePoint(id);
         points.value = points.value.filter((point) => point.id !== id);
-        alert("Punto eliminado con éxito.");
+        SwalService.success("Punto eliminado con éxito.");
       } catch (error) {
         console.error("Error al eliminar el punto:", error);
-        alert("No se pudo eliminar el punto.");
+        SwalService.error("No se pudo eliminar el punto.");
       }
     };
 
     const togglePointDone = async (id, done) => {
       try {
-        const response = await axios.put(`http://localhost:3000/api/points/${id}`, {
+        const response = await updatePoint(id, {
           done,
         });
         const updatedPoint = points.value.find((point) => point.id === id);
@@ -369,7 +363,7 @@ export default defineComponent({
         reorderPoints();
       } catch (error) {
         console.error("Error al actualizar el estado del punto:", error);
-        alert("No se pudo actualizar el estado del punto.");
+        SwalService.error("No se pudo actualizar el estado del punto.");
       }
     };
 
@@ -379,7 +373,6 @@ export default defineComponent({
 
     // Fetch inicial de datos
     fetchReunion();
-    fetchPoints();
 
     return {
       reunion,

@@ -96,7 +96,14 @@
             >
               <div class="flex justify-between items-center">
                 <div>
-                  <input class="mr-5" :checked="point.done" type="checkbox" name="done" id="done" disabled>
+                  <input
+                    class="mr-5"
+                    :checked="point.done"
+                    type="checkbox"
+                    name="done"
+                    id="done"
+                    disabled
+                  />
                   <strong>{{ point.titulo }}</strong>
                 </div>
                 <button
@@ -127,7 +134,7 @@
 
 <script>
 import { ref } from "vue";
-import axios from "axios";
+import { postReunion, getReunions } from "@services/reunions/reunions";
 
 export default {
   name: "ReunionManager",
@@ -166,10 +173,7 @@ export default {
           ...this.formData,
           fecha: new Date(this.formData.fecha), // Convertir fecha a objeto Date
         };
-        const response = await axios.post(
-          "http://localhost:3000/api/reunions",
-          payload
-        );
+        const response = await postReunion(payload);
         this.reuniones.push(response.data); // Agregar la reunión a la lista
         this.formData.titulo = "";
         this.formData.fecha = "";
@@ -182,8 +186,8 @@ export default {
     },
     async fetchReuniones() {
       try {
-        const response = await axios.get("http://localhost:3000/api/reunions");
-        this.reuniones = response.data;
+        const response = await getReunions();
+        this.reuniones = response;
       } catch (error) {
         console.error("Error al obtener las reuniones:", error);
         alert("No se pudieron obtener las reuniones.");
