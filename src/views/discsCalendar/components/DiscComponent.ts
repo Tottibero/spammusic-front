@@ -3,9 +3,11 @@ import type { PropType } from "vue";
 import { updateDisc, deleteDisc } from "@services/discs/discs"; // Ajusta según tu estructura
 import Swal from "sweetalert2";
 import axios from "axios";
+import SpotifyArtistButton from "@components/SpotifyArtistButton.vue";
 
 export default defineComponent({
   name: "Disc",
+  components: {SpotifyArtistButton},
   props: {
     disc: {
       type: Object as PropType<{

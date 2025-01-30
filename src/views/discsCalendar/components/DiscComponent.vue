@@ -41,7 +41,8 @@
           {{ getLinkText(disc.link) }}
         </a>
         <span v-else-if="!disc.link" class="text-gray-400"
-          >Sin enlace disponible</span
+          >                 <SpotifyArtistButton :artistName="disc.artist.name" />
+          </span
         >
         <input
           v-if="editingLink"
