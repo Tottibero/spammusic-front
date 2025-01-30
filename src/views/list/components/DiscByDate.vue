@@ -54,12 +54,7 @@
                 <p class="text-sm text-gray-500">
                   Genre: {{ disc.genre?.name || "Unknown" }}
                 </p>
-                <button
-                  @click="abrirEnlaceArtista(disc.artist.name)"
-                  class="bg-green-500 text-white px-4 py-2 rounded ml-2"
-                >
-                  Open Artist on Spotify
-                </button>
+                <SpotifyArtistButton :artistName="disc.artist.name" />
 
                 <!-- Selector de usuarios -->
                 <select
@@ -107,9 +102,14 @@ import { obtenerEnlaceArtistaSpotify } from "@helpers/SpotifyFunctions";
 import { postAsignationService } from "@services/asignation/asignation";
 import { useAsignationStore } from "@stores/asignation/asignation";
 import { updateAsignationService } from "@services/asignation/asignation";
+import SpotifyArtistButton from "@components/SpotifyArtistButton.vue";
 
 export default defineComponent({
   name: "DiscsByDate",
+  components: {
+    SpotifyArtistButton,
+  },
+
   props: {
     date: {
       type: String,
@@ -333,19 +333,6 @@ export default defineComponent({
       }
     };
 
-    const abrirEnlaceArtista = async (artistName: string) => {
-      try {
-        const enlace = await obtenerEnlaceArtistaSpotify(artistName);
-        if (enlace) {
-          window.open(enlace, "_blank");
-        } else {
-          SwalService.error('No se pudo encontrar el enlace del artista en Spotify.');
-        }
-      } catch (error) {
-        console.error("Error al obtener el enlace del artista:", error);
-        SwalService.error('Ocurrió un error al intentar abrir el enlace.');
-      }
-    };
 
     onMounted(() => {
       fetchUsers();
@@ -421,7 +408,6 @@ export default defineComponent({
       users,
       selectedUser,
       assignUser,
-      abrirEnlaceArtista, // Asegúrate de incluirlo aquí
       updateAsignation,
     };
   },

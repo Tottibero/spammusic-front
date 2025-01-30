@@ -34,6 +34,7 @@
             </td>
             <td class="px-4 py-2 border-t border-gray-200 text-gray-700">
               <div class="flex items-center space-x-4">
+                <SpotifyArtistButton :artistName="asignation.disc.artist.name" />
                 <input
                   type="checkbox"
                   :checked="asignation.done"
@@ -59,9 +60,13 @@
 import { defineComponent, ref, watch } from "vue";
 import { useAsignationStore } from "@stores/asignation/asignation";
 import { useUserStore } from "@stores/user/users";
+import SpotifyArtistButton from "@components/SpotifyArtistButton.vue";
 
 export default defineComponent({
   name: "AsignationList",
+  components: {
+    SpotifyArtistButton,
+  },
   setup() {
     const asignationStore = useAsignationStore();
     const usersStore = useUserStore();
