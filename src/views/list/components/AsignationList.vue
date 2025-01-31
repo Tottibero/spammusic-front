@@ -35,6 +35,12 @@
             <td class="px-4 py-2 border-t border-gray-200 text-gray-700">
               <div class="flex items-center space-x-4">
                 <SpotifyArtistButton :artistName="asignation.disc.artist.name" />
+                <button
+                  @click="copyToClipboard(asignation.disc.image)"
+                  class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                >
+                  <i class="fa-solid fa-copy"></i>
+                </button>
                 <input
                   type="checkbox"
                   :checked="asignation.done"
@@ -45,7 +51,7 @@
                   @click="remove(asignation.id)"
                   class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
                 >
-                <i class="fa-solid fa-trash"></i>
+                  <i class="fa-solid fa-trash"></i>
                 </button>
               </div>
             </td>
@@ -61,6 +67,7 @@ import { defineComponent, ref, watch } from "vue";
 import { useAsignationStore } from "@stores/asignation/asignation";
 import { useUserStore } from "@stores/user/users";
 import SpotifyArtistButton from "@components/SpotifyArtistButton.vue";
+import SwalService from '@services/swal/SwalService';
 
 export default defineComponent({
   name: "AsignationList",
@@ -70,46 +77,54 @@ export default defineComponent({
   setup() {
     const asignationStore = useAsignationStore();
     const usersStore = useUserStore();
-    // Variable local para manejar asignaciones
     const asignations = ref<any[]>([]);
 
-    // Sincroniza el store con la variable local
     watch(
       () => asignationStore.asignations,
       (newAsignations) => {
-        asignations.value = [...newAsignations]; // Copia las asignaciones al estado local
+        asignations.value = [...newAsignations];
         console.log("Asignaciones sincronizadas:", asignations.value);
       },
-      { immediate: true, deep: true } // Observa cambios profundos
+      { immediate: true, deep: true }
     );
 
     const remove = (id: string) => {
       asignations.value = asignations.value.filter(
         (asignation) => asignation.id !== id
-      ); // Actualiza la lista local
-      asignationStore.removeAsignation(id); // Sincroniza la eliminación con el store
+      );
+      asignationStore.removeAsignation(id);
     };
 
     const toggleDone = async (asignation: any) => {
       const updatedAsignation = {
         ...asignation,
-        done: !asignation.done, // Cambia el estado de "done"
+        done: !asignation.done,
       };
 
       try {
-        await asignationStore.updateAsignationStore(updatedAsignation); // Llama a la acción del store
+        await asignationStore.updateAsignationStore(updatedAsignation);
         asignations.value = asignations.value.map((a) =>
           a.id === asignation.id ? updatedAsignation : a
-        ); // Actualiza el estado local
+        );
       } catch (error) {
         console.error("Error actualizando la asignación:", error);
       }
+    };
+
+    const copyToClipboard = (text: string) => {
+      navigator.clipboard.writeText(text).then(() => {
+        SwalService.success("Enlace copiado al portapapeles");
+
+      }).catch(err => {
+        console.error("Error al copiar:", err);
+      });
     };
 
     return {
       asignations,
       remove,
       toggleDone,
+      copyToClipboard,
     };
   },
 });
