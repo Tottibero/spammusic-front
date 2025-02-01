@@ -31,6 +31,7 @@ export const useAsignationStore = defineStore("asignation", {
     
         const data = {
           done: updatedAsignation.done,
+          position: updatedAsignation.position,
           userId: updatedAsignation.userId,
         };
     
