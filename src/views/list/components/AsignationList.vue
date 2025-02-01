@@ -4,7 +4,7 @@
     <template v-if="isWeek">
       <!-- Tabla para asignaciones de tipo "week" sin asignar (position === 0) -->
       <div v-if="unassignedWeekAsignations.length" class="mb-8">
-        <h4 class="text-xl font-semibold mb-2">Sin asignar (Type: week)</h4>
+        <h4 class="text-xl font-semibold mb-2">Sin asignar</h4>
         <div class="bg-white p-6 rounded-2xl shadow-md">
           <div class="overflow-x-auto">
             <table class="w-full table-auto border-collapse">
@@ -94,7 +94,7 @@
         :key="group"
         class="mb-8"
       >
-        <h4 class="text-xl font-semibold mb-2">Radar {{ group }} (Type: week)</h4>
+        <h4 class="text-xl font-semibold mb-2">Radar {{ group }}</h4>
         <div class="bg-white p-6 rounded-2xl shadow-md">
           <div class="overflow-x-auto">
             <table class="w-full table-auto border-collapse">
