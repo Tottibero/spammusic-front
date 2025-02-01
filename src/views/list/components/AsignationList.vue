@@ -34,12 +34,20 @@
             </td>
             <td class="px-4 py-2 border-t border-gray-200 text-gray-700">
               <div class="flex items-center space-x-4">
-                <SpotifyArtistButton :artistName="asignation.disc.artist.name" />
+                <SpotifyArtistButton
+                  :artistName="asignation.disc.artist.name"
+                />
+                <button
+                  @click="copyArtistAndDisc(asignation.disc.artist.name, asignation.disc.name)"
+                  class="px-2 py bg-purple-500 text-white rounded-md hover:bg-purple-600 mr-2"
+                >
+                  <i class="fa-solid fa-clipboard"></i>
+                </button>
                 <button
                   @click="copyToClipboard(asignation.disc.image)"
-                  class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                  class="px-2 py bg-blue-500 text-white rounded-md hover:bg-blue-600"
                 >
-                  <i class="fa-solid fa-copy"></i>
+                  <i class="fa-solid fa-image"></i>
                 </button>
                 <input
                   type="checkbox"
@@ -49,7 +57,7 @@
                 />
                 <button
                   @click="remove(asignation.id)"
-                  class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                  class="px-2 py bg-red-500 text-white rounded-md hover:bg-red-600"
                 >
                   <i class="fa-solid fa-trash"></i>
                 </button>
@@ -67,7 +75,7 @@ import { defineComponent, ref, watch } from "vue";
 import { useAsignationStore } from "@stores/asignation/asignation";
 import { useUserStore } from "@stores/user/users";
 import SpotifyArtistButton from "@components/SpotifyArtistButton.vue";
-import SwalService from '@services/swal/SwalService';
+import SwalService from "@services/swal/SwalService";
 
 export default defineComponent({
   name: "AsignationList",
@@ -112,12 +120,26 @@ export default defineComponent({
     };
 
     const copyToClipboard = (text: string) => {
-      navigator.clipboard.writeText(text).then(() => {
-        SwalService.success("Enlace copiado al portapapeles");
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          SwalService.success("Enlace a la imagen copiado al portapapeles");
+        })
+        .catch((err) => {
+          console.error("Error al copiar:", err);
+        });
+    };
 
-      }).catch(err => {
-        console.error("Error al copiar:", err);
-      });
+    const copyArtistAndDisc = (artist: string, disc: string) => {
+      const formattedText = `**${artist}** - *${disc}*`;
+      navigator.clipboard
+        .writeText(formattedText)
+        .then(() => {
+          SwalService.success("Nombre copiado al portapapeles");
+        })
+        .catch((err) => {
+          console.error("Error al copiar:", err);
+        });
     };
 
     return {
@@ -125,6 +147,7 @@ export default defineComponent({
       remove,
       toggleDone,
       copyToClipboard,
+      copyArtistAndDisc
     };
   },
 });
