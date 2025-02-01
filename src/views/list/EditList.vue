@@ -109,7 +109,7 @@
     </div>
 
     <!-- Tabla de discos -->
-    <AsignationList />
+    <AsignationList :type="form.type" />
 
     <!-- Listado de Discos por Fecha -->
     <div class="bg-white p-6 rounded-2xl shadow-md">
