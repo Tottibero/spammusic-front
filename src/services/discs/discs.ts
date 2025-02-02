@@ -95,6 +95,6 @@ export async function deleteDisc(id: string): Promise<void> {
 }
 
 export async function getTopRatedOrFeaturedAndStats(): Promise<DiscsStatsResponse> {
-  const response = await api.get<DiscsStatsResponse>("/discs/pepe");
+  const response = await api.get<DiscsStatsResponse>("/discs/homeDiscs");
   return response.data;
 }
