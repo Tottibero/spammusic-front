@@ -13,6 +13,10 @@
             Total de Votos:
             <span class="font-semibold">{{ stats.totalVotes }}</span>
           </p>
+          <!-- Aquí insertamos el gráfico de barras -->
+          <div class="mt-6">
+            <RatingBarChart :rating-distribution="ratingDistribution" />
+          </div>
         </div>
         <!-- Top Usuarios -->
         <div class="text-center">
@@ -81,11 +85,13 @@
 import { defineComponent, ref, onMounted } from "vue";
 import { getTopRatedOrFeaturedAndStats } from "@services/discs/discs";
 import type { Disc, DiscsStatsResponse } from "@services/discs/disc";
-import DiscCard from "@components/DiscCardComponent.vue"; // Componente reutilizable para álbumes
+import DiscCard from "@components/DiscCardComponent.vue";
+import RatingBarChart from "./components/RatingBarChar.vue"; // Importa el componente de gráfico
 
 export default defineComponent({
   components: {
     DiscCard,
+    RatingBarChart,
   },
   setup() {
     const discs = ref<Disc[]>([]);
@@ -95,29 +101,30 @@ export default defineComponent({
     });
     const topUsersByRates = ref<any[]>([]);
     const topUsersByCover = ref<any[]>([]);
+    const ratingDistribution = ref<Array<{ rate: number; count: number }>>([]);
 
     const fetchDiscs = async () => {
       try {
-        const response: DiscsStatsResponse =
-          await getTopRatedOrFeaturedAndStats();
+        const response: DiscsStatsResponse = await getTopRatedOrFeaturedAndStats();
         discs.value = response.discs;
         stats.value.totalDiscs = response.totalDiscs;
         stats.value.totalVotes = response.totalVotes;
         topUsersByRates.value = response.topUsersByRates;
         topUsersByCover.value = response.topUsersByCover;
+        ratingDistribution.value = response.ratingDistribution; // Asignamos la distribución de ratings
       } catch (error) {
         console.error("Error fetching discs and stats:", error);
       }
     };
 
-        /**
+    /**
      * Devuelve el icono de trofeo correspondiente según la posición.
      * Se usa FontAwesome y se le asigna un color distinto:
      *  - 1°: Oro (text-yellow-500)
      *  - 2°: Plata (text-gray-400)
      *  - 3°: Bronce (text-yellow-700)
      */
-     const getTrophyIcon = (index: number) => {
+    const getTrophyIcon = (index: number) => {
       if (index === 0) {
         return `<i class="fas fa-trophy text-yellow-500"></i>`;
       } else if (index === 1) {
@@ -129,7 +136,6 @@ export default defineComponent({
       }
     };
 
-
     onMounted(() => {
       fetchDiscs();
     });
@@ -139,6 +145,7 @@ export default defineComponent({
       stats,
       topUsersByRates,
       topUsersByCover,
+      ratingDistribution,
       getTrophyIcon,
     };
   },
