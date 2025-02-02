@@ -69,7 +69,7 @@
                   <input
                     type="checkbox"
                     :checked="assignment.done"
-                    @change="handleCheck(user.id, assignment)"
+                    @change="toggleDone(assignment)"
                     class="w-4 h-4"
                   />
                 </div>
@@ -87,7 +87,8 @@ import { defineComponent, ref, onMounted, computed } from "vue";
 import { getLists } from "@services/list/list";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@stores/auth/auth";
-
+import { useAsignationStore } from "@stores/asignation/asignation";
+import SwalService from "@services/swal/SwalService";
 export default defineComponent({
   name: "StyledList",
   props: {
@@ -101,6 +102,7 @@ export default defineComponent({
     const router = useRouter();
     const authStore = useAuthStore();
     const user = computed(() => authStore.loggedUser);
+    const asignationStore = useAsignationStore();
 
     // Llamada para obtener listas
     const fetchLists = async () => {
@@ -130,6 +132,20 @@ export default defineComponent({
       console.log("Assignment:", assignment);
     };
 
+    const toggleDone = async (asignation: any) => {
+      const updatedAsignation = {
+        ...asignation,
+        done: !asignation.done,
+      };
+
+      try {
+        await asignationStore.updateAsignationStore(updatedAsignation);
+        SwalService.success("Asignation updated");
+      } catch (error) {
+        console.error("Error actualizando la asignación:", error);
+      }
+    };
+
     onMounted(() => {
       fetchLists();
     });
@@ -140,6 +156,7 @@ export default defineComponent({
       goToEdit,
       handleCheck,
       filteredAssignments,
+      toggleDone
     };
   },
 });
