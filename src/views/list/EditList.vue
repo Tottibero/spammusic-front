@@ -70,13 +70,22 @@
           />
         </div>
 
-        <!-- Status Section -->
+        <!-- Status Section con botón de info -->
         <div class="col-span-2">
           <div
-            class="mt-2 py-2 px-4 rounded-md text-sm font-bold"
+            class="mt-2 py-2 px-4 rounded-md text-sm font-bold flex items-center justify-between"
             :class="statusClass"
           >
-            Status: {{ readableStatus }}
+            <span>Status: {{ readableStatus }}</span>
+            <!-- Botón de Información -->
+            <button
+              @click="showStatusInfo = true"
+              type="button"
+              class="ml-2 text-gray-700 hover:text-gray-900 focus:outline-none"
+              title="Ver información de los estados"
+            >
+              <i class="fas fa-info-circle"></i>
+            </button>
           </div>
         </div>
 
@@ -116,6 +125,46 @@
       <h3 class="text-lg font-bold mb-4">Listado de Discos por Fecha</h3>
       <DiscsByDate :date="form.listDate" :type="form.type" :list-id="id" />
     </div>
+
+    <!-- Modal de Información de Estados -->
+    <transition name="fade">
+      <div
+        v-if="showStatusInfo"
+        class="fixed inset-0 flex items-center justify-center z-50"
+      >
+        <!-- Fondo semi-transparente -->
+        <div
+          class="fixed inset-0 bg-black opacity-50"
+          @click="showStatusInfo = false"
+        ></div>
+        <!-- Contenedor del Modal -->
+        <div
+          class="bg-white rounded-lg shadow-lg z-10 p-6 w-11/12 md:w-1/2"
+        >
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold">Estados</h3>
+            <button
+              @click="showStatusInfo = false"
+              type="button"
+              class="text-gray-600 hover:text-gray-800 focus:outline-none"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div>
+            <ul class="space-y-2">
+              <li
+                v-for="status in statusList"
+                :key="status.value"
+                class="border-b pb-1"
+              >
+                <strong>{{ status.label }}:</strong> {{ status.legend }}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
 
   <div v-else class="flex items-center justify-center min-h-screen">
@@ -180,6 +229,7 @@ export default defineComponent({
     });
 
     const loading = ref(true);
+    const showStatusInfo = ref(false);
     const asignationStore = useAsignationStore();
     const userStore = useUserStore();
 
@@ -189,7 +239,7 @@ export default defineComponent({
         Object.assign(form, details); // Pre-fill form with list details
       } catch (error) {
         console.error("Error fetching list details:", error);
-        SwalService.success("Unable to load list details. Please try again");
+        SwalService.error("Unable to load list details. Please try again");
       } finally {
         loading.value = false; // Stop loading after fetching data
       }
@@ -271,6 +321,19 @@ export default defineComponent({
       return statusColors[form.status] || "bg-gray-100 text-gray-800";
     });
 
+    // Lista de estados con su leyenda (por ahora, la leyenda es igual al label)
+    const statusList = [
+      { value: ListStatus.NEW, label: "New", legend: "Creamos la lista para asignarnos discos" },
+      { value: ListStatus.ASSIGNED, label: "Assigned", legend: "Discos asignados y noticias creadas" },
+      { value: ListStatus.COMPLETED, label: "Completed", legend: "Todos los discos estan hechos" },
+      { value: ListStatus.REVISED, label: "Revised", legend: "Revisados los articulos" },
+      { value: ListStatus.WITHIMAGE, label: "With Image", legend: "Los articulos tienen imagen" },
+      { value: ListStatus.SCHEDULED, label: "Scheduled", legend: "Los articulos tienen fecha de salida" },
+      { value: ListStatus.WEBPUBLISHED, label: "Web Published", legend: "Los articulos estan publicados en la web" },
+      { value: ListStatus.SMPUBLISHED, label: "Social Media Published", legend: "Los articulos estan publicados en las RRSS" },
+    ];
+
+
     onMounted(async () => {
       loadListDetails();
       await asignationStore.loadAsignations(props.id);
@@ -289,7 +352,21 @@ export default defineComponent({
       canAdvanceStatus,
       readableStatus,
       statusClass,
+      showStatusInfo,
+      statusList,
     };
   },
 });
 </script>
+
+<style scoped>
+/* Transición para el modal (fade in/out) */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
