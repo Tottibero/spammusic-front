@@ -1,26 +1,28 @@
 <template>
   <aside
-    :class="[ 
-      'w-64 bg-gray-800 text-white flex flex-col justify-between fixed h-screen transform transition-transform duration-300 z-10',
-      menuVisible ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
-    ]"
+  :class="[ 
+  'w-64 bg-gradient-to-l from-[#0f0f0f] to-[#211d1d] text-white flex flex-col justify-between fixed h-screen transform transition-transform duration-300 z-10',
+  menuVisible ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
+]"
   >
     <!-- Disc-App -->
     <div>
-      <div class="p-4 text-xl font-bold border-b border-gray-700">
-        Spam Music
-      </div>
+      <div class="p-4 text-xl font-bold border-b border-gray-700 flex items-center justify-center space-x-3">
+  <!-- Icono -->
+  <img src="/LOGO-SPAM-MUSIC.svg" alt="Logo" class="w-8 h-8">
+  <span>Spam Music</span>
+</div>
       <nav class="p-4 space-y-2">
         <div class="font-semibold text-gray-400 uppercase text-sm mb-2">Disc App</div>
         <router-link
-          v-for="route in discAppRoutes"
-          :key="route.to"
-          :to="route.to"
-          class="block px-4 py-2 rounded hover:bg-gray-700"
-          :active-class="route.activeClass"
-        >
-          {{ route.label }}
-        </router-link>
+  v-for="route in discAppRoutes"
+  :key="route.to"
+  :to="route.to"
+  class="block px-4 py-2 rounded transition-all duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
+  :active-class="'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-[#211d1d]'"
+>
+  {{ route.label }}
+</router-link>
       </nav>
     </div>
 
@@ -32,9 +34,9 @@
           v-for="route in riffValleyRoutes"
           :key="route.to"
           :to="route.to"
-          class="block px-4 py-2 rounded hover:bg-gray-700"
-          :active-class="route.activeClass"
-        >
+          class="block px-4 py-2 rounded transition-all duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
+  :active-class="'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-[#211d1d]'"
+>
           {{ route.label }}
         </router-link>
       </nav>
