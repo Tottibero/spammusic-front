@@ -2,10 +2,10 @@
   <div class="min-h-screen flex flex-col items-center justify-center">
     <img src="/LOGO-SPAM-MUSIC.svg" alt="Spam Music Logo" class="w-32 h-32 mb-4">
     
-    <!-- Título llamativo -->
-    <h1 class="text-5xl font-extrabold mb-8 text-black-700">
-      Spam Music
-    </h1>
+<!-- Título llamativo -->
+<h1 class="text-5xl font-extrabold mb-8 text-[#211d1d]">
+  Spam Music
+</h1>
 
     <!-- Caja del login -->
     <div class="w-full max-w-sm shadow-lg rounded-lg p-6 flex flex-col items-center justify-center">
