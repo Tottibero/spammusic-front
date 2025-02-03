@@ -1,7 +1,9 @@
 <template>
   <div class="min-h-screen flex flex-col items-center justify-center">
+    <img src="/LOGO-SPAM-MUSIC.svg" alt="Spam Music Logo" class="w-32 h-32 mb-4">
+    
     <!-- Título llamativo -->
-    <h1 class="text-5xl font-extrabold mb-8 text-brown-700">
+    <h1 class="text-5xl font-extrabold mb-8 text-black-700">
       Spam Music
     </h1>
 
@@ -21,12 +23,12 @@
           class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
         <button
-          type="submit"
-          class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 rounded hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-blue-300"
-          :disabled="loading"
-        >
-          {{ loading ? 'Logging in...' : 'Login' }}
-        </button>
+  type="submit"
+  class="w-full bg-gradient-to-r from-[#fcee21] to-[#d9e021] text-black font-bold py-2 rounded hover:from-[#fbd900] hover:to-[#c5d600] focus:outline-none focus:ring-4 focus:ring-yellow-300 "
+  :disabled="loading"
+>
+  {{ loading ? 'Logging in...' : 'Login' }}
+</button>
         <p v-if="error" class="text-red-500 text-sm text-center">{{ error }}</p>
       </form>
     </div>
