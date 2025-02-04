@@ -298,7 +298,8 @@ export default defineComponent({
           content: newPoint.value.content,
           reunionId: props.id,
         });
-        points.value.push({ ...response.data, showContent: false });
+        console.log(response)
+        points.value.push({ ...response, showContent: false });
         newPoint.value = { titulo: "", content: "" };
         showNewPointForm.value = false;
         SwalService.success("Punto añadido con éxito.");
