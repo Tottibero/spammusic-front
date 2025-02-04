@@ -21,7 +21,7 @@
       class="bg-gray-100 p-4 rounded-lg shadow-md mb-6"
     >
       <h3 class="text-lg font-semibold mb-4">Editar Reunión</h3>
-      <form @submit.prevent="updateReunion" class="space-y-4">
+      <form @submit.prevent="updateReunionFunction" class="space-y-4">
         <div>
           <label for="titulo-reunion" class="block font-medium">Título</label>
           <input
@@ -171,7 +171,7 @@
           class="mt-4 bg-gray-100 p-4 rounded-lg shadow-md"
         >
           <h4 class="font-semibold mb-4">Editar Punto</h4>
-          <form @submit.prevent="updatePoint(index)" class="space-y-4">
+          <form @submit.prevent="updatePointReunion(editPointData.id, index)" class="space-y-4">
             <div>
               <label for="edit-titulo" class="block font-medium">Título</label>
               <input
@@ -273,7 +273,7 @@ export default defineComponent({
     };
 
     // Actualizar la reunión
-    const updateReunion = async () => {
+    const updateReunionFunction = async () => {
       try {
         await updateReunion(props.id, {
           titulo: reunion.value.titulo,
@@ -298,7 +298,8 @@ export default defineComponent({
           content: newPoint.value.content,
           reunionId: props.id,
         });
-        points.value.push({ ...response.data, showContent: false });
+        console.log(response)
+        points.value.push({ ...response, showContent: false });
         newPoint.value = { titulo: "", content: "" };
         showNewPointForm.value = false;
         SwalService.success("Punto añadido con éxito.");
@@ -325,17 +326,13 @@ export default defineComponent({
       points.value[index].showContent = !points.value[index].showContent;
     };
 
-    const updatePoint = async (index) => {
+    const updatePointReunion = async (id, index) => {
       try {
-        const point = points.value[index];
-        const response = await updatePoint(point.id, {
+        const response = await updatePoint(id, {
           titulo: editPointData.value.titulo,
           content: editPointData.value.content,
         });
-        points.value[index] = {
-          ...response.data,
-          showContent: points.value[index].showContent,
-        };
+        points.value[index].content = editPointData.value.content
         editingIndex.value = null;
         SwalService.success("Punto actualizado con éxito.");
       } catch (error) {
@@ -363,21 +360,17 @@ export default defineComponent({
 
     const togglePointDone = async (id, done) => {
       try {
+        console.log("id: " + id)
         const response = await updatePoint(id, {
           done,
         });
         const updatedPoint = points.value.find((point) => point.id === id);
-        if (updatedPoint) updatedPoint.done = response.data.done;
-        reorderPoints();
       } catch (error) {
         console.error("Error al actualizar el estado del punto:", error);
         SwalService.error("No se pudo actualizar el estado del punto.");
       }
     };
 
-    const reorderPoints = () => {
-      points.value.sort((a, b) => a.done - b.done);
-    };
 
     // Fetch inicial de datos
     fetchReunion();
@@ -393,11 +386,11 @@ export default defineComponent({
       editPointData,
       addPoint,
       toggleEditReunionForm,
-      updateReunion,
+      updateReunionFunction,
       toggleNewPointForm,
       toggleEditPointForm,
       toggleContentVisibility,
-      updatePoint,
+      updatePointReunion,
       cancelEdit,
       deletePoint,
       togglePointDone,
