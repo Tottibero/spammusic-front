@@ -21,7 +21,7 @@
       class="bg-gray-100 p-4 rounded-lg shadow-md mb-6"
     >
       <h3 class="text-lg font-semibold mb-4">Editar Reunión</h3>
-      <form @submit.prevent="updateReunion" class="space-y-4">
+      <form @submit.prevent="updateReunionFunction" class="space-y-4">
         <div>
           <label for="titulo-reunion" class="block font-medium">Título</label>
           <input
@@ -273,7 +273,7 @@ export default defineComponent({
     };
 
     // Actualizar la reunión
-    const updateReunion = async () => {
+    const updateReunionFunction = async () => {
       try {
         await updateReunion(props.id, {
           titulo: reunion.value.titulo,
@@ -364,17 +364,12 @@ export default defineComponent({
           done,
         });
         const updatedPoint = points.value.find((point) => point.id === id);
-        if (updatedPoint) updatedPoint.done = response.data.done;
-        reorderPoints();
       } catch (error) {
         console.error("Error al actualizar el estado del punto:", error);
         SwalService.error("No se pudo actualizar el estado del punto.");
       }
     };
 
-    const reorderPoints = () => {
-      points.value.sort((a, b) => a.done - b.done);
-    };
 
     // Fetch inicial de datos
     fetchReunion();
@@ -390,7 +385,7 @@ export default defineComponent({
       editPointData,
       addPoint,
       toggleEditReunionForm,
-      updateReunion,
+      updateReunionFunction,
       toggleNewPointForm,
       toggleEditPointForm,
       toggleContentVisibility,
