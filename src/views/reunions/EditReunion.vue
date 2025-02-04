@@ -171,7 +171,7 @@
           class="mt-4 bg-gray-100 p-4 rounded-lg shadow-md"
         >
           <h4 class="font-semibold mb-4">Editar Punto</h4>
-          <form @submit.prevent="updatePoint(index)" class="space-y-4">
+          <form @submit.prevent="updatePointReunion(editPointData.id, index)" class="space-y-4">
             <div>
               <label for="edit-titulo" class="block font-medium">Título</label>
               <input
@@ -325,17 +325,13 @@ export default defineComponent({
       points.value[index].showContent = !points.value[index].showContent;
     };
 
-    const updatePoint = async (index) => {
+    const updatePointReunion = async (id, index) => {
       try {
-        const point = points.value[index];
-        const response = await updatePoint(point.id, {
+        const response = await updatePoint(id, {
           titulo: editPointData.value.titulo,
           content: editPointData.value.content,
         });
-        points.value[index] = {
-          ...response.data,
-          showContent: points.value[index].showContent,
-        };
+        points.value[index].content = editPointData.value.content
         editingIndex.value = null;
         SwalService.success("Punto actualizado con éxito.");
       } catch (error) {
@@ -363,6 +359,7 @@ export default defineComponent({
 
     const togglePointDone = async (id, done) => {
       try {
+        console.log("id: " + id)
         const response = await updatePoint(id, {
           done,
         });
@@ -397,7 +394,7 @@ export default defineComponent({
       toggleNewPointForm,
       toggleEditPointForm,
       toggleContentVisibility,
-      updatePoint,
+      updatePointReunion,
       cancelEdit,
       deletePoint,
       togglePointDone,
