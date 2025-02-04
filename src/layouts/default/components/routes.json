@@ -44,13 +44,13 @@
     },
     {
       "to": "/articles",
-      "label": "Articulos",
+      "label": "Artículos",
       "activeClass": "bg-gray-700",
       "type": "riff-valley"
     },
     {
       "to": "/",
-      "label": "Logout",
+      "label": "Cerrar sesión",
       "activeClass": "bg-red-600",
       "type": "bottom"
     }
