@@ -35,7 +35,7 @@
           :key="route.to"
           :to="route.to"
           class="block px-4 py-2 rounded transition-all duration-300 hover:bg-gradient-to-r hover:from-[#ee6f86]/50 hover:to-[#2759c1]/50 hover:text-white"
-  :active-class="'bg-gradient-to-r from-[#ee6f86] to-[#2759c1] text-[#211d1d]'"
+  :active-class="'bg-gradient-to-r from-[#ee6f86] to-[#2759c1] text-[#FFFFFF]'"
 >
           {{ route.label }}
         </router-link>
