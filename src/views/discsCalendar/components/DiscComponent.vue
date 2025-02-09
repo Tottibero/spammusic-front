@@ -4,7 +4,6 @@
     :style="{ backgroundColor: getGenreColor(disc.genreId) }"
     :class="{ 'text-white': getGenreColor(disc.genreId) !== 'transparent' }"
   >
-    <!-- Imagen del disco -->
     <img
       v-if="disc.image"
       :src="disc.image"
@@ -12,24 +11,14 @@
       class="w-16 h-16 mr-4 rounded-md flex-shrink-0"
     />
 
-    <!-- Información principal -->
     <div class="flex flex-col flex-grow mr-4">
-      <!-- Nombre del artista: al hacer clic se muestra/oculta el formulario -->
       <h3
         class="font-bold text-lg truncate cursor-pointer"
         @click="toggleArtistForm"
       >
         {{ disc.artist.name }}
       </h3>
-      <!-- Formulario de edición del artista (inicialmente oculto) -->
-      <div v-if="artistFormVisible" class="mt-2">
-        <ArtistEditForm
-          :artist="disc.artist"
-          @update:artist="disc.artist = $event"
-        />
-      </div>
 
-      <!-- Información del disco -->
       <p class="text-sm truncate">
         <span
           v-if="!editingName"
@@ -91,9 +80,7 @@
       </p>
     </div>
 
-    <!-- Opciones adicionales -->
     <div class="flex items-center space-x-4">
-      <!-- Género -->
       <div class="flex items-center space-x-2">
         <select
           id="genreSelect"
@@ -108,7 +95,6 @@
         </select>
       </div>
 
-      <!-- Botones -->
       <div class="flex space-x-2">
         <button
           @click="toggleEp()"
@@ -154,11 +140,10 @@ import { updateDisc, deleteDisc } from "@services/discs/discs"; // Ajusta según
 import Swal from "sweetalert2";
 import axios from "axios";
 import SpotifyArtistButton from "@components/SpotifyArtistButton.vue";
-import ArtistEditForm from "./ArtistEditForm.vue";
 
 export default defineComponent({
   name: "Disc",
-  components: { SpotifyArtistButton, ArtistEditForm },
+  components: { SpotifyArtistButton},
   props: {
     disc: {
       type: Object as PropType<{
