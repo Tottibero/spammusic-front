@@ -1,5 +1,11 @@
 import { defineStore } from "pinia";
-import { getUsers } from "@services/users/users";
+import {
+  getUsers,
+  postUserService,
+  updateUserService,
+  updateUserSuperAdminService,
+  deleteUserService,
+} from "@services/users/users";
 
 export const useUserStore = defineStore("user", {
   state: () => ({
@@ -17,15 +23,45 @@ export const useUserStore = defineStore("user", {
       }
     },
 
+    async createUser(user: any) {
+      try {
+        const newUser = await postUserService(user);
+        this.users.push(newUser);
+        return newUser;
+      } catch (error) {
+        console.error("Error creating user:", error);
+        throw error;
+      }
+    },
+
     addUser(user: any) {
       this.users.push(user);
     },
 
-    removeUser(userId: string) {
+    async removeUser(userId: string) {
       this.users = this.users.filter((user) => user.id !== userId);
+      await deleteUserService(userId);
     },
 
-    updateUser(updatedUser: any) {
+    async updateUserStore(updatedUser: any) {
+      try {
+        console.log("Calling updatedUser with:", updatedUser);
+
+        const data = {
+          password: updatedUser.password,
+        };
+
+        await updateUserService(data);
+      } catch (error) {
+        console.error("Error updating asignation:", error);
+        throw error;
+      }
+    },
+
+    async updateUserSuperAdminStore(userId: string, updatedUser: any) {
+      console.log("updatedUser:", updatedUser);
+      await updateUserSuperAdminService(userId, updatedUser);
+
       const index = this.users.findIndex((user) => user.id === updatedUser.id);
       if (index !== -1) {
         this.users[index] = {
@@ -35,7 +71,6 @@ export const useUserStore = defineStore("user", {
       }
     },
   },
-
   getters: {
     getUserById: (state) => (id: string) => {
       return state.users.find((user) => user.id === id);

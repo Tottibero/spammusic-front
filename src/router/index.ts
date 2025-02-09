@@ -10,7 +10,7 @@ const routes: Array<RouteRecordRaw> = [
     path: "/",
     name: "Home",
     component: HomePage,
-    meta: { requiresAuth: true }, // Indica que esta ruta requiere autenticación
+    meta: { requiresAuth: true },
   },
   {
     path: "/disc-list",
@@ -42,15 +42,27 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("/src/views/articles/ArticlesList.vue"),
   },  
   {
+    path: "/password",
+    name: "Password",
+    component: () => import("/src/views/password/PasswordChange.vue"),
+    meta: { requiresAuth: true },
+  },  
+  {
+    path: "/users",
+    name: "Users",
+    component: () => import("/src/views/users/ManageUsers.vue"),
+    meta: { requiresAuth: true, requiresRole: "superUser" }, 
+  },  
+  {
     path: "/list",
     name: "List",
     component: () => import("/src/layouts/list/ListLayout.vue"),
     meta: { requiresAuth: true },
     children: [
       {
-        path: "", // Ruta por defecto
-        name: "ListDefault", // Añadir nombre a la ruta por defecto
-        redirect: "/list/lists", // Redirige explícitamente
+        path: "",
+        name: "ListDefault",
+        redirect: "/list/lists",
       },
       {
         path: "lists",
@@ -81,9 +93,9 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresAuth: true },
     children: [
       {
-        path: "", // Ruta por defecto
-        name: "ReunionsDefault", // Añadir nombre a la ruta por defecto
-        redirect: "/reunions/list", // Redirige explícitamente
+        path: "",
+        name: "ReunionsDefault",
+        redirect: "/reunions/list",
       },
       {
         path: "list",
@@ -113,16 +125,17 @@ const router = createRouter({
   routes,
 });
 
-// Global before guard
 router.beforeEach((to) => {
   const authStore = useAuthStore();
 
-  // Verifica si la ruta requiere autenticación
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    return { name: "Login" }; // Redirige al login si no está autenticado
+    return { name: "Login" };
   }
 
-  // Permite el acceso
+  if (to.meta.requiresRole && !authStore.hasRole(to.meta.requiresRole)) {
+    return { name: "Home" };
+  }
+
   return true;
 });
 

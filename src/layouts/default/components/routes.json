@@ -49,10 +49,17 @@
       "type": "riff-valley"
     },
     {
-      "to": "/",
-      "label": "Cerrar sesión",
+      "to": "/password",
+      "label": "Cambiar Contraseña",
       "activeClass": "bg-red-600",
       "type": "bottom"
+    },
+    {
+      "to": "/users",
+      "label": "Gestionar Usuarios",
+      "activeClass": "bg-red-600",
+      "type": "bottom",
+      "requiredRole": "superUser"
     }
   ]
   
