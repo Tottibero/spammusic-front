@@ -8,14 +8,12 @@
       v-if="disc.image"
       :src="disc.image"
       alt="Disc cover"
-      class="w-16 h-16 mr-4 rounded-md flex-shrink-0"
+      class="w-16 h-16 mr-4 rounded-md flex-shrink-0 cursor-pointer"
+      @click="openImageModal"
     />
 
     <div class="flex flex-col flex-grow mr-4">
-      <h3
-        class="font-bold text-lg truncate cursor-pointer"
-        @click="toggleArtistForm"
-      >
+      <h3 class="font-bold text-lg truncate cursor-pointer" @click="openArtistModal">
         {{ disc.artist.name }}
       </h3>
 
@@ -131,19 +129,47 @@
       </div>
     </div>
   </div>
+
+  <div v-if="showImageModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+      <h2 class="text-lg font-semibold mb-4">Cambiar Imagen del Disco</h2>
+      <input v-model="newImageUrl" type="text" placeholder="Introduce la URL de la imagen" class="border p-2 w-full rounded-md" />
+      <div class="flex justify-end mt-4 space-x-2">
+        <button @click="closeImageModal" class="bg-gray-400 text-white px-4 py-2 rounded-md">Cancelar</button>
+        <button @click="updateImageUrl" class="bg-blue-500 text-white px-4 py-2 rounded-md">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <div v-if="showArtistModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+      <h2 class="text-lg font-semibold mb-4">Actualizar o Crear Artista</h2>
+      <label class="flex items-center mb-4">
+        <input type="checkbox" v-model="creatingNewArtist" class="mr-2"> Crear nuevo artista
+      </label>
+      <input v-model="newArtistName" type="text" placeholder="Introduce el nombre del artista" class="border p-2 w-full rounded-md" />
+      <div class="flex justify-end mt-4 space-x-2">
+        <button @click="closeArtistModal" class="bg-gray-400 text-white px-4 py-2 rounded-md">Cancelar</button>
+        <button @click="handleArtistUpdate" class="bg-blue-500 text-white px-4 py-2 rounded-md">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  
 </template>
 
 <script lang="ts">
 import { computed, defineComponent, reactive, ref } from "vue";
 import type { PropType } from "vue";
-import { updateDisc, deleteDisc } from "@services/discs/discs"; // Ajusta según tu estructura
+import { updateDisc, deleteDisc } from "@services/discs/discs";
+import { updateArtist, postArtist } from "@services/artist/artist";
 import Swal from "sweetalert2";
 import axios from "axios";
 import SpotifyArtistButton from "@components/SpotifyArtistButton.vue";
 
 export default defineComponent({
   name: "Disc",
-  components: { SpotifyArtistButton},
+  components: { SpotifyArtistButton },
   props: {
     disc: {
       type: Object as PropType<{
@@ -432,6 +458,63 @@ export default defineComponent({
       }
     };
 
+    const showImageModal = ref(false);
+    const newImageUrl = ref("");
+
+    const openImageModal = () => {
+      newImageUrl.value = props.disc.image || "";
+      showImageModal.value = true;
+    };
+
+    const closeImageModal = () => {
+      showImageModal.value = false;
+    };
+
+    const updateImageUrl = async () => {
+      try {
+        await updateDisc(props.disc.id, { image: newImageUrl.value });
+        props.disc.image = newImageUrl.value;
+        Swal.fire("¡Éxito!", "La imagen se ha actualizado correctamente.", "success");
+        closeImageModal();
+      } catch (error) {
+        Swal.fire("Error", "No se pudo actualizar la imagen.", "error");
+      }
+    };
+
+    const showArtistModal = ref(false);
+    const newArtistName = ref("");
+    const creatingNewArtist = ref(false);
+
+    const openArtistModal = () => {
+      newArtistName.value = props.disc.artist.name;
+      showArtistModal.value = true;
+    };
+
+    const closeArtistModal = () => {
+      showArtistModal.value = false;
+    };
+
+    const handleArtistUpdate = async () => {
+      try {
+        if (creatingNewArtist.value) {
+          const newArtist = await postArtist({ name: newArtistName.value });
+          props.disc.artist = newArtist;
+          await updateDisc(props.disc.id, { artistId: newArtist.id });
+          emit("artist-created", newArtist.id, newArtist.name);
+          Swal.fire("¡Éxito!", "Nuevo artista creado correctamente.", "success");
+        } else {
+          await updateArtist(props.disc.artist.id, { name: newArtistName.value });
+          props.disc.artist.name = newArtistName.value;
+          emit("update-artist", props.disc.artist.id, newArtistName.value);
+          Swal.fire("¡Éxito!", "El nombre del artista se ha actualizado correctamente.", "success");
+        }
+        closeArtistModal();
+      } catch (error) {
+        Swal.fire("Error", "No se pudo completar la acción.", "error");
+      }
+    };
+
+
     return {
       editingName,
       editingLink,
@@ -448,6 +531,17 @@ export default defineComponent({
       buscarGeneroSpotify,
       artistFormVisible,
       toggleArtistForm,
+      showImageModal,
+      newImageUrl,
+      openImageModal,
+      closeImageModal,
+      updateImageUrl,
+      showArtistModal,
+      newArtistName,
+      openArtistModal,
+      closeArtistModal,
+      creatingNewArtist,
+      handleArtistUpdate,
     };
   },
 });
@@ -492,6 +586,4 @@ export default defineComponent({
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-/* Clases adicionales para botones, inputs y otros estilos se pueden agregar o ajustar según necesidad */
 </style>
