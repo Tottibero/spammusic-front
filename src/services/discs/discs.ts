@@ -81,6 +81,7 @@ export async function updateDisc(
     releaseDate?: any;
     verified?: boolean;
     ep?: boolean;
+    artistId?: string;
   }
 ): Promise<void> {
   console.log("entra", id);
