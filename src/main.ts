@@ -9,6 +9,10 @@ import 'sweetalert2/dist/sweetalert2.min.css';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 
+import SidebarMenu from "./layouts/default/components/SidebarMenu.vue";
+console.log(SidebarMenu);
+
+
 import './style.css';
 import './index.css';
 
