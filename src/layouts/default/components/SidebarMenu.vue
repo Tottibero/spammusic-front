@@ -1,15 +1,13 @@
 <template>
   <aside
     :class="[
-      'w-64 bg-gradient-to-l from-[#0f0f0f] to-[#211d1d] text-white flex flex-col justify-between fixed h-screen transform transition-transform duration-300 z-10',
+      'w-64 bg-gradient-to-l from-gray-900 to-gray-950 text-white flex flex-col justify-between fixed h-screen transform transition-transform duration-300 z-10',
       menuVisible ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
     ]"
   >
     <!-- Disc-App -->
     <div>
-      <div
-        class="p-4 text-xl font-bold border-b border-gray-700 flex items-center justify-center space-x-3"
-      >
+      <div class="p-4 text-xl font-bold border-b border-gray-700 flex items-center justify-center space-x-3">
         <img src="/LOGO-SPAM-MUSIC.svg" alt="Logo" class="w-8 h-8" />
         <span>Spam Music</span>
       </div>
@@ -23,6 +21,7 @@
           :to="route.to"
           class="block px-4 py-2 rounded transition-all duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
           :active-class="'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-[#211d1d]'"
+          @click="closeMenu"
         >
           {{ route.label }}
         </router-link>
@@ -41,6 +40,7 @@
           :to="route.to"
           class="block px-4 py-2 rounded transition-all duration-300 hover:bg-gradient-to-r hover:from-[#ee6f86]/50 hover:to-[#2759c1]/50 hover:text-white"
           :active-class="'bg-gradient-to-r from-[#ee6f86] to-[#2759c1] text-[#FFFFFF]'"
+          @click="closeMenu"
         >
           {{ route.label }}
         </router-link>
@@ -55,6 +55,7 @@
         :to="route.to"
         class="block px-4 py-2 rounded transition-all duration-300 hover:bg-red-600"
         :active-class="'bg-red-600 text-white'"
+        @click="closeMenu"
       >
         {{ route.label }}
       </router-link>
@@ -72,7 +73,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from "vue";
+import { defineComponent, computed, watch } from "vue";
 import { useAuthStore } from "@stores/auth/auth.ts";
 import routes from "./routes.json"; // Archivo JSON con las rutas
 
@@ -84,7 +85,8 @@ export default defineComponent({
       required: true,
     },
   },
-  setup() {
+  emits: ["close-menu"],
+  setup(props, { emit }) {
     const authStore = useAuthStore();
 
     const handleLogout = () => {
@@ -92,7 +94,19 @@ export default defineComponent({
       window.location.href = "/"; // Redirige al usuario al inicio tras el logout
     };
 
-    // Función para filtrar rutas según roles
+    const closeMenu = () => {
+      console.log("📌 Emitiendo `close-menu` desde SidebarMenu.vue");
+      emit("close-menu");
+    };
+
+        // 🔍 Si `menuVisible` cambia a false, imprimir en consola
+    watch(
+      () => props.menuVisible,
+      (newValue) => {
+        console.log("🔄 `menuVisible` cambiado en SidebarMenu.vue:", newValue);
+      }
+    );
+
     const filterRoutesByRole = (routesList) => {
       return routesList.filter((route) => {
         if (route.requiredRole) {
@@ -102,7 +116,6 @@ export default defineComponent({
       });
     };
 
-    // Filtrar rutas según tipo y permisos
     const filteredDiscAppRoutes = computed(() =>
       filterRoutesByRole(routes.filter((route) => route.type === "disc-app"))
     );
@@ -115,6 +128,7 @@ export default defineComponent({
 
     return {
       handleLogout,
+      closeMenu,
       logoutLabel: "Cerrar sesión",
       filteredDiscAppRoutes,
       filteredRiffValleyRoutes,
@@ -123,12 +137,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style scoped>
-@media (max-width: 768px) {
-  aside {
-    width: 100%;
-    height: 100%;
-  }
-}
-</style>

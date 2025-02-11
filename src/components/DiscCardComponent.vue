@@ -1,39 +1,35 @@
 <template>
-  <div
-    class="card border rounded shadow-lg bg-white flex flex-col max-w-[20rem] mx-auto p-2"
-  >
-    <!-- Fecha encima de la imagen -->
-    <div class="flex flex-col items-center">
-      <div class="flex space-x-2 mt-1">
-        <p class="text-xs text-gray-500 text-center mb-1">
-          {{ formattedDate }}
-        </p>
-        <p
-          class="px-1 py-0.5 rounded text-xs font-medium text-white"
-          :style="{ backgroundColor: genreColor || 'grey' }"
-        >
-          {{ genreName || "Sin género" }}
-        </p>
-        <p
-          v-if="isEP"
-          class="px-1 py-0.5 rounded text-xs font-medium text-white bg-blue-500"
-        >
-          EP
-        </p>
-      </div>
-    </div>
+  <div class="flex flex-wrap justify-center gap-4">
+  <DiscCardComponent
+    v-for="(disc, index) in discs"
+    :key="index"
+    v-bind="disc"
+    class="w-full sm:w-[48%] md:w-[31%] lg:w-[23%]"
+  />
+  <div class="card w-full max-w-[20rem] border rounded shadow-lg bg-white flex flex-col mx-auto p-2 relative">
+    <div class="flex items-center justify-between px-2">
+      <p class="text-xs text-gray-500">{{ formattedDate }}</p>
+      <p v-if="isEP" class="px-2 py-1 rounded-full text-xs font-medium text-white bg-blue-500 text-center shadow-sm">
+        EP
+      </p>
+      <p class="px-2 py-1 rounded-full text-xs font-medium text-white text-center shadow-sm" :style="{ backgroundColor: genreColor || 'grey' }">
+        {{ genreName || "Sin género" }}
+      </p>
 
+    </div>
+    
     <!-- Imagen y estadísticas -->
     <div class="flex items-center mt-3">
       <div class="flex flex-col items-center">
         <img
           :src="computedImage"
           :alt="name"
-          class="w-24 h-24 object-cover rounded mb-1"
+          class="w-24 h-24 object-cover rounded mb-1 cursor-zoom-in hover:opacity-80"
+          @click="openImage"
         />
         <div class="flex space-x-2 mt-1">
           <div
-            class="flex flex-col items-center w-12 h-12 border rounded-lg shadow-md p-0.5 bg-gray-100"
+            class="flex flex-col items-center w-12 h-12 border rounded-lg shadow-lg bg-gray-100"
           >
             <p class="text-sm font-bold text-blue-600">
               {{ averageRate ? averageRate.toFixed(2) : "-" }}
@@ -41,7 +37,7 @@
             <p class="text-xs text-gray-700">Rate</p>
           </div>
           <div
-            class="flex flex-col items-center w-12 h-12 border rounded-lg shadow-md p-0.5 bg-gray-100"
+            class="flex flex-col items-center w-12 h-12 border rounded-lg shadow-lg bg-gray-100"
           >
             <p class="text-sm font-bold text-green-600">
               {{ averageCover ? averageCover.toFixed(2) : "-" }}
@@ -59,15 +55,58 @@
         </div>
         <p class="text-xs text-gray-600 mb-1">{{ artistName }}</p>
 
-        <!-- Enlace a Spotify -->
-        <a
-          v-if="link"
-          :href="link"
-          target="_blank"
-          class="text-blue-500 text-xs hover:underline mb-2"
-        >
-          Escuchar en Spotify
-        </a>
+        <!-- Botón de Escuchar -->
+        <div class="flex items-center space-x-2">
+          <a
+    v-if="link"
+    :href="link"
+    target="_blank"
+            class="px-2 py-1 rounded-full text-xs font-medium text-white text-center shadow-sm bg-green-400 hover:bg-green-500 hover:text-white transition-all w-1/2 text-left"
+  >
+    Escuchar
+  </a>
+
+              <!-- Íconos -->
+              <div class="flex space-x-2 items-center">
+        <!-- Icono de corazón -->
+        <svg
+    id="heart-icon"
+    xmlns="http://www.w3.org/2000/svg"
+    class="h-6 w-6 cursor-pointer transition-all duration-300 ease-in-out fill-current"
+    :class="{ 
+      'text-red-500 scale-110': isHeartActive, 
+      'text-gray-500 hover:text-red-400': !isHeartActive 
+    }"
+    viewBox="0 0 24 24"
+    @click="toggleHeart"
+  >
+    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+  </svg>
+        
+        <!-- Icono de más/tick -->
+        <div class="group cursor-pointer" @click="togglePlus">
+    <svg
+      id="plus-icon"
+      xmlns="http://www.w3.org/2000/svg"
+      class="h-6 w-6 transition-all duration-100 ease-in-out group-hover:stroke-green-400 group-hover:text-green-400"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <template v-if="!isPlusActive">
+        <circle cx="12" cy="12" r="9" class="stroke-gray-500 group-hover:stroke-green-400 transition-all duration-100"/>
+        <path d="M12 8v8M8 12h8" class="stroke-gray-500 group-hover:stroke-green-400 transition-all duration-100"/>
+      </template>
+      <template v-else>
+        <path d="M5 13l4 4L19 7" class="stroke-green-500 scale-110 transition-all duration-100"/>
+      </template>
+    </svg>
+  </div>
+                    </div>
+      </div>
 
         <!-- Formulario -->
         <div class="flex flex-col space-y-1">
@@ -97,22 +136,30 @@
       </div>
     </div>
 
-    <!-- Botones -->
-    <div class="flex space-x-1 mt-2">
-      <button
-        @click="toggleVotes"
-        class="bg-blue-500 text-white text-xs px-2 py-1 rounded hover:bg-blue-600 flex-1"
-      >
-        {{ showVotes ? "Ocultar Votos" : "Ver Votos" }}
-      </button>
+<!-- Botones -->
+<div class="flex mt-2 space-x-2 w-full">
+  <button
+  @click="toggleVotes"
+class="w-1/2 bg-gray-900 text-white font-bold py-2 px-4 rounded-lg shadow-lg border-4 border-transparent hover:border-gray-900 hover:bg-gradient-to-l from-gray-600 to-gray-900 flex items-center justify-center space-x-2"
+>
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z" />
+  </svg>
+  <span>{{ showVotes ? "Ocultar" : "Votaciones" }}</span>
+</button>
+  
+  <button
+    @click="submitRating"
+    class="w-1/2 bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-lg shadow-lg border-4 border-transparent hover:border-[#d9e021] hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] flex items-center justify-center space-x-2"
+  >
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+</svg>
 
-      <button
-        @click="submitRating"
-        class="bg-green-500 text-white text-xs px-2 py-1 rounded hover:bg-green-600 flex-1"
-      >
-        {{ hasVoted ? "Actualizar" : "Votar" }}
-      </button>
-    </div>
+    <span>{{ hasVoted ? "Actualizar" : "Votar" }}</span>
+  </button>
+</div>
+
 
     <!-- Lista de votos -->
     <div v-if="showVotes" class="mt-3">
@@ -131,6 +178,7 @@
       </ul>
     </div>
   </div>
+    </div>
 </template>
 
 <script lang="ts">
@@ -151,6 +199,7 @@ import {
   updateRateService,
 } from "@services/rates/rates.ts";
 import Swal from "sweetalert2";
+
 export default defineComponent({
   props: {
     id: { type: String, required: true },
@@ -179,6 +228,9 @@ export default defineComponent({
     const showVotes = ref(false); // Estado para mostrar/ocultar votos
     const votes = ref<Vote[]>([]); // Lista de votos obtenida del servicio
     const isEP = computed(() => props.ep);
+    const isHeartActive = ref(false);
+    const isPlusActive = ref(false);
+
 
     // Determinar si el usuario ya votó
     const hasVoted = ref(!!props.userDiscRate);
@@ -193,6 +245,18 @@ export default defineComponent({
         year: "numeric",
       });
     });
+
+    const openImage = () => {
+    window.open(props.image, '_blank');
+  };
+
+    const toggleHeart = () => {
+      isHeartActive.value = !isHeartActive.value;
+    };
+
+    const togglePlus = () => {
+      isPlusActive.value = !isPlusActive.value;
+    };
 
     const toggleVotes = async () => {
       showVotes.value = !showVotes.value;
@@ -269,11 +333,17 @@ export default defineComponent({
       toggleVotes,
       submitRating,
       hasVoted,
-      isEP
+      isEP,
+      isHeartActive,
+      isPlusActive,
+      toggleHeart,
+      togglePlus,
+      openImage,
     };
   },
 });
 </script>
+
 
 <style scoped>
 .card {
