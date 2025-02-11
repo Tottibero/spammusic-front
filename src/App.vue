@@ -1,7 +1,11 @@
 <template>
-
   <div id="app-container">
-    <!-- Use the ToastContainer component -->
+    <!-- Mostrar SidebarMenu solo si no es la página de login -->
+    <SidebarMenu 
+      v-if="!isLoginPage"
+      :menuVisible="menuVisible"
+      @close-menu="closeMenuHandler"
+    />
 
     <!-- Layout logic -->
     <component :is="layoutComponent">
@@ -11,30 +15,42 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import DefaultLayout from './layouts/default/DefaultLayout.vue';
-import LoginLayout from './layouts/auth/LoginLayout.vue';
-// Remove this if "vue3-toaster/styles" is causing errors and isn't required:
+import { defineComponent, ref, computed, watch } from "vue";
+import { useRoute } from "vue-router";
+import DefaultLayout from "./layouts/default/DefaultLayout.vue";
+import LoginLayout from "./layouts/auth/LoginLayout.vue";
+import SidebarMenu from "@/layouts/default/components/SidebarMenu.vue";
 
 export default defineComponent({
-  name: 'App',
+  name: "App",
   components: {
+    SidebarMenu,
   },
-  data() {
-    return {
-      toastConnfigOptions: {
-        pauseOnHover: true,
-        closable: true,
-        closeOnDoubleClick: true
-      }
+  setup() {
+    const menuVisible = ref(false);
+    const route = useRoute();
+
+    const closeMenuHandler = () => {
+      console.log("✅ `closeMenuHandler()` ejecutado en App.vue");
+      menuVisible.value = false;
     };
-  },
-  computed: {
-    layoutComponent() {
-      // Determina el layout según el nombre de la ruta
-      const routeName = this.$route.name;
-      return routeName === 'Login' ? LoginLayout : DefaultLayout;
-    },
+
+    // Detectar si estamos en la página de login
+    const isLoginPage = computed(() => route.name === "Login");
+
+    watch(route, () => {
+      console.log("🔄 Cambio de ruta detectado, cerrando menú...");
+      menuVisible.value = false;
+    });
+
+    return {
+      menuVisible,
+      closeMenuHandler,
+      isLoginPage, // ✅ Nueva variable reactiva para detectar login
+      layoutComponent: computed(() => {
+        return route.name === "Login" ? LoginLayout : DefaultLayout;
+      }),
+    };
   },
 });
 </script>
