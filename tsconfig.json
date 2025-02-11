@@ -21,7 +21,8 @@
       "@views/*": ["src/views/*"],
       "@components/*": ["src/components/*"],
       "@services/*": ["src/services/*"],
-      "@interfaces/*": ["src/interfaces/*"]
+      "@interfaces/*": ["src/interfaces/*"],
+      "@":["src"]
     }
   }
 }
