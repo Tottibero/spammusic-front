@@ -53,7 +53,7 @@
         v-for="route in filteredBottomRoutes"
         :key="route.to"
         :to="route.to"
-        class="block px-4 py-2 rounded transition-all duration-300 hover:bg-red-600"
+           class="block px-4 py-2 rounded transition-all duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
         :active-class="'bg-red-600 text-white'"
         @click="closeMenu"
       >
