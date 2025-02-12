@@ -105,35 +105,37 @@
       </div>
 
       <!-- Botones -->
-      <div class="flex mt-2 space-x-2 w-full">
+      <!-- Votos -->
+      <div class="flex mt-2 w-full space-x-1">
         <button @click="toggleVotes"
-          class="w-1/2 bg-gray-900 text-white font-bold py-2 px-4 rounded-lg shadow-sm border-4 border-transparent hover:border-gray-900 hover:bg-gradient-to-l from-gray-600 to-gray-900 flex items-center justify-center space-x-2">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-            stroke="currentColor" class="size-6">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z" />
-          </svg>
-          <span>{{ showVotes ? "Ocultar" : "Votaciones" }}</span>
+          class="w-1/3 bg-gray-900 text-white font-bold py-2 px-4 rounded-lg shadow-sm border-4 border-transparent hover:border-gray-900 hover:bg-gradient-to-l from-gray-600 to-gray-900 flex items-center justify-center space-x-2">
+          <i class="fa-solid fa-square-poll-vertical text-white text-sm"></i>
+          <span>{{ showVotes ? "Ocultar" : "Votos" }}</span>
         </button>
 
+        <!-- Botón de Notas con contador de comentarios -->
+        <button @click="showCommentsModal = true"
+          class="w-1/3 bg-gray-900 text-white font-bold py-2 px-4 rounded-lg shadow-sm border-4 border-transparent hover:border-gray-900 hover:bg-gradient-to-l from-gray-600 to-gray-900 flex items-center justify-center space-x-2">
+          <i class="fa-solid fa-comment-dots text-white text-sm"></i>
+          <span>Notas</span>
+          <span v-if="comments.length" class="text-xs font-bold ml-1 text-[#d9e021]">({{ comments.length }})</span>
+        </button>
+
+        <!-- Actualizar/Votar -->
         <button @click="submitRating"
-  class="w-1/2 bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-lg shadow-sm border-4 border-transparent hover:border-[#d9e021] hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] flex items-center justify-center space-x-2">
-  
-  <template v-if="hasVoted">
-    <!-- Ícono actual para "Actualizar" -->
-    <i class="fa-solid fa-arrows-rotate text-gray-700 text-lg"></i>
-  </template>
-  
-  <template v-else>
-    <!-- Ícono de lápiz solo en "Votar" -->
-    <i class="fa-solid fa-pen-to-square text-gray-700 text-lg"></i>
-  </template>
+          class="w-1/3 bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-lg shadow-sm border-4 border-transparent hover:border-[#d9e021] hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] flex items-center justify-center space-x-2">
 
-  <span>{{ hasVoted ? "Actualizar" : "Votar" }}</span>
-</button>
+          <template v-if="hasVoted">
+            <i class="fa-solid fa-arrows-rotate text-gray-700 text-sm"></i>
+          </template>
 
+          <template v-else>
+            <i class="fa-solid fa-pen-to-square text-gray-700 text-sm"></i>
+          </template>
+
+          <span>{{ hasVoted ? "Actualizar" : "Votar" }}</span>
+        </button>
       </div>
-
 
       <!-- Lista de votos -->
       <div v-if="showVotes" class="mt-3">
@@ -148,11 +150,50 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal de Comentarios -->
+  <transition name="fade">
+    <div v-if="showCommentsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg shadow-lg p-5 w-11/12 md:w-2/3 lg:w-1/3">
+
+        <!-- Header del modal -->
+        <div class="flex justify-between items-center border-b pb-2">
+          <h2 class="text-lg font-bold">Comentarios del disco</h2>
+          <button @click="showCommentsModal = false" class="text-gray-500 hover:text-red-500 text-lg">&times;</button>
+        </div>
+
+        <!-- Lista de comentarios -->
+        <div class="mt-4 space-y-2 max-h-60 overflow-y-auto">
+          <p v-if="comments.length === 0" class="text-gray-500 text-sm">No hay comentarios todavía.</p>
+          <div v-for="(comment, index) in comments" :key="index"
+            class="border-b pb-2 flex justify-between items-center">
+            <p class="text-sm text-gray-700"><strong>{{ comment.user }}</strong>: {{ comment.text }}</p>
+
+            <!-- Botón para eliminar comentario -->
+            <button @click="deleteComment(index)" class="text-red-500 hover:text-red-700 text-lg font-bold">
+              &times;
+            </button>
+          </div>
+        </div>
+
+        <!-- Campo para escribir un comentario -->
+        <div class="mt-4">
+          <textarea v-model="newComment" placeholder="Escribe tu comentario..."
+            class="w-full border rounded p-2 text-sm"></textarea>
+          <button @click="submitComment"
+            class="mt-2 w-full bg-gray-900 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-700 transition-all">
+            Enviar comentario
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </transition>
 </template>
 
 <script lang="ts">
 interface Vote {
-  id: string; // o el tipo correcto, como number
+  id: string;
   user: {
     username: string;
   };
@@ -161,7 +202,7 @@ interface Vote {
 }
 
 import defaultImage from "/src/assets/disco.png";
-import { defineComponent, ref, computed } from "vue";
+import { defineComponent, ref, computed, onMounted } from "vue";
 import {
   getDiscRates,
   postRateService,
@@ -194,19 +235,16 @@ export default defineComponent({
   },
   setup(props) {
     const localRating = ref({ rate: props.rate, cover: props.cover });
-    const showVotes = ref(false); // Estado para mostrar/ocultar votos
-    const votes = ref<Vote[]>([]); // Lista de votos obtenida del servicio
+    const showVotes = ref(false);
+    const votes = ref<Vote[]>([]);
     const isEP = computed(() => props.ep);
     const isHeartActive = ref(false);
     const isPlusActive = ref(false);
     const isBookmarkActive = ref(false);
 
-
-    // Determinar si el usuario ya votó
     const hasVoted = ref(!!props.userDiscRate);
-    const userDiscRateId = ref(props.userDiscRate); // Almacena el id del voto si ya existe
+    const userDiscRateId = ref(props.userDiscRate);
 
-    // Formatear la fecha
     const formattedDate = computed(() => {
       const date = new Date(props.releaseDate);
       return date.toLocaleDateString("es-ES", {
@@ -217,7 +255,7 @@ export default defineComponent({
     });
 
     const openImage = () => {
-      window.open(props.image, '_blank');
+      window.open(props.image, "_blank");
     };
 
     const toggleHeart = () => {
@@ -234,9 +272,7 @@ export default defineComponent({
 
     const toggleVotes = async () => {
       showVotes.value = !showVotes.value;
-
       if (showVotes.value && votes.value.length === 0) {
-        // Cargar los votos solo si se muestran y no han sido cargados antes
         try {
           votes.value = await getDiscRates(props.id);
         } catch (error) {
@@ -263,14 +299,12 @@ export default defineComponent({
       };
       try {
         if (payload.rate == 0) payload.rate = null;
-        if (payload.rate == 0) payload.cover = null;
+        if (payload.cover == 0) payload.cover = null;
 
         if (!hasVoted.value) {
-          console.log("payload", payload);
-          const response = await postRateService(payload); // Asegúrate de que este servicio devuelva el `id` del nuevo voto
-          console.log("response: " + response.id);
-          userDiscRateId.value = response.id; // Guardar el `id` del nuevo voto
-          hasVoted.value = true; // Cambiar estado a "ya votó"
+          const response = await postRateService(payload);
+          userDiscRateId.value = response.id;
+          hasVoted.value = true;
         } else {
           await updateRateService(userDiscRateId.value, payload);
         }
@@ -299,6 +333,34 @@ export default defineComponent({
       }
     };
 
+    const showCommentsModal = ref(false);
+    const comments = ref<{ user: string; text: string }[]>([]);
+    const newComment = ref("");
+
+    onMounted(() => {
+      const storedComments = localStorage.getItem("comments");
+      if (storedComments) {
+        comments.value = JSON.parse(storedComments);
+      }
+    });
+
+    const saveComments = () => {
+      //localStorage.setItem("comments", JSON.stringify(comments.value));
+    };
+
+    const submitComment = () => {
+      if (newComment.value.trim() !== "") {
+        comments.value.push({ user: "Tú", text: newComment.value });
+        newComment.value = "";
+        saveComments();
+      }
+    };
+
+    const deleteComment = (index: number) => {
+      comments.value.splice(index, 1);
+      saveComments();
+    };
+
     return {
       localRating,
       formattedDate,
@@ -315,6 +377,11 @@ export default defineComponent({
       openImage,
       isBookmarkActive,
       toggleBookmark,
+      showCommentsModal,
+      comments,
+      newComment,
+      submitComment,
+      deleteComment,
     };
   },
 });
