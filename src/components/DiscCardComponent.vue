@@ -25,24 +25,26 @@
               <p class="text-sm font-bold text-blue-600">
                 {{ averageRate ? averageRate.toFixed(2) : "-" }}
               </p>
-              <p class="text-xs text-gray-700">Rate</p>
+              <p class="text-xs font-semibold text-gray-700">Rate</p>
             </div>
             <div class="flex flex-col items-center w-12 h-12 border rounded-lg shadow-lg bg-gray-100">
-              <p class="text-sm font-bold text-green-600">
+              <p class="text-sm font-bold font text-green-600">
                 {{ averageCover ? averageCover.toFixed(2) : "-" }}
               </p>
-              <p class="text-xs text-gray-700">Cover</p>
+              <p class="text-xs font-semibold text-gray-700">Cover</p>
             </div>
           </div>
         </div>
 
         <!-- Contenido al lado derecho -->
         <div class="ml-2 flex flex-1 flex-col">
-          <!-- Título y género -->
+          <!-- Título y artista alineados -->
           <div class="flex justify-between items-center mb-1">
             <h2 class="text-sm font-semibold truncate">{{ name }}</h2>
           </div>
-          <p class="text-xs text-gray-600 mb-1">{{ artistName }}</p>
+          <div class="flex justify-between items-center mb-1">
+            <p class="text-xs text-gray-600 truncate">{{ artistName }}</p>
+          </div>
 
           <!-- Botón de Escuchar -->
           <div class="flex items-center space-x-2">
@@ -51,36 +53,38 @@
               Escuchar
             </a>
 
-<!-- Íconos -->
-<div class="flex space-x-2 items-center">
-  <!-- Icono de corazón con tooltip -->
-  <div class="relative group">
-    <font-awesome-icon :icon="['fas', 'heart']"
-      class="h-7 w-5 cursor-pointer transition-all duration-300 ease-in-out fill-current" :class="{
-        'text-red-500 scale-110': isHeartActive,
-        'text-gray-500 hover:text-red-400': !isHeartActive
-      }" @click="toggleHeart" />
+            <!-- Íconos -->
+            <div class="flex space-x-2 items-center">
+              <!-- Icono de corazón con tooltip -->
+              <div class="relative group">
+                <font-awesome-icon :icon="['fas', 'heart']"
+                  class="h-7 w-5 cursor-pointer transition-all duration-300 ease-in-out fill-current" :class="{
+                    'text-red-500 scale-110': isHeartActive,
+                    'text-gray-500 hover:text-red-400': !isHeartActive
+                  }" @click="toggleHeart" />
 
-    <!-- Tooltip -->
-    <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs font-semibold text-white bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-      Favoritos
-    </span>
-  </div>
+                <!-- Tooltip -->
+                <span
+                  class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs font-semibold text-white bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  Favoritos
+                </span>
+              </div>
 
-  <!-- Icono de bookmark con tooltip -->
-  <div class="relative group cursor-pointer" @click="toggleBookmark">
-    <font-awesome-icon :icon="['fas', 'bookmark']"
-      class="h-5 w-5 transition-all duration-300 ease-in-out fill-current mt-1 cursor-pointer" :class="{
-        'text-green-500 scale-110': isBookmarkActive,
-        'text-gray-500 hover:text-green-400': !isBookmarkActive
-      }" />
+              <!-- Icono de bookmark con tooltip -->
+              <div class="relative group cursor-pointer" @click="toggleBookmark">
+                <font-awesome-icon :icon="['fas', 'bookmark']"
+                  class="h-5 w-5 transition-all duration-300 ease-in-out fill-current mt-1 cursor-pointer" :class="{
+                    'text-blue-500 scale-110': isBookmarkActive,
+                    'text-gray-500 hover:text-blue-400': !isBookmarkActive
+                  }" />
 
-    <!-- Tooltip -->
-    <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs font-semibold text-white bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-      Pendientes
-    </span>
-  </div>
-</div>
+                <!-- Tooltip -->
+                <span
+                  class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs font-semibold text-white bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  Pendientes
+                </span>
+              </div>
+            </div>
 
           </div>
 
@@ -113,15 +117,25 @@
         </button>
 
         <button @click="submitRating"
-          class="w-1/2 bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-lg shadow-sm border-4 border-transparent hover:border-[#d9e021] hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] flex items-center justify-center space-x-2">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-            stroke="currentColor" class="size-6">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-          </svg>
+  class="w-1/2 bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-lg shadow-sm border-4 border-transparent hover:border-[#d9e021] hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] flex items-center justify-center space-x-2">
+  
+  <template v-if="hasVoted">
+    <!-- Ícono actual para "Actualizar" -->
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+      stroke="currentColor" class="size-6">
+      <path stroke-linecap="round" stroke-linejoin="round"
+        d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+    </svg>
+  </template>
+  
+  <template v-else>
+    <!-- Ícono de lápiz solo en "Votar" -->
+    <i class="fa-solid fa-pen-to-square text-gray-700 text-lg"></i>
+  </template>
 
-          <span>{{ hasVoted ? "Actualizar" : "Votar" }}</span>
-        </button>
+  <span>{{ hasVoted ? "Actualizar" : "Votar" }}</span>
+</button>
+
       </div>
 
 
