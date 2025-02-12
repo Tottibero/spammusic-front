@@ -39,15 +39,15 @@
         <!-- Contenido al lado derecho -->
         <div class="ml-2 flex flex-1 flex-col">
           <!-- Título y artista alineados -->
-          <div class="flex justify-between items-center mb-1">
+          <div class="flex justify-between items-center">
             <h2 class="text-sm text-gray-900 font-semibold truncate">{{ name }}</h2>
           </div>
-          <div class="flex justify-between items-center mb-1">
-            <p class="text-xs text-gray-500 font-semibold italic truncate">{{ artistName }}</p>
+          <div class="flex justify-between items-center">
+            <p class="text-xs text-gray-500 font-semibold italic">{{ artistName }}</p>
           </div>
 
           <!-- Botón de Escuchar -->
-          <div class="flex items-center space-x-2">
+          <div class="flex items-center space-x-2 mt-1">
             <a v-if="link" :href="link" target="_blank"
               class="px-2 py-1 rounded-full text-xs font-medium text-white text-center shadow-sm bg-green-400 hover:bg-green-500 hover:text-white transition-all w-1/2 text-left">
               Escuchar
