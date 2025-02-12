@@ -40,10 +40,10 @@
         <div class="ml-2 flex flex-1 flex-col">
           <!-- Título y artista alineados -->
           <div class="flex justify-between items-center mb-1">
-            <h2 class="text-sm font-semibold truncate">{{ name }}</h2>
+            <h2 class="text-sm text-gray-900 font-semibold truncate">{{ name }}</h2>
           </div>
           <div class="flex justify-between items-center mb-1">
-            <p class="text-xs text-gray-600 truncate">{{ artistName }}</p>
+            <p class="text-xs text-gray-500 font-semibold italic truncate">{{ artistName }}</p>
           </div>
 
           <!-- Botón de Escuchar -->
