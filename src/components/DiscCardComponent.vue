@@ -127,26 +127,26 @@
 
           <!-- Formulario -->
           <div class="flex flex-col space-y-1">
-            <label class="text-xs text-gray-500">
-              Rate:
+            <label class="text-xs text-gray-500 translate-x-1.5">
+              Disco:
               <input
                 type="number"
                 step="0.01"
                 v-model="localRating.rate"
                 min="1"
                 max="10"
-                class="px-0 py-1 border rounded 1/2 text-xs font-bold text-center translate-x-1 text-gray-500 mt-3 mb-1"
+                class="px-0 py-1 border w-16 rounded 1/2 text-xs font-bold text-center text-gray-500 mt-3 mb-1 ml-0.5"
               />
             </label>
             <label class="text-xs text-gray-500">
-              Cover:
+              Portada:
               <input
                 type="number"
                 step="0.01"
                 v-model="localRating.cover"
                 min="1"
                 max="10"
-                class="px-0 py-1 border font-bold rounded 1/2 text-center text-xs mb-1"
+                class="px-0 py-1 w-16 border font-bold rounded 1/2 text-center text-xs mb-1 ml-0.5"
               />
             </label>
           </div>
