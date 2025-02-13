@@ -13,7 +13,7 @@
       <select
         id="genreSelect"
         v-model="selectedGenre"
-        @change="fetchData(true)"
+        @change="resetAndFetch"
         class="flex-[2] border rounded px-3 py-2 text-gray-700 focus:outline-none"
       >
         <option value="">Seleccione un género</option>
@@ -80,6 +80,7 @@
       />
     </div>
 
+    <!-- Elemento para disparar la carga adicional -->
     <div ref="loadMore" class="mt-10 text-center">
       <span v-if="loading" class="text-gray-600">Cargando más discos...</span>
     </div>
@@ -111,7 +112,17 @@ export default defineComponent({
     const selectedWeek = ref(null);
     const genres = ref<any[]>([]);
     const selectedGenre = ref("");
-    const viewMode = ref("all"); // "all" | "favorites" | "rates"
+    const viewMode = ref("all");
+    const loadMore = ref(null);
+
+    const fetchGenres = async () => {
+      try {
+        const response = await getGenres(50, 0);
+        genres.value = response.data;
+      } catch (error) {
+        console.error("Error fetching genres:", error);
+      }
+    };
 
     const fetchData = async (reset = false) => {
       if (loading.value) return;
@@ -155,12 +166,15 @@ export default defineComponent({
       }
     };
 
-    const fetchGenres = async () => {
-      try {
-        const response = await getGenres(50, 0);
-        genres.value = response.data;
-      } catch (error) {
-        console.error("Error fetching genres:", error);
+    const setupObserver = () => {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore.value) {
+          fetchData();
+        }
+      });
+
+      if (loadMore.value) {
+        observer.observe(loadMore.value);
       }
     };
 
@@ -172,6 +186,7 @@ export default defineComponent({
     onMounted(() => {
       fetchGenres();
       fetchData();
+      setupObserver();
     });
 
     return {
@@ -182,6 +197,7 @@ export default defineComponent({
       selectedGenre,
       genres,
       viewMode,
+      loadMore,
     };
   },
 });
