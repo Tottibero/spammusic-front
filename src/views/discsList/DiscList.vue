@@ -1,6 +1,6 @@
 <template>
   <div class="max-w-[100rem] mx-auto mt-10 px-4">
-    <h1 class="text-4xl font-bold mb-8 text-center">Álbumes</h1>
+    <h1 class="text-4xl font-bold mb-8 text-center">Discos</h1>
 
     <!-- Filtros -->
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:space-x-4">
@@ -32,27 +32,43 @@
     <!-- Selección de tipo de vista (Estilo Chips) -->
     <div class="mb-6 flex justify-start space-x-2">
       <label
-        class="px-4 py-2 rounded-full cursor-pointer text-sm font-medium transition-all duration-200"
-        :class="viewMode === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
+        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
+        :class="viewMode === 'all' ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
       >
         <input type="radio" v-model="viewMode" value="all" class="hidden" />
         Todos los discos
       </label>
 
       <label
-        class="px-4 py-2 rounded-full cursor-pointer text-sm font-medium transition-all duration-200"
-        :class="viewMode === 'rates' ? 'bg-yellow-500 text-white' : 'bg-gray-200 hover:bg-yellow-500'"
+        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
+        :class="viewMode === 'rates' ? 'bg-blue-500 text-white' : 'bg-gray-200 hover:bg-gray-300'"
       >
         <input type="radio" v-model="viewMode" value="rates" class="hidden" />
         Mis votos
       </label>
 
       <label
-        class="px-4 py-2 rounded-full cursor-pointer text-sm font-medium transition-all duration-200"
-        :class="viewMode === 'favorites' ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-red-500'"
+        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
+        :class="viewMode === 'covers' ? 'bg-green-500 text-white' : 'bg-gray-200 hover:bg-gray-300'"
+      >
+        <input type="radio" v-model="viewMode" value="covers" class="hidden" />
+        Mis portadas (soon)
+      </label>
+
+      <label
+        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
+        :class="viewMode === 'favorites' ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
       >
         <input type="radio" v-model="viewMode" value="favorites" class="hidden" />
         Favoritos
+      </label>
+
+      <label
+        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
+        :class="viewMode === 'pendientes' ? 'bg-yellow-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
+      >
+        <input type="radio" v-model="viewMode" value="pendientes" class="hidden" />
+        Pendientes (soon)
       </label>
     </div>
 
