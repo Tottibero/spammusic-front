@@ -57,7 +57,6 @@
         Mis votos
       </label>
 
-
       <label
         class="px-4 py-2 rounded-full cursor-pointer text-sm font-medium transition-all duration-200"
         :class="
@@ -74,7 +73,6 @@
         />
         Favoritos
       </label>
-
     </div>
 
     <!-- Contenedor de cuadrícula para las tarjetas -->
@@ -212,22 +210,27 @@ export default defineComponent({
           selectedWeek.value,
           selectedGenre.value
         );
+
         if (offset.value === 0) {
-          discs.value = [];
+          discs.value = []; // Resetear lista al hacer una nueva consulta
         }
+
+        console.log("response.data", response); // Verificar que la API devuelve los datos correctos
+
         discs.value.push(
           ...response.data.map((favorite) => ({
-            ...favorite.disc,
-            favoriteId: favorite.id, // Agregar ID del favorito
-            userRate: favorite.userRate
+            ...favorite.disc, // Obtener los datos del disco
+            favoriteId: favorite.id, // Asignar el ID del favorito correctamente
+            userRate: favorite.disc.userRate // Acceder correctamente a userRate dentro de disc
               ? {
-                  id: favorite.userRate.id,
-                  rate: favorite.userRate.rate,
-                  cover: favorite.userRate.cover,
+                  id: favorite.disc.userRate.id,
+                  rate: favorite.disc.userRate.rate,
+                  cover: favorite.disc.userRate.cover,
                 }
-              : null,
+              : null, // Si no hay rate, dejarlo en null
           }))
         );
+
         totalItems.value = response.totalItems;
         offset.value += limit.value;
         hasMore.value = offset.value < totalItems.value;
