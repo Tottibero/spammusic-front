@@ -107,10 +107,13 @@ export default defineComponent({
       }
     );
 
-    const filterRoutesByRole = (routesList) => {
+    const filterRoutesByRole = (routesList, requiredRole = null) => {
       return routesList.filter((route) => {
         if (route.requiredRole) {
           return authStore.hasRole(route.requiredRole);
+        }
+        if (requiredRole) {
+          return authStore.hasRole(requiredRole);
         }
         return true;
       });
@@ -120,8 +123,12 @@ export default defineComponent({
       filterRoutesByRole(routes.filter((route) => route.type === "disc-app"))
     );
     const filteredRiffValleyRoutes = computed(() =>
-      filterRoutesByRole(routes.filter((route) => route.type === "riff-valley"))
+      filterRoutesByRole(
+        routes.filter((route) => route.type === "riff-valley"),
+        "riffValley"
+      )
     );
+
     const filteredBottomRoutes = computed(() =>
       filterRoutesByRole(routes.filter((route) => route.type === "bottom"))
     );
