@@ -13,7 +13,7 @@
       <select
         id="genreSelect"
         v-model="selectedGenre"
-        @change="fetchDiscs(true)"
+        @change="fetchData(true)"
         class="flex-[2] border rounded px-3 py-2 text-gray-700 focus:outline-none"
       >
         <option value="">Seleccione un género</option>
@@ -29,17 +29,11 @@
       />
     </div>
 
-    <!-- Selección de tipo de vista (Radio Buttons) -->
     <!-- Selección de tipo de vista (Estilo Chips) -->
-    <!-- Selección de tipo de vista (Estilo Chips) -->
-    <div class="mb-6 flex justify-start space-x">
+    <div class="mb-6 flex justify-start space-x-2">
       <label
         class="px-4 py-2 rounded-full cursor-pointer text-sm font-medium transition-all duration-200"
-        :class="
-          viewMode === 'all'
-            ? 'bg-blue-500 text-white'
-            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-        "
+        :class="viewMode === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
       >
         <input type="radio" v-model="viewMode" value="all" class="hidden" />
         Todos los discos
@@ -47,11 +41,7 @@
 
       <label
         class="px-4 py-2 rounded-full cursor-pointer text-sm font-medium transition-all duration-200"
-        :class="
-          viewMode === 'rates'
-            ? 'bg-yellow-500 text-white'
-            : 'bg-gray-200  hover:bg-yellow-500'
-        "
+        :class="viewMode === 'rates' ? 'bg-yellow-500 text-white' : 'bg-gray-200 hover:bg-yellow-500'"
       >
         <input type="radio" v-model="viewMode" value="rates" class="hidden" />
         Mis votos
@@ -59,27 +49,15 @@
 
       <label
         class="px-4 py-2 rounded-full cursor-pointer text-sm font-medium transition-all duration-200"
-        :class="
-          viewMode === 'favorites'
-            ? 'bg-red-500 text-white'
-            : 'bg-gray-200 text-gray-700 hover:bg-red-500'
-        "
+        :class="viewMode === 'favorites' ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-red-500'"
       >
-        <input
-          type="radio"
-          v-model="viewMode"
-          value="favorites"
-          class="hidden"
-        />
+        <input type="radio" v-model="viewMode" value="favorites" class="hidden" />
         Favoritos
       </label>
     </div>
 
     <!-- Contenedor de cuadrícula para las tarjetas -->
-    <div
-      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6"
-    >
-      <!-- Iteración de discos -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
       <DiscCard
         v-for="disc in discs"
         :key="disc.id"
@@ -102,7 +80,6 @@
       />
     </div>
 
-    <!-- Elemento para disparar la carga adicional -->
     <div ref="loadMore" class="mt-10 text-center">
       <span v-if="loading" class="text-gray-600">Cargando más discos...</span>
     </div>
@@ -124,21 +101,19 @@ export default defineComponent({
     Datepicker,
   },
   setup() {
-    const discs = ref([]); // Lista de discos
+    const discs = ref([]); 
     const limit = ref(20);
     const offset = ref(0);
     const totalItems = ref(0);
     const loading = ref(false);
     const hasMore = ref(true);
-    const loadMore = ref(null);
     const searchQuery = ref("");
     const selectedWeek = ref(null);
     const genres = ref<any[]>([]);
     const selectedGenre = ref("");
-
     const viewMode = ref("all"); // "all" | "favorites" | "rates"
 
-    const fetchDiscs = async (reset = false) => {
+    const fetchData = async (reset = false) => {
       if (loading.value) return;
       loading.value = true;
 
@@ -149,113 +124,58 @@ export default defineComponent({
           hasMore.value = true;
         }
 
-        const response = await getDiscs(
-          limit.value,
-          offset.value,
-          searchQuery.value,
-          selectedWeek.value,
-          selectedGenre.value
-        );
-        discs.value.push(...response.data);
-        totalItems.value = response.totalItems;
-        offset.value += limit.value;
-        hasMore.value = offset.value < totalItems.value;
-      } catch (error) {
-        console.error("Error fetching discs:", error);
-      } finally {
-        loading.value = false;
-      }
-    };
-
-    const fetchRates = async () => {
-      if (loading.value) return;
-      loading.value = true;
-
-      try {
-        const response = await getRatesByUser(
-          limit.value,
-          offset.value,
-          searchQuery.value,
-          selectedWeek.value,
-          selectedGenre.value
-        );
-        if (offset.value === 0) {
-          discs.value = [];
-        }
-        discs.value.push(
-          ...response.data.map((rate) => ({
+        let response;
+        if (viewMode.value === "rates") {
+          response = await getRatesByUser(limit.value, offset.value, searchQuery.value, selectedWeek.value, selectedGenre.value);
+          discs.value.push(...response.data.map((rate) => ({
             ...rate.disc,
             userRate: { rate: rate.rate, cover: rate.cover, id: rate.id },
-          }))
-        );
-        totalItems.value = response.totalItems;
-        offset.value += limit.value;
-        hasMore.value = offset.value < totalItems.value;
-      } catch (error) {
-        console.error("Error fetching rates:", error);
-      } finally {
-        loading.value = false;
-      }
-    };
-
-    const fetchFavorites = async () => {
-      if (loading.value) return;
-      loading.value = true;
-
-      try {
-        const response = await getFavoritesByUser(
-          limit.value,
-          offset.value,
-          searchQuery.value,
-          selectedWeek.value,
-          selectedGenre.value
-        );
-
-        if (offset.value === 0) {
-          discs.value = []; // Resetear lista al hacer una nueva consulta
+          })));
+        } else if (viewMode.value === "favorites") {
+          response = await getFavoritesByUser(limit.value, offset.value, searchQuery.value, selectedWeek.value, selectedGenre.value);
+          discs.value.push(...response.data.map((favorite) => ({
+            ...favorite.disc,
+            favoriteId: favorite.id,
+            userRate: favorite.disc.userRate 
+              ? { id: favorite.disc.userRate.id, rate: favorite.disc.userRate.rate, cover: favorite.disc.userRate.cover }
+              : null,
+          })));
+        } else {
+          response = await getDiscs(limit.value, offset.value, searchQuery.value, selectedWeek.value, selectedGenre.value);
+          discs.value.push(...response.data);
         }
 
-        console.log("response.data", response); // Verificar que la API devuelve los datos correctos
-
-        discs.value.push(
-          ...response.data.map((favorite) => ({
-            ...favorite.disc, // Obtener los datos del disco
-            favoriteId: favorite.id, // Asignar el ID del favorito correctamente
-            userRate: favorite.disc.userRate // Acceder correctamente a userRate dentro de disc
-              ? {
-                  id: favorite.disc.userRate.id,
-                  rate: favorite.disc.userRate.rate,
-                  cover: favorite.disc.userRate.cover,
-                }
-              : null, // Si no hay rate, dejarlo en null
-          }))
-        );
-
         totalItems.value = response.totalItems;
         offset.value += limit.value;
         hasMore.value = offset.value < totalItems.value;
       } catch (error) {
-        console.error("Error fetching favorites:", error);
+        console.error("Error fetching data:", error);
       } finally {
         loading.value = false;
       }
     };
 
-    watch(viewMode, () => {
+    const fetchGenres = async () => {
+      try {
+        const response = await getGenres(50, 0);
+        genres.value = response.data;
+      } catch (error) {
+        console.error("Error fetching genres:", error);
+      }
+    };
+
+    watch([viewMode, searchQuery, selectedGenre, selectedWeek], () => {
       offset.value = 0;
-      discs.value = [];
-      if (viewMode.value === "rates") fetchRates();
-      else if (viewMode.value === "favorites") fetchFavorites();
-      else fetchDiscs(true);
+      fetchData(true);
     });
 
     onMounted(() => {
-      fetchDiscs();
+      fetchGenres();
+      fetchData();
     });
 
     return {
       discs,
-      loadMore,
       loading,
       searchQuery,
       selectedWeek,
