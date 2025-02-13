@@ -31,25 +31,25 @@
           <img
             :src="computedImage"
             :alt="name"
-            class="w-24 h-24 object-cover rounded mb-1 cursor-zoom-in hover:opacity-80"
+            class="w-24 h-24 object-cover rounded mb-2 shadow-md cursor-zoom-in hover:opacity-80"
             @click="openImage"
           />
           <div class="flex space-x-2 mt-1">
             <div
-              class="flex flex-col items-center w-12 h-12 border rounded-lg shadow-lg bg-gray-100"
+              class="flex flex-col items-center w-16 h-12 border rounded-lg shadow-md bg-gray-100 mb-1"
             >
-              <p class="text-sm font-bold text-blue-600">
+              <p class="text-sm font-bold text-blue-600 mt-1">
                 {{ averageRate ? averageRate.toFixed(2) : "-" }}
               </p>
-              <p class="text-xs font-semibold text-gray-700">Rate</p>
+              <p class="text-xs text-gray-700">Disco</p>
             </div>
             <div
-              class="flex flex-col items-center w-12 h-12 border rounded-lg shadow-lg bg-gray-100"
+              class="flex flex-col items-center w-16 h-12 border rounded-lg shadow-md bg-gray-100 mb-1"
             >
-              <p class="text-sm font-bold font text-green-600">
+              <p class="text-sm font-bold font text-green-600 mt-1">
                 {{ averageCover ? averageCover.toFixed(2) : "-" }}
               </p>
-              <p class="text-xs font-semibold text-gray-700">Cover</p>
+              <p class="text-xs text-gray-700">Portada</p>
             </div>
           </div>
         </div>
@@ -74,7 +74,7 @@
               v-if="link"
               :href="link"
               target="_blank"
-              class="px-2 py-1 rounded-full text-xs font-medium text-white text-center shadow-sm bg-green-400 hover:bg-green-500 hover:text-white transition-all w-1/2 text-left"
+              class="px-2 py-1 rounded-full text-xs font-medium text-white text-center shadow-sm bg-green-500 hover:bg-green-600 hover:text-white transition-all w-1/2 text-left"
             >
               Escuchar
             </a>
@@ -110,8 +110,8 @@
                   :icon="['fas', 'bookmark']"
                   class="h-5 w-5 transition-all duration-300 ease-in-out fill-current mt-1 cursor-pointer"
                   :class="{
-                    'text-blue-500 scale-110': isBookmarkActive,
-                    'text-gray-500 hover:text-blue-400': !isBookmarkActive,
+                    'text-yellow-400 scale-110': isBookmarkActive,
+                    'text-gray-500 hover:text-yellow-300': !isBookmarkActive,
                   }"
                 />
 
@@ -127,7 +127,7 @@
 
           <!-- Formulario -->
           <div class="flex flex-col space-y-1">
-            <label class="text-xs text-gray-700">
+            <label class="text-xs text-gray-500">
               Rate:
               <input
                 type="number"
@@ -135,10 +135,10 @@
                 v-model="localRating.rate"
                 min="1"
                 max="10"
-                class="px-1 py-0.5 border rounded w-full text-xs"
+                class="px-0 py-1 border rounded 1/2 text-xs font-bold text-center translate-x-1 text-gray-500 mt-3 mb-1"
               />
             </label>
-            <label class="text-xs text-gray-700">
+            <label class="text-xs text-gray-500">
               Cover:
               <input
                 type="number"
@@ -146,7 +146,7 @@
                 v-model="localRating.cover"
                 min="1"
                 max="10"
-                class="px-1 py-0.5 border rounded w-full text-xs"
+                class="px-0 py-1 border font-bold rounded 1/2 text-center text-xs mb-1"
               />
             </label>
           </div>
