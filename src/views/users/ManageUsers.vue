@@ -77,6 +77,10 @@
               <input type="checkbox" v-model="user.roles" value="superUser" />
               Superuser
             </label>
+            <label class="ml-4">
+              <input type="checkbox" v-model="user.roles" value="riffValley" />
+              Riff Valley
+            </label>
           </td>
           <td class="p-2 border">
             <input
