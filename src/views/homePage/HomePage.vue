@@ -76,6 +76,7 @@
         :cover="disc.userRate?.cover"
         :isNew="!disc.userRate"
         :userDiscRate="disc.userRate?.id"
+        :favoriteId="disc.userFavoriteId"
       />
     </div>
   </div>

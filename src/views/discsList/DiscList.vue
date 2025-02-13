@@ -2,6 +2,7 @@
   <div class="max-w-[100rem] mx-auto mt-10 px-4">
     <h1 class="text-4xl font-bold mb-8 text-center">Álbumes</h1>
 
+    <!-- Filtros -->
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:space-x-4">
       <input
         v-model="searchQuery"
@@ -26,18 +27,55 @@
         placeholder="Selecciona una semana"
         class="flex-[2] p-2 border border-gray-300 rounded"
       />
-      <div class="flex flex-[2] items-center space-x-2">
-        <input
-          type="checkbox"
-          id="fetchRatesCheckbox"
-          v-model="fetchRates"
-          @change="handleFetchRates"
-          class="w-5 h-5 border border-gray-300 rounded"
-        />
-        <label for="fetchRatesCheckbox" class="text-gray-700">Mis votos</label>
-      </div>
     </div>
-    <!-- Campo de búsqueda -->
+
+    <!-- Selección de tipo de vista (Radio Buttons) -->
+    <!-- Selección de tipo de vista (Estilo Chips) -->
+    <!-- Selección de tipo de vista (Estilo Chips) -->
+    <div class="mb-6 flex justify-start space-x">
+      <label
+        class="px-4 py-2 rounded-full cursor-pointer text-sm font-medium transition-all duration-200"
+        :class="
+          viewMode === 'all'
+            ? 'bg-blue-500 text-white'
+            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+        "
+      >
+        <input type="radio" v-model="viewMode" value="all" class="hidden" />
+        Todos los discos
+      </label>
+
+      <label
+        class="px-4 py-2 rounded-full cursor-pointer text-sm font-medium transition-all duration-200"
+        :class="
+          viewMode === 'rates'
+            ? 'bg-yellow-500 text-white'
+            : 'bg-gray-200  hover:bg-yellow-500'
+        "
+      >
+        <input type="radio" v-model="viewMode" value="rates" class="hidden" />
+        Mis votos
+      </label>
+
+
+      <label
+        class="px-4 py-2 rounded-full cursor-pointer text-sm font-medium transition-all duration-200"
+        :class="
+          viewMode === 'favorites'
+            ? 'bg-red-500 text-white'
+            : 'bg-gray-200 text-gray-700 hover:bg-red-500'
+        "
+      >
+        <input
+          type="radio"
+          v-model="viewMode"
+          value="favorites"
+          class="hidden"
+        />
+        Favoritos
+      </label>
+
+    </div>
 
     <!-- Contenedor de cuadrícula para las tarjetas -->
     <div
@@ -62,6 +100,7 @@
         :cover="disc.userRate?.cover"
         :isNew="!disc.userRate"
         :userDiscRate="disc.userRate?.id"
+        :favoriteId="disc.favoriteId"
       />
     </div>
 
@@ -73,12 +112,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, onMounted, watch } from "vue";
+import { defineComponent, ref, onMounted, watch } from "vue";
 import { getDiscs } from "@services/discs/discs";
 import DiscCard from "@components/DiscCardComponent.vue";
 import Datepicker from "@vuepic/vue-datepicker";
 import { getGenres } from "@services/genres/genres";
 import { getRatesByUser } from "@services/rates/rates";
+import { getFavoritesByUser } from "@services/favorites/favorites";
 
 export default defineComponent({
   components: {
@@ -87,29 +127,25 @@ export default defineComponent({
   },
   setup() {
     const discs = ref([]); // Lista de discos
-    const limit = ref(20); // Cantidad de discos por carga
-    const offset = ref(0); // Offset para la paginación
-    const totalItems = ref(0); // Número total de discos disponibles
-    const loading = ref(false); // Estado de carga
-    const hasMore = ref(true); // Si hay más discos para cargar
-    const loadMore = ref(null); // Elemento para el observador
-    const searchQuery = ref(""); // Valor de búsqueda
-    const selectedWeek = ref(null); // Valor del selector de semana
-    const genres = ref<any[]>([]); // Lista de géneros
-    const selectedGenre = ref(""); // Género seleccionado
-    const fetchRates = ref(false); // Estado del checkbox para votos
+    const limit = ref(20);
+    const offset = ref(0);
+    const totalItems = ref(0);
+    const loading = ref(false);
+    const hasMore = ref(true);
+    const loadMore = ref(null);
+    const searchQuery = ref("");
+    const selectedWeek = ref(null);
+    const genres = ref<any[]>([]);
+    const selectedGenre = ref("");
 
-    /**
-     * Función para cargar discos desde la API
-     */
+    const viewMode = ref("all"); // "all" | "favorites" | "rates"
+
     const fetchDiscs = async (reset = false) => {
       if (loading.value) return;
-
       loading.value = true;
 
       try {
         if (reset) {
-          // Si es un reinicio, resetea el estado
           discs.value = [];
           offset.value = 0;
           hasMore.value = true;
@@ -120,15 +156,11 @@ export default defineComponent({
           offset.value,
           searchQuery.value,
           selectedWeek.value,
-          selectedGenre.value // Agregar el género seleccionado al fetch
+          selectedGenre.value
         );
         discs.value.push(...response.data);
         totalItems.value = response.totalItems;
-
-        // Incrementar el offset
         offset.value += limit.value;
-
-        // Determinar si hay más discos para cargar
         hasMore.value = offset.value < totalItems.value;
       } catch (error) {
         console.error("Error fetching discs:", error);
@@ -137,12 +169,8 @@ export default defineComponent({
       }
     };
 
-    /**
-     * Función para cargar discos votados por el usuario
-     */
-    const handleFetchRates = async () => {
+    const fetchRates = async () => {
       if (loading.value) return;
-
       loading.value = true;
 
       try {
@@ -151,11 +179,10 @@ export default defineComponent({
           offset.value,
           searchQuery.value,
           selectedWeek.value,
-          selectedGenre.value // Agregar el género seleccionado al fetch
+          selectedGenre.value
         );
-        // Mapea los datos para que coincidan con el formato esperado
         if (offset.value === 0) {
-          discs.value = []; // Reinicia los discos si es el primer fetch
+          discs.value = [];
         }
         discs.value.push(
           ...response.data.map((rate) => ({
@@ -164,11 +191,7 @@ export default defineComponent({
           }))
         );
         totalItems.value = response.totalItems;
-
-        // Incrementar offset para la carga perezosa
         offset.value += limit.value;
-
-        // Determinar si hay más datos
         hasMore.value = offset.value < totalItems.value;
       } catch (error) {
         console.error("Error fetching rates:", error);
@@ -177,71 +200,54 @@ export default defineComponent({
       }
     };
 
-    const fetchGenres = async () => {
+    const fetchFavorites = async () => {
+      if (loading.value) return;
+      loading.value = true;
+
       try {
-        const genresResponse = await getGenres(50, 0);
-        genres.value = genresResponse.data;
-      } catch (error) {
-        console.error("Error fetching genres:", error);
-      }
-    };
-
-    /**
-     * Configurar IntersectionObserver para detectar cuando el usuario
-     * llega al final de la lista y cargar más discos.
-     */
-    const setupObserver = () => {
-      const observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore.value) {
-          fetchRates.value ? handleFetchRates() : fetchDiscs();
+        const response = await getFavoritesByUser(
+          limit.value,
+          offset.value,
+          searchQuery.value,
+          selectedWeek.value,
+          selectedGenre.value
+        );
+        if (offset.value === 0) {
+          discs.value = [];
         }
-      });
-
-      if (loadMore.value) {
-        observer.observe(loadMore.value);
+        discs.value.push(
+          ...response.data.map((favorite) => ({
+            ...favorite.disc,
+            favoriteId: favorite.id, // Agregar ID del favorito
+            userRate: favorite.userRate
+              ? {
+                  id: favorite.userRate.id,
+                  rate: favorite.userRate.rate,
+                  cover: favorite.userRate.cover,
+                }
+              : null,
+          }))
+        );
+        totalItems.value = response.totalItems;
+        offset.value += limit.value;
+        hasMore.value = offset.value < totalItems.value;
+      } catch (error) {
+        console.error("Error fetching favorites:", error);
+      } finally {
+        loading.value = false;
       }
     };
 
-    /**
-     * Observar cambios en fetchRates para alternar entre discos y votos
-     */
-    watch(fetchRates, (newValue) => {
-      if (newValue) {
-        // Reiniciar offset y limpiar discos al activar el checkbox
-        offset.value = 0;
-        discs.value = [];
-        handleFetchRates(); // Cargar discos votados
-      } else {
-        // Reiniciar offset y limpiar discos al desactivar el checkbox
-        offset.value = 0;
-        discs.value = [];
-        fetchDiscs(true); // Cargar discos normales
-      }
+    watch(viewMode, () => {
+      offset.value = 0;
+      discs.value = [];
+      if (viewMode.value === "rates") fetchRates();
+      else if (viewMode.value === "favorites") fetchFavorites();
+      else fetchDiscs(true);
     });
 
-    /**
-     * Observar cambios en el campo de búsqueda y refrescar los datos.
-     */
-
-    watch([searchQuery, selectedGenre, selectedWeek], () => {
-      if (fetchRates.value) {
-        // Si el checkbox está activado, utiliza handleFetchRates
-        offset.value = 0;
-        discs.value = [];
-        handleFetchRates();
-      } else {
-        // Si el checkbox está desactivado, utiliza fetchDiscs
-        fetchDiscs(true);
-      }
-    });
-
-    /**
-     * Montar el componente y cargar discos iniciales
-     */
     onMounted(() => {
       fetchDiscs();
-      fetchGenres();
-      setupObserver();
     });
 
     return {
@@ -252,9 +258,7 @@ export default defineComponent({
       selectedWeek,
       selectedGenre,
       genres,
-      fetchDiscs,
-      handleFetchRates,
-      fetchRates,
+      viewMode,
     };
   },
 });
