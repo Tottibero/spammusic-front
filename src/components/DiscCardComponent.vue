@@ -238,8 +238,7 @@ import {
 
 import Swal from "sweetalert2";
 
-import SwalService from '@/services/SwalService';
-
+import SwalService from "@/services/SwalService";
 
 export default defineComponent({
   props: {
@@ -308,10 +307,10 @@ export default defineComponent({
           Swal.fire({
             html: `
     <div style="display: flex; align-items: center;">
-      <img src="https://www.vidnoz.com/bimg/unscreen-removes-backgrounds-from-gifs-result.gif" alt="Imagen" style="width: 100px; height: 100px; margin-right: 15px;">
+      <img src="https://media.tenor.com/g5PkAQHEYegAAAAj/crying-homer-homero-llorando.gif" alt="Imagen" style="width: 100px; height: 100px; margin-right: 15px;">
       <div>
-        <h2 style="margin: 0;">BRUUUUUUTALLLLLL</h2>
-        <p style="margin: 0;"></p>
+        <h2 style="margin: 0;">¡ELIMINADO!</h2>
+        <p style="margin: 0;">Eliminado de favoritos</p>
       </div>
     </div>
   `,
@@ -326,9 +325,15 @@ export default defineComponent({
           const favorite = await postFavoriteService({ discId: props.id });
           favoriteId.value = favorite.id; // Actualiza inmediatamente con el nuevo ID
           Swal.fire({
-            title: "Success",
-            text: "Añadido favorito",
-            imageUrl: "https://media.tenor.com/z5c1GCzZYZ4AAAAM/metalocalypse.gif",
+            html: `
+    <div style="display: flex; align-items: center;">
+      <img src="https://media.tenor.com/z5c1GCzZYZ4AAAAM/metalocalypse.gif" alt="Imagen" style="width: 100px; height: 100px; margin-right: 15px;">
+      <div>
+        <h2 style="margin: 0;">AÑADIDO!</h2>
+        <p style="margin: 0;">Añadido a favoritos</p>
+      </div>
+    </div>
+  `,
             position: "top-end",
             timer: 3000,
             timerProgressBar: true,
@@ -401,7 +406,7 @@ export default defineComponent({
         } else {
           await updateRateService(userDiscRateId.value, payload);
         }
-        SwalService.successImage(3, '¡Homero está escapando de nuevo!');
+        SwalService.successImage(3, "¡Homero está escapando de nuevo!");
       } catch (error) {
         console.error("Error submitting rating:", error);
         Swal.fire({
