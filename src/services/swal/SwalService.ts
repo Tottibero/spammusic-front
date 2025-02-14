@@ -53,7 +53,7 @@ export default {
               </div>
       `,
       position: "top-end",
-      timer: 3000,
+      timer: 5000,
       timerProgressBar: true,
       showConfirmButton: false,
       toast: true,
@@ -72,11 +72,11 @@ export default {
       1: ["brrrr.gif"],
       2: ["furiouskirby.gif"],
       3: ["homerhuir.gif"],
-      4: ["sadpepu.gif"],
+      4: ["sadpepe.gif"],
       5: ["mario.gif", "sherk.gif"],
       6: ["carlton.gif", "vaca.gif"],
       7: ["doggo.gif", "pepu.gif"],
-      8: ["homeralegre.gif"],
+      8: ["homeralegre.gif", "crash.gif"],
       9: ["calamardoanimado.gif"],
       10: ["calamardios.gif"],
     };
