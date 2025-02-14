@@ -31,25 +31,25 @@
           <img
             :src="computedImage"
             :alt="name"
-            class="w-24 h-24 object-cover rounded mb-2 shadow-md cursor-zoom-in hover:opacity-80"
+            class="w-24 h-24 object-cover rounded mb-1 cursor-zoom-in hover:opacity-80"
             @click="openImage"
           />
           <div class="flex space-x-2 mt-1">
             <div
-              class="flex flex-col items-center w-16 h-12 border rounded-lg shadow-md bg-gray-100 mb-1"
+              class="flex flex-col items-center w-12 h-12 border rounded-lg shadow-lg bg-gray-100"
             >
-              <p class="text-sm font-bold text-blue-600 mt-1">
+              <p class="text-sm font-bold text-blue-600">
                 {{ averageRate ? averageRate.toFixed(2) : "-" }}
               </p>
-              <p class="text-xs text-gray-700">Disco</p>
+              <p class="text-xs font-semibold text-gray-700">Rate</p>
             </div>
             <div
-              class="flex flex-col items-center w-16 h-12 border rounded-lg shadow-md bg-gray-100 mb-1"
+              class="flex flex-col items-center w-12 h-12 border rounded-lg shadow-lg bg-gray-100"
             >
-              <p class="text-sm font-bold font text-green-600 mt-1">
+              <p class="text-sm font-bold font text-green-600">
                 {{ averageCover ? averageCover.toFixed(2) : "-" }}
               </p>
-              <p class="text-xs text-gray-700">Portada</p>
+              <p class="text-xs font-semibold text-gray-700">Cover</p>
             </div>
           </div>
         </div>
@@ -74,7 +74,7 @@
               v-if="link"
               :href="link"
               target="_blank"
-              class="px-2 py-1 rounded-full text-xs font-medium text-white text-center shadow-sm bg-green-500 hover:bg-green-600 hover:text-white transition-all w-1/2 text-left"
+              class="px-2 py-1 rounded-full text-xs font-medium text-white text-center shadow-sm bg-green-400 hover:bg-green-500 hover:text-white transition-all w-1/2 text-left"
             >
               Escuchar
             </a>
@@ -110,8 +110,8 @@
                   :icon="['fas', 'bookmark']"
                   class="h-5 w-5 transition-all duration-300 ease-in-out fill-current mt-1 cursor-pointer"
                   :class="{
-                    'text-yellow-400 scale-110': isBookmarkActive,
-                    'text-gray-500 hover:text-yellow-300': !isBookmarkActive,
+                    'text-blue-500 scale-110': isBookmarkActive,
+                    'text-gray-500 hover:text-blue-400': !isBookmarkActive,
                   }"
                 />
 
@@ -127,26 +127,26 @@
 
           <!-- Formulario -->
           <div class="flex flex-col space-y-1">
-            <label class="text-xs text-gray-500 translate-x-1.5">
-              Disco:
+            <label class="text-xs text-gray-700">
+              Rate:
               <input
                 type="number"
                 step="0.01"
                 v-model="localRating.rate"
                 min="1"
                 max="10"
-                class="px-0 py-1 border w-16 rounded 1/2 text-xs font-bold text-center text-gray-500 mt-3 mb-1 ml-0.5"
+                class="px-1 py-0.5 border rounded w-full text-xs"
               />
             </label>
-            <label class="text-xs text-gray-500">
-              Portada:
+            <label class="text-xs text-gray-700">
+              Cover:
               <input
                 type="number"
                 step="0.01"
                 v-model="localRating.cover"
                 min="1"
                 max="10"
-                class="px-0 py-1 w-16 border font-bold rounded 1/2 text-center text-xs mb-1 ml-0.5"
+                class="px-1 py-0.5 border rounded w-full text-xs"
               />
             </label>
           </div>
@@ -238,7 +238,7 @@ import {
 
 import Swal from "sweetalert2";
 
-import SwalService from '@services/swal/SwalService';
+import SwalService from '@/services/SwalService';
 
 
 export default defineComponent({
@@ -326,8 +326,8 @@ export default defineComponent({
           const favorite = await postFavoriteService({ discId: props.id });
           favoriteId.value = favorite.id; // Actualiza inmediatamente con el nuevo ID
           Swal.fire({
-            title: "Error",
-            text: "No se pudo actualizar el estado de favorito.",
+            title: "Success",
+            text: "Añadido favorito",
             imageUrl: "https://media.tenor.com/z5c1GCzZYZ4AAAAM/metalocalypse.gif",
             position: "top-end",
             timer: 3000,
@@ -401,7 +401,7 @@ export default defineComponent({
         } else {
           await updateRateService(userDiscRateId.value, payload);
         }
-        SwalService.successImage(payload.rate, '¡Homero está escapando de nuevo!');
+        SwalService.successImage(3, '¡Homero está escapando de nuevo!');
       } catch (error) {
         console.error("Error submitting rating:", error);
         Swal.fire({
