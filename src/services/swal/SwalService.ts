@@ -38,7 +38,7 @@ export default {
 
     // Obtener una imagen aleatoria de la carpeta correspondiente
     const imagePath = await this.getRandomImagePath(roundedCategory);
-
+    console.log("imagePath", imagePath)
     // Obtener título y mensaje aleatorio desde el JSON
     const { title, message } = this.getRandomMessage(roundedCategory);
 
@@ -66,7 +66,7 @@ export default {
    * @returns {Promise<string>} Ruta de la imagen seleccionada.
    */
   async getRandomImagePath(category: number): Promise<string> {
-    const basePath = `@assets/votaciones/${category}/`;
+    const basePath = `/assets/votaciones/${category}/`;
     const images = {
       1: ["brrrr.gif"],
       2: ["furiouskirby.gif"],
