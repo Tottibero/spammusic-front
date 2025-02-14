@@ -1,132 +1,90 @@
 <template>
   <div
-    class="p-4 border rounded-md flex flex-wrap items-center justify-between"
+    class="p-4 border rounded-md flex flex-col sm:flex-row items-center justify-between w-full sm:w-1/2 bg-white shadow-md"
     :style="{ backgroundColor: getGenreColor(disc.genreId) }"
     :class="{ 'text-white': getGenreColor(disc.genreId) !== 'transparent' }"
   >
-    <img
-      v-if="disc.image"
-      :src="disc.image"
-      alt="Disc cover"
-      class="w-16 h-16 mr-4 rounded-md flex-shrink-0 cursor-pointer"
-      @click="openImageModal"
-    />
-
-    <div class="flex flex-col flex-grow mr-4">
-      <h3 class="font-bold text-lg truncate cursor-pointer" @click="openArtistModal">
-        {{ disc.artist.name }}
-      </h3>
-
-      <p class="text-sm truncate">
-        <span
-          v-if="!editingName"
-          @click="enableEditing('name')"
-          class="cursor-pointer hover:underline"
-        >
-          {{ disc.name }}
-        </span>
-        <input
-          v-else
-          v-model="editedData.name"
-          @keyup.enter="saveChanges('name')"
-          @blur="saveChanges('name')"
-          class="border rounded px-2 py-1 text-gray-600 w-full"
-        />
-      </p>
-      <p class="text-sm mt-2">
-        <a
-          v-if="!editingLink && disc.link"
-          :href="disc.link"
-          target="_blank"
-          class="text-blue-400 hover:underline truncate"
-        >
-          {{ getLinkText(disc.link) }}
-        </a>
-        <span v-else-if="!disc.link" class="text-gray-400">
-          <SpotifyArtistButton :artistName="disc.artist.name" />
-        </span>
-        <input
-          v-if="editingLink"
-          v-model="editedData.link"
-          @keyup.enter="saveChanges('link')"
-          @blur="saveChanges('link')"
-          class="border rounded px-2 py-1 text-gray-600 w-full"
-        />
-        <button
-          @click="enableEditing('link')"
-          class="ml-2 text-gray-400 hover:text-blue-400"
-        >
-          <i class="fas fa-link"></i>
-        </button>
-      </p>
-      <p class="text-sm mt-2">
-        <button
-          @click="enableEditing('releaseDate')"
-          class="text-gray-400 hover:text-blue-400"
-        >
-          <i class="fas fa-calendar-alt"></i>
-        </button>
-        <input
-          v-if="editingDate"
-          type="date"
-          v-model="editedData.releaseDate"
-          @blur="saveChanges('releaseDate')"
-          @keyup.enter="saveChanges('releaseDate')"
-          class="border rounded px-2 py-1 text-gray-600 w-full"
-        />
-        <span v-else>{{ formattedDate }}</span>
-      </p>
+    <!-- Columna izquierda: Imagen del disco -->
+    <div class="flex items-center w-full sm:w-1/3 p-4">
+      <img
+        v-if="disc.image"
+        :src="disc.image"
+        alt="Disc cover"
+        class="w-28 h-28 rounded-md cursor-pointer object-cover"
+        @click="openImageModal"
+      />
+      <div class="ml-6 flex flex-col text-center sm:text-left">
+        <h3 class="font-bold text-lg truncate cursor-pointer w-full" @click="openArtistModal">
+          {{ disc.artist.name }}
+        </h3>
+        <p class="text-sm truncate w-full">
+          <span v-if="!editingName" @click="enableEditing('name')" class="cursor-pointer hover:underline">
+            {{ disc.name }}
+          </span>
+          <input
+            v-else
+            v-model="editedData.name"
+            @keyup.enter="saveChanges('name')"
+            @blur="saveChanges('name')"
+            class="border rounded px-2 py-1 text-gray-600 w-full"
+          />
+        </p>
+        <p class="text-sm mt-2 w-full">
+          <a
+            v-if="!editingLink && disc.link"
+            :href="disc.link"
+            target="_blank"
+            class="text-blue-400 hover:underline truncate"
+          >
+            {{ getLinkText(disc.link) }}
+          </a>
+          <span v-else-if="!disc.link" class="text-gray-400">
+            <SpotifyArtistButton :artistName="disc.artist.name" />
+          </span>
+        </p>
+        <p class="text-sm mt-2">{{ formattedDate }}</p>
+      </div>
     </div>
 
-    <div class="flex items-center space-x-4">
-      <div class="flex items-center space-x-2">
-        <select
-          id="genreSelect"
-          v-model="editedData.genreId"
-          @change="saveChanges('genreId')"
-          class="border rounded px-3 py-2 text-gray-700 focus:outline-none"
-        >
-          <option value="" disabled>Seleccione un género</option>
-          <option v-for="genre in genres" :key="genre.id" :value="genre.id">
-            {{ genre.name }}
-          </option>
-        </select>
-      </div>
-
-      <div class="flex space-x-2">
-        <button
-          @click="toggleEp()"
-          :class="{
-            'bg-blue-500': disc.ep,
-            'bg-gray-300': !disc.ep,
-          }"
-          class="text-white font-medium px-4 py-2 rounded shadow-md"
-        >
-          {{ disc.ep ? "EP" : "Álbum" }}
+    <!-- Columna derecha: Botones de acción en dos columnas -->
+    <div class="grid gap-2 w-full sm:w-2/3 p-2" :class="{ 'grid-cols-2': !isNarrow, 'grid-cols-1': isNarrow }">
+      <select
+        id="genreSelect"
+        v-model="editedData.genreId"
+        @change="saveChanges('genreId')"
+        class="border rounded px-3 py-2 text-gray-700 focus:outline-none"
+      >
+        <option value="" disabled>Seleccione un género</option>
+        <option v-for="genre in genres" :key="genre.id" :value="genre.id">
+          {{ genre.name }}
+        </option>
+      </select>
+      <button
+        @click="toggleEp()"
+        :class="{ 'bg-blue-500': disc.ep, 'bg-gray-300': !disc.ep }"
+        class="text-white font-medium px-3 py-2 rounded shadow-md"
+      >
+        {{ disc.ep ? "EP" : "Álbum" }}
+      </button>
+      <button
+        @click="toggleVerified()"
+        :class="{ 'bg-yellow-500': disc.verified, 'bg-gray-300': !disc.verified }"
+        class="text-white font-medium px-3 py-2 rounded shadow-md"
+      >
+        {{ disc.verified ? "Verificado" : "No Verificado" }}
+      </button>
+      <button
+        @click="buscarGeneroSpotify(disc)"
+        class="bg-green-500 hover:bg-green-600 text-white font-medium px-3 py-2 rounded shadow-md"
+      >
+        Buscar Género
+      </button>
+      <button
+        @click="confirmDelete(disc.id)"
+        class="bg-red-500 hover:bg-red-600 text-white font-medium px-3 py-2 rounded shadow-md"
+      >
+        Borrar
         </button>
-        <button
-          @click="toggleVerified()"
-          :class="{
-            'bg-yellow-500': disc.verified,
-            'bg-gray-300': !disc.verified,
-          }"
-          class="text-white font-medium px-4 py-2 rounded shadow-md"
-        >
-          {{ disc.verified ? "Verificado" : "No Verificado" }}
-        </button>
-        <button
-          @click="buscarGeneroSpotify(disc)"
-          class="bg-green-500 hover:bg-green-600 text-white font-medium px-4 py-2 rounded shadow-md"
-        >
-          Buscar Género
-        </button>
-        <button
-          @click="confirmDelete(disc.id)"
-          class="bg-red-500 hover:bg-red-600 text-white font-medium px-4 py-2 rounded shadow-md"
-        >
-          Borrar
-        </button>
-      </div>
     </div>
   </div>
 
@@ -159,7 +117,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, ref } from "vue";
+import { computed, defineComponent, reactive, ref, onMounted, onUnmounted } from "vue";
 import type { PropType } from "vue";
 import { updateDisc, deleteDisc } from "@services/discs/discs";
 import { updateArtist, postArtist } from "@services/artist/artist";
@@ -185,7 +143,6 @@ export default defineComponent({
       }>,
       required: true,
     },
-    // Se ha añadido opcionalmente la propiedad "color" a cada género para el fondo
     genres: {
       type: Array as PropType<{ id: string; name: string; color?: string }[]>,
       required: true,
@@ -195,7 +152,6 @@ export default defineComponent({
     const editingName = ref(false);
     const editingLink = ref(false);
     const editingDate = ref(false);
-    // Controla la visibilidad del formulario de edición del artista
     const artistFormVisible = ref(false);
 
     const editedData = reactive({
@@ -216,31 +172,20 @@ export default defineComponent({
     const enableEditing = (field: "name" | "link" | "releaseDate") => {
       if (field === "name") {
         editingName.value = true;
-        // También se puede abrir el formulario del artista
         artistFormVisible.value = true;
       }
       if (field === "link") editingLink.value = true;
       if (field === "releaseDate") editingDate.value = true;
     };
 
-    // Alterna la visibilidad del formulario de edición del artista
-    const toggleArtistForm = () => {
-      artistFormVisible.value = !artistFormVisible.value;
-    };
-
-    const saveChanges = async (
-      field: "name" | "link" | "genreId" | "releaseDate"
-    ) => {
+    const saveChanges = async (field: "name" | "link" | "genreId" | "releaseDate") => {
       try {
         await updateDisc(props.disc.id, { [field]: editedData[field] });
         Object.assign(props.disc, { [field]: editedData[field] });
         if (field === "name") editingName.value = false;
         if (field === "link") editingLink.value = false;
         if (field === "releaseDate") {
-          emit("date-changed", {
-            ...props.disc,
-            releaseDate: editedData.releaseDate,
-          });
+          emit("date-changed", { ...props.disc, releaseDate: editedData.releaseDate });
           editingDate.value = false;
         }
 
@@ -314,7 +259,7 @@ export default defineComponent({
           position: "top-end",
           showConfirmButton: false,
         });
-        emit("disc-deleted", props.disc.id); // Emitimos un evento al componente padre
+        emit("disc-deleted", props.disc.id);
       } catch (error) {
         console.error("Error al eliminar el disco:", error);
       }
@@ -327,135 +272,9 @@ export default defineComponent({
 
     const getLinkText = (link: string) => {
       if (link.includes("bandcamp.com")) return "Bandcamp";
-      if (link.includes("youtube.com") || link.includes("youtu.be"))
-        return "YouTube";
+      if (link.includes("youtube.com") || link.includes("youtu.be")) return "YouTube";
       if (link.includes("spotify.com")) return "Spotify";
       return "Enlace";
-    };
-
-    const obtenerTokenSpotify = async () => {
-      const client_id = import.meta.env.VITE_CLIENT_ID;
-      const client_secret = import.meta.env.VITE_CLIENT_SECRET;
-      const credentials = btoa(`${client_id}:${client_secret}`);
-
-      try {
-        const response = await axios.post(
-          "https://accounts.spotify.com/api/token",
-          "grant_type=client_credentials",
-          {
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-              Authorization: `Basic ${credentials}`,
-            },
-          }
-        );
-        return response.data.access_token;
-      } catch (error) {
-        console.error("Error al obtener el token de Spotify:", error);
-      }
-    };
-
-    const buscarGeneroSpotify = async (disc: any) => {
-      const token = await obtenerTokenSpotify();
-      if (!token) {
-        console.error("No se pudo obtener el token de Spotify");
-        return;
-      }
-
-      try {
-        // Paso 1: Busca el artista en Spotify
-        const query = encodeURIComponent(`artist:${disc.artist.name}`);
-        const response = await axios.get(
-          `https://api.spotify.com/v1/search?q=${query}&type=artist&limit=1`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (response.data.artists.items.length > 0) {
-          const artist = response.data.artists.items[0];
-          const artistId = artist.id;
-
-          // Paso 2: Obtén los álbumes/sencillos más recientes del artista
-          const albumsResponse = await axios.get(
-            `https://api.spotify.com/v1/artists/${artistId}/albums`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-              params: {
-                include_groups: "album,single",
-                limit: 1,
-              },
-            }
-          );
-
-          if (albumsResponse.data.items.length > 0) {
-            const genres = artist.genres; // Géneros asociados al artista
-
-            if (genres.length > 0) {
-              disc.genero = genres.join(", ");
-              Swal.fire({
-                title: "¡Éxito!",
-                text: `El género del último track: ${disc.genero}`,
-                icon: "success",
-                position: "top-end",
-                timer: 6000,
-                timerProgressBar: true,
-                showConfirmButton: false,
-                toast: true,
-              });
-            } else {
-              Swal.fire({
-                title: "Sin géneros",
-                text: `No se encontraron géneros asociados al artista "${disc.artist.name}".`,
-                icon: "warning",
-                position: "top-end",
-                timer: 3000,
-                timerProgressBar: true,
-                showConfirmButton: false,
-                toast: true,
-              });
-            }
-          } else {
-            Swal.fire({
-              title: "No se encontraron lanzamientos",
-              text: `No se encontraron tracks recientes para el artista "${disc.artist.name}".`,
-              icon: "warning",
-              position: "top-end",
-              timer: 3000,
-              timerProgressBar: true,
-              showConfirmButton: false,
-              toast: true,
-            });
-          }
-        } else {
-          Swal.fire({
-            title: "Artista no encontrado",
-            text: `No se encontró información para el artista "${disc.artist.name}" en Spotify.`,
-            icon: "warning",
-            position: "top-end",
-            timer: 3000,
-            timerProgressBar: true,
-            showConfirmButton: false,
-            toast: true,
-          });
-        }
-      } catch (error) {
-        console.error("Error al buscar el género por último track:", error);
-        Swal.fire({
-          title: "Error",
-          text: "Ocurrió un error al buscar el género del último track.",
-          icon: "error",
-          position: "top-end",
-          timer: 3000,
-          timerProgressBar: true,
-          showConfirmButton: false,
-          toast: true,
-        });
-      }
     };
 
     const showImageModal = ref(false);
@@ -481,39 +300,19 @@ export default defineComponent({
       }
     };
 
-    const showArtistModal = ref(false);
-    const newArtistName = ref("");
-    const creatingNewArtist = ref(false);
+    const isNarrow = ref(window.innerWidth < 768);
 
-    const openArtistModal = () => {
-      newArtistName.value = props.disc.artist.name;
-      showArtistModal.value = true;
+    const updateSize = () => {
+      isNarrow.value = window.innerWidth < 768;
     };
 
-    const closeArtistModal = () => {
-      showArtistModal.value = false;
-    };
+    onMounted(() => {
+      window.addEventListener("resize", updateSize);
+    });
 
-    const handleArtistUpdate = async () => {
-      try {
-        if (creatingNewArtist.value) {
-          const newArtist = await postArtist({ name: newArtistName.value });
-          props.disc.artist = newArtist;
-          await updateDisc(props.disc.id, { artistId: newArtist.id });
-          emit("artist-created", newArtist.id, newArtist.name);
-          Swal.fire("¡Éxito!", "Nuevo artista creado correctamente.", "success");
-        } else {
-          await updateArtist(props.disc.artist.id, { name: newArtistName.value });
-          props.disc.artist.name = newArtistName.value;
-          emit("update-artist", props.disc.artist.id, newArtistName.value);
-          Swal.fire("¡Éxito!", "El nombre del artista se ha actualizado correctamente.", "success");
-        }
-        closeArtistModal();
-      } catch (error) {
-        Swal.fire("Error", "No se pudo completar la acción.", "error");
-      }
-    };
-
+    onUnmounted(() => {
+      window.removeEventListener("resize", updateSize);
+    });
 
     return {
       editingName,
@@ -528,62 +327,90 @@ export default defineComponent({
       confirmDelete,
       getGenreColor,
       getLinkText,
-      buscarGeneroSpotify,
-      artistFormVisible,
-      toggleArtistForm,
       showImageModal,
       newImageUrl,
       openImageModal,
       closeImageModal,
       updateImageUrl,
-      showArtistModal,
-      newArtistName,
-      openArtistModal,
-      closeArtistModal,
-      creatingNewArtist,
-      handleArtistUpdate,
+      isNarrow,
     };
   },
 });
 </script>
 
+
 <style scoped>
-.flex {
-  display: flex;
+.p-4 {
+  padding: 1rem;
 }
-.flex-wrap {
-  flex-wrap: wrap;
-}
-.items-center {
-  align-items: center;
-}
-.justify-between {
-  justify-content: space-between;
-}
-.bg-gray-700 {
-  background-color: #374151;
-}
-.text-gray-300 {
-  color: #d1d5db;
-}
-.text-white {
-  color: #ffffff;
+.border {
+  border: 1px solid #e5e7eb;
 }
 .rounded-md {
   border-radius: 0.375rem;
 }
-.p-4 {
-  padding: 1rem;
-}
-.w-16 {
-  width: 4rem;
-}
-.h-16 {
-  height: 4rem;
+.text-white {
+  color: #ffffff;
 }
 .truncate {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.w-full {
+  width: 100%;
+}
+.grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (max-width: 1024px) {
+  .grid-cols-2 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+}
+@media (max-width: 820px) {
+  .p-4 {
+    padding: 0.5rem;
+  }
+  .grid-cols-2 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  .w-full {
+    width: 100%;
+  }
+  img {
+    width: 80px;
+    height: 80px;
+  }
+  h3 {
+    font-size: 1rem;
+  }
+  .sm\:flex-row {
+    flex-direction: column;
+  }
+}
+@media (max-width: 430px) {
+  .p-4 {
+    padding: 0.25rem;
+  }
+  img {
+    width: 70px;
+    height: 70px;
+  }
+  h3 {
+    font-size: 0.9rem;
+  }
+  .sm\:flex-row {
+    flex-direction: column;
+  }
+}
+@media (max-width: 300px) {
+  img {
+    width: 60px;
+    height: 60px;
+  }
+  h3 {
+    font-size: 0.8rem;
+  }
 }
 </style>
