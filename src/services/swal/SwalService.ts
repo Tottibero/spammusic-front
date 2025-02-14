@@ -66,7 +66,8 @@ export default {
    * @returns {Promise<string>} Ruta de la imagen seleccionada.
    */
   async getRandomImagePath(category: number): Promise<string> {
-    const basePath = `/assets/votaciones/${category}/`;
+    const basePath = `/votaciones/${category}/`; // Funciona en Vite y Netlify
+    console.log(import.meta.env.BASE_URL) 
     const images = {
       1: ["brrrr.gif"],
       2: ["furiouskirby.gif"],

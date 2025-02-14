@@ -237,6 +237,7 @@ import {
 } from "@services/favorites/favorites.ts";
 
 import Swal from "sweetalert2";
+import SwalService from '@services/swal/SwalService';
 
 export default defineComponent({
   props: {
@@ -372,16 +373,9 @@ export default defineComponent({
         } else {
           await updateRateService(userDiscRateId.value, payload);
         }
-        Swal.fire({
-          title: "¡Éxito!",
-          text: "Tu evaluación fue enviada correctamente.",
-          icon: "success",
-          position: "top-end",
-          timer: 3000,
-          timerProgressBar: true,
-          showConfirmButton: false,
-          toast: true,
-        });
+
+        if(payload.rate && payload.rate > 0)  SwalService.successImage(payload.rate);
+        else SwalService.success('Votación enviada con exito')
       } catch (error) {
         console.error("Error submitting rating:", error);
         Swal.fire({
