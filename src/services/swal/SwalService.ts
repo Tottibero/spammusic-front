@@ -66,7 +66,7 @@ export default {
    * @returns {Promise<string>} Ruta de la imagen seleccionada.
    */
   async getRandomImagePath(category: number): Promise<string> {
-    const basePath = `src/assets/votaciones/${category}/`;
+    const basePath = `@assets/votaciones/${category}/`;
     const images = {
       1: ["brrrr.gif"],
       2: ["furiouskirby.gif"],
