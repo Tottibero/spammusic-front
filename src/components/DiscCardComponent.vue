@@ -238,6 +238,9 @@ import {
 
 import Swal from "sweetalert2";
 
+import SwalService from '@services/swal/SwalService';
+
+
 export default defineComponent({
   props: {
     id: { type: String, required: true },
@@ -274,7 +277,8 @@ export default defineComponent({
     // Determinar si el usuario ya votó
     const hasVoted = ref(!!props.userDiscRate);
     const userDiscRateId = ref(props.userDiscRate); // Almacena el id del voto si ya existe
-
+    console.log("rate", props.rate);
+    console.log("rate", props.cover);
     // Formatear la fecha
     const formattedDate = computed(() => {
       const date = new Date(props.releaseDate);
@@ -301,10 +305,36 @@ export default defineComponent({
           // Si ya es favorito, eliminarlo
           await deleteFavoriteService(favoriteId.value);
           favoriteId.value = null; // Actualiza inmediatamente el estado local
+          Swal.fire({
+            html: `
+    <div style="display: flex; align-items: center;">
+      <img src="https://www.vidnoz.com/bimg/unscreen-removes-backgrounds-from-gifs-result.gif" alt="Imagen" style="width: 100px; height: 100px; margin-right: 15px;">
+      <div>
+        <h2 style="margin: 0;">BRUUUUUUTALLLLLL</h2>
+        <p style="margin: 0;"></p>
+      </div>
+    </div>
+  `,
+            position: "top-end",
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            toast: true,
+          });
         } else {
           // Si no es favorito, agregarlo
           const favorite = await postFavoriteService({ discId: props.id });
           favoriteId.value = favorite.id; // Actualiza inmediatamente con el nuevo ID
+          Swal.fire({
+            title: "Error",
+            text: "No se pudo actualizar el estado de favorito.",
+            imageUrl: "https://media.tenor.com/z5c1GCzZYZ4AAAAM/metalocalypse.gif",
+            position: "top-end",
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            toast: true,
+          });
         }
       } catch (error) {
         console.error("Error al cambiar el estado de favorito:", error);
@@ -371,16 +401,7 @@ export default defineComponent({
         } else {
           await updateRateService(userDiscRateId.value, payload);
         }
-        Swal.fire({
-          title: "¡Éxito!",
-          text: "Tu evaluación fue enviada correctamente.",
-          icon: "success",
-          position: "top-end",
-          timer: 3000,
-          timerProgressBar: true,
-          showConfirmButton: false,
-          toast: true,
-        });
+        SwalService.successImage(payload.rate, '¡Homero está escapando de nuevo!');
       } catch (error) {
         console.error("Error submitting rating:", error);
         Swal.fire({
