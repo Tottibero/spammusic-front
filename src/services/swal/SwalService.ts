@@ -77,7 +77,7 @@ export default {
       6: ["carlton.gif", "vaca.gif"],
       7: ["doggo.gif", "pepu.gif"],
       8: ["homeralegre.gif", "crash.gif"],
-      9: ["calamardoanimado.gif"],
+      9: ["calamardoanimado.gif", "meshuggoh.gif"],
       10: ["calamardios.gif"],
     };
 
