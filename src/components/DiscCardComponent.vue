@@ -238,7 +238,7 @@ import {
 
 import Swal from "sweetalert2";
 
-import SwalService from "@/services/SwalService";
+import SwalService from "@services/swal/SwalService";
 
 export default defineComponent({
   props: {
