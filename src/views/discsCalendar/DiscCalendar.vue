@@ -1,72 +1,43 @@
 <template>
-  <div class="max-w-7xl mx-auto mt-10">
-    <h1 class="text-4xl font-bold mb-8 text-center">Discs by Release Date</h1>
+  <div class="max-w-7xl mx-auto mt-10 px-4 sm:px-6 lg:px-8">
+    <h1 class="text-4xl font-bold mb-8 text-center">Calendario de discos</h1>
     <div>
-      <div class="flex justify-center mb-6">
-        <button
-          v-for="(month, index) in months"
-          :key="index"
-          @click="selectMonth(index)"
-          :class="{
-            'bg-blue-500 text-white': selectedMonth === index,
-            'bg-gray-200 text-gray-800': selectedMonth !== index,
-          }"
-          class="px-4 py-2 mx-1 rounded transition-all duration-300"
-        >
+      <div class="flex flex-wrap justify-center gap-2 mb-6 overflow-x-auto">
+        <button v-for="(month, index) in months" :key="index" @click="selectMonth(index)" :class="{
+          'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-[#211d1d] font-bold': selectedMonth === index,
+          'bg-gray-200 text-gray-800 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]': selectedMonth !== index
+        }" class="px-4 py-2 rounded-full transition-all duration-300 whitespace-nowrap">
           {{ month }}
         </button>
       </div>
 
       <!-- Lista de discos agrupados -->
-      <div
-        v-for="(group, index) in groupedDiscs"
-        :key="group.releaseDate"
-        class="mb-8"
-      >
+      <div v-for="(group, index) in groupedDiscs" :key="group.releaseDate" class="mb-8">
         <!-- Encabezado del grupo con botón de toggle -->
-        <div
-          class="flex justify-between items-center bg-gray-200 px-4 py-2 rounded cursor-pointer"
-          @click="toggleGroup(index)"
-        >
+        <div class="flex justify-between items-center bg-gray-200 px-4 py-2 rounded cursor-pointer"
+          @click="toggleGroup(index)">
           <h3 class="text-2xl font-bold">{{ group.releaseDate }}</h3>
           <button v-if="groupState[index]">
-            <i
-              :class="
-                groupState[index] ? 'fas fa-chevron-up' : 'fas fa-chevron-down'
-              "
-            ></i>
+            <i :class="groupState[index] ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
           </button>
         </div>
 
-        <!-- Contenido del grupo desplegable -->
-        <transition name="fade-slide" mode="out-in">
-          <div v-if="groupState[index]" class="mt-4">
-            <button
-              v-if="new Date(group.releaseDate) < new Date()"
-              @click="buscarEnlacesSpotify(group.discs)"
-              class="bg-blue-500 text-white px-4 py-2 rounded mb-4"
-            >
-              Buscar Enlaces en Spotify
+         <!-- Contenido del grupo desplegable -->
+         <transition name="fade-slide" mode="out-in">
+          <div v-if="groupState[index]" class="mt-4 overflow-x-auto">
+            <button v-if="new Date(group.releaseDate) < new Date()" @click="buscarEnlacesSpotify(group.discs)"
+              class="bg-blue-500 text-white px-4 py-2 rounded mb-4 w-full sm:w-auto">
+              Buscar enlaces en Spotify
             </button>
-            <button
-              @click="exportarHtml(group)"
-              class="bg-green-500 text-white px-4 py-2 rounded mt-4 ml-3"
-            >
+            <button @click="exportarHtml(group)" class="bg-green-500 text-white px-4 py-2 rounded mt-4 ml-3 w-full sm:w-auto">
               Exportar HTML de esta semana
             </button>
 
-            <ul>
-              <li
-                v-for="disc in group.discs"
-                :key="disc.id"
-                class="flex flex-col md:flex-row md:justify-between p-4 border-b"
-              >
-                <DiscComponent
-                  :disc="disc"
-                  :genres="genres"
-                  @disc-deleted="removeDisc"
-                  @date-changed="handleDateChange"
-                />
+            <ul class="w-full">
+              <li v-for="disc in group.discs" :key="disc.id"
+                class="flex flex-col md:flex-row md:justify-between p-4 border-b w-full">
+                <DiscComponent :disc="disc" :genres="genres" @disc-deleted="removeDisc"
+                  @date-changed="handleDateChange" />
               </li>
             </ul>
           </div>
@@ -75,7 +46,7 @@
     </div>
     <!-- Cargar más -->
     <div ref="loadMore" class="text-center py-6">
-      <span v-if="loading" class="text-gray-600">Loading more discs...</span>
+      <span v-if="loading" class="text-gray-600">Cargando discos...</span>
     </div>
   </div>
 </template>
@@ -92,71 +63,36 @@ export default defineComponent({
   components: { DiscComponent },
   name: "DiscsList",
   setup() {
-    // Lista agrupada de discos
     const groupedDiscs = ref<any[]>([]);
     const groupState = reactive({});
 
     const months = [
-      "Enero",
-      "Febrero",
-      "Marzo",
-      "Abril",
-      "Mayo",
-      "Junio",
-      "Julio",
-      "Agosto",
-      "Septiembre",
-      "Octubre",
-      "Noviembre",
-      "Diciembre",
+      "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
     ];
 
     const selectedMonth = ref(new Date().getMonth()); // Mes actual por defecto
 
     const selectMonth = async (monthIndex: number) => {
-      console.log("index: " + monthIndex);
       selectedMonth.value = monthIndex;
-
-      // Calcular el rango de fechas del mes seleccionado
       const year = new Date().getFullYear();
       const startDate = new Date(Date.UTC(year, monthIndex, 1)).toISOString();
-      console.log("startDate: " + startDate);
-      const endDate = new Date(
-        year,
-        monthIndex + 1,
-        0,
-        23,
-        59,
-        59,
-        999
-      ).toISOString();
+      const endDate = new Date(year, monthIndex + 1, 0, 23, 59, 59, 999).toISOString();
 
-      offset.value = 0; // Reinicia la página
-      groupedDiscs.value = []; // Limpia los discos cargados
-
-      // Llamar al servicio con el nuevo rango de fechas
+      offset.value = 0;
+      groupedDiscs.value = [];
       await fetchDiscsByDateRange(startDate, endDate);
     };
 
-    const fetchDiscsByDateRange = async (
-      startDate: string,
-      endDate: string
-    ) => {
+    const fetchDiscsByDateRange = async (startDate: string, endDate: string) => {
       loading.value = true;
-      groupedDiscs.value = []; // Limpia los discos cargados
+      groupedDiscs.value = [];
       try {
-        const response = await getDiscsDated(limit.value, offset.value, [
-          startDate,
-          endDate,
-        ]);
-
+        const response = await getDiscsDated(limit.value, offset.value, [startDate, endDate]);
         response.data.forEach((newGroup: any) => {
           newGroup.discs.forEach((disc: any) => {
             disc.genreId = disc.genre?.id || "";
           });
         });
-
-        console.log("grouped Disc final", groupedDiscs.value);
         groupedDiscs.value = response.data;
         totalItems.value = response.totalItems;
         offset.value = limit.value;
@@ -398,7 +334,6 @@ img {
   object-fit: cover;
 }
 
-/* Transición más fluida para el desplegable */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
   transition: all 0.6s ease;
@@ -407,16 +342,6 @@ img {
 .fade-slide-enter-from {
   opacity: 0;
   transform: translateY(-15px);
-}
-
-.fade-slide-enter-to {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.fade-slide-leave-from {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 .fade-slide-leave-to {
