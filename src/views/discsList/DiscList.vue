@@ -7,7 +7,7 @@
       <input
         v-model="searchQuery"
         type="text"
-        placeholder="Buscar por álbum o artista..."
+        placeholder="Buscar álbum o artista..."
         class="flex-[3] p-2 border border-gray-300 rounded mb-4 sm:mb-0"
       />
       <select
