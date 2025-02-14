@@ -223,7 +223,6 @@ export default defineComponent({
       name: "",
       type: "",
       listDate: "",
-      link: "",
       status: ListStatus.NEW,
       releaseDate: "",
     });
@@ -253,7 +252,6 @@ export default defineComponent({
           type: form.type,
           listDate: form.listDate || null,
           releaseDate: form.releaseDate || null,
-          link: form.link || null,
           status: form.status,
         });
         console.log("List updated successfully:", response);
