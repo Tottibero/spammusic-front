@@ -33,7 +33,11 @@
     <div class="mb-6 flex justify-start space-x-2">
       <label
         class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
-        :class="viewMode === 'all' ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
+        :class="
+          viewMode === 'all'
+            ? 'bg-gray-700 text-white'
+            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+        "
       >
         <input type="radio" v-model="viewMode" value="all" class="hidden" />
         Todos los discos
@@ -41,7 +45,11 @@
 
       <label
         class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
-        :class="viewMode === 'rates' ? 'bg-blue-500 text-white' : 'bg-gray-200 hover:bg-gray-300'"
+        :class="
+          viewMode === 'rates'
+            ? 'bg-blue-500 text-white'
+            : 'bg-gray-200 hover:bg-gray-300'
+        "
       >
         <input type="radio" v-model="viewMode" value="rates" class="hidden" />
         Mis votos
@@ -49,31 +57,55 @@
 
       <label
         class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
-        :class="viewMode === 'covers' ? 'bg-green-500 text-white' : 'bg-gray-200 hover:bg-gray-300'"
+        :class="
+          viewMode === 'covers'
+            ? 'bg-green-500 text-white'
+            : 'bg-gray-200 hover:bg-gray-300'
+        "
       >
         <input type="radio" v-model="viewMode" value="covers" class="hidden" />
-        Mis portadas (soon)
+        Mis portadas
       </label>
 
       <label
         class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
-        :class="viewMode === 'favorites' ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
+        :class="
+          viewMode === 'favorites'
+            ? 'bg-red-500 text-white'
+            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+        "
       >
-        <input type="radio" v-model="viewMode" value="favorites" class="hidden" />
+        <input
+          type="radio"
+          v-model="viewMode"
+          value="favorites"
+          class="hidden"
+        />
         Favoritos
       </label>
 
       <label
         class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
-        :class="viewMode === 'pendientes' ? 'bg-yellow-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
+        :class="
+          viewMode === 'pendientes'
+            ? 'bg-yellow-500 text-white'
+            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+        "
       >
-        <input type="radio" v-model="viewMode" value="pendientes" class="hidden" />
+        <input
+          type="radio"
+          v-model="viewMode"
+          value="pendientes"
+          class="hidden"
+        />
         Pendientes (soon)
       </label>
     </div>
 
     <!-- Contenedor de cuadrícula para las tarjetas -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6"
+    >
       <DiscCard
         v-for="disc in discs"
         :key="disc.id"
@@ -118,7 +150,7 @@ export default defineComponent({
     Datepicker,
   },
   setup() {
-    const discs = ref([]); 
+    const discs = ref([]);
     const limit = ref(20);
     const offset = ref(0);
     const totalItems = ref(0);
@@ -141,6 +173,9 @@ export default defineComponent({
     };
 
     const fetchData = async (reset = false) => {
+
+      let type;
+
       if (loading.value) return;
       loading.value = true;
 
@@ -153,22 +188,74 @@ export default defineComponent({
 
         let response;
         if (viewMode.value === "rates") {
-          response = await getRatesByUser(limit.value, offset.value, searchQuery.value, selectedWeek.value, selectedGenre.value);
-          discs.value.push(...response.data.map((rate) => ({
-            ...rate.disc,
-            userRate: { rate: rate.rate, cover: rate.cover, id: rate.id },
-          })));
+          type = "rate";
+          response = await getRatesByUser(
+            limit.value,
+            offset.value,
+            searchQuery.value,
+            selectedWeek.value,
+            selectedGenre.value,
+            type
+            );
+          discs.value.push(
+            ...response.data.map((rate) => ({
+              ...rate.disc,
+              userRate: {
+                rate: rate.rate,
+                cover: rate.cover,
+                id: rate.id,
+              },
+            }))
+          );
+        } else if (viewMode.value === "covers") {
+          type = "cover";
+          response = await getRatesByUser(
+            limit.value,
+            offset.value,
+            searchQuery.value,
+            selectedWeek.value,
+            selectedGenre.value,
+            type
+            );
+          discs.value.push(
+            ...response.data.map((rate) => ({
+              ...rate.disc,
+              userRate: {
+                rate: rate.rate,
+                cover: rate.cover,
+                id: rate.id,
+              },
+            }))
+          );
         } else if (viewMode.value === "favorites") {
-          response = await getFavoritesByUser(limit.value, offset.value, searchQuery.value, selectedWeek.value, selectedGenre.value);
-          discs.value.push(...response.data.map((favorite) => ({
-            ...favorite.disc,
-            favoriteId: favorite.id,
-            userRate: favorite.disc.userRate 
-              ? { id: favorite.disc.userRate.id, rate: favorite.disc.userRate.rate, cover: favorite.disc.userRate.cover }
-              : null,
-          })));
+          response = await getFavoritesByUser(
+            limit.value,
+            offset.value,
+            searchQuery.value,
+            selectedWeek.value,
+            selectedGenre.value
+          );
+          discs.value.push(
+            ...response.data.map((favorite) => ({
+              ...favorite.disc,
+              favoriteId: favorite.id,
+              userRate: favorite.disc.userRate
+                ? {
+                    id: favorite.disc.userRate.id,
+                    rate: favorite.disc.userRate.rate,
+                    cover: favorite.disc.userRate.cover,
+                  }
+                : null,
+            }))
+          );
         } else {
-          response = await getDiscs(limit.value, offset.value, searchQuery.value, selectedWeek.value, selectedGenre.value);
+          response = await getDiscs(
+            limit.value,
+            offset.value,
+            searchQuery.value,
+            selectedWeek.value,
+            selectedGenre.value
+          );
           discs.value.push(...response.data);
         }
 

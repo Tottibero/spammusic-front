@@ -62,16 +62,6 @@
 
       <!-- Link Input -->
       <div class="mb-4">
-        <label for="link" class="block text-sm font-medium text-gray-700"
-          >Link</label
-        >
-        <input
-          id="link"
-          v-model="form.link"
-          type="text"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-          placeholder="Enter a link (optional)"
-        />
       </div>
       <div class="mb-4">
       <p>Status: {{form.status}}</p>
@@ -93,6 +83,7 @@
 import { defineComponent, reactive } from "vue";
 import { postList } from "@services/list/list";
 import SwalService from '@services/swal/SwalService';
+import { useRouter } from "vue-router";
 
 export enum ListType {
   MONTH = "month",
@@ -107,10 +98,11 @@ export default defineComponent({
       name: "",
       type: "",
       listDate: "",
-      link: "",
       status: "new",
       releaseDate: "",
     });
+
+    const router = useRouter();
 
     const submitForm = async () => {
       try {
@@ -123,7 +115,6 @@ export default defineComponent({
           type: form.type,
           listDate: form.listDate || null, // Envía null si no hay fecha
           releaseDate: form.releaseDate || null, // Envía null si no hay fecha
-          link: form.link || null, // Envía null si no hay link
           status: "new"
         });
 
@@ -132,6 +123,7 @@ export default defineComponent({
 
         // Opcional: muestra una notificación de éxito
         SwalService.success('List created successfully!');
+        router.push({ name: "ListDefault" });
 
       } catch (error) {
         // Maneja errores de la solicitud
