@@ -124,6 +124,7 @@ import { updateArtist, postArtist } from "@services/artist/artist";
 import Swal from "sweetalert2";
 import axios from "axios";
 import SpotifyArtistButton from "@components/SpotifyArtistButton.vue";
+import { obtenerTokenSpotify } from "@helpers/SpotifyFunctions.ts";
 
 export default defineComponent({
   name: "Disc",
@@ -306,6 +307,110 @@ export default defineComponent({
       isNarrow.value = window.innerWidth < 768;
     };
 
+    const buscarGeneroSpotify = async (disc: any) => {
+      const token = await obtenerTokenSpotify();
+      if (!token) {
+        console.error("No se pudo obtener el token de Spotify");
+        return;
+      }
+
+      try {
+        // Paso 1: Busca el artista en Spotify
+        const query = encodeURIComponent(`artist:${disc.artist.name}`);
+        const response = await axios.get(
+          `https://api.spotify.com/v1/search?q=${query}&type=artist&limit=1`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.data.artists.items.length > 0) {
+          const artist = response.data.artists.items[0];
+          const artistId = artist.id;
+
+          // Paso 2: Obtén los álbumes/sencillos más recientes del artista
+          const albumsResponse = await axios.get(
+            `https://api.spotify.com/v1/artists/${artistId}/albums`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+              params: {
+                include_groups: "album,single",
+                limit: 1,
+              },
+            }
+          );
+
+          if (albumsResponse.data.items.length > 0) {
+            const genres = artist.genres; // Géneros asociados al artista
+
+            if (genres.length > 0) {
+              disc.genero = genres.join(", ");
+              Swal.fire({
+                title: "¡Éxito!",
+                text: `El género del último track: ${disc.genero}`,
+                icon: "success",
+                position: "top-end",
+                timer: 6000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                toast: true,
+              });
+            } else {
+              Swal.fire({
+                title: "Sin géneros",
+                text: `No se encontraron géneros asociados al artista "${disc.artist.name}".`,
+                icon: "warning",
+                position: "top-end",
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                toast: true,
+              });
+            }
+          } else {
+            Swal.fire({
+              title: "No se encontraron lanzamientos",
+              text: `No se encontraron tracks recientes para el artista "${disc.artist.name}".`,
+              icon: "warning",
+              position: "top-end",
+              timer: 3000,
+              timerProgressBar: true,
+              showConfirmButton: false,
+              toast: true,
+            });
+          }
+        } else {
+          Swal.fire({
+            title: "Artista no encontrado",
+            text: `No se encontró información para el artista "${disc.artist.name}" en Spotify.`,
+            icon: "warning",
+            position: "top-end",
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            toast: true,
+          });
+        }
+      } catch (error) {
+        console.error("Error al buscar el género por último track:", error);
+        Swal.fire({
+          title: "Error",
+          text: "Ocurrió un error al buscar el género del último track.",
+          icon: "error",
+          position: "top-end",
+          timer: 3000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          toast: true,
+        });
+      }
+    };
+
+
     onMounted(() => {
       window.addEventListener("resize", updateSize);
     });
@@ -333,6 +438,7 @@ export default defineComponent({
       closeImageModal,
       updateImageUrl,
       isNarrow,
+      buscarGeneroSpotify
     };
   },
 });
