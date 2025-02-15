@@ -129,11 +129,12 @@ export default {
           ...this.formData,
           fecha: new Date(this.formData.fecha),
         });
-        this.reuniones.push(response.data);
+        await this.reuniones.push(response.data);
         this.formData.titulo = "";
         this.formData.fecha = "";
         this.toggleForm();
         SwalService.success("Reunión creada con éxito.");
+        this.fetchReuniones();
       } catch (error) {
         SwalService.error("No se pudo crear la reunión.");
       }
