@@ -6,7 +6,7 @@
         <button v-for="(month, index) in months" :key="index" @click="selectMonth(index)" :class="{
           'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-[#211d1d] font-bold': selectedMonth === index,
           'bg-gray-200 text-gray-800 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]': selectedMonth !== index
-        }" class="px-4 py-2 rounded-full transition-all duration-300 whitespace-nowrap">
+        }" class="px-4 py-2 rounded-full transition-all duration-300 whitespace-nowrap shadow-md mb-1">
           {{ month }}
         </button>
       </div>
