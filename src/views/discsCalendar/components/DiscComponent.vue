@@ -48,17 +48,17 @@
 
     <!-- Columna derecha: Botones de acción en dos columnas -->
     <div class="grid gap-2 w-full sm:w-2/3 p-2" :class="{ 'grid-cols-2': !isNarrow, 'grid-cols-1': isNarrow }">
-      <select
-        id="genreSelect"
+      <!-- AQUÍ USAMOS SearchableSelect EN LUGAR DE <select> -->
+      <SearchableSelect
         v-model="editedData.genreId"
-        @change="saveChanges('genreId')"
-        class="border rounded px-3 py-2 text-gray-700 focus:outline-none"
-      >
-        <option value="" disabled>Seleccione un género</option>
-        <option v-for="genre in genres" :key="genre.id" :value="genre.id">
-          {{ genre.name }}
-        </option>
-      </select>
+        :options="genres"
+        placeholder="Seleccione un género"
+        title="name"
+        trackby="id"
+        :max="50"
+        class="border rounded px-3 py-2 text-gray-700 focus:outline-none w-full"
+        @update:modelValue="() => saveChanges('genreId')"
+      />
       <button
         @click="toggleEp()"
         :class="{ 'bg-blue-500': disc.ep, 'bg-gray-300': !disc.ep }"
@@ -84,10 +84,11 @@
         class="bg-red-500 hover:bg-red-600 text-white font-medium px-3 py-2 rounded shadow-md"
       >
         Borrar
-        </button>
+      </button>
     </div>
   </div>
 
+  <!-- Modal para cambiar la imagen -->
   <div v-if="showImageModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
     <div class="bg-white p-6 rounded-lg shadow-lg w-96">
       <h2 class="text-lg font-semibold mb-4">Cambiar Imagen del Disco</h2>
@@ -99,11 +100,12 @@
     </div>
   </div>
 
+  <!-- Modal para cambiar/crear artista -->
   <div v-if="showArtistModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
     <div class="bg-white p-6 rounded-lg shadow-lg w-96">
       <h2 class="text-lg font-semibold mb-4">Actualizar o Crear Artista</h2>
       <label class="flex items-center mb-4">
-        <input type="checkbox" v-model="creatingNewArtist" class="mr-2"> Crear nuevo artista
+        <input type="checkbox" v-model="creatingNewArtist" class="mr-2" /> Crear nuevo artista
       </label>
       <input v-model="newArtistName" type="text" placeholder="Introduce el nombre del artista" class="border p-2 w-full rounded-md" />
       <div class="flex justify-end mt-4 space-x-2">
@@ -112,8 +114,6 @@
       </div>
     </div>
   </div>
-
-  
 </template>
 
 <script lang="ts">
@@ -126,9 +126,15 @@ import axios from "axios";
 import SpotifyArtistButton from "@components/SpotifyArtistButton.vue";
 import { obtenerTokenSpotify } from "@helpers/SpotifyFunctions.ts";
 
+// IMPORTA Y REGISTRA EL COMPONENTE
+import SearchableSelect from "@components/SearchableSelect.vue";
+
 export default defineComponent({
   name: "Disc",
-  components: { SpotifyArtistButton },
+  components: { 
+    SpotifyArtistButton,
+    SearchableSelect, // <-- Registrado aquí
+  },
   props: {
     disc: {
       type: Object as PropType<{
@@ -153,7 +159,6 @@ export default defineComponent({
     const editingName = ref(false);
     const editingLink = ref(false);
     const editingDate = ref(false);
-    const artistFormVisible = ref(false);
 
     const editedData = reactive({
       name: props.disc.name,
@@ -171,10 +176,7 @@ export default defineComponent({
     });
 
     const enableEditing = (field: "name" | "link" | "releaseDate") => {
-      if (field === "name") {
-        editingName.value = true;
-        artistFormVisible.value = true;
-      }
+      if (field === "name") editingName.value = true;
       if (field === "link") editingLink.value = true;
       if (field === "releaseDate") editingDate.value = true;
     };
@@ -182,7 +184,10 @@ export default defineComponent({
     const saveChanges = async (field: "name" | "link" | "genreId" | "releaseDate") => {
       try {
         await updateDisc(props.disc.id, { [field]: editedData[field] });
+        // Sincronizamos los cambios en el disco original
         Object.assign(props.disc, { [field]: editedData[field] });
+
+        // Quitamos el modo edición si corresponde
         if (field === "name") editingName.value = false;
         if (field === "link") editingLink.value = false;
         if (field === "releaseDate") {
@@ -302,7 +307,6 @@ export default defineComponent({
     };
 
     const isNarrow = ref(window.innerWidth < 768);
-
     const updateSize = () => {
       isNarrow.value = window.innerWidth < 768;
     };
@@ -410,7 +414,6 @@ export default defineComponent({
       }
     };
 
-
     onMounted(() => {
       window.addEventListener("resize", updateSize);
     });
@@ -422,8 +425,8 @@ export default defineComponent({
     return {
       editingName,
       editingLink,
-      editedData,
       editingDate,
+      editedData,
       formattedDate,
       enableEditing,
       saveChanges,
@@ -438,12 +441,11 @@ export default defineComponent({
       closeImageModal,
       updateImageUrl,
       isNarrow,
-      buscarGeneroSpotify
+      buscarGeneroSpotify,
     };
   },
 });
 </script>
-
 
 <style scoped>
 .p-4 {
@@ -469,11 +471,13 @@ export default defineComponent({
 .grid-cols-2 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
+/* Ajuste para pantallas medianas */
 @media (max-width: 1024px) {
   .grid-cols-2 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
   }
 }
+/* Ajuste para pantallas más pequeñas */
 @media (max-width: 820px) {
   .p-4 {
     padding: 0.5rem;
@@ -495,6 +499,7 @@ export default defineComponent({
     flex-direction: column;
   }
 }
+/* Ajuste para pantallas muy pequeñas */
 @media (max-width: 430px) {
   .p-4 {
     padding: 0.25rem;

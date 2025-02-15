@@ -10,17 +10,19 @@
         placeholder="Buscar álbum o artista..."
         class="flex-[3] p-2 border border-gray-300 rounded mb-4 sm:mb-0"
       />
-      <select
-        id="genreSelect"
+
+      <!-- Componente SearchableSelect para elegir género -->
+      <SearchableSelect
         v-model="selectedGenre"
-        @change="resetAndFetch"
-        class="flex-[2] border rounded px-3 py-2 text-gray-700 focus:outline-none"
-      >
-        <option value="">Seleccione un género</option>
-        <option v-for="genre in genres" :key="genre.id" :value="genre.id">
-          {{ genre.name }}
-        </option>
-      </select>
+        :options="genres"
+        placeholder="Seleccione un género"
+        title="name"
+        trackby="id"
+        :max="150"
+        @update:modelValue="resetAndFetch"
+        class="flex-[2]"
+      />
+
       <Datepicker
         v-model="selectedWeek"
         :weekPicker="true"
@@ -81,7 +83,8 @@
           value="favorites"
           class="hidden"
         />
-        Favoritos <span v-if="totalFavorites !== ''">({{ totalFavorites }})</span>
+        Favoritos
+        <span v-if="totalFavorites !== ''">({{ totalFavorites }})</span>
       </label>
 
       <label
@@ -143,11 +146,14 @@ import Datepicker from "@vuepic/vue-datepicker";
 import { getGenres } from "@services/genres/genres";
 import { getRatesByUser } from "@services/rates/rates";
 import { getFavoritesByUser } from "@services/favorites/favorites";
+// Importamos el componente SearchableSelect
+import SearchableSelect from "@/components/SearchableSelect.vue";
 
 export default defineComponent({
   components: {
     DiscCard,
     Datepicker,
+    SearchableSelect,
   },
   setup() {
     const discs = ref([]);
@@ -166,8 +172,6 @@ export default defineComponent({
     const totalRates = ref("");
     const totalCovers = ref("");
     const totalFavorites = ref("");
-    const totalPendings = ref("");
-
 
     const fetchGenres = async () => {
       try {
@@ -179,9 +183,7 @@ export default defineComponent({
     };
 
     const fetchData = async (reset = false) => {
-
       let type;
-
       if (loading.value) return;
       loading.value = true;
 
@@ -193,7 +195,6 @@ export default defineComponent({
           totalCovers.value = "";
           totalDisc.value = "";
           totalFavorites.value = "";
-          totalPendings.value = "";
           totalRates.value = "";
         }
 
@@ -207,8 +208,8 @@ export default defineComponent({
             selectedWeek.value,
             selectedGenre.value,
             type
-            );
-          totalRates.value = response.totalItems
+          );
+          totalRates.value = response.totalItems;
           discs.value.push(
             ...response.data.map((rate) => ({
               ...rate.disc,
@@ -228,8 +229,8 @@ export default defineComponent({
             selectedWeek.value,
             selectedGenre.value,
             type
-            );
-          totalCovers.value = response.totalItems
+          );
+          totalCovers.value = response.totalItems;
           discs.value.push(
             ...response.data.map((rate) => ({
               ...rate.disc,
@@ -248,7 +249,7 @@ export default defineComponent({
             selectedWeek.value,
             selectedGenre.value
           );
-          totalFavorites.value = response.totalItems
+          totalFavorites.value = response.totalItems;
           discs.value.push(
             ...response.data.map((favorite) => ({
               ...favorite.disc,
@@ -270,7 +271,7 @@ export default defineComponent({
             selectedWeek.value,
             selectedGenre.value
           );
-          totalDisc.value = response.totalItems
+          totalDisc.value = response.totalItems;
           discs.value.push(...response.data);
         }
 
@@ -290,7 +291,6 @@ export default defineComponent({
           fetchData();
         }
       });
-
       if (loadMore.value) {
         observer.observe(loadMore.value);
       }
@@ -307,6 +307,11 @@ export default defineComponent({
       setupObserver();
     });
 
+    const resetAndFetch = () => {
+      offset.value = 0;
+      fetchData(true);
+    };
+
     return {
       discs,
       loading,
@@ -319,7 +324,8 @@ export default defineComponent({
       totalDisc,
       totalRates,
       totalCovers,
-      totalFavorites
+      totalFavorites,
+      resetAndFetch,
     };
   },
 });
@@ -327,27 +333,19 @@ export default defineComponent({
 
 <style>
 /* Estilos para el diseño de cuadrícula */
-
-/* Pantallas pequeñas (1 columna) */
 .grid {
   grid-template-columns: 1fr;
 }
-
-/* Tablets (2 columnas) */
 @media (min-width: 640px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
-
-/* Escritorios medianos (3 columnas) */
 @media (min-width: 1024px) {
   .grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
-
-/* Escritorios grandes (4 columnas) */
 @media (min-width: 1280px) {
   .grid {
     grid-template-columns: repeat(4, 1fr);
@@ -357,21 +355,18 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
 }
-
 @media (min-width: 640px) {
   .mb-6 {
     flex-direction: row;
     align-items: center;
-    gap: 1rem; /* Espacio horizontal entre los filtros */
+    gap: 1rem;
   }
 }
-
 .flex-[2] {
   display: flex;
   align-items: center;
   justify-content: start;
 }
-
 input[type="checkbox"] {
   margin-right: 0.5rem;
 }
