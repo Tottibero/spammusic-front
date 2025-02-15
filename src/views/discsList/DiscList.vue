@@ -40,7 +40,7 @@
         "
       >
         <input type="radio" v-model="viewMode" value="all" class="hidden" />
-        Todos los discos
+        Todos los discos <span v-if="totalDisc !== ''">({{ totalDisc }})</span>
       </label>
 
       <label
@@ -52,7 +52,7 @@
         "
       >
         <input type="radio" v-model="viewMode" value="rates" class="hidden" />
-        Mis votos
+        Mis votos <span v-if="totalRates !== ''">({{ totalRates }})</span>
       </label>
 
       <label
@@ -64,7 +64,7 @@
         "
       >
         <input type="radio" v-model="viewMode" value="covers" class="hidden" />
-        Mis portadas
+        Mis portadas <span v-if="totalCovers !== ''">({{ totalCovers }})</span>
       </label>
 
       <label
@@ -81,7 +81,7 @@
           value="favorites"
           class="hidden"
         />
-        Favoritos
+        Favoritos <span v-if="totalFavorites !== ''">({{ totalFavorites }})</span>
       </label>
 
       <label
@@ -162,6 +162,12 @@ export default defineComponent({
     const selectedGenre = ref("");
     const viewMode = ref("all");
     const loadMore = ref(null);
+    const totalDisc = ref("");
+    const totalRates = ref("");
+    const totalCovers = ref("");
+    const totalFavorites = ref("");
+    const totalPendings = ref("");
+
 
     const fetchGenres = async () => {
       try {
@@ -184,6 +190,11 @@ export default defineComponent({
           discs.value = [];
           offset.value = 0;
           hasMore.value = true;
+          totalCovers.value = "";
+          totalDisc.value = "";
+          totalFavorites.value = "";
+          totalPendings.value = "";
+          totalRates.value = "";
         }
 
         let response;
@@ -197,6 +208,7 @@ export default defineComponent({
             selectedGenre.value,
             type
             );
+          totalRates.value = response.totalItems
           discs.value.push(
             ...response.data.map((rate) => ({
               ...rate.disc,
@@ -217,6 +229,7 @@ export default defineComponent({
             selectedGenre.value,
             type
             );
+          totalCovers.value = response.totalItems
           discs.value.push(
             ...response.data.map((rate) => ({
               ...rate.disc,
@@ -235,6 +248,7 @@ export default defineComponent({
             selectedWeek.value,
             selectedGenre.value
           );
+          totalFavorites.value = response.totalItems
           discs.value.push(
             ...response.data.map((favorite) => ({
               ...favorite.disc,
@@ -256,6 +270,7 @@ export default defineComponent({
             selectedWeek.value,
             selectedGenre.value
           );
+          totalDisc.value = response.totalItems
           discs.value.push(...response.data);
         }
 
@@ -301,6 +316,10 @@ export default defineComponent({
       genres,
       viewMode,
       loadMore,
+      totalDisc,
+      totalRates,
+      totalCovers,
+      totalFavorites
     };
   },
 });
