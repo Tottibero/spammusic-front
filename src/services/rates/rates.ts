@@ -43,7 +43,7 @@ export async function getRatesByUser(
   genre?: string,
   type?: string
 ): Promise<DiscRate[]> {
-  const response = await api.get<DiscRate[]>("/rates", {
+  const response = await api.get<any>("/rates", {
     params: {
       limit,
       offset,
