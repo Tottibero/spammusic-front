@@ -26,10 +26,10 @@
          <transition name="fade-slide" mode="out-in">
           <div v-if="groupState[index]" class="mt-4 overflow-x-auto">
             <button v-if="new Date(group.releaseDate) < new Date()" @click="buscarEnlacesSpotify(group.discs)"
-              class="bg-blue-500 text-white px-4 py-2 rounded mb-4 w-full sm:w-auto">
+              class="bg-green-500 text-white px-4 py-2 rounded-full mb-4 w-full sm:w-auto">
               Buscar enlaces en Spotify
             </button>
-            <button @click="exportarHtml(group)" class="bg-green-500 text-white px-4 py-2 rounded mt-4 ml-3 w-full sm:w-auto">
+            <button @click="exportarHtml(group)" class="bg-blue-500 text-white px-4 py-2 rounded-full mt-4 ml-3 w-full sm:w-auto">
               Exportar HTML de esta semana
             </button>
 
