@@ -187,7 +187,7 @@ export default defineComponent({
     // --------------------------------
     const fetchGenres = async () => {
       try {
-        const genresResponse = await getGenres(50, 0);
+        const genresResponse = await getGenres(150, 0);
         genres.value = genresResponse.data.sort((a, b) => a.name.localeCompare(b.name));
       } catch (error) {
         console.error("Error fetching genres:", error);
