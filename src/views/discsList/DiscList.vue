@@ -1,96 +1,67 @@
 <template>
-  <div class="max-w-[100rem] mx-auto mt-10 px-4">
+  <div :class="{ 'menu-open': menuVisible }" class="max-w-[100rem] mx-auto mt-10 px-4">
     <h1 class="text-4xl font-bold mb-8 text-center">Discos</h1>
 
     <!-- Filtros -->
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:space-x-4">
-      <input
-        v-model="searchQuery"
-        type="text"
-        placeholder="Buscar álbum o artista..."
-        class="flex-[3] p-2 border border-gray-300 rounded mb-4 sm:mb-0"
-      />
+      <input v-model="searchQuery" type="text" placeholder="Buscar álbum o artista..."
+        class="flex-[3] p-2 shadow-md rounded-md mb-4 sm:mb-0" />
 
       <!-- Componente SearchableSelect para elegir género -->
-      <SearchableSelect
-        v-model="selectedGenre"
-        :options="genres"
-        placeholder="Seleccione un género"
-        title="name"
-        trackby="id"
-        :max="150"
-        @update:modelValue="resetAndFetch"
-        class="flex-[2]"
-      />
+      <SearchableSelect v-model="selectedGenre" :options="genres" placeholder="Seleccione un género" title="name"
+        trackby="id" :max="150" @update:modelValue="resetAndFetch"
+        class="flex-[2] px-3 py-2 w-full rounded-md bg-white text-black rounded shadow-md custom-height-select" />
 
-      <Datepicker
-        v-model="selectedWeek"
-        :weekPicker="true"
-        placeholder="Selecciona una semana"
-        class="flex-[2] p-2 border border-gray-300 rounded"
-      />
+
+        <Datepicker
+  v-model="selectedWeek"
+  :weekPicker="true"
+  placeholder="Selecciona una semana"
+  class="flex-[2] px-3 py-2 w-full rounded-lg border-white mt-2 pl-1"
+/>
     </div>
 
     <!-- Selección de tipo de vista (Estilo Chips) -->
     <div class="mb-6 flex justify-start space-x-2">
-      <label
-        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
-        :class="
-          viewMode === 'all'
+      <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
+        :class="viewMode === 'all'
             ? 'bg-gray-700 text-white'
             : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-        "
-      >
+          ">
         <input type="radio" v-model="viewMode" value="all" class="hidden" />
         Todos los discos <span v-if="totalDisc !== ''">({{ totalDisc }})</span>
       </label>
 
-      <label
-        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
-        :class="
-          viewMode === 'rates'
+      <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
+        :class="viewMode === 'rates'
             ? 'bg-blue-500 text-white'
             : 'bg-gray-200 hover:bg-gray-300'
-        "
-      >
+          ">
         <input type="radio" v-model="viewMode" value="rates" class="hidden" />
         Mis votos <span v-if="totalRates !== ''">({{ totalRates }})</span>
       </label>
 
-      <label
-        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
-        :class="
-          viewMode === 'covers'
+      <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
+        :class="viewMode === 'covers'
             ? 'bg-green-500 text-white'
             : 'bg-gray-200 hover:bg-gray-300'
-        "
-      >
+          ">
         <input type="radio" v-model="viewMode" value="covers" class="hidden" />
         Mis portadas <span v-if="totalCovers !== ''">({{ totalCovers }})</span>
       </label>
 
-      <label
-        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
-        :class="
-          viewMode === 'favorites'
+      <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
+        :class="viewMode === 'favorites'
             ? 'bg-red-500 text-white'
             : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-        "
-      >
-        <input
-          type="radio"
-          v-model="viewMode"
-          value="favorites"
-          class="hidden"
-        />
+          ">
+        <input type="radio" v-model="viewMode" value="favorites" class="hidden" />
         Favoritos
         <span v-if="totalFavorites !== ''">({{ totalFavorites }})</span>
       </label>
 
-      <label
-        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
-        :class="
-          viewMode === 'pendientes'
+      <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
+        :class="viewMode === 'pendientes'
             ? 'bg-yellow-500 text-white'
             : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
         "
@@ -265,9 +236,84 @@ export default defineComponent({
                 : null,
               userRate: favorite.disc.userRate
                 ? {
-                    id: favorite.disc.userRate.id,
-                    rate: favorite.disc.userRate.rate,
-                    cover: favorite.disc.userRate.cover,
+                  id: favorite.disc.userRate.id,
+                  rate: favorite.disc.userRate.rate,
+                  cover: favorite.disc.userRate.cover,
+                }
+                : null,
+            }))
+          );
+          console.log("disc.value", discs.value);
+        } else if (viewMode.value === "pendientes") {
+          // Nueva rama para pendientes
+          response = await getPendingsByUser(
+            limit.value,
+            offset.value,
+            searchQuery.value,
+            selectedWeek.value,
+            selectedGenre.value
+          );
+          totalPendings.value = response.totalItems;
+          console.log("response data", response.data[0]);
+          discs.value.push(
+            ...response.data.map((pending) => ({
+              ...pending.disc,
+              pendingId: pending.id,
+              userRate: pending.disc.userRate
+                ? {
+                    id: pending.disc.userRate.id,
+                    rate: pending.disc.userRate.rate,
+                    cover: pending.disc.userRate.cover,
+                  }
+                : null,
+            }))
+          );
+          console.log("disc.value", discs.value);
+        } else if (viewMode.value === "pendientes") {
+          // Nueva rama para pendientes
+          response = await getPendingsByUser(
+            limit.value,
+            offset.value,
+            searchQuery.value,
+            selectedWeek.value,
+            selectedGenre.value
+          );
+          totalPendings.value = response.totalItems;
+          console.log("response data", response.data[0]);
+          discs.value.push(
+            ...response.data.map((pending) => ({
+              ...pending.disc,
+              pendingId: pending.id,
+              userRate: pending.disc.userRate
+                ? {
+                    id: pending.disc.userRate.id,
+                    rate: pending.disc.userRate.rate,
+                    cover: pending.disc.userRate.cover,
+                  }
+                : null,
+            }))
+          );
+          console.log("disc.value", discs.value);
+        } else if (viewMode.value === "pendientes") {
+          // Nueva rama para pendientes
+          response = await getPendingsByUser(
+            limit.value,
+            offset.value,
+            searchQuery.value,
+            selectedWeek.value,
+            selectedGenre.value
+          );
+          totalPendings.value = response.totalItems;
+          console.log("response data", response.data[0]);
+          discs.value.push(
+            ...response.data.map((pending) => ({
+              ...pending.disc,
+              pendingId: pending.id,
+              userRate: pending.disc.userRate
+                ? {
+                    id: pending.disc.userRate.id,
+                    rate: pending.disc.userRate.rate,
+                    cover: pending.disc.userRate.cover,
                   }
                 : null,
             }))
@@ -371,25 +417,30 @@ export default defineComponent({
 .grid {
   grid-template-columns: 1fr;
 }
+
 @media (min-width: 640px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
 @media (min-width: 1024px) {
   .grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
 @media (min-width: 1280px) {
   .grid {
     grid-template-columns: repeat(4, 1fr);
   }
 }
+
 .mb-6 {
   display: flex;
   flex-direction: column;
 }
+
 @media (min-width: 640px) {
   .mb-6 {
     flex-direction: row;
@@ -397,12 +448,24 @@ export default defineComponent({
     gap: 1rem;
   }
 }
+
 .flex-[2] {
   display: flex;
   align-items: center;
   justify-content: start;
 }
+
 input[type="checkbox"] {
   margin-right: 0.5rem;
+}
+
+.custom-height-select .search_input_trigger {
+  height: 26px;
+  /* Aumentamos un poco la altura solo en DiscList.vue */
+  padding: 0.6rem 0.75rem;
+  /* Ajustamos el padding */
+  font-size: 1rem;
+  /* Tamaño del texto */
+  font-weight: 500;
 }
 </style>

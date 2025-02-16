@@ -1,6 +1,6 @@
 <template>
-  <div class="max-w-7xl mx-auto mt-10 px-4 sm:px-6 lg:px-8">
-    <h1 class="text-4xl font-bold mb-8 text-center">Calendario de discos</h1>
+  <div :class="{ 'menu-open': menuVisible }" class="max-w-7xl mx-auto mt-10 px-4 sm:px-6 lg:px-8">
+    <h1 class="text-4xl font-bold mb-8 text-center">Calendario</h1>
     <div>
       <div class="flex flex-wrap justify-center gap-2 mb-6 overflow-x-auto">
         <button v-for="(month, index) in months" :key="index" @click="selectMonth(index)" :class="{

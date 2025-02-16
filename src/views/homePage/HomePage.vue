@@ -1,16 +1,16 @@
 <template>
-  <div class="max-w-[100rem] mx-auto mt-10 px-4">
+  <div :class="{ 'menu-open': menuVisible }" class="max-w-[100rem] mx-auto mt-10 px-4">
     <div class="bg-white shadow-lg rounded-lg p-6 mb-10">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Estadísticas de la App -->
         <div class="text-center border-b md:border-b-0 md:border-r border-gray-200 pb-4 md:pb-0 md:pr-4">
-          <h3 class="text-3xl font-bold mb-4">Estadísticas de Álbumes</h3>
+          <h3 class="text-3xl font-bold mb-4">Estadísticas de discos</h3>
           <p class="text-lg">
-            Total de Álbumes:
+            Total de discos:
             <span class="font-semibold">{{ stats.totalDiscs }}</span>
           </p>
           <p class="text-lg mt-2">
-            Total de Votos:
+            Total de votos:
             <span class="font-semibold">{{ stats.totalVotes }}</span>
           </p>
           <!-- Aquí insertamos el gráfico de barras -->
@@ -20,9 +20,9 @@
         </div>
         <!-- Top Usuarios -->
         <div class="text-center">
-          <h3 class="text-3xl font-bold mb-4">Top Usuarios</h3>
+          <h3 class="text-3xl font-bold mb-4">Top usuarios</h3>
           <div class="mb-4">
-            <h4 class="text-2xl font-semibold mb-2">Más votos a discos</h4>
+            <h4 class="text-2xl font-semibold mb-2">Más discos votados</h4>
             <ul class="list-none">
               <li
                 v-for="(user, index) in topUsersByRates"
@@ -31,12 +31,12 @@
               >
                 <span class="mr-2" v-html="getTrophyIcon(index)"></span>
                 <span class="font-medium">{{ user.user.username }}</span>
-                <span class="ml-2 text-gray-600">- {{ user.rateCount }} rates</span>
+                <span class="ml-2 text-gray-600">- {{ user.rateCount }} votos</span>
               </li>
             </ul>
           </div>
           <div>
-            <h4 class="text-2xl font-semibold mb-2">Más votos a portadas</h4>
+            <h4 class="text-2xl font-semibold mb-2">Más portadas votadas</h4>
             <ul class="list-none">
               <li
                 v-for="(user, index) in topUsersByCover"
@@ -45,7 +45,7 @@
               >
                 <span class="mr-2" v-html="getTrophyIcon(index)"></span>
                 <span class="font-medium">{{ user.user.username }}</span>
-                <span class="ml-2 text-gray-600">- {{ user.totalCover }} cover</span>
+                <span class="ml-2 text-gray-600">- {{ user.totalCover }} votos</span>
               </li>
             </ul>
           </div>
@@ -55,7 +55,7 @@
 
     <!-- Sección de álbumes mejor valorados -->
     <div class="text-center mb-6">
-      <h3 class="text-4xl font-bold">Álbumes mejor valorados</h3>
+      <h3 class="text-4xl font-bold">Discos mejor valorados</h3>
     </div>
     <div class="grid gap-6">
       <DiscCard
