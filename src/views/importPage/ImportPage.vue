@@ -1,52 +1,47 @@
 <template>
   <div class="p-6 max-w-4xl mx-auto">
-    <h1 class="text-3xl font-bold mb-6">Entrada Manual de Datos</h1>
+    <h1 class="text-3xl font-bold mb-2">Añadir discos</h1>
+    <p class="text-left font-serif text-gray-500 text-md mb-4">
+      Puedes añadir nuevos discos completando los campos de abajo. Recuerda respetar los espacios entre banda, guion y
+      título de disco. En el apartado
+      <router-link to="/calendar" class="text-blue-500 hover:underline">
+        Calendario
+      </router-link> podrás modificar el género de tu disco.
+    </p>
+
 
     <!-- Input de fecha -->
-    <div class="mb-6">
-      <label for="date" class="block text-sm font-medium text-gray-700 mb-2">
-        Selecciona Fecha:
+    <div class="mb-4 md:mb-6">
+      <label for="date" class="block text-sm font-medium text-gray-700 mb-1">
+        Selecciona fecha:
       </label>
-      <input
-        id="date"
-        type="date"
-        v-model="selectedDate"
-        class="block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-      />
+      <input id="date" type="date" v-model="selectedDate"
+        class="block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" />
     </div>
 
     <!-- Textarea para los discos -->
-    <div class="mb-6">
-      <label for="albums" class="block text-sm font-medium text-gray-700 mb-2">
-        Introduce los Discos:
+    <div class="mb-4 md:mb-6">
+      <label for="albums" class="block text-sm font-medium text-gray-700 mb-1">
+        Introduce los discos:
       </label>
-      <textarea
-        id="albums"
-        v-model="albumText"
-        placeholder="Canaan – Some Last Echo (Eibon)
-Decrepid – Suffered Existence Re-Release (Brutal)"
-        rows="8"
-        class="block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-      ></textarea>
+      <textarea id="albums" v-model="albumText" placeholder="Canaan – Some Last Echo (Eibon)
+Decrepid – Suffered Existence Re-Release (Brutal)" rows="6"
+        class="block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"></textarea>
     </div>
 
     <!-- Botón para enviar -->
-    <div class="mb-8">
-      <button
-        @click="processData"
-        :disabled="!selectedDate || !albumText.trim()"
-        class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
+    <div class="mb-6 md:mb-8 flex justify-center">
+      <button @click="processData" :disabled="!selectedDate || !albumText.trim()"
+        class="px-5 py-2 md:px-6 md:py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto">
         Procesar Datos
       </button>
     </div>
 
     <!-- Card de resultados -->
-    <div v-if="responseData" class="mb-8">
+    <div v-if="responseData" class="mb-6 md:mb-8">
       <div class="bg-white shadow rounded-lg p-4">
-        <!-- Encabezado con título y fecha -->
         <div class="mb-4 border-b pb-2">
-          <h2 class="text-2xl font-bold text-gray-800">Resultados</h2>
+          <h2 class="text-lg md:text-2xl font-bold text-gray-800">Resultados</h2>
           <p class="text-gray-600">
             Fecha: <span class="font-medium">{{ displayDate }}</span>
           </p>
@@ -54,47 +49,35 @@ Decrepid – Suffered Existence Re-Release (Brutal)"
 
         <!-- Fila de discos importados -->
         <div class="mb-4">
-          <h3 class="text-lg font-semibold text-gray-700 mb-2">
+          <h3 class="text-md md:text-lg font-semibold text-gray-700 mb-2">
             Discos Importados
           </h3>
-          <div class="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-2">
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
             <template v-if="importedDiscsParsed.length">
-              <div
-                v-for="(disc, index) in importedDiscsParsed"
-                :key="'imported-' + index"
-                class="bg-green-100 text-green-800 px-2 py-2 rounded min-h-[80px] flex flex-col justify-center"
-              >
+              <div v-for="(disc, index) in importedDiscsParsed" :key="'imported-' + index"
+                class="bg-green-100 text-green-800 px-3 py-2 rounded min-h-[80px] flex flex-col justify-center">
                 <p class="font-semibold truncate">Artista: {{ disc.artist }}</p>
                 <p class="truncate">Disco: {{ disc.disc }}</p>
               </div>
             </template>
             <template v-else>
-              <div class="col-span-full bg-green-100 text-green-800 px-2 py-2 rounded text-center">
+              <div class="col-span-full bg-green-100 text-green-800 px-3 py-2 rounded text-center">
                 No hay discos importados.
               </div>
             </template>
           </div>
         </div>
-
         <!-- Fila de discos no importados -->
         <div>
-          <h3 class="text-lg font-semibold text-gray-700 mb-2">
+          <h3 class="text-md md:text-lg font-semibold text-gray-700 mb-2">
             Discos No Importados
           </h3>
-          <div class="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-2">
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
             <template v-if="nonImportedDiscsParsed.length">
-              <div
-                v-for="(disc, index) in nonImportedDiscsParsed"
-                :key="'non-imported-' + index"
-                class="bg-red-100 text-red-800 px-2 py-2 rounded min-h-[80px] flex flex-col justify-center"
-              >
+              <div v-for="(disc, index) in nonImportedDiscsParsed" :key="'non-imported-' + index"
+                class="bg-red-100 text-red-800 px-3 py-2 rounded min-h-[80px] flex flex-col justify-center">
                 <p class="font-semibold truncate">Artista: {{ disc.artist }}</p>
                 <p class="truncate">Disco: {{ disc.disc }}</p>
-              </div>
-            </template>
-            <template v-else>
-              <div class="col-span-full bg-red-100 text-red-800 px-2 py-2 rounded text-center">
-                No hay discos no importados.
               </div>
             </template>
           </div>
@@ -103,7 +86,7 @@ Decrepid – Suffered Existence Re-Release (Brutal)"
     </div>
 
     <!-- Mensaje de error -->
-    <div v-if="error" class="mt-6">
+    <div v-if="error" class="mt-4 md:mt-6">
       <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
         Error: {{ error }}
       </div>
@@ -197,5 +180,10 @@ export default defineComponent({
 </script>
 
 <style scoped>
-/* Puedes ajustar más detalles si lo deseas */
+/* Ajustes responsivos */
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr !important;
+  }
+}
 </style>
