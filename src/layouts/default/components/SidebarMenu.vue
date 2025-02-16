@@ -20,7 +20,7 @@
           v-for="route in filteredDiscAppRoutes"
           :key="route.to"
           :to="route.to"
-          class="block px-4 py-2 rounded transition-opacity duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
+          class="text-left pl-6 block px-4 py-2 rounded transition-opacity duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
           :active-class="'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-[#211d1d]'"
           @click="closeMenu"
         >
@@ -43,7 +43,7 @@
           v-for="route in filteredRiffValleyRoutes"
           :key="route.to"
           :to="route.to"
-          class="block px-4 py-2 rounded transition-all duration-300 hover:bg-gradient-to-r hover:from-[#ee6f86]/50 hover:to-[#2759c1]/50 hover:text-white"
+          class="text-left pl-6 block px-4 py-2 rounded transition-all duration-300 hover:bg-gradient-to-r hover:from-[#ee6f86]/60 hover:to-[#2759c1]/60 hover:text-white"
           :active-class="'bg-gradient-to-r from-[#ee6f86] to-[#2759c1] text-[#FFFFFF]'"
           @click="closeMenu"
         >
@@ -61,7 +61,7 @@
         v-for="route in filteredBottomRoutes"
         :key="route.to"
         :to="route.to"
-        class="block w-full px-4 py-2 rounded transition-opacity duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
+        class="text-left pl-6 block w-full px-4 py-2 rounded transition-opacity duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
         :active-class="'bg-red-600 text-white'"
         @click="closeMenu"
       >
@@ -74,12 +74,11 @@
     <nav class="p-4 space-y-2 border-t border-gray-700">
       <button
         @click="handleLogout"
-        class="font semibold block w-full text-center px-4 py-2 rounded hover:bg-red-600 flex items-center justify-center gap-2"
+        class="pl-6 font semibold block w-full text-center px-4 py-2 rounded hover:bg-red-600 flex items-center text-left gap-2"
       >
         <i class="fa-solid fa-right-from-bracket"></i>
         {{ logoutLabel }}
       </button>
-
     </nav>
   </aside>
 </template>
