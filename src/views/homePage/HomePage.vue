@@ -77,6 +77,7 @@
         :isNew="!disc.userRate"
         :userDiscRate="disc.userRate?.id"
         :favoriteId="disc.userFavoriteId"
+        :pendingId="disc.pendingId"
       />
     </div>
   </div>

@@ -101,7 +101,8 @@
           value="pendientes"
           class="hidden"
         />
-        Pendientes (soon)
+        Pendientes
+        <span v-if="totalPendings !== ''">({{ totalPendings }})</span>
       </label>
     </div>
 
@@ -128,6 +129,7 @@
         :isNew="!disc.userRate"
         :userDiscRate="disc.userRate?.id"
         :favoriteId="disc.favoriteId"
+        :pendingId="disc.pendingId"
       />
     </div>
 
@@ -146,6 +148,8 @@ import Datepicker from "@vuepic/vue-datepicker";
 import { getGenres } from "@services/genres/genres";
 import { getRatesByUser } from "@services/rates/rates";
 import { getFavoritesByUser } from "@services/favorites/favorites";
+import { getPendingsByUser } from "@services/pendings/pendings";
+
 // Importamos el componente SearchableSelect
 import SearchableSelect from "@/components/SearchableSelect.vue";
 
@@ -172,6 +176,7 @@ export default defineComponent({
     const totalRates = ref("");
     const totalCovers = ref("");
     const totalFavorites = ref("");
+    const totalPendings = ref("");
 
     const fetchGenres = async () => {
       try {
@@ -196,6 +201,7 @@ export default defineComponent({
           totalDisc.value = "";
           totalFavorites.value = "";
           totalRates.value = "";
+          totalPendings.value = "";
         }
 
         let response;
@@ -254,11 +260,39 @@ export default defineComponent({
             ...response.data.map((favorite) => ({
               ...favorite.disc,
               favoriteId: favorite.id,
+              pendingId: favorite.disc.userPending
+                ? favorite.disc.userPending.id
+                : null,
               userRate: favorite.disc.userRate
                 ? {
                     id: favorite.disc.userRate.id,
                     rate: favorite.disc.userRate.rate,
                     cover: favorite.disc.userRate.cover,
+                  }
+                : null,
+            }))
+          );
+          console.log("disc.value", discs.value);
+        } else if (viewMode.value === "pendientes") {
+          // Nueva rama para pendientes
+          response = await getPendingsByUser(
+            limit.value,
+            offset.value,
+            searchQuery.value,
+            selectedWeek.value,
+            selectedGenre.value
+          );
+          totalPendings.value = response.totalItems;
+          console.log("response data", response.data[0]);
+          discs.value.push(
+            ...response.data.map((pending) => ({
+              ...pending.disc,
+              pendingId: pending.id,
+              userRate: pending.disc.userRate
+                ? {
+                    id: pending.disc.userRate.id,
+                    rate: pending.disc.userRate.rate,
+                    cover: pending.disc.userRate.cover,
                   }
                 : null,
             }))
@@ -325,6 +359,7 @@ export default defineComponent({
       totalRates,
       totalCovers,
       totalFavorites,
+      totalPendings,
       resetAndFetch,
     };
   },
