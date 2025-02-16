@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-[100rem] mx-auto mt-10 px-4">
+  <div :class="{ 'menu-open': menuVisible }" class="max-w-[100rem] mx-auto mt-10 px-4">
     <h1 class="text-4xl font-bold mb-8 text-center">Discos</h1>
 
     <!-- Filtros -->

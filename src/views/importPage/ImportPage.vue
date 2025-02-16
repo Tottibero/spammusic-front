@@ -1,11 +1,18 @@
 <template>
   <div class="p-6 max-w-4xl mx-auto">
-    <h1 class="text-3xl font-bold mb-6">Entrada Manual de Datos</h1>
+    <h1 class="text-3xl font-bold mb-2">Añadir discos</h1>
+    <p class="text-left font-serif text-gray-500 text-md mb-4">
+  Puedes añadir nuevos discos completando los campos de abajo. Recuerda respetar los espacios entre banda, guion y título de disco. En el apartado 
+  <router-link to="/calendar" class="text-blue-500 hover:underline">
+    Calendario
+  </router-link> podrás modificar el género de tu disco.
+</p>
+
 
     <!-- Input de fecha -->
     <div class="mb-6">
       <label for="date" class="block text-sm font-medium text-gray-700 mb-2">
-        Selecciona Fecha:
+        Selecciona fecha:
       </label>
       <input
         id="date"
@@ -18,7 +25,7 @@
     <!-- Textarea para los discos -->
     <div class="mb-6">
       <label for="albums" class="block text-sm font-medium text-gray-700 mb-2">
-        Introduce los Discos:
+        Introduce los discos:
       </label>
       <textarea
         id="albums"
