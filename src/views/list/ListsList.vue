@@ -14,63 +14,48 @@
         <table class="w-full table-auto border-collapse">
           <thead class="bg-gray-200">
             <tr>
-              <th class="px-4 py-2 text-left text-gray-600 font-medium">
-                Nombre
-              </th>
-              <th class="px-4 py-2 text-left text-gray-600 font-medium">
-                Tipo
-              </th>
-              <th class="px-4 py-2 text-left text-gray-600 font-medium">
-                Estado
-              </th>
-              <th class="px-4 py-2 text-left text-gray-600 font-medium">
-                Fecha de Lista
-              </th>
-              <th class="px-4 py-2 text-left text-gray-600 font-medium">
-                Fecha de Lanzamiento
-              </th>
-              <th class="px-4 py-2 text-left text-gray-600 font-medium">
-                Acciones
-              </th>
+              <th class="px-4 py-2 text-left text-gray-600 font-medium">Nombre</th>
+              <th class="px-4 py-2 text-left text-gray-600 font-medium">Tipo</th>
+              <th class="px-4 py-2 text-left text-gray-600 font-medium">Estado</th>
+              <th class="px-4 py-2 text-left text-gray-600 font-medium">Fecha de Lista</th>
+              <th class="px-4 py-2 text-left text-gray-600 font-medium">Fecha de Lanzamiento</th>
+              <th class="px-4 py-2 text-left text-gray-600 font-medium">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            <tr
-              v-for="item in lists"
-              :key="item.id"
-              class="odd:bg-white even:bg-gray-50"
-            >
+            <tr v-for="item in lists" :key="item.id" class="odd:bg-white even:bg-gray-50">
+              <td class="px-4 py-2 border-t border-gray-200 text-gray-700">{{ item.name }}</td>
+              <td class="px-4 py-2 border-t border-gray-200 text-gray-700">{{ item.type }}</td>
               <td class="px-4 py-2 border-t border-gray-200 text-gray-700">
-                {{ item.name }}
-              </td>
-              <td class="px-4 py-2 border-t border-gray-200 text-gray-700">
-                {{ item.type }}
-              </td>
-              <td class="px-4 py-2 border-t border-gray-200 text-gray-700">
-                <span
-                  :class="statusClass(item.status)"
-                  class="px-2 py-1 rounded-full text-xs font-bold"
-                >
+                <span :class="statusClass(item.status)" class="px-2 py-1 rounded-full text-xs font-bold">
                   {{ readableStatus(item.status) }}
                 </span>
               </td>
+              <td class="px-4 py-2 border-t border-gray-200 text-gray-700">{{ item.listDate }}</td>
+              <td class="px-4 py-2 border-t border-gray-200 text-gray-700">{{ item.releaseDate }}</td>
               <td class="px-4 py-2 border-t border-gray-200 text-gray-700">
-                {{ item.listDate }}
-              </td>
-              <td class="px-4 py-2 border-t border-gray-200 text-gray-700">
-                {{ item.releaseDate }}
-              </td>
-              <td class="px-4 py-2 border-t border-gray-200 text-gray-700">
-                <button
-                  @click="goToEdit(item.id)"
-                  class="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                >
+                <button @click="goToEdit(item.id)" class="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600">
                   <i class="fa-solid fa-pen-to-square"></i>
                 </button>
               </td>
             </tr>
           </tbody>
         </table>
+
+        <!-- Diseño responsive para móviles -->
+        <div v-for="item in lists" :key="item.id" class="sm:hidden bg-white p-4 rounded-lg shadow-md mb-4 w-full">
+          <h5 class="text-lg font-semibold">{{ item.name }}</h5>
+          <p><strong>Tipo:</strong> {{ item.type }}</p>
+          <p><strong>Estado:</strong> <span :class="statusClass(item.status)" class="px-2 py-1 rounded-full text-xs font-bold">{{ readableStatus(item.status) }}</span></p>
+          <p><strong>Fecha de Lista:</strong> {{ item.listDate }}</p>
+          <p><strong>Fecha de Lanzamiento:</strong> {{ item.releaseDate }}</p>
+          <div class="mt-2 flex justify-end">
+            <button @click="goToEdit(item.id)" class="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
     <div class="bg-white p-6 rounded-2xl shadow-md w-full max-w-5xl">
@@ -213,7 +198,9 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.max-h-96 {
-  max-height: 24rem;
+@media (max-width: 640px) {
+  .table-auto {
+    display: none;
+  }
 }
 </style>
