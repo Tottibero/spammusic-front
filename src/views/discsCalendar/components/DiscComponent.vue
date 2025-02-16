@@ -323,7 +323,7 @@ export default defineComponent({
           SwalService.success("Pendiente borrado exitosamente");
         } else {
           // Si no está en pendientes, lo agregamos
-          const pending = await postPendingService({ discId: props.id });
+          const pending = await postPendingService({ discId: props.disc.id });
           pendingId.value = pending.id;
           SwalService.success("Pendiente añadido exitosamente");
         }
@@ -525,6 +525,42 @@ export default defineComponent({
       }
     };
 
+
+    const showArtistModal = ref(false);
+    const newArtistName = ref("");
+    const creatingNewArtist = ref(false);
+
+    const openArtistModal = () => {
+      newArtistName.value = props.disc.artist.name;
+      showArtistModal.value = true;
+    };
+
+    const closeArtistModal = () => {
+      showArtistModal.value = false;
+    };
+
+    const handleArtistUpdate = async () => {
+      try {
+        if (creatingNewArtist.value) {
+          const newArtist = await postArtist({ name: newArtistName.value });
+          props.disc.artist = newArtist;
+          await updateDisc(props.disc.id, { artistId: newArtist.id });
+          emit("artist-created", newArtist.id, newArtist.name);
+          Swal.fire("¡Éxito!", "Nuevo artista creado correctamente.", "success");
+        } else {
+          await updateArtist(props.disc.artist.id, { name: newArtistName.value });
+          props.disc.artist.name = newArtistName.value;
+          emit("update-artist", props.disc.artist.id, newArtistName.value);
+          Swal.fire("¡Éxito!", "El nombre del artista se ha actualizado correctamente.", "success");
+        }
+        closeArtistModal();
+      } catch (error) {
+        Swal.fire("Error", "No se pudo completar la acción.", "error");
+      }
+    };
+
+
+
     onMounted(() => {
       window.addEventListener("resize", updateSize);
     });
@@ -554,7 +590,10 @@ export default defineComponent({
       isNarrow,
       buscarGeneroSpotify,
       toggleBookmark,
-      pendingId
+      pendingId,
+      openArtistModal,
+      handleArtistUpdate,
+      closeArtistModal
     };
   },
 });
