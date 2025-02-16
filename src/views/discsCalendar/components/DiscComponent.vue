@@ -2,25 +2,47 @@
   <div
     class="p-4 border rounded-md flex flex-col sm:flex-row items-center justify-between w-full sm:w-1/2 bg-white shadow-md"
     :style="{ backgroundColor: getGenreColor(disc.genreId) }"
-    :class="{ 'text-white': getGenreColor(disc.genreId) !== 'transparent' }">
+    :class="{ 'text-white': getGenreColor(disc.genreId) !== 'transparent' }"
+  >
     <!-- Columna izquierda: Imagen del disco -->
     <div class="flex items-center w-full sm:w-1/3 p-4">
-      <img v-if="disc.image" :src="disc.image" alt="Disc cover" class="w-28 h-28 rounded-md cursor-pointer object-cover"
-        @click="openImageModal" />
+      <img
+        v-if="disc.image"
+        :src="disc.image"
+        alt="Disc cover"
+        class="w-28 h-28 rounded-md cursor-pointer object-cover"
+        @click="openImageModal"
+      />
       <div class="ml-6 flex flex-col text-center sm:text-left">
-        <h3 class="font-bold text-lg truncate cursor-pointer w-full" @click="openArtistModal">
+        <h3
+          class="font-bold text-lg truncate cursor-pointer w-full"
+          @click="openArtistModal"
+        >
           {{ disc.artist.name }}
         </h3>
         <p class="text-sm truncate w-full">
-          <span v-if="!editingName" @click="enableEditing('name')" class="cursor-pointer hover:underline">
+          <span
+            v-if="!editingName"
+            @click="enableEditing('name')"
+            class="cursor-pointer hover:underline"
+          >
             {{ disc.name }}
           </span>
-          <input v-else v-model="editedData.name" @keyup.enter="saveChanges('name')" @blur="saveChanges('name')"
-            class="border rounded px-2 py-1 text-gray-600 w-full" />
+          <input
+            v-else
+            v-model="editedData.name"
+            @keyup.enter="saveChanges('name')"
+            @blur="saveChanges('name')"
+            class="border rounded px-2 py-1 text-gray-600 w-full"
+          />
         </p>
         <p class="text-sm mt-2 w-full">
-          <a v-if="disc.link && disc.link.includes('spotify.com')" :href="disc.link" target="_blank"
-            class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded shadow-md inline-flex items-center space-x-1 text-sm">
+          <a
+            v-if="disc.link && disc.link.includes('spotify.com')"
+            :href="disc.link"
+            target="_blank"
+            class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded shadow-md inline-flex items-center space-x-1 text-sm"
+          >
             <i class="fa-brands fa-spotify text-base"></i>
             <span>Spotify</span>
           </a>
@@ -34,61 +56,134 @@
     </div>
 
     <!-- Columna derecha: Botones de acción en dos columnas -->
-    <div class="grid gap-2 w-full sm:w-2/3 p-2" :class="{ 'grid-cols-2': !isNarrow, 'grid-cols-1': isNarrow }">
+    <div
+      class="grid gap-2 w-full sm:w-2/3 p-2"
+      :class="{ 'grid-cols-2': !isNarrow, 'grid-cols-1': isNarrow }"
+    >
       <!-- AQUÍ USAMOS SearchableSelect EN LUGAR DE <select> -->
-      <SearchableSelect v-model="editedData.genreId" :options="genres" placeholder="Seleccione un género" title="name"
-        trackby="id" :max="50" class="rounded shadow-md w-full px-3 py-2 bg-white text-black" />
-      <button @click="toggleEp()" :class="{ 'bg-blue-500': disc.ep, 'bg-gray-300': !disc.ep }"
-        class="text-white font-medium px-3 py-2 rounded shadow-md">
+      <SearchableSelect
+        v-model="editedData.genreId"
+        :options="genres"
+        placeholder="Seleccione un género"
+        title="name"
+        trackby="id"
+        :max="50"
+        class="rounded shadow-md w-full px-3 py-2 bg-white text-black"
+        @update:modelValue="() => saveChanges('genreId')"
+      />
+      <button
+        @click="toggleEp()"
+        :class="{ 'bg-blue-500': disc.ep, 'bg-gray-300': !disc.ep }"
+        class="text-white font-medium px-3 py-2 rounded shadow-md"
+      >
         {{ disc.ep ? "EP" : "Álbum" }}
       </button>
-      <button @click="toggleVerified()" :class="{ 'bg-yellow-500': disc.verified, 'bg-gray-300': !disc.verified }"
-        class="text-white font-medium px-3 py-2 rounded shadow-md">
+      <button
+        @click="toggleVerified()"
+        :class="{
+          'bg-gray-700': disc.verified,
+          'bg-gray-300': !disc.verified,
+        }"
+        class="text-white font-medium px-3 py-2 rounded shadow-md"
+      >
         {{ disc.verified ? "Verificado" : "No Verificado" }}
       </button>
-      <button @click="buscarGeneroSpotify(disc)"
-        class="bg-green-500 hover:bg-green-600 text-white font-medium px-3 py-2 rounded shadow-md">
+      <button
+        @click="toggleBookmark()"
+        :class="{ 'bg-yellow-500': pendingId, 'bg-gray-300': !pendingId }"
+        class="text-white font-medium px-3 py-2 rounded shadow-md"
+      >
+        {{ pendingId ? "Pendiente" : "Guardar" }}
+      </button>
+      <button
+        @click="buscarGeneroSpotify(disc)"
+        class="bg-green-500 hover:bg-green-600 text-white font-medium px-3 py-2 rounded shadow-md"
+      >
         Buscar Género
       </button>
-      <button @click="confirmDelete(disc.id)"
-        class="bg-red-500 hover:bg-red-600 text-white font-medium px-3 py-2 rounded shadow-md">
+      <button
+        @click="confirmDelete(disc.id)"
+        class="bg-red-500 hover:bg-red-600 text-white font-medium px-3 py-2 rounded shadow-md"
+      >
         Borrar
       </button>
     </div>
   </div>
 
   <!-- Modal para cambiar la imagen -->
-  <div v-if="showImageModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+  <div
+    v-if="showImageModal"
+    class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50"
+  >
     <div class="bg-white p-6 rounded-lg shadow-lg w-96">
       <h2 class="text-lg font-semibold mb-4">Cambiar Imagen del Disco</h2>
-      <input v-model="newImageUrl" type="text" placeholder="Introduce la URL de la imagen"
-        class="border p-2 w-full rounded-md" />
+      <input
+        v-model="newImageUrl"
+        type="text"
+        placeholder="Introduce la URL de la imagen"
+        class="border p-2 w-full rounded-md"
+      />
       <div class="flex justify-end mt-4 space-x-2">
-        <button @click="closeImageModal" class="bg-gray-400 text-white px-4 py-2 rounded-md">Cancelar</button>
-        <button @click="updateImageUrl" class="bg-blue-500 text-white px-4 py-2 rounded-md">Guardar</button>
+        <button
+          @click="closeImageModal"
+          class="bg-gray-400 text-white px-4 py-2 rounded-md"
+        >
+          Cancelar
+        </button>
+        <button
+          @click="updateImageUrl"
+          class="bg-blue-500 text-white px-4 py-2 rounded-md"
+        >
+          Guardar
+        </button>
       </div>
     </div>
   </div>
 
   <!-- Modal para cambiar/crear artista -->
-  <div v-if="showArtistModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+  <div
+    v-if="showArtistModal"
+    class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50"
+  >
     <div class="bg-white p-6 rounded-lg shadow-lg w-96">
       <h2 class="text-lg font-semibold mb-4">Actualizar o Crear Artista</h2>
       <label class="flex items-center mb-4">
-        <input type="checkbox" v-model="creatingNewArtist" class="mr-2" /> Crear nuevo artista
+        <input type="checkbox" v-model="creatingNewArtist" class="mr-2" /> Crear
+        nuevo artista
       </label>
-      <input v-model="newArtistName" type="text" placeholder="Introduce el nombre del artista"
-        class="border p-2 w-full rounded-md" />
+      <input
+        v-model="newArtistName"
+        type="text"
+        placeholder="Introduce el nombre del artista"
+        class="border p-2 w-full rounded-md"
+      />
       <div class="flex justify-end mt-4 space-x-2">
-        <button @click="closeArtistModal" class="bg-gray-400 text-white px-4 py-2 rounded-md">Cancelar</button>
-        <button @click="handleArtistUpdate" class="bg-blue-500 text-white px-4 py-2 rounded-md">Guardar</button>
+        <button
+          @click="closeArtistModal"
+          class="bg-gray-400 text-white px-4 py-2 rounded-md"
+        >
+          Cancelar
+        </button>
+        <button
+          @click="handleArtistUpdate"
+          class="bg-blue-500 text-white px-4 py-2 rounded-md"
+        >
+          Guardar
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, ref, onMounted, onUnmounted } from "vue";
+import {
+  computed,
+  defineComponent,
+  reactive,
+  ref,
+  onMounted,
+  onUnmounted,
+} from "vue";
 import type { PropType } from "vue";
 import { updateDisc, deleteDisc } from "@services/discs/discs";
 import { updateArtist, postArtist } from "@services/artist/artist";
@@ -99,6 +194,11 @@ import { obtenerTokenSpotify } from "@helpers/SpotifyFunctions.ts";
 
 // IMPORTA Y REGISTRA EL COMPONENTE
 import SearchableSelect from "@components/SearchableSelect.vue";
+import {
+  postPendingService,
+  deletePendingService,
+} from "@services/pendings/pendings";
+import SwalService from "@services/swal/SwalService";
 
 export default defineComponent({
   name: "Disc",
@@ -118,6 +218,7 @@ export default defineComponent({
         ep: boolean;
         verified: boolean;
         releaseDate: Date;
+        pendingId: string;
       }>,
       required: true,
     },
@@ -152,7 +253,9 @@ export default defineComponent({
       if (field === "releaseDate") editingDate.value = true;
     };
 
-    const saveChanges = async (field: "name" | "link" | "genreId" | "releaseDate") => {
+    const saveChanges = async (
+      field: "name" | "link" | "genreId" | "releaseDate"
+    ) => {
       try {
         await updateDisc(props.disc.id, { [field]: editedData[field] });
         // Sincronizamos los cambios en el disco original
@@ -162,7 +265,10 @@ export default defineComponent({
         if (field === "name") editingName.value = false;
         if (field === "link") editingLink.value = false;
         if (field === "releaseDate") {
-          emit("date-changed", { ...props.disc, releaseDate: editedData.releaseDate });
+          emit("date-changed", {
+            ...props.disc,
+            releaseDate: editedData.releaseDate,
+          });
           editingDate.value = false;
         }
 
@@ -204,6 +310,36 @@ export default defineComponent({
         props.disc.verified = !props.disc.verified;
       } catch (error) {
         console.error("Error al actualizar verificación:", error);
+      }
+    };
+
+    const pendingId = ref(props.disc.pendingId);
+
+    const toggleBookmark = async () => {
+      try {
+        if (pendingId.value) {
+          // Si ya está en pendientes, lo eliminamos
+          await deletePendingService(pendingId.value);
+          pendingId.value = null;
+          SwalService.success("Pendiente borrado exitosamente");
+        } else {
+          // Si no está en pendientes, lo agregamos
+          const pending = await postPendingService({ discId: props.disc.id });
+          pendingId.value = pending.id;
+          SwalService.success("Pendiente añadido exitosamente");
+        }
+      } catch (error) {
+        console.error("Error al cambiar el estado de pendiente:", error);
+        Swal.fire({
+          title: "Error",
+          text: "No se pudo actualizar el estado de pendiente.",
+          icon: "error",
+          position: "top-end",
+          timer: 3000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          toast: true,
+        });
       }
     };
 
@@ -249,7 +385,8 @@ export default defineComponent({
 
     const getLinkText = (link: string) => {
       if (link.includes("bandcamp.com")) return "Bandcamp";
-      if (link.includes("youtube.com") || link.includes("youtu.be")) return "YouTube";
+      if (link.includes("youtube.com") || link.includes("youtu.be"))
+        return "YouTube";
       if (link.includes("spotify.com")) return "Spotify";
       return "Enlace";
     };
@@ -270,7 +407,11 @@ export default defineComponent({
       try {
         await updateDisc(props.disc.id, { image: newImageUrl.value });
         props.disc.image = newImageUrl.value;
-        Swal.fire("¡Éxito!", "La imagen se ha actualizado correctamente.", "success");
+        Swal.fire(
+          "¡Éxito!",
+          "La imagen se ha actualizado correctamente.",
+          "success"
+        );
         closeImageModal();
       } catch (error) {
         Swal.fire("Error", "No se pudo actualizar la imagen.", "error");
@@ -385,6 +526,42 @@ export default defineComponent({
       }
     };
 
+
+    const showArtistModal = ref(false);
+    const newArtistName = ref("");
+    const creatingNewArtist = ref(false);
+
+    const openArtistModal = () => {
+      newArtistName.value = props.disc.artist.name;
+      showArtistModal.value = true;
+    };
+
+    const closeArtistModal = () => {
+      showArtistModal.value = false;
+    };
+
+    const handleArtistUpdate = async () => {
+      try {
+        if (creatingNewArtist.value) {
+          const newArtist = await postArtist({ name: newArtistName.value });
+          props.disc.artist = newArtist;
+          await updateDisc(props.disc.id, { artistId: newArtist.id });
+          emit("artist-created", newArtist.id, newArtist.name);
+          Swal.fire("¡Éxito!", "Nuevo artista creado correctamente.", "success");
+        } else {
+          await updateArtist(props.disc.artist.id, { name: newArtistName.value });
+          props.disc.artist.name = newArtistName.value;
+          emit("update-artist", props.disc.artist.id, newArtistName.value);
+          Swal.fire("¡Éxito!", "El nombre del artista se ha actualizado correctamente.", "success");
+        }
+        closeArtistModal();
+      } catch (error) {
+        Swal.fire("Error", "No se pudo completar la acción.", "error");
+      }
+    };
+
+
+
     onMounted(() => {
       window.addEventListener("resize", updateSize);
     });
@@ -413,6 +590,11 @@ export default defineComponent({
       updateImageUrl,
       isNarrow,
       buscarGeneroSpotify,
+      toggleBookmark,
+      pendingId,
+      openArtistModal,
+      handleArtistUpdate,
+      closeArtistModal
     };
   },
 });
