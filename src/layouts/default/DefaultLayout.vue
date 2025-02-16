@@ -15,7 +15,7 @@
 <div v-if="menuVisible" class="overlay fixed inset-0 bg-black bg-opacity-50 z-10 md:hidden" @click="closeMenu">
   <!-- Botón de cierre (X) fuera del menú -->
   <button 
-    class="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-lg bg-gray-900 bg-opacity-75 text-white transition-all duration-300 hover:bg-gray-700"
+    class="absolute top-4 right-2 sm:right-4 w-10 h-10 flex items-center justify-center rounded-lg bg-gray-900 bg-opacity-75 text-white transition-all duration-300 hover:bg-gray-700 z-20"
     @click="closeMenu"
   >
     <i class="fa-solid fa-xmark text-lg"></i>
