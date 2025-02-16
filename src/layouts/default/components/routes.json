@@ -13,19 +13,19 @@
     },
     {
       "to": "/calendar",
-      "label": "Calendario de discos",
+      "label": "Calendario",
       "activeClass": "bg-gray-700",
       "type": "disc-app"
     },
     {
       "to": "/import",
-      "label": "Añadir Discos",
+      "label": "Añadir discos",
       "activeClass": "bg-gray-700",
       "type": "disc-app"
     },
     {
       "to": "/recap",
-      "label": "Resumen Semanal",
+      "label": "Resumen semanal",
       "activeClass": "bg-gray-700",
       "type": "riff-valley"
     },
@@ -50,10 +50,10 @@
     },
     {
       "to": "/users",
-      "label": "Gestionar Usuarios",
+      "label": "Gestionar usuarios",
       "activeClass": "bg-red-600",
       "type": "bottom",
       "requiredRole": "superUser"
-    }
+    } 
   ]
   
