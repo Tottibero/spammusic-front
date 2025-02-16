@@ -13,14 +13,18 @@
 
 <!-- Fondo oscuro con botón de cierre -->
 <div v-if="menuVisible" class="overlay fixed inset-0 bg-black bg-opacity-50 z-10 md:hidden" @click="closeMenu">
-  <!-- Botón de cierre (X) fuera del menú -->
-  <button 
-    class="absolute top-4 right-2 sm:right-4 w-10 h-10 flex items-center justify-center rounded-lg bg-gray-900 bg-opacity-75 text-white transition-all duration-300 hover:bg-gray-700 z-20"
-    @click="closeMenu"
-  >
-    <i class="fa-solid fa-xmark text-lg"></i>
-  </button>
+  <!-- Transición del botón de cierre -->
+  <transition name="fade-slide" appear>
+    <button 
+      class="absolute top-4 left-[calc(16rem+1rem)] w-10 h-10 flex items-center justify-center rounded-lg bg-gray-900 bg-opacity-75 text-white transition-all duration-300 hover:bg-gray-700 z-20"
+      @click.stop="closeMenu"
+    >
+      <i class="fa-solid fa-xmark text-lg"></i>
+    </button>
+  </transition>
 </div>
+
+
 
     <!-- Barra lateral (solo si no es la página de login) -->
     <SidebarMenu 
@@ -103,4 +107,20 @@ export default {
     display: none;
   }
 }
+
+/* Animación de fade + slide */
+.fade-slide-enter-active, .fade-slide-leave-active {
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(-10px); /* Aparece deslizándose desde arriba */
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
 </style>
