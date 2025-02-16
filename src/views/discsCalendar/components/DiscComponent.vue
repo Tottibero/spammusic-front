@@ -69,6 +69,7 @@
         trackby="id"
         :max="50"
         class="rounded shadow-md w-full px-3 py-2 bg-white text-black"
+        @update:modelValue="() => saveChanges('genreId')"
       />
       <button
         @click="toggleEp()"
