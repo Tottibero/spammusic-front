@@ -2,17 +2,11 @@
   <div
     class="p-4 border rounded-md flex flex-col sm:flex-row items-center justify-between w-full sm:w-1/2 bg-white shadow-md"
     :style="{ backgroundColor: getGenreColor(disc.genreId) }"
-    :class="{ 'text-white': getGenreColor(disc.genreId) !== 'transparent' }"
-  >
+    :class="{ 'text-white': getGenreColor(disc.genreId) !== 'transparent' }">
     <!-- Columna izquierda: Imagen del disco -->
     <div class="flex items-center w-full sm:w-1/3 p-4">
-      <img
-        v-if="disc.image"
-        :src="disc.image"
-        alt="Disc cover"
-        class="w-28 h-28 rounded-md cursor-pointer object-cover"
-        @click="openImageModal"
-      />
+      <img v-if="disc.image" :src="disc.image" alt="Disc cover" class="w-28 h-28 rounded-md cursor-pointer object-cover"
+        @click="openImageModal" />
       <div class="ml-6 flex flex-col text-center sm:text-left">
         <h3 class="font-bold text-lg truncate cursor-pointer w-full" @click="openArtistModal">
           {{ disc.artist.name }}
@@ -21,27 +15,20 @@
           <span v-if="!editingName" @click="enableEditing('name')" class="cursor-pointer hover:underline">
             {{ disc.name }}
           </span>
-          <input
-            v-else
-            v-model="editedData.name"
-            @keyup.enter="saveChanges('name')"
-            @blur="saveChanges('name')"
-            class="border rounded px-2 py-1 text-gray-600 w-full"
-          />
+          <input v-else v-model="editedData.name" @keyup.enter="saveChanges('name')" @blur="saveChanges('name')"
+            class="border rounded px-2 py-1 text-gray-600 w-full" />
         </p>
         <p class="text-sm mt-2 w-full">
-          <a
-            v-if="!editingLink && disc.link"
-            :href="disc.link"
-            target="_blank"
-            class="text-blue-400 hover:underline truncate"
-          >
-            {{ getLinkText(disc.link) }}
+          <a v-if="disc.link && disc.link.includes('spotify.com')" :href="disc.link" target="_blank"
+            class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded shadow-md inline-flex items-center space-x-1 text-sm">
+            <i class="fa-brands fa-spotify text-base"></i>
+            <span>Spotify</span>
           </a>
           <span v-else-if="!disc.link" class="text-gray-400">
             <SpotifyArtistButton :artistName="disc.artist.name" />
           </span>
         </p>
+
         <p class="text-sm mt-2">{{ formattedDate }}</p>
       </div>
     </div>
@@ -49,40 +36,22 @@
     <!-- Columna derecha: Botones de acción en dos columnas -->
     <div class="grid gap-2 w-full sm:w-2/3 p-2" :class="{ 'grid-cols-2': !isNarrow, 'grid-cols-1': isNarrow }">
       <!-- AQUÍ USAMOS SearchableSelect EN LUGAR DE <select> -->
-      <SearchableSelect
-        v-model="editedData.genreId"
-        :options="genres"
-        placeholder="Seleccione un género"
-        title="name"
-        trackby="id"
-        :max="50"
-        class="border rounded px-3 py-2 text-gray-700 focus:outline-none w-full"
-        @update:modelValue="() => saveChanges('genreId')"
-      />
-      <button
-        @click="toggleEp()"
-        :class="{ 'bg-blue-500': disc.ep, 'bg-gray-300': !disc.ep }"
-        class="text-white font-medium px-3 py-2 rounded shadow-md"
-      >
+      <SearchableSelect v-model="editedData.genreId" :options="genres" placeholder="Seleccione un género" title="name"
+        trackby="id" :max="50" class="rounded shadow-md w-full px-3 py-2 bg-white text-black" />
+      <button @click="toggleEp()" :class="{ 'bg-blue-500': disc.ep, 'bg-gray-300': !disc.ep }"
+        class="text-white font-medium px-3 py-2 rounded shadow-md">
         {{ disc.ep ? "EP" : "Álbum" }}
       </button>
-      <button
-        @click="toggleVerified()"
-        :class="{ 'bg-yellow-500': disc.verified, 'bg-gray-300': !disc.verified }"
-        class="text-white font-medium px-3 py-2 rounded shadow-md"
-      >
+      <button @click="toggleVerified()" :class="{ 'bg-yellow-500': disc.verified, 'bg-gray-300': !disc.verified }"
+        class="text-white font-medium px-3 py-2 rounded shadow-md">
         {{ disc.verified ? "Verificado" : "No Verificado" }}
       </button>
-      <button
-        @click="buscarGeneroSpotify(disc)"
-        class="bg-green-500 hover:bg-green-600 text-white font-medium px-3 py-2 rounded shadow-md"
-      >
+      <button @click="buscarGeneroSpotify(disc)"
+        class="bg-green-500 hover:bg-green-600 text-white font-medium px-3 py-2 rounded shadow-md">
         Buscar Género
       </button>
-      <button
-        @click="confirmDelete(disc.id)"
-        class="bg-red-500 hover:bg-red-600 text-white font-medium px-3 py-2 rounded shadow-md"
-      >
+      <button @click="confirmDelete(disc.id)"
+        class="bg-red-500 hover:bg-red-600 text-white font-medium px-3 py-2 rounded shadow-md">
         Borrar
       </button>
     </div>
@@ -92,7 +61,8 @@
   <div v-if="showImageModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
     <div class="bg-white p-6 rounded-lg shadow-lg w-96">
       <h2 class="text-lg font-semibold mb-4">Cambiar Imagen del Disco</h2>
-      <input v-model="newImageUrl" type="text" placeholder="Introduce la URL de la imagen" class="border p-2 w-full rounded-md" />
+      <input v-model="newImageUrl" type="text" placeholder="Introduce la URL de la imagen"
+        class="border p-2 w-full rounded-md" />
       <div class="flex justify-end mt-4 space-x-2">
         <button @click="closeImageModal" class="bg-gray-400 text-white px-4 py-2 rounded-md">Cancelar</button>
         <button @click="updateImageUrl" class="bg-blue-500 text-white px-4 py-2 rounded-md">Guardar</button>
@@ -107,7 +77,8 @@
       <label class="flex items-center mb-4">
         <input type="checkbox" v-model="creatingNewArtist" class="mr-2" /> Crear nuevo artista
       </label>
-      <input v-model="newArtistName" type="text" placeholder="Introduce el nombre del artista" class="border p-2 w-full rounded-md" />
+      <input v-model="newArtistName" type="text" placeholder="Introduce el nombre del artista"
+        class="border p-2 w-full rounded-md" />
       <div class="flex justify-end mt-4 space-x-2">
         <button @click="closeArtistModal" class="bg-gray-400 text-white px-4 py-2 rounded-md">Cancelar</button>
         <button @click="handleArtistUpdate" class="bg-blue-500 text-white px-4 py-2 rounded-md">Guardar</button>
@@ -131,7 +102,7 @@ import SearchableSelect from "@components/SearchableSelect.vue";
 
 export default defineComponent({
   name: "Disc",
-  components: { 
+  components: {
     SpotifyArtistButton,
     SearchableSelect, // <-- Registrado aquí
   },
@@ -451,75 +422,94 @@ export default defineComponent({
 .p-4 {
   padding: 1rem;
 }
+
 .border {
   border: 1px solid #e5e7eb;
 }
+
 .rounded-md {
   border-radius: 0.375rem;
 }
+
 .text-white {
   color: #ffffff;
 }
+
 .truncate {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .w-full {
   width: 100%;
 }
+
 .grid-cols-2 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
+
 /* Ajuste para pantallas medianas */
 @media (max-width: 1024px) {
   .grid-cols-2 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
   }
 }
+
 /* Ajuste para pantallas más pequeñas */
 @media (max-width: 820px) {
   .p-4 {
     padding: 0.5rem;
   }
+
   .grid-cols-2 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
   }
+
   .w-full {
     width: 100%;
   }
+
   img {
     width: 80px;
     height: 80px;
   }
+
   h3 {
     font-size: 1rem;
   }
+
   .sm\:flex-row {
     flex-direction: column;
   }
 }
+
 /* Ajuste para pantallas muy pequeñas */
 @media (max-width: 430px) {
   .p-4 {
     padding: 0.25rem;
   }
+
   img {
     width: 70px;
     height: 70px;
   }
+
   h3 {
     font-size: 0.9rem;
   }
+
   .sm\:flex-row {
     flex-direction: column;
   }
 }
+
 @media (max-width: 300px) {
   img {
     width: 60px;
     height: 60px;
   }
+
   h3 {
     font-size: 0.8rem;
   }
