@@ -259,16 +259,19 @@
   }
   
   .search_input_trigger {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border: 1px solid #ccc;
-    border-radius: 0.25rem;
-    background-color: #fff;
-    padding: 0.5rem 0.75rem;
-    cursor: pointer;
-    min-width: 180px; /* para que se vea más amplio */
-  }
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 0.375rem; 
+  padding: 0.3rem 0.75rem; 
+  height: 28px; 
+  width: 100%;
+  font-size: 1rem; 
+  background-color: #ffffff;
+  color: #000000;
+}
+
+
   
   .searchable__select {
     position: absolute;
