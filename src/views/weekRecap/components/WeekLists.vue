@@ -1,31 +1,25 @@
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6 p-4 md:p-6">
     <!-- Listas -->
     <div
       v-for="item in lists"
       :key="item.id"
-      class="p-6 bg-white shadow-md rounded-lg border border-gray-200"
+      class="p-4 md:p-6 bg-white shadow-md rounded-lg border border-gray-200"
     >
       <!-- Información de la lista -->
-      <div class="flex justify-between items-center mb-4">
+      <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
         <div>
-          <h3 class="text-lg font-bold text-gray-800">{{ item.name }}</h3>
+          <h3 class="text-md md:text-lg font-bold text-gray-800">{{ item.name }}</h3>
           <!-- Información en línea -->
-          <div class="flex items-center space-x-4 text-sm text-gray-600">
-            <p>
-              <span class="font-semibold">Tipo:</span> {{ item.type }}
-            </p>
-            <p>
-              <span class="font-semibold">Estado:</span> {{ item.status }}
-            </p>
-            <p>
-              <span class="font-semibold">Fecha de Lanzamiento:</span> {{ item.releaseDate }}
-            </p>
+          <div class="flex flex-wrap items-center text-sm text-gray-600 gap-2 md:gap-4">
+            <p><span class="font-semibold">Tipo:</span> {{ item.type }}</p>
+            <p><span class="font-semibold">Estado:</span> {{ item.status }}</p>
+            <p><span class="font-semibold">Fecha de Lanzamiento:</span> {{ item.releaseDate }}</p>
           </div>
         </div>
         <button
           @click="goToEdit(item.id)"
-          class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          class="mt-3 md:mt-0 px-3 py-2 md:px-4 md:py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 w-full md:w-auto"
         >
           Editar
         </button>
