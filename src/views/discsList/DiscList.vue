@@ -64,19 +64,44 @@
         :class="viewMode === 'pendientes'
             ? 'bg-yellow-500 text-white'
             : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-          ">
-        <input type="radio" v-model="viewMode" value="pendientes" class="hidden" />
-        Pendientes (soon)
+        "
+      >
+        <input
+          type="radio"
+          v-model="viewMode"
+          value="pendientes"
+          class="hidden"
+        />
+        Pendientes
+        <span v-if="totalPendings !== ''">({{ totalPendings }})</span>
       </label>
     </div>
 
     <!-- Contenedor de cuadrícula para las tarjetas -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-      <DiscCard v-for="disc in discs" :key="disc.id" :id="disc.id" :ep="disc.ep" :image="disc.image" :name="disc.name"
-        :releaseDate="disc.releaseDate" :artistName="disc.artist?.name || 'Desconocido'" :genreName="disc.genre?.name"
-        :genreColor="disc.genre?.color" :link="disc.link" :averageRate="disc.averageRate"
-        :averageCover="disc.averageCover" :rate="disc.userRate?.rate" :cover="disc.userRate?.cover"
-        :isNew="!disc.userRate" :userDiscRate="disc.userRate?.id" :favoriteId="disc.favoriteId" />
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6"
+    >
+      <DiscCard
+        v-for="disc in discs"
+        :key="disc.id"
+        :id="disc.id"
+        :ep="disc.ep"
+        :image="disc.image"
+        :name="disc.name"
+        :releaseDate="disc.releaseDate"
+        :artistName="disc.artist?.name || 'Desconocido'"
+        :genreName="disc.genre?.name"
+        :genreColor="disc.genre?.color"
+        :link="disc.link"
+        :averageRate="disc.averageRate"
+        :averageCover="disc.averageCover"
+        :rate="disc.userRate?.rate"
+        :cover="disc.userRate?.cover"
+        :isNew="!disc.userRate"
+        :userDiscRate="disc.userRate?.id"
+        :favoriteId="disc.favoriteId"
+        :pendingId="disc.pendingId"
+      />
     </div>
 
     <!-- Elemento para disparar la carga adicional -->
@@ -94,6 +119,8 @@ import Datepicker from "@vuepic/vue-datepicker";
 import { getGenres } from "@services/genres/genres";
 import { getRatesByUser } from "@services/rates/rates";
 import { getFavoritesByUser } from "@services/favorites/favorites";
+import { getPendingsByUser } from "@services/pendings/pendings";
+
 // Importamos el componente SearchableSelect
 import SearchableSelect from "@/components/SearchableSelect.vue";
 
@@ -120,6 +147,7 @@ export default defineComponent({
     const totalRates = ref("");
     const totalCovers = ref("");
     const totalFavorites = ref("");
+    const totalPendings = ref("");
 
     const fetchGenres = async () => {
       try {
@@ -144,6 +172,7 @@ export default defineComponent({
           totalDisc.value = "";
           totalFavorites.value = "";
           totalRates.value = "";
+          totalPendings.value = "";
         }
 
         let response;
@@ -202,12 +231,115 @@ export default defineComponent({
             ...response.data.map((favorite) => ({
               ...favorite.disc,
               favoriteId: favorite.id,
+              pendingId: favorite.disc.userPending
+                ? favorite.disc.userPending.id
+                : null,
               userRate: favorite.disc.userRate
                 ? {
                   id: favorite.disc.userRate.id,
                   rate: favorite.disc.userRate.rate,
                   cover: favorite.disc.userRate.cover,
                 }
+                : null,
+            }))
+          );
+          console.log("disc.value", discs.value);
+        } else if (viewMode.value === "pendientes") {
+          // Nueva rama para pendientes
+          response = await getPendingsByUser(
+            limit.value,
+            offset.value,
+            searchQuery.value,
+            selectedWeek.value,
+            selectedGenre.value
+          );
+          totalPendings.value = response.totalItems;
+          console.log("response data", response.data[0]);
+          discs.value.push(
+            ...response.data.map((pending) => ({
+              ...pending.disc,
+              pendingId: pending.id,
+              userRate: pending.disc.userRate
+                ? {
+                    id: pending.disc.userRate.id,
+                    rate: pending.disc.userRate.rate,
+                    cover: pending.disc.userRate.cover,
+                  }
+                : null,
+            }))
+          );
+          console.log("disc.value", discs.value);
+        } else if (viewMode.value === "pendientes") {
+          // Nueva rama para pendientes
+          response = await getPendingsByUser(
+            limit.value,
+            offset.value,
+            searchQuery.value,
+            selectedWeek.value,
+            selectedGenre.value
+          );
+          totalPendings.value = response.totalItems;
+          console.log("response data", response.data[0]);
+          discs.value.push(
+            ...response.data.map((pending) => ({
+              ...pending.disc,
+              pendingId: pending.id,
+              userRate: pending.disc.userRate
+                ? {
+                    id: pending.disc.userRate.id,
+                    rate: pending.disc.userRate.rate,
+                    cover: pending.disc.userRate.cover,
+                  }
+                : null,
+            }))
+          );
+          console.log("disc.value", discs.value);
+        } else if (viewMode.value === "pendientes") {
+          // Nueva rama para pendientes
+          response = await getPendingsByUser(
+            limit.value,
+            offset.value,
+            searchQuery.value,
+            selectedWeek.value,
+            selectedGenre.value
+          );
+          totalPendings.value = response.totalItems;
+          console.log("response data", response.data[0]);
+          discs.value.push(
+            ...response.data.map((pending) => ({
+              ...pending.disc,
+              pendingId: pending.id,
+              userRate: pending.disc.userRate
+                ? {
+                    id: pending.disc.userRate.id,
+                    rate: pending.disc.userRate.rate,
+                    cover: pending.disc.userRate.cover,
+                  }
+                : null,
+            }))
+          );
+          console.log("disc.value", discs.value);
+        } else if (viewMode.value === "pendientes") {
+          // Nueva rama para pendientes
+          response = await getPendingsByUser(
+            limit.value,
+            offset.value,
+            searchQuery.value,
+            selectedWeek.value,
+            selectedGenre.value
+          );
+          totalPendings.value = response.totalItems;
+          console.log("response data", response.data[0]);
+          discs.value.push(
+            ...response.data.map((pending) => ({
+              ...pending.disc,
+              pendingId: pending.id,
+              userRate: pending.disc.userRate
+                ? {
+                    id: pending.disc.userRate.id,
+                    rate: pending.disc.userRate.rate,
+                    cover: pending.disc.userRate.cover,
+                  }
                 : null,
             }))
           );
@@ -273,6 +405,7 @@ export default defineComponent({
       totalRates,
       totalCovers,
       totalFavorites,
+      totalPendings,
       resetAndFetch,
     };
   },

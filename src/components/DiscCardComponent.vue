@@ -110,8 +110,8 @@
                   :icon="['fas', 'bookmark']"
                   class="h-5 w-5 transition-all duration-300 ease-in-out fill-current mt-1 cursor-pointer"
                   :class="{
-                    'text-yellow-400 scale-110': isBookmarkActive,
-                    'text-gray-500 hover:text-yellow-300': !isBookmarkActive,
+                    'text-yellow-400 scale-110': pendingId,
+                    'text-gray-500 hover:text-yellow-300': !pendingId,
                   }"
                 />
 
@@ -236,8 +236,14 @@ import {
   deleteFavoriteService,
 } from "@services/favorites/favorites.ts";
 
+import {
+  postPendingService,
+  deletePendingService,
+} from "@services/pendings/pendings";
+
+
 import Swal from "sweetalert2";
-import SwalService from '@services/swal/SwalService';
+import SwalService from "@services/swal/SwalService";
 
 export default defineComponent({
   props: {
@@ -257,6 +263,7 @@ export default defineComponent({
     isNew: { type: Boolean, required: true },
     ep: { type: Boolean, required: false },
     favoriteId: { type: String, required: false },
+    pendingId: { type: String, required: false },
   },
   computed: {
     computedImage() {
@@ -275,8 +282,8 @@ export default defineComponent({
     // Determinar si el usuario ya votó
     const hasVoted = ref(!!props.userDiscRate);
     const userDiscRateId = ref(props.userDiscRate); // Almacena el id del voto si ya existe
-    console.log("rate", props.rate)
-    console.log("rate", props.cover)
+    console.log("rate", props.rate);
+    console.log("favoriteId", props.pendingId);
     // Formatear la fecha
     const formattedDate = computed(() => {
       const date = new Date(props.releaseDate);
@@ -292,6 +299,7 @@ export default defineComponent({
     };
 
     const favoriteId = ref(props.favoriteId); // Convierte el ID en reactivo
+    const pendingId = ref(props.pendingId);
 
     watchEffect(() => {
       favoriteId.value = props.favoriteId;
@@ -327,8 +335,34 @@ export default defineComponent({
       isPlusActive.value = !isPlusActive.value;
     };
 
-    const toggleBookmark = () => {
-      isBookmarkActive.value = !isBookmarkActive.value;
+    const toggleBookmark = async () => {
+      try {
+        if (pendingId.value) {
+          // Si ya está en pendientes, lo eliminamos
+          await deletePendingService(pendingId.value);
+          pendingId.value = null;
+          isBookmarkActive.value = false;
+          SwalService.success("Pendiente borrado exitosamente");
+        } else {
+          // Si no está en pendientes, lo agregamos
+          const pending = await postPendingService({ discId: props.id });
+          pendingId.value = pending.id;
+          isBookmarkActive.value = true;
+          SwalService.success("Pendiente añadido exitosamente");
+        }
+      } catch (error) {
+        console.error("Error al cambiar el estado de pendiente:", error);
+        Swal.fire({
+          title: "Error",
+          text: "No se pudo actualizar el estado de pendiente.",
+          icon: "error",
+          position: "top-end",
+          timer: 3000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          toast: true,
+        });
+      }
     };
 
     const toggleVotes = async () => {
@@ -374,8 +408,9 @@ export default defineComponent({
           await updateRateService(userDiscRateId.value, payload);
         }
 
-        if(payload.rate && payload.rate > 0)  SwalService.successImage(payload.rate);
-        else SwalService.success('Votación enviada con exito')
+        if (payload.rate && payload.rate > 0)
+          SwalService.successImage(payload.rate);
+        else SwalService.success("Votación enviada con exito");
       } catch (error) {
         console.error("Error submitting rating:", error);
         Swal.fire({
@@ -408,6 +443,7 @@ export default defineComponent({
       isBookmarkActive,
       toggleBookmark,
       favoriteId,
+      pendingId,
     };
   },
 });
