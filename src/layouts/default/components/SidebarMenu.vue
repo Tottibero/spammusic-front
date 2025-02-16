@@ -13,9 +13,7 @@
         <span>Spam Music</span>
       </div>
       <nav class="p-4 space-y-2">
-        <div class="font-semibold text-gray-400 uppercase text-sm mb-2">
-          Disc App
-        </div>
+
         <router-link
           v-for="route in filteredDiscAppRoutes"
           :key="route.to"
