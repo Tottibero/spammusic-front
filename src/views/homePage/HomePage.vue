@@ -155,24 +155,9 @@ export default defineComponent({
 </script>
 
 <style>
-/* Estilos para el grid de los álbumes (DiscCard) */
-/* Para pantallas pequeñas */
 .grid {
   display: grid;
-  grid-template-columns: repeat(1, 1fr);
-}
-
-/* Para tablets */
-@media (min-width: 640px) {
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* Para pantallas grandes */
-@media (min-width: 1024px) {
-  .grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 </style>

@@ -384,11 +384,9 @@ export default defineComponent({
 </script>
 
 <style>
-/* Estilos para el diseño de cuadrícula */
 .grid {
   display: grid;
   gap: 1.5rem;
-  /* Espaciado entre elementos */
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
@@ -417,16 +415,12 @@ input[type="checkbox"] {
 
 .custom-height-select .search_input_trigger {
   height: 26px;
-  /* Aumentamos un poco la altura solo en DiscList.vue */
   padding: 0.6rem 0.75rem;
-  /* Ajustamos el padding */
   font-size: 1rem;
-  /* Tamaño del texto */
   font-weight: 500;
 }
 
 .search__input::placeholder {
   color: #9ca3af;
-  /* Tailwind gray-600 */
 }
 </style>
