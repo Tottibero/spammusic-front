@@ -1,48 +1,70 @@
 <template>
   <div :class="{ 'menu-open': menuVisible }" class="max-w-7xl mx-auto mt-10 px-4 sm:px-6 lg:px-8">
-    <h1 class="text-4xl font-bold mb-8 text-center">Calendario</h1>
+    <h1 class="text-4xl font-bold mb-8 text-center text-gray-900">Calendario</h1>
     <div>
-      <div class="flex flex-wrap justify-center gap-2 mb-6 overflow-x-auto">
+      <div class="flex flex-wrap justify-center gap-2 mb-6 overflow-x-auto ">
         <button v-for="(month, index) in months" :key="index" @click="selectMonth(index)" :class="{
           'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-[#211d1d] font-bold': selectedMonth === index,
           'bg-gray-200 text-gray-800 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]': selectedMonth !== index
-        }" class="px-4 py-2 rounded-full transition-all duration-300 whitespace-nowrap shadow-md mb-1">
+        }" class="px-4 py-2 rounded-full transition-all duration-300 whitespace-nowrap shadow-md mb-1 text-gray-900">
           {{ month }}
         </button>
       </div>
 
-      <!-- Lista de discos agrupados -->
-      <div v-for="(group, index) in groupedDiscs" :key="group.releaseDate" class="mb-8">
-        <!-- Encabezado del grupo con botón de toggle -->
-        <div class="flex justify-between items-center bg-gray-200 px-4 py-2 rounded cursor-pointer"
-          @click="toggleGroup(index)">
-          <h3 class="text-2xl font-bold">{{ group.releaseDate }}</h3>
-          <button v-if="groupState[index]">
-            <i :class="groupState[index] ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
-          </button>
-        </div>
+<!-- Lista de discos agrupados -->
+<div v-for="(group, index) in groupedDiscs" :key="group.releaseDate" class="mb-8">
+  <!-- Encabezado del grupo con botón de toggle -->
+  <div 
+    class="flex justify-between items-center px-5 py-3 rounded-full cursor-pointer bg-gray-200 transition-all duration-300 shadow-md"
+    :class="groupState[index] 
+      ? 'bg-gradient-to-r from-gray-900 to-gray-700'  
+      : 'hover:bg-gradient-to-r hover:from-gray-200 hover:to-gray-300 bg-gray-100'"
+    @click="toggleGroup(index)"
+  >
+    <h3 
+      class="text-xl sm:text-2xl font-semibold transition-colors duration-300"
+      :style="{ color: groupState[index] ? 'white' : '#1f2937' }"
+    >
+      {{ formatDate(group.releaseDate) }}
+    </h3>
+    
+    <button class="transition-transform duration-300" 
+      :class="{ 'rotate-180': groupState[index] }">
+      <i 
+        class="fas fa-chevron-down transition-colors duration-300"
+        :style="{ color: groupState[index] ? 'white' : '#4b5563' }"
+      ></i>
+    </button>
+  </div>
 
-         <!-- Contenido del grupo desplegable -->
-         <transition name="fade-slide" mode="out-in">
-          <div v-if="groupState[index]" class="mt-4 overflow-x-auto">
-            <button v-if="new Date(group.releaseDate) < new Date()" @click="buscarEnlacesSpotify(group.discs)"
-              class="bg-green-500 text-white px-4 py-2 rounded-full mb-4 w-full sm:w-auto">
-              Buscar enlaces en Spotify
-            </button>
-            <button @click="exportarHtml(group)" class="bg-blue-500 text-white px-4 py-2 rounded-full mt-4 ml-3 w-full sm:w-auto">
-              Exportar HTML de esta semana
-            </button>
+  <!-- Contenido del grupo desplegable -->
+  <transition name="fade-slide" mode="out-in">
+    <div v-if="groupState[index]" class="mt-4 overflow-x-auto">
+      <button 
+        v-if="new Date(group.releaseDate) < new Date()" 
+        @click="buscarEnlacesSpotify(group.discs)"
+        class="bg-green-500 text-white px-4 py-2 rounded-full mb-4 w-full sm:w-auto hover:bg-green-600 transition-all duration-300"
+      >
+        Buscar enlaces en Spotify
+      </button>
+      <button 
+        @click="exportarHtml(group)"
+        class="bg-blue-500 text-white px-4 py-2 rounded-full mt-4 ml-3 w-full sm:w-auto hover:bg-blue-600 transition-all duration-300"
+      >
+        Exportar HTML de esta semana
+      </button>
 
-            <ul class="w-full">
-              <li v-for="disc in group.discs" :key="disc.id"
-                class="flex flex-col md:flex-row md:justify-between p-4 border-b w-full">
-                <DiscComponent :disc="disc" :genres="genres" @disc-deleted="removeDisc"
-                  @date-changed="handleDateChange" />
-              </li>
-            </ul>
-          </div>
-        </transition>
-      </div>
+      <ul class="w-full">
+        <li v-for="disc in group.discs" :key="disc.id"
+            class="flex flex-col md:flex-row md:justify-between p-4 border-b w-full">
+          <DiscComponent :disc="disc" :genres="genres" @disc-deleted="removeDisc"
+            @date-changed="handleDateChange" />
+        </li>
+      </ul>
+    </div>
+  </transition>
+</div>
+
     </div>
     <!-- Cargar más -->
     <div ref="loadMore" class="text-center py-6">
@@ -182,6 +204,26 @@ export default defineComponent({
       }
     };
 
+    // Agregar en setup()
+    const formatDate = (dateString: string) => {
+      const date = new Date(dateString);
+      const optionsDate: Intl.DateTimeFormatOptions = {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      };
+      const optionsWeekday: Intl.DateTimeFormatOptions = {
+        weekday: "long",
+      };
+
+      // Obtener la fecha en formato DD/MM/YYYY
+      const formattedDate = date.toLocaleDateString("es-ES", optionsDate);
+      // Obtener el día de la semana
+      const formattedWeekday = date.toLocaleDateString("es-ES", optionsWeekday);
+
+      return `${formattedDate}, ${formattedWeekday}`;
+    };
+
     // --------------------------------
     // Función para obtener todos los géneros
     // --------------------------------
@@ -315,6 +357,8 @@ export default defineComponent({
       months,
       selectedMonth,
       selectMonth,
+      formatDate,
+
     };
   },
 });

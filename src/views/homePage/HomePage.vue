@@ -4,14 +4,14 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Estadísticas de la App -->
         <div class="text-center border-b md:border-b-0 md:border-r border-gray-200 pb-4 md:pb-0 md:pr-4">
-          <h3 class="text-3xl font-bold mb-4">Estadísticas de discos</h3>
-          <p class="text-lg">
+          <h3 class="text-3xl font-bold mb-4 text-gray-900">Estadísticas de discos</h3>
+          <p class="text-lg text-gray-900">
             Total de discos:
-            <span class="font-semibold">{{ stats.totalDiscs }}</span>
+            <span class="font-semibold text-gray-900">{{ stats.totalDiscs }}</span>
           </p>
           <p class="text-lg mt-2">
             Total de votos:
-            <span class="font-semibold">{{ stats.totalVotes }}</span>
+            <span class="font-semibold text-gray-900">{{ stats.totalVotes }}</span>
           </p>
           <!-- Aquí insertamos el gráfico de barras -->
           <div class="mt-6">
@@ -20,9 +20,9 @@
         </div>
         <!-- Top Usuarios -->
         <div class="text-center">
-          <h3 class="text-3xl font-bold mb-4">Top usuarios</h3>
+          <h3 class="text-3xl font-bold mb-4 text-gray-900">Top usuarios</h3>
           <div class="mb-4">
-            <h4 class="text-2xl font-semibold mb-2">Más discos votados</h4>
+            <h4 class="text-2xl font-semibold mb-2 text-gray-900">Más discos votados</h4>
             <ul class="list-none">
               <li
                 v-for="(user, index) in topUsersByRates"
@@ -36,7 +36,7 @@
             </ul>
           </div>
           <div>
-            <h4 class="text-2xl font-semibold mb-2">Más portadas votadas</h4>
+            <h4 class="text-2xl font-semibold mb-2 text-gray-900">Más portadas votadas</h4>
             <ul class="list-none">
               <li
                 v-for="(user, index) in topUsersByCover"
@@ -55,7 +55,7 @@
 
     <!-- Sección de álbumes mejor valorados -->
     <div class="text-center mb-6">
-      <h3 class="text-4xl font-bold">Discos mejor valorados</h3>
+      <h3 class="text-4xl font-bold text-gray-900">Discos mejor valorados</h3>
     </div>
     <div class="grid gap-6">
       <DiscCard
