@@ -1,8 +1,8 @@
 <template>
     <div class="main_wrapper" ref="wrapperEl">
       <!-- Contenedor que actúa como "select" -->
-      <div @click="toggleSearchbox" class="search_input_trigger">
-        <p class="text-gray-600">
+      <div @click="toggleSearchbox" class="search_input_trigger text-gray-600">
+        <p class="text-gray-500">
           <!-- Muestra el texto seleccionado o la opción por defecto -->
           {{ selectedText || "Seleccione un género" }}
         </p>
@@ -271,8 +271,6 @@
   color: #000000;
 }
 
-
-  
   .searchable__select {
     position: absolute;
     width: 100%;
@@ -309,8 +307,8 @@
   }
   
   .search__results li.active {
-    background-color: #007bff;
-    color: white;
+    background-color: #d9e021;
+    color: #000000;
   }
   </style>
   

@@ -1,32 +1,26 @@
 <template>
   <div :class="{ 'menu-open': menuVisible }" class="max-w-[100rem] mx-auto mt-10 px-4">
-    <h1 class="text-4xl font-bold mb-8 text-center">Discos</h1>
+    <h1 class="text-4xl font-bold mb-8 text-center text-gray-900">Discos</h1>
 
     <!-- Filtros -->
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:space-x-4">
       <input v-model="searchQuery" type="text" placeholder="Buscar álbum o artista..."
         class="flex-[3] p-2 shadow-md rounded-md mb-4 sm:mb-0" />
 
-      <!-- Componente SearchableSelect para elegir género -->
       <SearchableSelect v-model="selectedGenre" :options="genres" placeholder="Seleccione un género" title="name"
         trackby="id" :max="150" @update:modelValue="resetAndFetch"
-        class="flex-[2] px-3 py-2 w-full rounded-md bg-white text-black rounded shadow-md custom-height-select" />
+        class="flex-[2] px-3 py-2 w-full rounded-md bg-white rounded shadow-md custom-height-select placeholder-gray-400" />
 
 
-        <Datepicker
-  v-model="selectedWeek"
-  :weekPicker="true"
-  placeholder="Selecciona una semana"
-  class="flex-[2] px-3 py-2 w-full rounded-lg border-white mt-2 pl-1"
-/>
+      <Datepicker v-model="selectedWeek" :weekPicker="true" placeholder="Selecciona una semana"
+        class="flex-[2] px-3 py-2 w-full rounded-lg border-white mt-2 pl-1" />
     </div>
-
     <!-- Selección de tipo de vista (Estilo Chips) -->
     <div class="mb-6 flex justify-start space-x-2">
       <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
         :class="viewMode === 'all'
-            ? 'bg-gray-700 text-white'
-            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          ? 'bg-gray-700 text-white'
+          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
           ">
         <input type="radio" v-model="viewMode" value="all" class="hidden" />
         Todos los discos <span v-if="totalDisc !== ''">({{ totalDisc }})</span>
@@ -34,8 +28,8 @@
 
       <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
         :class="viewMode === 'rates'
-            ? 'bg-blue-500 text-white'
-            : 'bg-gray-200 hover:bg-gray-300'
+          ? 'bg-blue-500 text-white'
+          : 'bg-gray-200 hover:bg-gray-300'
           ">
         <input type="radio" v-model="viewMode" value="rates" class="hidden" />
         Mis votos <span v-if="totalRates !== ''">({{ totalRates }})</span>
@@ -43,8 +37,8 @@
 
       <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
         :class="viewMode === 'covers'
-            ? 'bg-green-500 text-white'
-            : 'bg-gray-200 hover:bg-gray-300'
+          ? 'bg-green-500 text-white'
+          : 'bg-gray-200 hover:bg-gray-300'
           ">
         <input type="radio" v-model="viewMode" value="covers" class="hidden" />
         Mis portadas <span v-if="totalCovers !== ''">({{ totalCovers }})</span>
@@ -52,8 +46,8 @@
 
       <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
         :class="viewMode === 'favorites'
-            ? 'bg-red-500 text-white'
-            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          ? 'bg-red-500 text-white'
+          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
           ">
         <input type="radio" v-model="viewMode" value="favorites" class="hidden" />
         Favoritos
@@ -62,46 +56,23 @@
 
       <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
         :class="viewMode === 'pendientes'
-            ? 'bg-yellow-500 text-white'
-            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-        "
-      >
-        <input
-          type="radio"
-          v-model="viewMode"
-          value="pendientes"
-          class="hidden"
-        />
+          ? 'bg-yellow-500 text-white'
+          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          ">
+        <input type="radio" v-model="viewMode" value="pendientes" class="hidden" />
         Pendientes
         <span v-if="totalPendings !== ''">({{ totalPendings }})</span>
       </label>
     </div>
 
     <!-- Contenedor de cuadrícula para las tarjetas -->
-    <div
-      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6"
-    >
-      <DiscCard
-        v-for="disc in discs"
-        :key="disc.id"
-        :id="disc.id"
-        :ep="disc.ep"
-        :image="disc.image"
-        :name="disc.name"
-        :releaseDate="disc.releaseDate"
-        :artistName="disc.artist?.name || 'Desconocido'"
-        :genreName="disc.genre?.name"
-        :genreColor="disc.genre?.color"
-        :link="disc.link"
-        :averageRate="disc.averageRate"
-        :averageCover="disc.averageCover"
-        :rate="disc.userRate?.rate"
-        :cover="disc.userRate?.cover"
-        :isNew="!disc.userRate"
-        :userDiscRate="disc.userRate?.id"
-        :favoriteId="disc.favoriteId"
-        :pendingId="disc.pendingId"
-      />
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      <DiscCard v-for="disc in discs" :key="disc.id" :id="disc.id" :ep="disc.ep" :image="disc.image" :name="disc.name"
+        :releaseDate="disc.releaseDate" :artistName="disc.artist?.name || 'Desconocido'" :genreName="disc.genre?.name"
+        :genreColor="disc.genre?.color" :link="disc.link" :averageRate="disc.averageRate"
+        :averageCover="disc.averageCover" :rate="disc.userRate?.rate" :cover="disc.userRate?.cover"
+        :isNew="!disc.userRate" :userDiscRate="disc.userRate?.id" :favoriteId="disc.favoriteId"
+        :pendingId="disc.pendingId" />
     </div>
 
     <!-- Elemento para disparar la carga adicional -->
@@ -261,10 +232,10 @@ export default defineComponent({
               pendingId: pending.id,
               userRate: pending.disc.userRate
                 ? {
-                    id: pending.disc.userRate.id,
-                    rate: pending.disc.userRate.rate,
-                    cover: pending.disc.userRate.cover,
-                  }
+                  id: pending.disc.userRate.id,
+                  rate: pending.disc.userRate.rate,
+                  cover: pending.disc.userRate.cover,
+                }
                 : null,
             }))
           );
@@ -286,10 +257,10 @@ export default defineComponent({
               pendingId: pending.id,
               userRate: pending.disc.userRate
                 ? {
-                    id: pending.disc.userRate.id,
-                    rate: pending.disc.userRate.rate,
-                    cover: pending.disc.userRate.cover,
-                  }
+                  id: pending.disc.userRate.id,
+                  rate: pending.disc.userRate.rate,
+                  cover: pending.disc.userRate.cover,
+                }
                 : null,
             }))
           );
@@ -311,10 +282,10 @@ export default defineComponent({
               pendingId: pending.id,
               userRate: pending.disc.userRate
                 ? {
-                    id: pending.disc.userRate.id,
-                    rate: pending.disc.userRate.rate,
-                    cover: pending.disc.userRate.cover,
-                  }
+                  id: pending.disc.userRate.id,
+                  rate: pending.disc.userRate.rate,
+                  cover: pending.disc.userRate.cover,
+                }
                 : null,
             }))
           );
@@ -336,10 +307,10 @@ export default defineComponent({
               pendingId: pending.id,
               userRate: pending.disc.userRate
                 ? {
-                    id: pending.disc.userRate.id,
-                    rate: pending.disc.userRate.rate,
-                    cover: pending.disc.userRate.cover,
-                  }
+                  id: pending.disc.userRate.id,
+                  rate: pending.disc.userRate.rate,
+                  cover: pending.disc.userRate.cover,
+                }
                 : null,
             }))
           );
@@ -416,7 +387,8 @@ export default defineComponent({
 /* Estilos para el diseño de cuadrícula */
 .grid {
   display: grid;
-  gap: 1.5rem; /* Espaciado entre elementos */
+  gap: 1.5rem;
+  /* Espaciado entre elementos */
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
@@ -451,5 +423,10 @@ input[type="checkbox"] {
   font-size: 1rem;
   /* Tamaño del texto */
   font-weight: 500;
+}
+
+.search__input::placeholder {
+  color: #9ca3af;
+  /* Tailwind gray-600 */
 }
 </style>
