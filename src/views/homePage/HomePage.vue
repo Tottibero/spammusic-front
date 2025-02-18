@@ -191,27 +191,48 @@ export default defineComponent({
     // Función que calcula el dateRange según el período seleccionado.
     // Para "all" no se enviará ningún filtro.
     const getDateRange = (period: string): [string, string] | undefined => {
-      const endDate = new Date();
+      const today = new Date();
       if (period === "all") {
         return undefined;
       }
-      const startDate = new Date();
+
       if (period === "week") {
-        startDate.setDate(endDate.getDate() - 7);
-      } else if (period === "month") {
+        // Últimos 7 días
+        const startDate = new Date();
+        startDate.setDate(today.getDate() - 7);
+        return [
+          startDate.toISOString().split("T")[0],
+          today.toISOString().split("T")[0],
+        ];
+      }
+
+      if (period === "month") {
+        // Mes natural: desde el primer día hasta el último día del mes actual
         const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+        // El día 0 del mes siguiente es el último día del mes actual
         const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
         return [
           startDate.toISOString().split("T")[0],
           endDate.toISOString().split("T")[0],
         ];
-      } else if (period === "year") {
-        startDate.setFullYear(endDate.getFullYear() - 1);
       }
-      // Formateamos las fechas a "YYYY-MM-DD"
+
+      if (period === "year") {
+        // Año natural: desde el 1 de enero hasta el 31 de diciembre del año actual
+        const startDate = new Date(today.getFullYear(), 0, 1);
+        const endDate = new Date(today.getFullYear(), 11, 31);
+        return [
+          startDate.toISOString().split("T")[0],
+          endDate.toISOString().split("T")[0],
+        ];
+      }
+
+      // Si por alguna razón no coincide, devuelve los últimos 7 días
+      const defaultStart = new Date();
+      defaultStart.setDate(today.getDate() - 7);
       return [
-        startDate.toISOString().split("T")[0],
-        endDate.toISOString().split("T")[0],
+        defaultStart.toISOString().split("T")[0],
+        today.toISOString().split("T")[0],
       ];
     };
 
