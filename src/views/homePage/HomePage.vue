@@ -57,6 +57,39 @@
     <div class="text-center mb-6">
       <h3 class="text-4xl font-bold text-gray-900">Discos mejor valorados</h3>
     </div>
+    <!-- Botones de filtro por fecha -->
+    <div class="flex justify-center space-x-4 mb-6">
+      <button
+        @click="selectedPeriod = 'week'; fetchDiscs()"
+        :class="selectedPeriod === 'week' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'"
+        class="px-4 py-2 rounded"
+      >
+        Semana
+      </button>
+      <button
+        @click="selectedPeriod = 'month'; fetchDiscs()"
+        :class="selectedPeriod === 'month' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'"
+        class="px-4 py-2 rounded"
+      >
+        Mes
+      </button>
+      <button
+        @click="selectedPeriod = 'year'; fetchDiscs()"
+        :class="selectedPeriod === 'year' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'"
+        class="px-4 py-2 rounded"
+      >
+        Año
+      </button>
+      <button
+        @click="selectedPeriod = 'all'; fetchDiscs()"
+        :class="selectedPeriod === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'"
+        class="px-4 py-2 rounded"
+      >
+        Todos
+      </button>
+    </div>
+
+    <!-- Grid de Discos -->
     <div class="grid gap-6">
       <DiscCard
         v-for="disc in discs"
@@ -105,15 +138,42 @@ export default defineComponent({
     const topUsersByCover = ref<any[]>([]);
     const ratingDistribution = ref<Array<{ rate: number; count: number }>>([]);
 
+    // Período seleccionado: 'week' (por defecto), 'month', 'year' o 'all'
+    const selectedPeriod = ref("week");
+
+    // Función que calcula el dateRange según el período seleccionado.
+    // Para "all" no se enviará ningún filtro.
+    const getDateRange = (period: string): [string, string] | undefined => {
+      const endDate = new Date();
+      if (period === "all") {
+        return undefined;
+      }
+      const startDate = new Date();
+      if (period === "week") {
+        startDate.setDate(endDate.getDate() - 7);
+      } else if (period === "month") {
+        startDate.setMonth(endDate.getMonth() - 1);
+      } else if (period === "year") {
+        startDate.setFullYear(endDate.getFullYear() - 1);
+      }
+      // Formateamos las fechas a "YYYY-MM-DD"
+      return [
+        startDate.toISOString().split("T")[0],
+        endDate.toISOString().split("T")[0],
+      ];
+    };
+
+    // Función para obtener los discos y estadísticas según el filtro de fechas
     const fetchDiscs = async () => {
       try {
-        const response: DiscsStatsResponse = await getTopRatedOrFeaturedAndStats();
+        const dateRange = getDateRange(selectedPeriod.value);
+        const response: DiscsStatsResponse = await getTopRatedOrFeaturedAndStats(dateRange);
         discs.value = response.discs;
         stats.value.totalDiscs = response.totalDiscs;
         stats.value.totalVotes = response.totalVotes;
         topUsersByRates.value = response.topUsersByRates;
         topUsersByCover.value = response.topUsersByCover;
-        ratingDistribution.value = response.ratingDistribution; // Asignamos la distribución de ratings
+        ratingDistribution.value = response.ratingDistribution;
       } catch (error) {
         console.error("Error fetching discs and stats:", error);
       }
@@ -148,6 +208,8 @@ export default defineComponent({
       topUsersByRates,
       topUsersByCover,
       ratingDistribution,
+      selectedPeriod,
+      fetchDiscs,
       getTrophyIcon,
     };
   },
