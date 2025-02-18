@@ -188,6 +188,14 @@ export default defineComponent({
     // Período seleccionado: 'week' (por defecto), 'month', 'year' o 'all'
     const selectedPeriod = ref("week");
 
+    function formatLocalDate(date) {
+      const year = date.getFullYear();
+      // getMonth() retorna 0 para enero, 1 para febrero, etc.
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
     // Función que calcula el dateRange según el período seleccionado.
     // Para "all" no se enviará ningún filtro.
     const getDateRange = (period: string): [string, string] | undefined => {
@@ -209,16 +217,16 @@ export default defineComponent({
       if (period === "month") {
         const today = new Date();
 
-        // Primer día del mes actual
+        // Primer día del mes actual (en horario local)
         const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-
-        // Último día del mes actual (día 0 del mes siguiente)
+        // Último día del mes actual (en horario local)
         const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
-        return [
-          startDate.toISOString().split("T")[0],
-          endDate.toISOString().split("T")[0],
-        ];
+        // Opción 1: formatear manualmente
+        const startStr = formatLocalDate(startDate);
+        const endStr = formatLocalDate(endDate);
+
+        return [startStr, endStr];
       }
 
       if (period === "year") {
