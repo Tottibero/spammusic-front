@@ -36,23 +36,25 @@
   <div v-if="groupState[index]" class="mt-4 overflow-x-auto">
     
     <!-- Contenedor de botones centrado -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-center">
-      <button 
-        v-if="new Date(group.releaseDate) < new Date()" 
-        @click="buscarEnlacesSpotify(group.discs)"
-        class="bg-green-500 text-white px-4 py-2 rounded-full w-full sm:w-auto hover:bg-green-600 transition-all duration-300 mb-2 sm:mb-0"
-      >
-        Buscar enlaces en Spotify
-      </button>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-center gap-2 mt-4 w-full">
+  <button 
+    v-if="new Date(group.releaseDate) < new Date()" 
+    @click="buscarEnlacesSpotify(group.discs)"
+    class="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition-all duration-300 
+           w-full max-w-[300px] sm:max-w-none sm:w-auto text-center self-center"
+  >
+    Buscar enlaces en Spotify
+  </button>
 
-      <span class="hidden sm:inline-block w-4"></span>
+  <span class="hidden sm:inline-block w-4"></span>
 
-      <button 
-        @click="exportarHtml(group)"
-        class="bg-blue-500 text-white px-4 py-2 rounded-full w-full sm:w-auto hover:bg-blue-600 transition-all duration-300"
-      >
-        Exportar HTML de esta semana
-      </button>
+  <button 
+    @click="exportarHtml(group)"
+    class="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition-all duration-300 
+           w-full max-w-[300px] sm:max-w-none sm:w-auto text-center self-center"
+  >
+    Exportar HTML de esta semana
+  </button>
     </div>
 
     <!-- Lista de discos -->
