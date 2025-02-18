@@ -7,7 +7,7 @@
     <!-- Columna izquierda: Imagen del disco -->
     <div class="flex items-center w-full sm:w-1/3 p-4">
       <button
-      v-if="!disc.image"
+        v-if="!disc.image"
         @click="openImageModal"
         class="bg-purple-500 hover:bg-purple-600 text-white text-xs px-2 py-1 rounded shadow-md ml-2"
       >
@@ -39,13 +39,17 @@
         </a>
         <p class="text-sm mt-2 w-full">
           <a
-            v-if="disc.link && disc.link.includes('spotify.com')"
+            v-if="linkButtonData.visible"
             :href="disc.link"
             target="_blank"
-            class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded shadow-md inline-flex items-center space-x-1 text-sm"
+            :class="[
+              linkButtonData.color,
+              linkButtonData.hover,
+              'text-white px-2 py-1 rounded shadow-md inline-flex items-center space-x-1 text-sm',
+            ]"
           >
-            <i class="fa-brands fa-spotify text-base"></i>
-            <span>Spotify</span>
+            <i :class="[linkButtonData.icon, 'text-base']"></i>
+            <span>{{ linkButtonData.text }}</span>
           </a>
           <span v-else-if="!disc.link" class="text-gray-400">
             <SpotifyArtistButton :artistName="disc.artist.name" />
@@ -254,6 +258,42 @@ export default defineComponent({
         month: "long",
         day: "numeric",
       });
+    });
+
+    const linkButtonData = computed(() => {
+      const link = props.disc.link || "";
+      if (link.includes("spotify.com")) {
+        return {
+          visible: true,
+          color: "bg-green-500",
+          hover: "hover:bg-green-600",
+          icon: "fa-brands fa-spotify",
+          text: "Spotify",
+        };
+      } else if (link.includes("youtube.com") || link.includes("youtu.be")) {
+        return {
+          visible: true,
+          color: "bg-red-500",
+          hover: "hover:bg-red-600",
+          icon: "fa-brands fa-youtube",
+          text: "YouTube",
+        };
+      } else if (link.includes("bandcamp.com")) {
+        return {
+          visible: true,
+          color: "bg-blue-500",
+          hover: "hover:bg-blue-600",
+          icon: "fa-brands fa-bandcamp",
+          text: "Bandcamp",
+        };
+      }
+      return {
+        visible: false,
+        color: "",
+        hover: "",
+        icon: "",
+        text: "",
+      };
     });
 
     const saveChanges = async (field: any) => {
@@ -677,6 +717,7 @@ export default defineComponent({
       showDateModal,
       editedReleaseDate,
       updateDiscReleaseDate,
+      linkButtonData
     };
   },
 });
