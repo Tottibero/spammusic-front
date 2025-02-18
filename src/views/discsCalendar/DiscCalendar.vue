@@ -4,67 +4,78 @@
     <div>
       <div class="flex flex-wrap justify-center gap-2 mb-6 overflow-x-auto ">
         <button v-for="(month, index) in months" :key="index" @click="selectMonth(index)" :class="{
-          'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-[#211d1d] font-bold': selectedMonth === index,
+          'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-[#211d1d] font-semibold': selectedMonth === index,
           'bg-gray-200 text-gray-800 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]': selectedMonth !== index
-        }" class="px-4 py-2 rounded-full transition-all duration-300 whitespace-nowrap shadow-md mb-1 text-gray-900">
+        }"
+          class="px-4 py-2 rounded-full transition-all duration-300 whitespace-nowrap shadow-md mb-1 font-semibold text-gray-900">
           {{ month }}
         </button>
       </div>
 
-<!-- Lista de discos agrupados -->
-<div v-for="(group, index) in groupedDiscs" :key="group.releaseDate" class="mb-8">
-  <!-- Encabezado del grupo con botón de toggle -->
-  <div 
-    class="flex justify-between items-center px-5 py-3 rounded-full cursor-pointer bg-gray-200 transition-all duration-300 shadow-md"
-    :class="groupState[index] 
-      ? 'bg-gradient-to-r from-gray-900 to-gray-700'  
-      : 'hover:bg-gradient-to-r hover:from-gray-200 hover:to-gray-300 bg-gray-100'"
-    @click="toggleGroup(index)"
-  >
-    <h3 
-      class="text-xl sm:text-2xl font-semibold transition-colors duration-300"
-      :style="{ color: groupState[index] ? 'white' : '#1f2937' }"
-    >
-      {{ formatDate(group.releaseDate) }}
-    </h3>
-    
-    <button class="transition-transform duration-300" 
-      :class="{ 'rotate-180': groupState[index] }">
-      <i 
-        class="fas fa-chevron-down transition-colors duration-300"
-        :style="{ color: groupState[index] ? 'white' : '#4b5563' }"
-      ></i>
-    </button>
-  </div>
+      <!-- Lista de discos agrupados -->
+      <div v-for="(group, index) in groupedDiscs" :key="group.releaseDate" class="mb-8">
+        <!-- Encabezado del grupo con botón de toggle -->
+        <div
+          class="flex justify-between items-center px-5 py-3 rounded-full cursor-pointer bg-gray-200 transition-all duration-300 shadow-md"
+          :class="groupState[index]
+            ? 'bg-gradient-to-r from-gray-900 to-gray-700'
+            : 'hover:bg-gradient-to-r hover:from-gray-200 hover:to-gray-300 bg-gray-100'" @click="toggleGroup(index)">
+          <h3 class="text-xl sm:text-2xl font-semibold transition-colors duration-300"
+            :style="{ color: groupState[index] ? 'white' : '#1f2937' }">
+            {{ formatDate(group.releaseDate) }}
+          </h3>
 
-  <!-- Contenido del grupo desplegable -->
-  <transition name="fade-slide" mode="out-in">
-    <div v-if="groupState[index]" class="mt-4 overflow-x-auto">
+          <button class="transition-transform duration-300" :class="{ 'rotate-180': groupState[index] }">
+            <i class="fas fa-chevron-down transition-colors duration-300"
+              :style="{ color: groupState[index] ? 'white' : '#4b5563' }"></i>
+          </button>
+        </div>
+
+        <!-- Contenido del grupo desplegable -->
+        <transition name="fade-slide" mode="out-in">
+  <div v-if="groupState[index]" class="mt-4 overflow-x-auto">
+    
+    <!-- Contenedor de botones centrado -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-center">
       <button 
         v-if="new Date(group.releaseDate) < new Date()" 
         @click="buscarEnlacesSpotify(group.discs)"
-        class="bg-green-500 text-white px-4 py-2 rounded-full mb-4 w-full sm:w-auto hover:bg-green-600 transition-all duration-300"
+        class="bg-green-500 text-white px-4 py-2 rounded-full w-full sm:w-auto hover:bg-green-600 transition-all duration-300 mb-2 sm:mb-0"
       >
         Buscar enlaces en Spotify
       </button>
+
+      <span class="hidden sm:inline-block w-4"></span>
+
       <button 
         @click="exportarHtml(group)"
-        class="bg-blue-500 text-white px-4 py-2 rounded-full mt-4 ml-3 w-full sm:w-auto hover:bg-blue-600 transition-all duration-300"
+        class="bg-blue-500 text-white px-4 py-2 rounded-full w-full sm:w-auto hover:bg-blue-600 transition-all duration-300"
       >
         Exportar HTML de esta semana
       </button>
-
-      <ul class="w-full">
-        <li v-for="disc in group.discs" :key="disc.id"
-            class="flex flex-col md:flex-row md:justify-between p-4 border-b w-full">
-          <DiscComponent :disc="disc" :genres="genres" @disc-deleted="removeDisc"
-            @date-changed="handleDateChange" />
-        </li>
-      </ul>
     </div>
-  </transition>
-</div>
 
+    <!-- Lista de discos -->
+    <ul class="w-full">
+      <li 
+        v-for="disc in group.discs" 
+        :key="disc.id"
+        class="flex flex-col md:flex-row md:justify-between p-4 border-b w-full"
+      >
+        <DiscComponent 
+          :disc="disc" 
+          :genres="genres" 
+          @disc-deleted="removeDisc"
+          @date-changed="handleDateChange" 
+        />
+      </li>
+    </ul>
+    
+  </div>
+</transition>
+
+
+      </div>
     </div>
     <!-- Cargar más -->
     <div ref="loadMore" class="text-center py-6">
