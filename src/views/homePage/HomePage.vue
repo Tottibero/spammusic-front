@@ -207,10 +207,14 @@ export default defineComponent({
       }
 
       if (period === "month") {
-        // Mes natural: desde el primer día hasta el último día del mes actual
+        const today = new Date();
+
+        // Primer día del mes actual
         const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-        // El día 0 del mes siguiente es el último día del mes actual
+
+        // Último día del mes actual (día 0 del mes siguiente)
         const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
         return [
           startDate.toISOString().split("T")[0],
           endDate.toISOString().split("T")[0],
