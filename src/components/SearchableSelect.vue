@@ -2,14 +2,14 @@
   <div class="main_wrapper" ref="wrapperEl">
     <!-- Contenedor que actúa como "select" -->
     <div @click="toggleSearchbox" class="search_input_trigger">
-  <p :class="{
-    'text-gray-400 font-normal': selectedText === 'Selecciona un género', 
-    'text-gray-600 font-medium': selectedText !== 'Selecciona un género'
-  }">
-    {{ selectedText || "Selecciona un género" }}
-  </p>
-  <i class="fas fa-chevron-down"></i>
-</div>
+      <p :class="{
+        'text-gray-400 font-normal': selectedText === 'Selecciona un género',
+        'text-gray-600 font-medium': selectedText !== 'Selecciona un género'
+      }">
+        {{ selectedText || "Selecciona un género" }}
+      </p>
+      <i class="fas fa-chevron-down"></i>
+    </div>
 
     <!-- Caja desplegable -->
     <div v-if="showSearchbox" class="searchable__select">
@@ -18,26 +18,21 @@
         <input :value="inputText" @input="onInput" @focus="onFocus" @keydown.down="onArrowDown"
           @keydown.enter.prevent="onSelectOption" @keydown.up="onArrowUp" @keydown.esc="onESC" class="search__input"
           type="text" :placeholder="placeholder" ref="searchInput" />
-        <!-- Spinner si loading es true -->
+                  <!-- Spinner si loading es true -->
         <div v-if="loading" class="absolute right-0 top-0">
           <i class="fas fa-spinner fa-spin" style="width:40px; height:40px;"></i>
         </div>
       </div>
 
       <!-- Lista de resultados -->
-      <ul v-if="showDropdown" class="search__results">
-        <li
-  v-for="(option, i) in filteredOptions"
-  :key="i"
-  @click="onSelectOption($event, i)"
-  :class="{
-    'bg-gray-300 text-gray-900': option[title] === 'Todos los géneros', /* Mantiene fondo gris */
-    'active': option[title] !== 'Todos los géneros' && option[trackby] === modelValue
-  }"
->
-  {{ getOptionTitle(option) }}
-</li>
-</ul>
+      <ul v-if="showDropdown" class="search__results" ref="dropdownList">
+        <li v-for="(option, i) in filteredOptions" :key="i" @click="onSelectOption($event, i)" ref="optionRefs" :class="{
+          'bg-gray-300 text-gray-900': option[title] === 'Todos los géneros', /* Mantiene fondo gris */
+          'active': option[title] !== 'Todos los géneros' && option[trackby] === modelValue
+        }">
+          {{ getOptionTitle(option) }}
+        </li>
+      </ul>
     </div>
   </div>
 </template>
@@ -57,44 +52,16 @@ export default {
   name: "SearchableSelect",
   emits: ["update:modelValue", "search"],
   props: {
-    // Permitimos que sea opcional y que por defecto sea ""
-    modelValue: {
-      type: [String, Number],
-      required: false,
-      default: "",
-    },
-    options: {
-      type: Array,
-      required: true,
-    },
-    title: {
-      type: String,
-      default: "name",
-    },
-    trackby: {
-      type: String,
-      default: "id",
-    },
-    autoFocus: {
-      type: Boolean,
-      default: false,
-    },
-    placeholder: {
-      type: String,
-      default: "",
-    },
-    max: {
-      type: Number,
-      default: 5,
-    },
-    loading: {
-      type: Boolean,
-      default: false,
-    },
+    modelValue: { type: [String, Number], required: false, default: "" },
+    options: { type: Array, required: true },
+    title: { type: String, default: "name" },
+    trackby: { type: String, default: "id" },
+    placeholder: { type: String, default: "" },
+    max: { type: Number, default: 5 },
   },
   setup(props, { emit }) {
     const data = reactive({
-      selectedText: "",
+      selectedText: "Selecciona un género",
       inputText: "",
       activeIndex: 0,
       showDropdown: false,
@@ -103,6 +70,8 @@ export default {
 
     const wrapperEl = ref(null);
     const searchInput = ref(null);
+    const dropdownList = ref(null);
+    const optionRefs = ref([]);
 
     // Al montar el componente, escuchamos clics fuera y seteamos texto inicial
     onMounted(() => {
@@ -113,52 +82,32 @@ export default {
       document.removeEventListener("click", handleOutsideClick);
     });
 
-    // Insertamos una "opción vacía" como primer elemento, siempre visible
-    // Devuelve un array de opciones filtradas y con la opción "Seleccione un género" al inicio.
+    // Filtrar opciones y dejar "Todos los géneros" fijo
     const filteredOptions = computed(() => {
-      // Filtra según el texto (si existe)
       let filtered = props.options.filter((opt) => {
-        if (!data.inputText) {
-          // Si no hay texto, mostramos todo
-          return true;
-        }
-        const label =
-          typeof opt === "object" ? opt[props.title] : String(opt);
-        return label
-          .toLowerCase()
-          .includes(data.inputText.toLowerCase());
+        if (!data.inputText) return true;
+        const label = typeof opt === "object" ? opt[props.title] : String(opt);
+        return label.toLowerCase().includes(data.inputText.toLowerCase());
       });
 
-      // Limita a 'max' (menos 1 si queremos que la opción vacía no cuente para el límite)
-      filtered = filtered.slice(0, props.max - 1);
+      // Limita a 'max' (menos 1 para dejar espacio a "Todos los géneros")
+      if (props.max && props.max < filtered.length) {
+        filtered = filtered.slice(0, props.max);
+      }
 
-      // Opción fija como primer elemento
-      const emptyOption = {
-        [props.trackby]: "",
-        [props.title]: "Todos los géneros",
-      };
+      // "Todos los géneros" fijo en la parte superior
+      const allGenresOption = { [props.trackby]: "", [props.title]: "Todos los géneros" };
 
-      // Unimos la opción vacía con el resto
-      return [emptyOption, ...filtered];
+      return [allGenresOption, ...filtered];
     });
-
-
 
     // Si se pasa un modelValue inicial, buscar su nombre en las opciones
     function setInitialText() {
-      if (!props.modelValue) {
-        data.selectedText = "";
-        return;
-      }
-      const found = props.options.find((opt) =>
-        typeof opt === "object"
-          ? opt[props.trackby] === props.modelValue
-          : opt === props.modelValue
+      if (!props.modelValue) return;
+      const found = props.options.find(opt =>
+        typeof opt === "object" ? opt[props.trackby] === props.modelValue : opt === props.modelValue
       );
-      if (found) {
-        data.selectedText =
-          typeof found === "object" ? found[props.title] : String(found);
-      }
+      if (found) data.selectedText = typeof found === "object" ? found[props.title] : String(found);
     }
 
     function toggleSearchbox() {
@@ -166,6 +115,7 @@ export default {
       nextTick(() => {
         if (data.showSearchbox) {
           searchInput.value.focus();
+          scrollToSelectedOption();
           toggleDropdown();
         }
       });
@@ -186,7 +136,6 @@ export default {
       data.inputText = e.target.value;
       data.activeIndex = 0;
       emit("search", data.inputText);
-      toggleDropdown();
     }
 
     function onFocus() {
@@ -194,17 +143,11 @@ export default {
     }
 
     function onArrowDown() {
-      data.activeIndex++;
-      if (data.activeIndex >= filteredOptions.value.length) {
-        data.activeIndex = 0;
-      }
+      data.activeIndex = (data.activeIndex + 1) % filteredOptions.value.length;
     }
 
     function onArrowUp() {
-      data.activeIndex--;
-      if (data.activeIndex < 0) {
-        data.activeIndex = filteredOptions.value.length - 1;
-      }
+      data.activeIndex = (data.activeIndex - 1 + filteredOptions.value.length) % filteredOptions.value.length;
     }
 
     function onESC() {
@@ -216,19 +159,33 @@ export default {
       const selected = filteredOptions.value[index];
 
       if (typeof selected === "object") {
-    // Si se selecciona "Todos los géneros", se muestra "Selecciona un género" en el select
-    data.selectedText = selected[props.title] === "Todos los géneros" ? "Selecciona un género" : selected[props.title];
-    emit("update:modelValue", selected[props.trackby]);
-  } else {
-    data.selectedText = String(selected);
-    emit("update:modelValue", selected);
-  }
+        data.selectedText = selected[props.title] === "Todos los géneros" ? "Selecciona un género" : selected[props.title];
+        emit("update:modelValue", selected[props.trackby]);
+      } else {
+        data.selectedText = String(selected);
+        emit("update:modelValue", selected);
+      }
 
       data.inputText = "";
       data.showDropdown = false;
       data.showSearchbox = false;
+
+      nextTick(() => {
+        scrollToSelectedOption(index);
+      });
     }
 
+    function scrollToSelectedOption() {
+      nextTick(() => {
+        const selectedIndex = filteredOptions.value.findIndex(opt => opt[props.trackby] === props.modelValue);
+        if (dropdownList.value && selectedIndex !== -1) {
+          const selectedOptionElement = optionRefs.value[selectedIndex];
+          if (selectedOptionElement) {
+            dropdownList.value.scrollTop = selectedOptionElement.offsetTop - dropdownList.value.offsetTop;
+          }
+        }
+      });
+    }
 
     function getOptionTitle(option) {
       return typeof option === "object" ? option[props.title] : String(option);
@@ -238,6 +195,8 @@ export default {
       ...toRefs(data),
       wrapperEl,
       searchInput,
+      dropdownList,
+      optionRefs,
       filteredOptions,
       onInput,
       onFocus,
@@ -247,6 +206,7 @@ export default {
       onSelectOption,
       getOptionTitle,
       toggleSearchbox,
+      scrollToSelectedOption,
     };
   },
 };
@@ -317,6 +277,6 @@ export default {
 
 .search__results li.text-gray-900 {
   color: white;
-  background-color: #374151 !important; 
+  background-color: #374151 !important;
 }
 </style>
