@@ -73,11 +73,7 @@
     </div>
 
     <!-- Sección de álbumes mejor valorados -->
-    <div class="text-center mb-6">
-      <h3 class="text-4xl font-bold text-gray-900">Discos mejor valorados</h3>
-    </div>
-    <!-- Botones de filtro por fecha -->
-    <div class="flex justify-center space-x-4 mb-6">
+    <div class="flex justify-center gap-4 mb-6 font-semibold">  
       <button
         @click="
           selectedPeriod = 'week';
@@ -85,10 +81,10 @@
         "
         :class="
           selectedPeriod === 'week'
-            ? 'bg-blue-500 text-white'
-            : 'bg-gray-200 text-gray-700'
+        ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold' 
+        : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'
         "
-        class="px-4 py-2 rounded"
+        class="px-5 py-2 rounded rounded-full shadow-md'"
       >
         Semana
       </button>
@@ -99,10 +95,10 @@
         "
         :class="
           selectedPeriod === 'month'
-            ? 'bg-blue-500 text-white'
-            : 'bg-gray-200 text-gray-700'
+        ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold' 
+        : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'
         "
-        class="px-4 py-2 rounded"
+        class="px-5 py-2 rounded rounded-full shadow-md'"
       >
         Mes
       </button>
@@ -113,10 +109,10 @@
         "
         :class="
           selectedPeriod === 'year'
-            ? 'bg-blue-500 text-white'
-            : 'bg-gray-200 text-gray-700'
+        ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold' 
+        : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'
         "
-        class="px-4 py-2 rounded"
+        class="px-5 py-2 rounded rounded-full shadow-md'"
       >
         Año
       </button>
@@ -127,10 +123,10 @@
         "
         :class="
           selectedPeriod === 'all'
-            ? 'bg-blue-500 text-white'
-            : 'bg-gray-200 text-gray-700'
+        ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold' 
+        : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'
         "
-        class="px-4 py-2 rounded"
+        class="px-5 py-2 rounded rounded-full shadow-md'"
       >
         Todos
       </button>
