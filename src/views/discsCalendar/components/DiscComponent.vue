@@ -6,6 +6,13 @@
   >
     <!-- Columna izquierda: Imagen del disco -->
     <div class="flex items-center w-full sm:w-1/3 p-4">
+      <button
+      v-if="!disc.image"
+        @click="openImageModal"
+        class="bg-purple-500 hover:bg-purple-600 text-white text-xs px-2 py-1 rounded shadow-md ml-2"
+      >
+        <i class="fa-solid fa-image"></i>
+      </button>
       <img
         v-if="disc.image"
         :src="disc.image"
@@ -18,24 +25,18 @@
           class="font-bold text-lg truncate cursor-pointer w-full"
           @click="openArtistModal"
         >
-          {{ disc.artist.name }}
+          <a>
+            {{ disc.artist.name }}
+          </a>
         </h3>
-        <p class="text-sm truncate w-full">
+        <a class="text-sm truncate w-full">
           <span
-            v-if="!editingName"
-            @click="enableEditing('name')"
+            @click="showNameModal = true"
             class="cursor-pointer hover:underline"
           >
             {{ disc.name }}
           </span>
-          <input
-            v-else
-            v-model="editedData.name"
-            @keyup.enter="saveChanges('name')"
-            @blur="saveChanges('name')"
-            class="border rounded px-2 py-1 text-gray-600 w-full"
-          />
-        </p>
+        </a>
         <p class="text-sm mt-2 w-full">
           <a
             v-if="disc.link && disc.link.includes('spotify.com')"
@@ -49,9 +50,16 @@
           <span v-else-if="!disc.link" class="text-gray-400">
             <SpotifyArtistButton :artistName="disc.artist.name" />
           </span>
+          <button
+            @click="showLinkModal = true"
+            class="bg-green-500 hover:bg-green-600 text-white text-xs px-2 py-1 rounded shadow-md ml-2"
+          >
+            <i class="fa-solid fa-link"></i>
+          </button>
         </p>
-
-        <p class="text-sm mt-2">{{ formattedDate }}</p>
+        <a class="cursor-pointer mt-2" @click="showDateModal = true">
+          {{ formattedDate }}
+        </a>
       </div>
     </div>
 
@@ -60,7 +68,7 @@
       class="grid gap-2 w-full sm:w-2/3 p-2"
       :class="{ 'grid-cols-2': !isNarrow, 'grid-cols-1': isNarrow }"
     >
-      <!-- AQUÍ USAMOS SearchableSelect EN LUGAR DE <select> -->
+      <!-- Selección de género -->
       <SearchableSelect
         v-model="editedData.genreId"
         :options="genres"
@@ -110,36 +118,6 @@
     </div>
   </div>
 
-  <!-- Modal para cambiar la imagen -->
-  <div
-    v-if="showImageModal"
-    class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50"
-  >
-    <div class="bg-white p-6 rounded-lg shadow-lg w-96">
-      <h2 class="text-lg font-semibold mb-4">Cambiar Imagen del Disco</h2>
-      <input
-        v-model="newImageUrl"
-        type="text"
-        placeholder="Introduce la URL de la imagen"
-        class="border p-2 w-full rounded-md"
-      />
-      <div class="flex justify-end mt-4 space-x-2">
-        <button
-          @click="closeImageModal"
-          class="bg-gray-400 text-white px-4 py-2 rounded-md"
-        >
-          Cancelar
-        </button>
-        <button
-          @click="updateImageUrl"
-          class="bg-blue-500 text-white px-4 py-2 rounded-md"
-        >
-          Guardar
-        </button>
-      </div>
-    </div>
-  </div>
-
   <!-- Modal para cambiar/crear artista -->
   <div
     v-if="showArtistModal"
@@ -173,6 +151,43 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal para editar el nombre del disco -->
+  <EditModal
+    v-model:show="showNameModal"
+    v-model="editedName"
+    title="Editar Nombre del Disco"
+    placeholder="Introduce el nombre del disco"
+    @save="updateDiscName"
+  />
+
+  <!-- Modal para editar el link del disco -->
+  <EditModal
+    v-model:show="showLinkModal"
+    v-model="editedLink"
+    title="Editar Link del Disco"
+    placeholder="Introduce el link del disco"
+    @save="updateDiscLink"
+  />
+
+  <!-- Modal para cambiar la imagen del disco -->
+  <EditModal
+    v-model:show="showImageModal"
+    v-model="newImageUrl"
+    title="Cambiar Imagen del Disco"
+    placeholder="Introduce la URL de la imagen"
+    @save="updateImageUrl"
+  />
+
+  <!-- Modal para cambiar la fecha del disco -->
+  <EditModal
+    v-model:show="showDateModal"
+    v-model="editedReleaseDate"
+    title="Cambiar Fecha del Disco"
+    placeholder="Selecciona la fecha"
+    inputType="date"
+    @save="updateDiscReleaseDate"
+  />
 </template>
 
 <script lang="ts">
@@ -191,9 +206,8 @@ import Swal from "sweetalert2";
 import axios from "axios";
 import SpotifyArtistButton from "@components/SpotifyArtistButton.vue";
 import { obtenerTokenSpotify } from "@helpers/SpotifyFunctions.ts";
-
-// IMPORTA Y REGISTRA EL COMPONENTE
 import SearchableSelect from "@components/SearchableSelect.vue";
+import EditModal from "./EditModal.vue";
 import {
   postPendingService,
   deletePendingService,
@@ -204,7 +218,8 @@ export default defineComponent({
   name: "Disc",
   components: {
     SpotifyArtistButton,
-    SearchableSelect, // <-- Registrado aquí
+    SearchableSelect,
+    EditModal,
   },
   props: {
     disc: {
@@ -228,15 +243,9 @@ export default defineComponent({
     },
   },
   setup(props, { emit }) {
-    const editingName = ref(false);
-    const editingLink = ref(false);
-    const editingDate = ref(false);
-
+    // Para edición de género (se usa el SearchableSelect)
     const editedData = reactive({
-      name: props.disc.name,
-      link: props.disc.link,
       genreId: props.disc.genreId,
-      releaseDate: props.disc.releaseDate,
     });
 
     const formattedDate = computed(() => {
@@ -247,31 +256,10 @@ export default defineComponent({
       });
     });
 
-    const enableEditing = (field: "name" | "link" | "releaseDate") => {
-      if (field === "name") editingName.value = true;
-      if (field === "link") editingLink.value = true;
-      if (field === "releaseDate") editingDate.value = true;
-    };
-
-    const saveChanges = async (
-      field: "name" | "link" | "genreId" | "releaseDate"
-    ) => {
+    const saveChanges = async (field: any) => {
       try {
         await updateDisc(props.disc.id, { [field]: editedData[field] });
-        // Sincronizamos los cambios en el disco original
         Object.assign(props.disc, { [field]: editedData[field] });
-
-        // Quitamos el modo edición si corresponde
-        if (field === "name") editingName.value = false;
-        if (field === "link") editingLink.value = false;
-        if (field === "releaseDate") {
-          emit("date-changed", {
-            ...props.disc,
-            releaseDate: editedData.releaseDate,
-          });
-          editingDate.value = false;
-        }
-
         Swal.fire({
           title: "¡Éxito!",
           text: `El ${field} del disco se ha actualizado correctamente.`,
@@ -318,12 +306,10 @@ export default defineComponent({
     const toggleBookmark = async () => {
       try {
         if (pendingId.value) {
-          // Si ya está en pendientes, lo eliminamos
           await deletePendingService(pendingId.value);
           pendingId.value = null;
           SwalService.success("Pendiente borrado exitosamente");
         } else {
-          // Si no está en pendientes, lo agregamos
           const pending = await postPendingService({ discId: props.disc.id });
           pendingId.value = pending.id;
           SwalService.success("Pendiente añadido exitosamente");
@@ -354,7 +340,6 @@ export default defineComponent({
         confirmButtonText: "Sí, eliminarlo",
         cancelButtonText: "Cancelar",
       });
-
       if (confirm.isConfirmed) {
         deleteDiscFunction(discId);
       }
@@ -391,30 +376,124 @@ export default defineComponent({
       return "Enlace";
     };
 
+    // Modal para cambiar la imagen
     const showImageModal = ref(false);
-    const newImageUrl = ref("");
-
+    const newImageUrl = ref(props.disc.image || "");
     const openImageModal = () => {
       newImageUrl.value = props.disc.image || "";
       showImageModal.value = true;
     };
-
-    const closeImageModal = () => {
-      showImageModal.value = false;
+    const updateImageUrl = async (newValue: string) => {
+      try {
+        await updateDisc(props.disc.id, { image: newValue });
+        props.disc.image = newValue;
+        Swal.fire({
+          title: "¡Éxito!",
+          text: "La imagen se ha actualizado correctamente.",
+          icon: "success",
+          timer: 3000,
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+        });
+      } catch (error) {
+        console.error("Error al actualizar la imagen:", error);
+        Swal.fire("Error", "No se pudo actualizar la imagen.", "error");
+      }
     };
 
-    const updateImageUrl = async () => {
+    // Modal para editar el link
+    const showLinkModal = ref(false);
+    const editedLink = ref(props.disc.link || "");
+    const updateDiscLink = async (newValue: string) => {
       try {
-        await updateDisc(props.disc.id, { image: newImageUrl.value });
-        props.disc.image = newImageUrl.value;
-        Swal.fire(
-          "¡Éxito!",
-          "La imagen se ha actualizado correctamente.",
-          "success"
-        );
-        closeImageModal();
+        await updateDisc(props.disc.id, { link: newValue });
+        props.disc.link = newValue;
+        Swal.fire({
+          title: "¡Éxito!",
+          text: "El Link del disco ha sido actualizado.",
+          icon: "success",
+          timer: 3000,
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+        });
       } catch (error) {
-        Swal.fire("Error", "No se pudo actualizar la imagen.", "error");
+        console.error("Error al actualizar el link del disco:", error);
+        Swal.fire({
+          title: "Error",
+          text: "No se pudo actualizar el Link del disco.",
+          icon: "error",
+          timer: 3000,
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+        });
+      }
+    };
+
+    // Modal para editar el nombre
+    const showNameModal = ref(false);
+    const editedName = ref(props.disc.name);
+    const updateDiscName = async (newValue: string) => {
+      try {
+        await updateDisc(props.disc.id, { name: newValue });
+        props.disc.name = newValue;
+        Swal.fire({
+          title: "¡Éxito!",
+          text: "El nombre del disco se ha actualizado correctamente.",
+          icon: "success",
+          timer: 3000,
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+        });
+      } catch (error) {
+        console.error("Error al actualizar el nombre del disco:", error);
+        Swal.fire({
+          title: "Error",
+          text: "No se pudo actualizar el nombre del disco.",
+          icon: "error",
+          timer: 3000,
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+        });
+      }
+    };
+
+    // Modal para editar la fecha con calendario
+    const showDateModal = ref(false);
+    const editedReleaseDate = ref(
+      new Date(props.disc.releaseDate).toISOString().substr(0, 10)
+    );
+    const updateDiscReleaseDate = async (newValue: string) => {
+      try {
+        const newDate = new Date(newValue);
+        await updateDisc(props.disc.id, {
+          releaseDate: newDate,
+        });
+        props.disc.releaseDate = newDate;
+        Swal.fire({
+          title: "¡Éxito!",
+          text: "La fecha del disco se ha actualizado correctamente",
+          icon: "success",
+          timer: 3000,
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+        });
+      } catch (error) {
+        console.error("Error al actualizar la fecha del disco:", error);
+        Swal.fire({
+          title: "Error",
+          text: "No se pudo actualizar la fecha del disco.",
+          icon: "error",
+          timer: 3000,
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+        });
       }
     };
 
@@ -429,9 +508,7 @@ export default defineComponent({
         console.error("No se pudo obtener el token de Spotify");
         return;
       }
-
       try {
-        // Paso 1: Busca el artista en Spotify
         const query = encodeURIComponent(`artist:${disc.artist.name}`);
         const response = await axios.get(
           `https://api.spotify.com/v1/search?q=${query}&type=artist&limit=1`,
@@ -441,12 +518,9 @@ export default defineComponent({
             },
           }
         );
-
         if (response.data.artists.items.length > 0) {
           const artist = response.data.artists.items[0];
           const artistId = artist.id;
-
-          // Paso 2: Obtén los álbumes/sencillos más recientes del artista
           const albumsResponse = await axios.get(
             `https://api.spotify.com/v1/artists/${artistId}/albums`,
             {
@@ -459,10 +533,8 @@ export default defineComponent({
               },
             }
           );
-
           if (albumsResponse.data.items.length > 0) {
-            const genres = artist.genres; // Géneros asociados al artista
-
+            const genres = artist.genres;
             if (genres.length > 0) {
               disc.genero = genres.join(", ");
               Swal.fire({
@@ -526,20 +598,17 @@ export default defineComponent({
       }
     };
 
-
+    // Modal para actualizar/crear artista
     const showArtistModal = ref(false);
     const newArtistName = ref("");
     const creatingNewArtist = ref(false);
-
     const openArtistModal = () => {
       newArtistName.value = props.disc.artist.name;
       showArtistModal.value = true;
     };
-
     const closeArtistModal = () => {
       showArtistModal.value = false;
     };
-
     const handleArtistUpdate = async () => {
       try {
         if (creatingNewArtist.value) {
@@ -547,12 +616,22 @@ export default defineComponent({
           props.disc.artist = newArtist;
           await updateDisc(props.disc.id, { artistId: newArtist.id });
           emit("artist-created", newArtist.id, newArtist.name);
-          Swal.fire("¡Éxito!", "Nuevo artista creado correctamente.", "success");
+          Swal.fire(
+            "¡Éxito!",
+            "Nuevo artista creado correctamente.",
+            "success"
+          );
         } else {
-          await updateArtist(props.disc.artist.id, { name: newArtistName.value });
+          await updateArtist(props.disc.artist.id, {
+            name: newArtistName.value,
+          });
           props.disc.artist.name = newArtistName.value;
           emit("update-artist", props.disc.artist.id, newArtistName.value);
-          Swal.fire("¡Éxito!", "El nombre del artista se ha actualizado correctamente.", "success");
+          Swal.fire(
+            "¡Éxito!",
+            "El nombre del artista se ha actualizado correctamente.",
+            "success"
+          );
         }
         closeArtistModal();
       } catch (error) {
@@ -560,23 +639,16 @@ export default defineComponent({
       }
     };
 
-
-
     onMounted(() => {
       window.addEventListener("resize", updateSize);
     });
-
     onUnmounted(() => {
       window.removeEventListener("resize", updateSize);
     });
 
     return {
-      editingName,
-      editingLink,
-      editingDate,
       editedData,
       formattedDate,
-      enableEditing,
       saveChanges,
       toggleEp,
       toggleVerified,
@@ -586,7 +658,6 @@ export default defineComponent({
       showImageModal,
       newImageUrl,
       openImageModal,
-      closeImageModal,
       updateImageUrl,
       isNarrow,
       buscarGeneroSpotify,
@@ -594,7 +665,18 @@ export default defineComponent({
       pendingId,
       openArtistModal,
       handleArtistUpdate,
-      closeArtistModal
+      closeArtistModal,
+      showArtistModal,
+      newArtistName,
+      updateDiscLink,
+      showLinkModal,
+      editedLink,
+      showNameModal,
+      editedName,
+      updateDiscName,
+      showDateModal,
+      editedReleaseDate,
+      updateDiscReleaseDate,
     };
   },
 });
@@ -604,94 +686,72 @@ export default defineComponent({
 .p-4 {
   padding: 1rem;
 }
-
 .border {
   border: 1px solid #e5e7eb;
 }
-
 .rounded-md {
   border-radius: 0.375rem;
 }
-
 .text-white {
   color: #ffffff;
 }
-
 .truncate {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 .w-full {
   width: 100%;
 }
-
 .grid-cols-2 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
-
-/* Ajuste para pantallas medianas */
 @media (max-width: 1024px) {
   .grid-cols-2 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
   }
 }
-
-/* Ajuste para pantallas más pequeñas */
 @media (max-width: 820px) {
   .p-4 {
     padding: 0.5rem;
   }
-
   .grid-cols-2 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
   }
-
   .w-full {
     width: 100%;
   }
-
   img {
     width: 80px;
     height: 80px;
   }
-
   h3 {
     font-size: 1rem;
   }
-
   .sm\:flex-row {
     flex-direction: column;
   }
 }
-
-/* Ajuste para pantallas muy pequeñas */
 @media (max-width: 430px) {
   .p-4 {
     padding: 0.25rem;
   }
-
   img {
     width: 70px;
     height: 70px;
   }
-
   h3 {
     font-size: 0.9rem;
   }
-
   .sm\:flex-row {
     flex-direction: column;
   }
 }
-
 @media (max-width: 300px) {
   img {
     width: 60px;
     height: 60px;
   }
-
   h3 {
     font-size: 0.8rem;
   }
