@@ -140,8 +140,12 @@ import axios from "axios";
 import { obtenerTokenSpotify } from "@helpers/SpotifyFunctions.ts";
 
 export default defineComponent({
-  name: "SpotifyArtistDetails",
+  name: "ArtistByDisc",
   props: {
+    discName: {
+      type: String,
+      required: true,
+    },
     artistName: {
       type: String,
       required: true,
@@ -171,8 +175,30 @@ export default defineComponent({
       }
     };
 
-    // Función para buscar el artista en Spotify y luego obtener datos de Last.fm
-    const searchArtist = async () => {
+    const fetchArtistDataFromSpotify = async (artistId: string, token: string) => {
+      // Obtener la información completa del artista
+      const artistResponse = await axios.get(
+        `https://api.spotify.com/v1/artists/${artistId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      artist.value = artistResponse.data;
+
+      // Obtener los Top Tracks
+      const topTracksResponse = await axios.get(
+        `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      topTracks.value = topTracksResponse.data.tracks;
+
+      // Llamada a Last.fm con el nombre real del artista
+      await fetchLastFmData(artist.value.name);
+    };
+
+    const searchByAlbumAndArtist = async () => {
       try {
         const token = await obtenerTokenSpotify();
         if (!token) {
@@ -181,54 +207,35 @@ export default defineComponent({
           return;
         }
 
-        // Pedimos hasta 10 artistas
-        const query = encodeURIComponent(`artist:${props.artistName}`);
+        // Construir la consulta: "album:DISCO artist:ARTISTA"
+        const query = encodeURIComponent(`album:${props.discName} artist:${props.artistName}`);
+        // Buscar álbumes
         const searchResponse = await axios.get(
-          `https://api.spotify.com/v1/search?q=${query}&type=artist&limit=10`,
+          `https://api.spotify.com/v1/search?q=${query}&type=album&limit=5`,
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
 
-        const foundArtists = searchResponse.data.artists.items;
-        if (!foundArtists || foundArtists.length === 0) {
-          error.value = "Artista no encontrado en Spotify";
+        const albums = searchResponse.data.albums.items;
+        if (!albums || albums.length === 0) {
+          error.value = "No se encontró ningún álbum en Spotify con esos datos";
           return;
         }
 
-        // Buscar coincidencia exacta, ignorando mayúsculas/minúsculas
-        const matchedArtist = foundArtists.find(
-          (a: any) =>
-            a.name.toLowerCase() === props.artistName.trim().toLowerCase()
-        );
+        // Toma el primer álbum que coincida, o filtra según necesites
+        const chosenAlbum = albums[0];
 
-        // Si hay coincidencia exacta, la usamos; si no, decide el comportamiento
-        if (matchedArtist) {
-          artist.value = matchedArtist;
-        } else {
-          // OPCIÓN A: Tomar el primer resultado
-          // artist.value = foundArtists[0];
-
-          // OPCIÓN B: Mostrar un error
-          error.value = `No se encontró coincidencia exacta para "${props.artistName}".`;
+        // Normalmente, un álbum tiene un array de 'artists'; tomamos el primero
+        // o filtras si hubiera varios
+        const primaryArtist = chosenAlbum.artists[0];
+        if (!primaryArtist) {
+          error.value = "No se encontró un artista válido en el álbum";
           return;
         }
 
-        // Llamada a Last.fm usando el nombre del artista que se encontró
-        await fetchLastFmData(artist.value.name);
-
-        // Obtener top tracks del artista
-        const topTracksResponse = await axios.get(
-          `https://api.spotify.com/v1/artists/${artist.value.id}/top-tracks?market=US`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        topTracks.value = topTracksResponse.data.tracks;
+        // Ahora que tenemos el artistId, obtenemos su info y top tracks
+        await fetchArtistDataFromSpotify(primaryArtist.id, token);
       } catch (err: any) {
         console.error("Error al buscar el artista en Spotify:", err);
         error.value = "Error al buscar el artista en Spotify";
@@ -238,7 +245,7 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      searchArtist();
+      searchByAlbumAndArtist();
     });
 
     return {
