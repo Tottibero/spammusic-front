@@ -52,7 +52,7 @@
     <div class="grid gap-2 w-full sm:w-2/3 p-2" :class="{ 'grid-cols-2': !isNarrow, 'grid-cols-1': isNarrow }">
       <!-- Selección de género -->
       <SearchableSelect v-model="editedData.genreId" :options="genres" placeholder="Seleccione un género" title="name"
-        trackby="id" :max="50" class="rounded shadow-md w-full px-3 py-2 bg-white text-black"
+        trackby="id" :max="150" class="rounded shadow-md w-full px-3 py-2 bg-white text-black"
         @update:modelValue="() => saveChanges('genreId')" />
       <button @click="toggleEp()" :class="{ 'bg-blue-500': disc.ep, 'bg-gray-300': !disc.ep }"
         class="text-white font-medium px-3 py-2 rounded shadow-md">
@@ -80,6 +80,7 @@
   </div>
 
   <!-- Modal para cambiar/crear artista -->
+  <Teleport to="body">
   <div v-if="showArtistModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
     <div class="bg-white p-6 rounded-lg shadow-lg w-96">
       <h2 class="text-lg font-semibold mb-4">Actualizar o Crear Artista</h2>
@@ -115,6 +116,7 @@
   <!-- Modal para cambiar la fecha del disco -->
   <EditModal v-model:show="showDateModal" v-model="editedReleaseDate" title="Cambiar Fecha del Disco"
     placeholder="Selecciona la fecha" inputType="date" @save="updateDiscReleaseDate" />
+  </Teleport>
 </template>
 
 <script lang="ts">
@@ -740,4 +742,44 @@ export default defineComponent({
     font-size: 0.8rem;
   }
 }
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999 !important; /* ✅ Mayor que el searchable select */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  position: relative;
+  z-index: 10000 !important; /* ✅ Asegura que esté aún más arriba */
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  z-index: 1100 !important; /* ✅ Mayor que el searchable select */
+  max-width: 90%;
+  width: 400px;
+}
+
+.searchable__select {
+  position: absolute;
+  width: 100%;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  z-index: 500 !important; /* Reducimos el valor para que esté debajo del modal */
+  margin-top: 0.25rem;
+}
+
+body {
+  position: relative;
+  overflow: visible !important;
+}
+
 </style>
