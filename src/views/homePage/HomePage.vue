@@ -59,6 +59,8 @@
       </div>
     </div>
 
+
+    <h2 class="text-3xl font-bold text-gray-900 text-center mb-6">Mejores discos</h2>
     <!-- Sección de álbumes mejor valorados -->
     <div class="flex justify-center gap-4 mb-6 font-semibold">
       <button
