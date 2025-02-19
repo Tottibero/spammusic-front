@@ -1,7 +1,6 @@
 <template>
   <div class="flex flex-wrap justify-center gap-4">
-    <!-- Si se usa una lista de discos, se puede iterar con el DiscCardComponent.
-         Aquí se muestra un ejemplo de una tarjeta individual -->
+    <!-- Tarjeta individual -->
     <div
       class="card w-full max-w-[20rem] border rounded shadow-lg bg-white flex flex-col mx-auto p-2 relative"
     >
@@ -52,8 +51,7 @@
 
         <!-- Contenido al lado derecho -->
         <div class="ml-2 flex flex-1 flex-col">
-          <!-- Título y artista alineados.
-               Se añade @click al título para abrir el modal con los detalles -->
+          <!-- Título y artista -->
           <div class="flex justify-between items-center">
             <h2
               @click="openDiscDetail"
@@ -63,7 +61,11 @@
             </h2>
           </div>
           <div class="flex justify-between items-center">
-            <p class="text-xs text-gray-500 font-semibold italic">
+            <!-- El nombre del artista se hace clickable para abrir ArtistDetail -->
+            <p
+              @click="openArtistDetail"
+              class="text-xs text-gray-500 font-semibold italic cursor-pointer hover:underline"
+            >
               {{ artistName }}
             </p>
           </div>
@@ -211,8 +213,25 @@
         >
           &times;
         </button>
-        <!-- Se le pasa al componente la información del disco a través de la prop "disc" -->
+        <!-- Se pasa la información del disco -->
         <DiscDetail :disc="discData" @close="closeDiscDetail" />
+      </div>
+    </div>
+
+    <!-- Modal para mostrar ArtistDetail -->
+    <div
+      v-if="showArtistDetail"
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+    >
+      <div class="bg-white rounded-lg p-4 relative max-w-3xl w-full">
+        <button
+          class="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-2xl"
+          @click="closeArtistDetail"
+        >
+          &times;
+        </button>
+        <!-- Se pasa el nombre del artista al componente ArtistDetail -->
+        <ArtistDetail :artistName="artistName" @close="closeArtistDetail" />
       </div>
     </div>
   </div>
@@ -222,6 +241,7 @@
 import { defineComponent, ref, computed, watchEffect } from "vue";
 import defaultImage from "/src/assets/disco.png";
 import DiscDetail from "./DiscDetail.vue";
+import ArtistDetail from "./ArtistDetail.vue";
 import {
   getDiscRates,
   postRateService,
@@ -248,7 +268,7 @@ interface Vote {
 }
 
 export default defineComponent({
-  components: { DiscDetail },
+  components: { DiscDetail, ArtistDetail },
   props: {
     id: { type: String, required: true },
     image: { type: String, required: true },
@@ -404,7 +424,7 @@ export default defineComponent({
       }
     };
 
-    // --- Integración del modal con DiscDetail ---
+    // --- Modal para DiscDetail ---
     const showDiscDetail = ref(false);
     const openDiscDetail = () => {
       showDiscDetail.value = true;
@@ -413,7 +433,16 @@ export default defineComponent({
       showDiscDetail.value = false;
     };
 
-    // Se arma un objeto con la información del disco para enviarlo a DiscDetail.
+    // --- Modal para ArtistDetail ---
+    const showArtistDetail = ref(false);
+    const openArtistDetail = () => {
+      showArtistDetail.value = true;
+    };
+    const closeArtistDetail = () => {
+      showArtistDetail.value = false;
+    };
+
+    // Objeto con la información del disco para DiscDetail
     const discData = computed(() => ({
       id: props.id,
       name: props.name,
@@ -444,6 +473,10 @@ export default defineComponent({
       closeDiscDetail,
       showDiscDetail,
       discData,
+      // Modal de ArtistDetail
+      showArtistDetail,
+      openArtistDetail,
+      closeArtistDetail,
     };
   },
 });
