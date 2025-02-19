@@ -1,28 +1,19 @@
 <template>
-  <div
-    :class="{ 'menu-open': menuVisible }"
-    class="max-w-[100rem] mx-auto mt-10 px-4"
-  >
+  <div :class="{ 'menu-open': menuVisible }" class="max-w-[100rem] mx-auto mt-10 px-4">
     <div class="bg-white shadow-lg rounded-lg p-6 mb-10">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Estadísticas de la App -->
-        <div
-          class="text-center border-b md:border-b-0 md:border-r border-gray-200 pb-4 md:pb-0 md:pr-4"
-        >
+        <div class="text-center border-b md:border-b-0 md:border-r border-gray-200 pb-4 md:pb-0 md:pr-4">
           <h3 class="text-3xl font-bold mb-4 text-gray-900">
             Estadísticas de discos
           </h3>
           <p class="text-lg text-gray-900">
             Total de discos:
-            <span class="font-semibold text-gray-900">{{
-              stats.totalDiscs
-            }}</span>
+            <span class="font-semibold text-gray-900">{{ stats.totalDiscs }}</span>
           </p>
           <p class="text-lg mt-2">
             Total de votos:
-            <span class="font-semibold text-gray-900">{{
-              stats.totalVotes
-            }}</span>
+            <span class="font-semibold text-gray-900">{{ stats.totalVotes }}</span>
           </p>
           <!-- Aquí insertamos el gráfico de barras -->
           <div class="mt-6">
@@ -44,9 +35,7 @@
               >
                 <span class="mr-2" v-html="getTrophyIcon(index)"></span>
                 <span class="font-medium">{{ user.user.username }}</span>
-                <span class="ml-2 text-gray-600"
-                  >- {{ user.rateCount }} votos</span
-                >
+                <span class="ml-2 text-gray-600">- {{ user.rateCount }} votos</span>
               </li>
             </ul>
           </div>
@@ -62,9 +51,7 @@
               >
                 <span class="mr-2" v-html="getTrophyIcon(index)"></span>
                 <span class="font-medium">{{ user.user.username }}</span>
-                <span class="ml-2 text-gray-600"
-                  >- {{ user.totalCover }} votos</span
-                >
+                <span class="ml-2 text-gray-600">- {{ user.totalCover }} votos</span>
               </li>
             </ul>
           </div>
@@ -73,63 +60,55 @@
     </div>
 
     <!-- Sección de álbumes mejor valorados -->
-    <div class="flex justify-center gap-4 mb-6 font-semibold">  
+    <div class="flex justify-center gap-4 mb-6 font-semibold">
       <button
-        @click="
-          selectedPeriod = 'week';
-          fetchDiscs();
-        "
-        :class="
-          selectedPeriod === 'week'
-        ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold' 
-        : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'
-        "
-        class="px-5 py-2 rounded rounded-full shadow-md'"
+        @click="selectedPeriod = 'week'"
+        :class="selectedPeriod === 'week'
+          ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold'
+          : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'"
+        class="px-5 py-2 rounded-full shadow-md"
       >
         Semana
       </button>
       <button
-        @click="
-          selectedPeriod = 'month';
-          fetchDiscs();
-        "
-        :class="
-          selectedPeriod === 'month'
-        ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold' 
-        : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'
-        "
-        class="px-5 py-2 rounded rounded-full shadow-md'"
+        @click="selectedPeriod = 'month'"
+        :class="selectedPeriod === 'month'
+          ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold'
+          : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'"
+        class="px-5 py-2 rounded-full shadow-md"
       >
         Mes
       </button>
       <button
-        @click="
-          selectedPeriod = 'year';
-          fetchDiscs();
-        "
-        :class="
-          selectedPeriod === 'year'
-        ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold' 
-        : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'
-        "
-        class="px-5 py-2 rounded rounded-full shadow-md'"
+        @click="selectedPeriod = 'year'"
+        :class="selectedPeriod === 'year'
+          ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold'
+          : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'"
+        class="px-5 py-2 rounded-full shadow-md"
       >
         Año
       </button>
       <button
-        @click="
+        @click="{
           selectedPeriod = 'all';
           fetchDiscs();
-        "
-        :class="
-          selectedPeriod === 'all'
-        ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold' 
-        : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'
-        "
-        class="px-5 py-2 rounded rounded-full shadow-md'"
+        }"
+        :class="selectedPeriod === 'all'
+          ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold'
+          : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'"
+        class="px-5 py-2 rounded-full shadow-md"
       >
         Todos
       </button>
+    </div>
+
+    <!-- Select para elegir el rango (solo para semana, mes o año) -->
+    <div v-if="selectedPeriod !== 'all'" class="mb-6 flex justify-center">
+      <select v-model="selectedOption" @change="fetchDiscs" class="px-4 py-2 border rounded">
+        <option v-for="option in optionsForSelect" :key="option.label" :value="option">
+          {{ option.label }}
+        </option>
+      </select>
     </div>
 
     <!-- Grid de Discos -->
@@ -160,11 +139,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from "vue";
+import { defineComponent, ref, onMounted, computed, watch } from "vue";
 import { getTopRatedOrFeaturedAndStats } from "@services/discs/discs";
 import type { Disc, DiscsStatsResponse } from "@services/discs/disc";
 import DiscCard from "@components/DiscCardComponent.vue";
-import RatingBarChart from "./components/RatingBarChar.vue"; // Importa el componente de gráfico
+import RatingBarChart from "./components/RatingBarChar.vue"; // Componente del gráfico
 
 export default defineComponent({
   components: {
@@ -183,73 +162,113 @@ export default defineComponent({
 
     // Período seleccionado: 'week' (por defecto), 'month', 'year' o 'all'
     const selectedPeriod = ref("week");
+    // Almacena el rango seleccionado mediante el <select>
+    const selectedOption = ref<{ start: string; end: string; label: string } | null>(null);
 
-    function formatLocalDate(date) {
-      const year = date.getFullYear();
-      // getMonth() retorna 0 para enero, 1 para febrero, etc.
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-      return `${year}-${month}-${day}`;
-    }
+    // -------------------------
+    // Opciones para el <select>
+    // -------------------------
 
-    // Función que calcula el dateRange según el período seleccionado.
-    // Para "all" no se enviará ningún filtro.
-    const getDateRange = (period: string): [string, string] | undefined => {
+    // Opciones para "Semana": generar semanas (de viernes a jueves) desde el primer viernes del año hasta la semana actual
+    const weekOptions = computed(() => {
+      const options: Array<{ start: string; end: string; label: string }> = [];
+      const currentYear = new Date().getFullYear();
+      // Buscar el primer viernes del año
+      let firstFriday = new Date(currentYear, 0, 1);
+      while (firstFriday.getDay() !== 5) {
+        firstFriday.setDate(firstFriday.getDate() + 1);
+      }
+      // Calcular el inicio de la semana actual (último viernes)
       const today = new Date();
-      if (period === "all") {
-        return undefined;
-      }
+      const offset = (today.getDay() - 5 + 7) % 7;
+      const currentWeekStart = new Date(today);
+      currentWeekStart.setDate(today.getDate() - offset);
 
-      if (period === "week") {
-        // Últimos 7 días
-        const startDate = new Date();
-        startDate.setDate(today.getDate() - 7);
-        return [
-          startDate.toISOString().split("T")[0],
-          today.toISOString().split("T")[0],
-        ];
-      }
-
-      if (period === "month") {
-        const today = new Date();
-
-        // Primer día del mes actual (en horario local)
-        const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-        // Último día del mes actual (en horario local)
-        const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-
-        // Opción 1: formatear manualmente
-        const startStr = formatLocalDate(startDate);
-        const endStr = formatLocalDate(endDate);
-
-        return [startStr, endStr];
-      }
-
-      if (period === "year") {
-        // Año natural: desde el 1 de enero hasta el 31 de diciembre del año actual
-        const startDate = new Date(today.getFullYear(), 0, 1);
-        const endDate = new Date(today.getFullYear(), 11, 31);
-        return [
-          startDate.toISOString().split("T")[0],
-          endDate.toISOString().split("T")[0],
-        ];
-      }
-
-      // Si por alguna razón no coincide, devuelve los últimos 7 días
-      const defaultStart = new Date();
-      defaultStart.setDate(today.getDate() - 7);
-      return [
-        defaultStart.toISOString().split("T")[0],
-        today.toISOString().split("T")[0],
+      const monthNames = [
+        "enero", "febrero", "marzo", "abril", "mayo", "junio",
+        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
       ];
-    };
 
-    // Función para obtener los discos y estadísticas según el filtro de fechas
+      let current = new Date(firstFriday);
+      while (current <= currentWeekStart) {
+        const startDate = new Date(current);
+        const endDate = new Date(current);
+        endDate.setDate(current.getDate() + 6);
+        const startStr = startDate.toISOString().split("T")[0];
+        const endStr = endDate.toISOString().split("T")[0];
+        // Etiqueta: "díaInicio-díaFin mes" (por ejemplo, "3-9 enero")
+        const label = `${startDate.getDate()}-${endDate.getDate()} ${monthNames[startDate.getMonth()]}`;
+        options.push({ start: startStr, end: endStr, label });
+        current.setDate(current.getDate() + 7);
+      }
+      return options;
+    });
+
+    // Opciones para "Mes": se agrega una opción por defecto de "30 días naturales"
+    // y a continuación se incluyen las opciones de meses calendario
+    const monthOptions = computed(() => {
+      const options: Array<{ start: string; end: string; label: string }> = [];
+      const today = new Date();
+      // Opción "30 días naturales": últimos 30 días (incluyendo hoy)
+      const naturalStart = new Date(today);
+      naturalStart.setDate(today.getDate() - 29);
+      options.push({
+        start: naturalStart.toISOString().split("T")[0],
+        end: today.toISOString().split("T")[0],
+        label: "30 días naturales",
+      });
+      // Opciones para cada mes calendario hasta el mes actual
+      const currentYear = today.getFullYear();
+      const currentMonth = today.getMonth();
+      const monthNames = [
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+      ];
+      for (let month = 0; month <= currentMonth; month++) {
+        const startDate = new Date(currentYear, month, 1);
+        const endDate = new Date(currentYear, month + 1, 0);
+        const startStr = startDate.toISOString().split("T")[0];
+        const endStr = endDate.toISOString().split("T")[0];
+        const label = `${monthNames[month]} (${startDate.getDate()}-${endDate.getDate()})`;
+        options.push({ start: startStr, end: endStr, label });
+      }
+      return options;
+    });
+
+    // Opciones para "Año": sólo el año actual
+    const yearOptions = computed(() => {
+      const options: Array<{ start: string; end: string; label: string }> = [];
+      const currentYear = new Date().getFullYear();
+      const startDate = new Date(currentYear, 0, 1);
+      const endDate = new Date(currentYear, 11, 31);
+      const startStr = startDate.toISOString().split("T")[0];
+      const endStr = endDate.toISOString().split("T")[0];
+      options.push({ start: startStr, end: endStr, label: `${currentYear}` });
+      return options;
+    });
+
+    // Computed que devuelve las opciones según el período seleccionado
+    const optionsForSelect = computed(() => {
+      if (selectedPeriod.value === "week") return weekOptions.value;
+      if (selectedPeriod.value === "month") return monthOptions.value;
+      if (selectedPeriod.value === "year") return yearOptions.value;
+      return [];
+    });
+
+    // ---------------------------------
+    // Función para obtener los discos y stats
+    // ---------------------------------
     const fetchDiscs = async () => {
       try {
-        const dateRange = getDateRange(selectedPeriod.value);
-        const response: DiscsStatsResponse =
-          await getTopRatedOrFeaturedAndStats(dateRange);
+        let dateRange;
+        if (selectedPeriod.value === "all") {
+          dateRange = undefined;
+        } else if (selectedOption.value) {
+          dateRange = [selectedOption.value.start, selectedOption.value.end];
+        } else {
+          dateRange = undefined;
+        }
+        const response: DiscsStatsResponse = await getTopRatedOrFeaturedAndStats(dateRange);
         discs.value = response.discs;
         stats.value.totalDiscs = response.totalDiscs;
         stats.value.totalVotes = response.totalVotes;
@@ -261,13 +280,24 @@ export default defineComponent({
       }
     };
 
-    /**
-     * Devuelve el icono de trofeo correspondiente según la posición.
-     * Se usa FontAwesome y se le asigna un color distinto:
-     *  - 1°: Oro (text-yellow-500)
-     *  - 2°: Plata (text-gray-400)
-     *  - 3°: Bronce (text-yellow-700)
-     */
+    // ---------------------------------
+    // Actualiza la opción seleccionada cuando cambia el período
+    // ---------------------------------
+    watch(selectedPeriod, (newPeriod) => {
+      if (newPeriod === "week") {
+        selectedOption.value = weekOptions.value[weekOptions.value.length - 1];
+      } else if (newPeriod === "month") {
+        // Por defecto se asigna la opción "30 días naturales" (índice 0)
+        selectedOption.value = monthOptions.value[0];
+      } else if (newPeriod === "year") {
+        selectedOption.value = yearOptions.value[0];
+      }
+      fetchDiscs();
+    });
+
+    // ---------------------------------
+    // Función para devolver el icono de trofeo según posición
+    // ---------------------------------
     const getTrophyIcon = (index: number) => {
       if (index === 0) {
         return `<i class="fas fa-trophy text-yellow-500"></i>`;
@@ -281,6 +311,9 @@ export default defineComponent({
     };
 
     onMounted(() => {
+      if (selectedPeriod.value === "week" && weekOptions.value.length) {
+        selectedOption.value = weekOptions.value[weekOptions.value.length - 1];
+      }
       fetchDiscs();
     });
 
@@ -291,6 +324,8 @@ export default defineComponent({
       topUsersByCover,
       ratingDistribution,
       selectedPeriod,
+      selectedOption,
+      optionsForSelect,
       fetchDiscs,
       getTrophyIcon,
     };
