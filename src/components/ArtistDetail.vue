@@ -86,7 +86,7 @@
             <span
               v-for="tag in lastFmData.tags.tag"
               :key="tag.name"
-              class="px-2 py-1 bg-gray-200 rounded text-xs"
+              class="px-2 py-1 bg-[#d9e021] rounded text-xs font-semibold"
             >
               {{ tag.name }}
             </span>
@@ -129,9 +129,9 @@
                 :href="track.external_urls.spotify"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="mt-1 inline-block text-xs text-white bg-green-600 hover:bg-green-700 px-2 py-1 rounded"
+                class="mt-1 inline-block text-xs px-2 py-1 text-white shadow-md text-white bg-green-500 hover:bg-green-600 hover:text-white rounded-full mt-2 mb-1 transition-all"
               >
-                <i class="fab fa-spotify mr-1"></i>Ver en Spotify
+                <i class="fab fa-spotify mr-1"></i>Escuchar
               </a>
             </div>
           </div>
