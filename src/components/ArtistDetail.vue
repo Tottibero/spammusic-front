@@ -1,8 +1,15 @@
 <template>
   <!-- Contenedor principal con scroll si el contenido excede el 80% del alto de la pantalla -->
   <div
-    class="spotify-artist-details w-full max-w-2xl mx-auto my-8 p-6 bg-white rounded-lg shadow-md max-h-[80vh] overflow-y-auto"
-  >
+    class="spotify-artist-details relative w-full max-w-2xl mx-auto my-3 sm:my-3 p-4 sm:p-4 
+  bg-gradient-to-b from-gray-50 to-gray-100 rounded-lg shadow-md max-h-[80vh] overflow-y-auto">
+
+  <button 
+  @click="$emit('close')" 
+  class="absolute top-3 right-3 text-white hover:text-[#d9e021] bg-gray-700 hover:bg-gray-800 rounded-full w-10 h-10 flex items-center justify-center shadow-md transition-all"
+>
+  ✖
+</button>
     <!-- Estado de carga -->
     <div v-if="loading" class="text-center py-4">
       Cargando detalles del artista...
@@ -21,14 +28,13 @@
       <!-- Datos obtenidos de Spotify -->
       <div
         v-if="artist"
-        class="artist-info flex flex-col sm:flex-row gap-4 p-4 rounded-md bg-gray-50 shadow-sm"
-      >
+        class="artist-info flex flex-col sm:flex-row gap-6 p-4 bg-gradient-to-b from-gray-50 to-gray-100 rounded-lg shadow-md justify-center items-center text-center">
         <!-- Imagen del artista -->
         <img
           v-if="artist.images && artist.images.length"
           :src="artist.images[0].url"
           alt="Foto del artista"
-          class="artist-photo w-40 h-40 object-cover rounded shadow"
+          class="artist-photo w-40 h-40 object-cover rounded-full shadow-lg cursor-zoom-in transition-transform hover:scale-110"
         />
 
         <!-- Metadatos del artista -->
@@ -58,8 +64,7 @@
               :href="artist.external_urls.spotify"
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center px-3 py-1 text-white bg-green-600 hover:bg-green-700 rounded-full"
-            >
+              class="inline-flex items-center px-3 py-1 text-xsm justify-center shadow-md text-white bg-green-500 hover:bg-green-600 hover:text-white rounded-full mt-2 mb-1 transition-all">
               <i class="fab fa-spotify mr-2"></i>
               Ver en Spotify
             </a>
@@ -91,7 +96,7 @@
 
       <!-- Galería de Top Tracks -->
       <div class="top-tracks mt-6" v-if="artist">
-        <h3 class="text-xl font-semibold mb-3 text-gray-800">Top Tracks</h3>
+        <h3 class="text-xl font-semibold mb-3 text-gray-800">Top canciones</h3>
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <div
             v-for="track in topTracks"

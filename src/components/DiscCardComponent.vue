@@ -201,35 +201,23 @@
       </div>
     </div>
 
-    <!-- Modal para mostrar DiscDetail -->
-    <div
-      v-if="showDiscDetail"
-      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-    >
-      <div class="bg-white rounded-lg p-4 relative max-w-3xl w-full">
-        <button
-          class="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-2xl"
-          @click="closeDiscDetail"
-        >
-          &times;
-        </button>
-        <!-- Se pasa la información del disco -->
-        <DiscDetail :disc="discData" @close="closeDiscDetail" />
-      </div>
-    </div>
+<!-- Modal para mostrar DiscDetail -->
+<div
+  v-if="showDiscDetail"
+  class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+>
+  <div class="p-6 relative max-w-3xl w-full">
+    <!-- Se pasa la información del disco -->
+    <DiscDetail :disc="discData" @close="closeDiscDetail" />
+  </div>
+</div>
 
     <!-- Modal para mostrar ArtistDetail -->
     <div
       v-if="showArtistDetail"
-      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+       class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
     >
-      <div class="bg-white rounded-lg p-4 relative max-w-3xl w-full">
-        <button
-          class="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-2xl"
-          @click="closeArtistDetail"
-        >
-          &times;
-        </button>
+    <div class="p-4 relative max-w-3xl w-full">
         <!-- Se pasa el nombre del artista al componente ArtistDetail -->
         <ArtistDetail :disc-name="name" :artistName="artistName" @close="closeArtistDetail" />
       </div>
