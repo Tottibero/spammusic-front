@@ -59,7 +59,6 @@
       </div>
     </div>
 
-
     <h2 class="text-3xl font-bold text-gray-900 text-center mb-6">Mejores discos</h2>
     <!-- Sección de álbumes mejor valorados -->
     <div class="flex justify-center gap-4 mb-6 font-semibold">
@@ -167,6 +166,14 @@ export default defineComponent({
     // Almacena el rango seleccionado mediante el <select>
     const selectedOption = ref<{ start: string; end: string; label: string } | null>(null);
 
+    // Función auxiliar para formatear la fecha en formato local (YYYY-MM-DD)
+    const formatLocalDate = (date: Date): string => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    };
+
     // -------------------------
     // Opciones para el <select>
     // -------------------------
@@ -196,8 +203,8 @@ export default defineComponent({
         const startDate = new Date(current);
         const endDate = new Date(current);
         endDate.setDate(current.getDate() + 6);
-        const startStr = startDate.toISOString().split("T")[0];
-        const endStr = endDate.toISOString().split("T")[0];
+        const startStr = formatLocalDate(startDate);
+        const endStr = formatLocalDate(endDate);
         // Etiqueta: "díaInicio-díaFin mes" (por ejemplo, "3-9 enero")
         const label = `${startDate.getDate()}-${endDate.getDate()} ${monthNames[startDate.getMonth()]}`;
         options.push({ start: startStr, end: endStr, label });
@@ -215,8 +222,8 @@ export default defineComponent({
       const naturalStart = new Date(today);
       naturalStart.setDate(today.getDate() - 29);
       options.push({
-        start: naturalStart.toISOString().split("T")[0],
-        end: today.toISOString().split("T")[0],
+        start: formatLocalDate(naturalStart),
+        end: formatLocalDate(today),
         label: "30 días naturales",
       });
       // Opciones para cada mes calendario hasta el mes actual
@@ -229,8 +236,8 @@ export default defineComponent({
       for (let month = 0; month <= currentMonth; month++) {
         const startDate = new Date(currentYear, month, 1);
         const endDate = new Date(currentYear, month + 1, 0);
-        const startStr = startDate.toISOString().split("T")[0];
-        const endStr = endDate.toISOString().split("T")[0];
+        const startStr = formatLocalDate(startDate);
+        const endStr = formatLocalDate(endDate);
         const label = `${monthNames[month]} (${startDate.getDate()}-${endDate.getDate()})`;
         options.push({ start: startStr, end: endStr, label });
       }
@@ -243,8 +250,8 @@ export default defineComponent({
       const currentYear = new Date().getFullYear();
       const startDate = new Date(currentYear, 0, 1);
       const endDate = new Date(currentYear, 11, 31);
-      const startStr = startDate.toISOString().split("T")[0];
-      const endStr = endDate.toISOString().split("T")[0];
+      const startStr = formatLocalDate(startDate);
+      const endStr = formatLocalDate(endDate);
       options.push({ start: startStr, end: endStr, label: `${currentYear}` });
       return options;
     });
