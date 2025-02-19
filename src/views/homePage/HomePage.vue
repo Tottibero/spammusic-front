@@ -105,12 +105,25 @@
 
     <!-- Select para elegir el rango (solo para semana, mes o año) -->
     <div v-if="selectedPeriod !== 'all'" class="mb-6 flex justify-center">
-      <select v-model="selectedOption" @change="fetchDiscs" class="px-4 py-2 border rounded">
-        <option v-for="option in optionsForSelect" :key="option.label" :value="option">
-          {{ option.label }}
-        </option>
-      </select>
+  <div class="relative w-44">
+    <select 
+      v-model="selectedOption"
+      @change="fetchDiscs"
+      class="appearance-none w-full px-4 py-3 border font-semibold bg-gradient-to-r from-[#d9e021] to-[#fcee21] border-[#d9e021] rounded-full shadow-md bg-white text-gray-800"
+    >
+      <option v-for="option in optionsForSelect" :key="option.label" :value="option">
+        {{ option.label }}
+      </option>
+    </select>
+    <!-- Icono de flecha -->
+    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+      <svg class="w-5 h-5 text-gray-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+      </svg>
     </div>
+  </div>
+</div>
+
 
     <!-- Grid de Discos -->
     <div class="grid gap-6">
@@ -347,5 +360,9 @@ export default defineComponent({
   display: grid;
   gap: 1.5rem;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+select:hover {
+  background-color: #f3f4f6; /* Gris claro */
 }
 </style>
