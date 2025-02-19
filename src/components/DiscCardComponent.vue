@@ -1,11 +1,7 @@
 <template>
   <div class="flex flex-wrap justify-center gap-4">
-    <DiscCardComponent
-      v-for="(disc, index) in discs"
-      :key="index"
-      v-bind="disc"
-      class="w-full sm:w-[48%] md:w-[31%] lg:w-[23%]"
-    />
+    <!-- Si se usa una lista de discos, se puede iterar con el DiscCardComponent.
+         Aquí se muestra un ejemplo de una tarjeta individual -->
     <div
       class="card w-full max-w-[20rem] border rounded shadow-lg bg-white flex flex-col mx-auto p-2 relative"
     >
@@ -46,7 +42,7 @@
             <div
               class="flex flex-col items-center w-16 h-12 border rounded-lg shadow-md bg-gray-100 mb-1"
             >
-              <p class="text-sm font-bold font text-green-600 mt-1">
+              <p class="text-sm font-bold text-green-600 mt-1">
                 {{ averageCover ? averageCover.toFixed(2) : "-" }}
               </p>
               <p class="text-xs text-gray-700">Portada</p>
@@ -56,9 +52,13 @@
 
         <!-- Contenido al lado derecho -->
         <div class="ml-2 flex flex-1 flex-col">
-          <!-- Título y artista alineados -->
+          <!-- Título y artista alineados.
+               Se añade @click al título para abrir el modal con los detalles -->
           <div class="flex justify-between items-center">
-            <h2 class="text-sm text-gray-900 font-semibold truncate">
+            <h2
+              @click="openDiscDetail"
+              class="text-sm text-gray-900 font-semibold truncate cursor-pointer"
+            >
               {{ name }}
             </h2>
           </div>
@@ -79,21 +79,18 @@
               Escuchar
             </a>
 
-            <!-- Íconos -->
+            <!-- Íconos: corazón y bookmark -->
             <div class="flex space-x-2 items-center">
-              <!-- Icono de corazón con tooltip -->
               <div class="relative group">
                 <font-awesome-icon
                   :icon="['fas', 'heart']"
-                  class="h-7 w-5 cursor-pointer transition-all duration-300 ease-in-out fill-current"
+                  class="h-7 w-5 cursor-pointer transition-all duration-300 ease-in-out"
                   :class="{
-                    'text-red-500 scale-110': favoriteId, // Si tiene favoriteId, es favorito (rojo)
-                    'text-gray-500 hover:text-red-400': !favoriteId, // Si no tiene favoriteId, es gris
+                    'text-red-500 scale-110': favoriteId,
+                    'text-gray-500 hover:text-red-400': !favoriteId,
                   }"
                   @click="toggleHeart"
                 />
-
-                <!-- Tooltip -->
                 <span
                   class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs font-semibold text-white bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                 >
@@ -101,21 +98,15 @@
                 </span>
               </div>
 
-              <!-- Icono de bookmark con tooltip -->
-              <div
-                class="relative group cursor-pointer"
-                @click="toggleBookmark"
-              >
+              <div class="relative group cursor-pointer" @click="toggleBookmark">
                 <font-awesome-icon
                   :icon="['fas', 'bookmark']"
-                  class="h-5 w-5 transition-all duration-300 ease-in-out fill-current mt-1 cursor-pointer"
+                  class="h-5 w-5 mt-1 cursor-pointer transition-all duration-300 ease-in-out"
                   :class="{
                     'text-yellow-400 scale-110': pendingId,
                     'text-gray-500 hover:text-yellow-300': !pendingId,
                   }"
                 />
-
-                <!-- Tooltip -->
                 <span
                   class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs font-semibold text-white bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                 >
@@ -125,7 +116,7 @@
             </div>
           </div>
 
-          <!-- Formulario -->
+          <!-- Formulario de votación -->
           <div class="flex flex-col space-y-1">
             <label class="text-xs text-gray-500 translate-x-1.5">
               Disco:
@@ -135,7 +126,7 @@
                 v-model="localRating.rate"
                 min="1"
                 max="10"
-                class="px-0 py-1 border w-16 rounded 1/2 text-xs font-bold text-center text-gray-500 mt-3 mb-1 ml-0.5"
+                class="px-0 py-1 border w-16 rounded text-xs font-bold text-center text-gray-500 mt-3 mb-1 ml-0.5"
               />
             </label>
             <label class="text-xs text-gray-500">
@@ -146,14 +137,14 @@
                 v-model="localRating.cover"
                 min="1"
                 max="10"
-                class="px-0 py-1 w-16 border font-bold rounded 1/2 text-center text-xs mb-1 ml-0.5"
+                class="px-0 py-1 w-16 border font-bold rounded text-center text-xs mb-1 ml-0.5"
               />
             </label>
           </div>
         </div>
       </div>
 
-      <!-- Botones -->
+      <!-- Botones para votos y enviar calificación -->
       <div class="flex mt-2 space-x-2 w-full">
         <button
           @click="toggleVotes"
@@ -181,15 +172,11 @@
           class="w-1/2 bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-lg shadow-sm border-4 border-transparent hover:border-[#d9e021] hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] flex items-center justify-center space-x-2"
         >
           <template v-if="hasVoted">
-            <!-- Ícono actual para "Actualizar" -->
             <i class="fa-solid fa-arrows-rotate text-gray-700 text-lg"></i>
           </template>
-
           <template v-else>
-            <!-- Ícono de lápiz solo en "Votar" -->
             <i class="fa-solid fa-pen-to-square text-gray-700 text-lg"></i>
           </template>
-
           <span>{{ hasVoted ? "Actualizar" : "Votar" }}</span>
         </button>
       </div>
@@ -205,27 +192,36 @@
             :key="vote.id"
             class="text-xs text-gray-700 border-b pb-1"
           >
-            <strong>{{ vote.user.username }}</strong
-            >: Rate: {{ vote.rate }}, Cover: {{ vote.cover }}
+            <strong>{{ vote.user.username }}</strong>: Rate: {{ vote.rate }}, Cover:
+            {{ vote.cover }}
           </li>
         </ul>
+      </div>
+    </div>
+
+    <!-- Modal para mostrar DiscDetail -->
+    <div
+      v-if="showDiscDetail"
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+    >
+      <div class="bg-white rounded-lg p-4 relative max-w-3xl w-full">
+        <button
+          class="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-2xl"
+          @click="closeDiscDetail"
+        >
+          &times;
+        </button>
+        <!-- Se le pasa al componente la información del disco a través de la prop "disc" -->
+        <DiscDetail :disc="discData" @close="closeDiscDetail" />
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-interface Vote {
-  id: string; // o el tipo correcto, como number
-  user: {
-    username: string;
-  };
-  rate: number;
-  cover: number;
-}
-
+import { defineComponent, ref, computed, watchEffect } from "vue";
 import defaultImage from "/src/assets/disco.png";
-import { defineComponent, ref, computed, watch, watchEffect } from "vue";
+import DiscDetail from "./DiscDetail.vue";
 import {
   getDiscRates,
   postRateService,
@@ -235,17 +231,24 @@ import {
   postFavoriteService,
   deleteFavoriteService,
 } from "@services/favorites/favorites.ts";
-
 import {
   postPendingService,
   deletePendingService,
 } from "@services/pendings/pendings";
-
-
 import Swal from "sweetalert2";
 import SwalService from "@services/swal/SwalService";
 
+interface Vote {
+  id: string;
+  user: {
+    username: string;
+  };
+  rate: number;
+  cover: number;
+}
+
 export default defineComponent({
+  components: { DiscDetail },
   props: {
     id: { type: String, required: true },
     image: { type: String, required: true },
@@ -265,26 +268,15 @@ export default defineComponent({
     favoriteId: { type: String, required: false },
     pendingId: { type: String, required: false },
   },
-  computed: {
-    computedImage() {
-      return this.image || defaultImage;
-    },
-  },
   setup(props) {
     const localRating = ref({ rate: props.rate, cover: props.cover });
-    const showVotes = ref(false); // Estado para mostrar/ocultar votos
-    const votes = ref<Vote[]>([]); // Lista de votos obtenida del servicio
+    const showVotes = ref(false);
+    const votes = ref<Vote[]>([]);
     const isEP = computed(() => props.ep);
-    const isHeartActive = ref(false);
-    const isPlusActive = ref(false);
-    const isBookmarkActive = ref(false);
-
-    // Determinar si el usuario ya votó
     const hasVoted = ref(!!props.userDiscRate);
-    const userDiscRateId = ref(props.userDiscRate); // Almacena el id del voto si ya existe
-    console.log("rate", props.rate);
-    console.log("favoriteId", props.pendingId);
-    // Formatear la fecha
+    const userDiscRateId = ref(props.userDiscRate);
+
+    // Formatear la fecha de lanzamiento
     const formattedDate = computed(() => {
       const date = new Date(props.releaseDate);
       return date.toLocaleDateString("es-ES", {
@@ -294,11 +286,13 @@ export default defineComponent({
       });
     });
 
+    const computedImage = computed(() => props.image || defaultImage);
+
     const openImage = () => {
       window.open(props.image, "_blank");
     };
 
-    const favoriteId = ref(props.favoriteId); // Convierte el ID en reactivo
+    const favoriteId = ref(props.favoriteId);
     const pendingId = ref(props.pendingId);
 
     watchEffect(() => {
@@ -308,13 +302,11 @@ export default defineComponent({
     const toggleHeart = async () => {
       try {
         if (favoriteId.value) {
-          // Si ya es favorito, eliminarlo
           await deleteFavoriteService(favoriteId.value);
-          favoriteId.value = null; // Actualiza inmediatamente el estado local
+          favoriteId.value = null;
         } else {
-          // Si no es favorito, agregarlo
           const favorite = await postFavoriteService({ discId: props.id });
-          favoriteId.value = favorite.id; // Actualiza inmediatamente con el nuevo ID
+          favoriteId.value = favorite.id;
         }
       } catch (error) {
         console.error("Error al cambiar el estado de favorito:", error);
@@ -331,23 +323,15 @@ export default defineComponent({
       }
     };
 
-    const togglePlus = () => {
-      isPlusActive.value = !isPlusActive.value;
-    };
-
     const toggleBookmark = async () => {
       try {
         if (pendingId.value) {
-          // Si ya está en pendientes, lo eliminamos
           await deletePendingService(pendingId.value);
           pendingId.value = null;
-          isBookmarkActive.value = false;
           SwalService.success("Pendiente borrado exitosamente");
         } else {
-          // Si no está en pendientes, lo agregamos
           const pending = await postPendingService({ discId: props.id });
           pendingId.value = pending.id;
-          isBookmarkActive.value = true;
           SwalService.success("Pendiente añadido exitosamente");
         }
       } catch (error) {
@@ -367,9 +351,7 @@ export default defineComponent({
 
     const toggleVotes = async () => {
       showVotes.value = !showVotes.value;
-
       if (showVotes.value && votes.value.length === 0) {
-        // Cargar los votos solo si se muestran y no han sido cargados antes
         try {
           votes.value = await getDiscRates(props.id);
         } catch (error) {
@@ -397,20 +379,16 @@ export default defineComponent({
       try {
         if (payload.rate == 0) payload.rate = null;
         if (payload.rate == 0) payload.cover = null;
-
         if (!hasVoted.value) {
-          console.log("payload", payload);
-          const response = await postRateService(payload); // Asegúrate de que este servicio devuelva el `id` del nuevo voto
-          console.log("response: " + response.id);
-          userDiscRateId.value = response.id; // Guardar el `id` del nuevo voto
-          hasVoted.value = true; // Cambiar estado a "ya votó"
+          const response = await postRateService(payload);
+          userDiscRateId.value = response.id;
+          hasVoted.value = true;
         } else {
           await updateRateService(userDiscRateId.value, payload);
         }
-
         if (payload.rate && payload.rate > 0)
           SwalService.successImage(payload.rate);
-        else SwalService.success("Votación enviada con exito");
+        else SwalService.success("Votación enviada con éxito");
       } catch (error) {
         console.error("Error submitting rating:", error);
         Swal.fire({
@@ -426,24 +404,46 @@ export default defineComponent({
       }
     };
 
+    // --- Integración del modal con DiscDetail ---
+    const showDiscDetail = ref(false);
+    const openDiscDetail = () => {
+      showDiscDetail.value = true;
+    };
+    const closeDiscDetail = () => {
+      showDiscDetail.value = false;
+    };
+
+    // Se arma un objeto con la información del disco para enviarlo a DiscDetail.
+    const discData = computed(() => ({
+      id: props.id,
+      name: props.name,
+      image: props.image,
+      releaseDate: props.releaseDate,
+      artist: { name: props.artistName },
+      link: props.link,
+      averageRate: props.averageRate,
+      averageCover: props.averageCover,
+    }));
+
     return {
       localRating,
       formattedDate,
+      computedImage,
       showVotes,
       votes,
       toggleVotes,
       submitRating,
       hasVoted,
       isEP,
-      isHeartActive,
-      isPlusActive,
-      toggleHeart,
-      togglePlus,
       openImage,
-      isBookmarkActive,
+      toggleHeart,
       toggleBookmark,
       favoriteId,
       pendingId,
+      openDiscDetail,
+      closeDiscDetail,
+      showDiscDetail,
+      discData,
     };
   },
 });
@@ -478,6 +478,7 @@ export default defineComponent({
   word-wrap: break-word;
   margin: 0;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .card .flex-1 {
