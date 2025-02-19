@@ -9,14 +9,18 @@
     </div>
 
     <!-- Errores -->
-    <div v-else-if="error" class="text-center text-red-600 py-4">
-      {{ error }}
+    <div v-else-if="error" class="text-center py-4">
+      <h2 class="text-2xl font-bold mb-2 text-gray-800">
+        {{ artistNameProp }}
+      </h2>
+      <p class="text-red-600">{{ error }}</p>
     </div>
 
     <!-- Información del artista -->
-    <div v-else-if="artist">
+    <div>
       <!-- Datos obtenidos de Spotify -->
       <div
+        v-if="artist"
         class="artist-info flex flex-col sm:flex-row gap-4 p-4 rounded-md bg-gray-50 shadow-sm"
       >
         <!-- Imagen del artista -->
@@ -48,7 +52,7 @@
             }}
           </p>
           <!-- Botón para ver el perfil en Spotify -->
-          <div class="mt-3">
+          <div class="mt-3" v-if="artist">
             <a
               v-if="artist.external_urls && artist.external_urls.spotify"
               :href="artist.external_urls.spotify"
@@ -86,7 +90,7 @@
       </div>
 
       <!-- Galería de Top Tracks -->
-      <div class="top-tracks mt-6">
+      <div class="top-tracks mt-6" v-if="artist">
         <h3 class="text-xl font-semibold mb-3 text-gray-800">Top Tracks</h3>
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <div
@@ -157,6 +161,7 @@ export default defineComponent({
     const lastFmData = ref<any>(null);
     const loading = ref<boolean>(true);
     const error = ref<string>("");
+    const artistNameProp = ref<string>(props.artistName);
 
     // Función para obtener datos adicionales desde Last.fm
     const fetchLastFmData = async (artistName: string) => {
@@ -175,7 +180,10 @@ export default defineComponent({
       }
     };
 
-    const fetchArtistDataFromSpotify = async (artistId: string, token: string) => {
+    const fetchArtistDataFromSpotify = async (
+      artistId: string,
+      token: string
+    ) => {
       // Obtener la información completa del artista
       const artistResponse = await axios.get(
         `https://api.spotify.com/v1/artists/${artistId}`,
@@ -195,7 +203,6 @@ export default defineComponent({
       topTracks.value = topTracksResponse.data.tracks;
 
       // Llamada a Last.fm con el nombre real del artista
-      await fetchLastFmData(artist.value.name);
     };
 
     const searchByAlbumAndArtist = async () => {
@@ -208,7 +215,9 @@ export default defineComponent({
         }
 
         // Construir la consulta: "album:DISCO artist:ARTISTA"
-        const query = encodeURIComponent(`album:${props.discName} artist:${props.artistName}`);
+        const query = encodeURIComponent(
+          `album:${props.discName} artist:${props.artistName}`
+        );
         // Buscar álbumes
         const searchResponse = await axios.get(
           `https://api.spotify.com/v1/search?q=${query}&type=album&limit=5`,
@@ -246,6 +255,7 @@ export default defineComponent({
 
     onMounted(() => {
       searchByAlbumAndArtist();
+      fetchLastFmData(props.artistName);
     });
 
     return {
@@ -254,6 +264,7 @@ export default defineComponent({
       lastFmData,
       loading,
       error,
+      artistNameProp,
     };
   },
 });
