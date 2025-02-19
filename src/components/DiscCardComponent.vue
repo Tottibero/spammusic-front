@@ -231,7 +231,7 @@
           &times;
         </button>
         <!-- Se pasa el nombre del artista al componente ArtistDetail -->
-        <ArtistDetail :artistName="artistName" @close="closeArtistDetail" />
+        <ArtistDetail :disc-name="name" :artistName="artistName" @close="closeArtistDetail" />
       </div>
     </div>
   </div>
