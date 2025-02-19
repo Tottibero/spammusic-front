@@ -53,7 +53,7 @@
       </div>
     </div>
 
-    <h2 class="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-6">Mejores discos</h2>
+    <h2 class="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-6 justify-center">Mejores discos</h2>
     <!-- Sección de álbumes mejor valorados -->
     <div class="flex justify-center gap-4 mb-6 font-semibold">
       <button @click="selectedPeriod = 'week'"
@@ -93,7 +93,7 @@
     <div v-if="selectedPeriod !== 'all'" class="mb-6 flex justify-center">
       <div class="relative w-44">
         <select v-model="selectedOption" @change="fetchDiscs"
-          class="appearance-none w-full px-4 py-3 border font-semibold bg-gradient-to-r from-[#d9e021] to-[#fcee21] border-[#d9e021] rounded-full shadow-md bg-white text-gray-800">
+          class="appearance-none w-full px-4 py-2 border font-semibold bg-gradient-to-r from-[#d9e021] to-[#fcee21] border-[#d9e021] rounded-full shadow-md bg-white text-gray-800">
           <option v-for="option in optionsForSelect" :key="option.label" :value="option">
             {{ option.label }}
           </option>
