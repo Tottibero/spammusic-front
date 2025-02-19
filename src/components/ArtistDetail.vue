@@ -1,8 +1,6 @@
 <template>
     <!-- Contenedor principal con scroll si el contenido excede el 80% del alto de la pantalla -->
-    <div
-      class="spotify-artist-details w-full max-w-2xl mx-auto my-8 p-6 bg-white rounded-lg shadow-md max-h-[80vh] overflow-y-auto"
-    >
+    <div class="spotify-artist-details w-full max-w-2xl mx-auto my-8 p-6 bg-white rounded-lg shadow-md max-h-[80vh] overflow-y-auto">
       <!-- Estado de carga -->
       <div v-if="loading" class="text-center py-4">
         Cargando detalles del artista...
@@ -15,8 +13,9 @@
   
       <!-- Información del artista -->
       <div v-else-if="artist">
+        <!-- Datos obtenidos de Spotify -->
         <div class="artist-info flex flex-col sm:flex-row gap-4 p-4 rounded-md bg-gray-50 shadow-sm">
-          <!-- Imagen del artista (si existe) -->
+          <!-- Imagen del artista -->
           <img
             v-if="artist.images && artist.images.length"
             :src="artist.images[0].url"
@@ -39,8 +38,7 @@
               <strong>Géneros:</strong>
               {{ artist.genres && artist.genres.length ? artist.genres.join(", ") : "Sin géneros" }}
             </p>
-  
-            <!-- Botón con el enlace al artista en Spotify -->
+            <!-- Botón para ver el perfil en Spotify -->
             <div class="mt-3">
               <a
                 v-if="artist.external_urls && artist.external_urls.spotify"
@@ -56,6 +54,25 @@
           </div>
         </div>
   
+        <div v-if="lastFmData" class="lastfm-info mt-6">
+          <h3 class="text-xl font-semibold mb-3 text-gray-800">Biografía</h3>
+          <!-- La biografía de Last.fm suele venir en HTML, por eso usamos v-html -->
+          <div class="text-sm text-gray-700" v-html="lastFmData.bio.summary"></div>
+  
+          <div v-if="lastFmData.tags && lastFmData.tags.tag" class="mt-4">
+            <h4 class="text-md font-semibold mb-2 text-gray-800">Etiquetas</h4>
+            <div class="flex flex-wrap gap-2">
+              <span
+                v-for="tag in lastFmData.tags.tag"
+                :key="tag.name"
+                class="px-2 py-1 bg-gray-200 rounded text-xs"
+              >
+                {{ tag.name }}
+              </span>
+            </div>
+          </div>
+        </div>
+
         <!-- Galería de Top Tracks -->
         <div class="top-tracks mt-6">
           <h3 class="text-xl font-semibold mb-3 text-gray-800">Top Tracks</h3>
@@ -72,16 +89,10 @@
                 class="w-full h-32 object-cover"
               />
               <div class="p-2">
-                <h4
-                  class="text-sm font-bold text-gray-800 truncate"
-                  :title="track.name"
-                >
+                <h4 class="text-sm font-bold text-gray-800 truncate" :title="track.name">
                   {{ track.name }}
                 </h4>
-                <p
-                  class="text-xs text-gray-600 truncate"
-                  :title="track.album.name"
-                >
+                <p class="text-xs text-gray-600 truncate" :title="track.album.name">
                   {{ track.album.name }}
                 </p>
                 <a
@@ -97,6 +108,8 @@
             </div>
           </div>
         </div>
+  
+        <!-- Información adicional de Last.fm -->
       </div>
     </div>
   </template>
@@ -121,13 +134,28 @@
     setup(props) {
       const artist = ref<any>(null);
       const topTracks = ref<any[]>([]);
+      const lastFmData = ref<any>(null);
       const loading = ref<boolean>(true);
       const error = ref<string>("");
   
-      /**
-       * Función para buscar un artista por nombre en la API de Spotify,
-       * y luego obtener sus Top Tracks.
-       */
+      // Función para obtener datos adicionales desde Last.fm
+      const fetchLastFmData = async (artistName: string) => {
+        try {
+          const response = await axios.get("http://ws.audioscrobbler.com/2.0/", {
+            params: {
+              method: "artist.getinfo",
+              artist: artistName,
+              api_key: "288147ee12920ea60b59f72f491ebada", // Reemplaza con tu API key de Last.fm
+              format: "json",
+            },
+          });
+          lastFmData.value = response.data.artist;
+        } catch (err: any) {
+          console.error("Error al obtener datos de Last.fm:", err);
+        }
+      };
+  
+      // Función para buscar el artista en Spotify y luego obtener datos de Last.fm
       const searchArtist = async () => {
         try {
           const token = await obtenerTokenSpotify();
@@ -136,8 +164,6 @@
             loading.value = false;
             return;
           }
-  
-          // Construir la consulta de búsqueda: "artist:NombreArtista"
           const query = encodeURIComponent(`artist:${props.artistName}`);
           const searchResponse = await axios.get(
             `https://api.spotify.com/v1/search?q=${query}&type=artist&limit=1`,
@@ -147,14 +173,12 @@
               },
             }
           );
-  
-          // Verificamos si hay resultados
           if (searchResponse.data.artists.items.length > 0) {
             const foundArtist = searchResponse.data.artists.items[0];
-            // Guardamos la información básica del artista
             artist.value = foundArtist;
+            // Llamada a Last.fm usando el nombre obtenido de Spotify
+            fetchLastFmData(foundArtist.name);
   
-            // Obtenemos el top tracks del artista (mercado = US, por ejemplo)
             const topTracksResponse = await axios.get(
               `https://api.spotify.com/v1/artists/${foundArtist.id}/top-tracks?market=US`,
               {
@@ -182,6 +206,7 @@
       return {
         artist,
         topTracks,
+        lastFmData,
         loading,
         error,
       };
