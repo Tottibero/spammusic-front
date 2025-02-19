@@ -1,13 +1,13 @@
 <template>
-  <div :class="{ 'menu-open': menuVisible }" class="max-w-[100rem] mx-auto mt-10 px-4">
-    <div class="bg-white shadow-lg rounded-lg p-6 mb-10">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+  <div :class="{ 'menu-open': menuVisible }" class="w-full max-w-[90%] sm:max-w-full mx-auto mt-10">
+    <div class="bg-white shadow-lg rounded-lg p-4 sm:p-6 mb-10 max-w-[90vw] md:max-w-[100rem] mx-auto">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
         <!-- Estadísticas de la App -->
-        <div class="text-center border-b md:border-b-0 md:border-r border-gray-200 pb-4 md:pb-0 md:pr-4">
-          <h3 class="text-3xl font-bold mb-4 text-gray-900">
+        <div class="text-center md:border-r border-gray-200 pb-4 md:pb-0 md:pr-4 text-sm sm:text-base md:text-lg">
+          <h3 class="text-2xl md:text-3xl font-bold mb-4 text-gray-900">
             Estadísticas de discos
           </h3>
-          <p class="text-lg text-gray-900">
+          <p class="text-lg md:text-xl text-gray-900">
             Total de discos:
             <span class="font-semibold text-gray-900">{{ stats.totalDiscs }}</span>
           </p>
@@ -16,23 +16,20 @@
             <span class="font-semibold text-gray-900">{{ stats.totalVotes }}</span>
           </p>
           <!-- Aquí insertamos el gráfico de barras -->
-          <div class="mt-6">
+          <div class="mt-6 w-full max-w-[90%] sm:max-w-full mx-auto overflow-hidden">
             <RatingBarChart :rating-distribution="ratingDistribution" />
           </div>
         </div>
         <!-- Top Usuarios -->
         <div class="text-center">
-          <h3 class="text-3xl font-bold mb-4 text-gray-900">Top usuarios</h3>
+          <h3 class="text-2xl md:text-3xl font-bold mb-4 text-gray-900">Top usuarios</h3>
           <div class="mb-4">
-            <h4 class="text-2xl font-semibold mb-2 text-gray-900">
+            <h4 class="text-lg md:text-2xl font-semibold mb-2 text-gray-900">
               Más discos votados
             </h4>
             <ul class="list-none">
-              <li
-                v-for="(user, index) in topUsersByRates"
-                :key="user.user.id"
-                class="flex items-center justify-center mb-2"
-              >
+              <li v-for="(user, index) in topUsersByRates" :key="user.user.id"
+                class="flex items-center justify-center mb-2 text-sm md:text-base">
                 <span class="mr-2" v-html="getTrophyIcon(index)"></span>
                 <span class="font-medium">{{ user.user.username }}</span>
                 <span class="ml-2 text-gray-600">- {{ user.rateCount }} votos</span>
@@ -40,15 +37,12 @@
             </ul>
           </div>
           <div>
-            <h4 class="text-2xl font-semibold mb-2 text-gray-900">
+            <h4 class="text-lg md:text-2xl font-semibold mb-2 text-gray-900">
               Más portadas votadas
             </h4>
             <ul class="list-none">
-              <li
-                v-for="(user, index) in topUsersByCover"
-                :key="user.user.id"
-                class="flex items-center justify-center mb-2"
-              >
+              <li v-for="(user, index) in topUsersByCover" :key="user.user.id"
+                class="flex items-center justify-center mb-2">
                 <span class="mr-2" v-html="getTrophyIcon(index)"></span>
                 <span class="font-medium">{{ user.user.username }}</span>
                 <span class="ml-2 text-gray-600">- {{ user.totalCover }} votos</span>
@@ -59,95 +53,70 @@
       </div>
     </div>
 
-    <h2 class="text-3xl font-bold text-gray-900 text-center mb-6">Mejores discos</h2>
+    <h2 class="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-6">Mejores discos</h2>
     <!-- Sección de álbumes mejor valorados -->
     <div class="flex justify-center gap-4 mb-6 font-semibold">
-      <button
-        @click="selectedPeriod = 'week'"
+      <button @click="selectedPeriod = 'week'"
         :class="selectedPeriod === 'week'
           ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold'
           : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'"
-        class="px-5 py-2 rounded-full shadow-md"
-      >
+        class="px-5 py-2 rounded-full shadow-md">
         Semana
       </button>
-      <button
-        @click="selectedPeriod = 'month'"
+      <button @click="selectedPeriod = 'month'"
         :class="selectedPeriod === 'month'
           ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold'
           : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'"
-        class="px-5 py-2 rounded-full shadow-md"
-      >
+        class="px-5 py-2 rounded-full shadow-md">
         Mes
       </button>
-      <button
-        @click="selectedPeriod = 'year'"
+      <button @click="selectedPeriod = 'year'"
         :class="selectedPeriod === 'year'
           ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold'
           : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'"
-        class="px-5 py-2 rounded-full shadow-md"
-      >
+        class="px-5 py-2 rounded-full shadow-md">
         Año
       </button>
-      <button
-        @click="{
-          selectedPeriod = 'all';
-          fetchDiscs();
-        }"
+      <button @click="{
+        selectedPeriod = 'all';
+        fetchDiscs();
+      }"
         :class="selectedPeriod === 'all'
           ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold'
           : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'"
-        class="px-5 py-2 rounded-full shadow-md"
-      >
+        class="px-5 py-2 rounded-full shadow-md">
         Todos
       </button>
     </div>
 
     <!-- Select para elegir el rango (solo para semana, mes o año) -->
     <div v-if="selectedPeriod !== 'all'" class="mb-6 flex justify-center">
-  <div class="relative w-44">
-    <select 
-      v-model="selectedOption"
-      @change="fetchDiscs"
-      class="appearance-none w-full px-4 py-3 border font-semibold bg-gradient-to-r from-[#d9e021] to-[#fcee21] border-[#d9e021] rounded-full shadow-md bg-white text-gray-800"
-    >
-      <option v-for="option in optionsForSelect" :key="option.label" :value="option">
-        {{ option.label }}
-      </option>
-    </select>
-    <!-- Icono de flecha -->
-    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-      <svg class="w-5 h-5 text-gray-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-      </svg>
+      <div class="relative w-44">
+        <select v-model="selectedOption" @change="fetchDiscs"
+          class="appearance-none w-full px-4 py-3 border font-semibold bg-gradient-to-r from-[#d9e021] to-[#fcee21] border-[#d9e021] rounded-full shadow-md bg-white text-gray-800">
+          <option v-for="option in optionsForSelect" :key="option.label" :value="option">
+            {{ option.label }}
+          </option>
+        </select>
+        <!-- Icono de flecha -->
+        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+          <svg class="w-5 h-5 text-gray-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
 
     <!-- Grid de Discos -->
     <div class="grid gap-6">
-      <DiscCard
-        v-for="disc in discs"
-        :key="disc.id"
-        :id="disc.id"
-        :ep="disc.ep"
-        :image="disc.image"
-        :name="disc.name"
-        :releaseDate="disc.releaseDate"
-        :artistName="disc.artist?.name"
-        :genreName="disc.genre?.name"
-        :genreColor="disc.genre?.color"
-        :link="disc.link"
-        :averageRate="disc.averageRate"
-        :averageCover="disc.averageCover"
-        :rate="disc.userRate?.rate"
-        :cover="disc.userRate?.cover"
-        :isNew="!disc.userRate"
-        :userDiscRate="disc.userRate?.id"
-        :favoriteId="disc.userFavoriteId"
-        :pendingId="disc.pendingId"
-      />
+      <DiscCard v-for="disc in discs" :key="disc.id" :id="disc.id" :ep="disc.ep" :image="disc.image" :name="disc.name"
+        :releaseDate="disc.releaseDate" :artistName="disc.artist?.name" :genreName="disc.genre?.name"
+        :genreColor="disc.genre?.color" :link="disc.link" :averageRate="disc.averageRate"
+        :averageCover="disc.averageCover" :rate="disc.userRate?.rate" :cover="disc.userRate?.cover"
+        :isNew="!disc.userRate" :userDiscRate="disc.userRate?.id" :favoriteId="disc.userFavoriteId"
+        :pendingId="disc.pendingId" />
     </div>
   </div>
 </template>
@@ -362,7 +331,14 @@ export default defineComponent({
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
-select:hover {
-  background-color: #f3f4f6; /* Gris claro */
+@media (max-width: 393px) {
+  .max-w-\[100rem\] {
+    max-width: 393px !important;
+    margin: 0 auto;
+  }
+
+  .bg-white {
+    padding: 1rem !important;
+  }
 }
 </style>
