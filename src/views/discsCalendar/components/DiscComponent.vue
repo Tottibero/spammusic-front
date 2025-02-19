@@ -283,6 +283,7 @@ import {
 import type { PropType } from "vue";
 import { updateDisc, deleteDisc } from "@services/discs/discs";
 import { updateArtist, postArtist } from "@services/artist/artist";
+import { postPendingService , deletePendingService } from "@services/pendings/pendings";
 import Swal from "sweetalert2";
 import axios from "axios";
 import SpotifyArtistButton from "@components/SpotifyArtistButton.vue";
