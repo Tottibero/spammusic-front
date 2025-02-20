@@ -174,7 +174,7 @@
           class="w-1/3 gap-2 bg-gray-900 text-white font-bold py-2 px-2 rounded-lg shadow-sm border-4 border-transparent hover:border-gray-900 hover:bg-gradient-to-l from-gray-600 to-gray-900 flex items-center justify-center"
         >
         <i class="fa-solid fa-comment-dots text-white text-sm gap"></i>
-          <span>Notas</span>
+          <span>Notas <span v-if="commentCount > 0">{{ commentCount }}</span></span>
         </button>
 
 
@@ -295,6 +295,7 @@ export default defineComponent({
     ep: { type: Boolean, required: false },
     favoriteId: { type: String, required: false },
     pendingId: { type: String, required: false },
+    commentCount: { type: Number, required: false, default: null },
   },
   setup(props) {
     const localRating = ref({ rate: props.rate, cover: props.cover });
@@ -303,7 +304,7 @@ export default defineComponent({
     const isEP = computed(() => props.ep);
     const hasVoted = ref(!!props.userDiscRate);
     const userDiscRateId = ref(props.userDiscRate);
-
+    const commentCount = ref(props.commentCount);
     const formattedDate = computed(() => {
       const date = new Date(props.releaseDate);
       return date.toLocaleDateString("es-ES", {
@@ -492,6 +493,7 @@ export default defineComponent({
       showComentsModal,
       openComentsModal,
       closeComentsModal,
+      commentCount
     };
   },
 });

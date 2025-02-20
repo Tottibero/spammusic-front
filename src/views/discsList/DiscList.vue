@@ -72,7 +72,7 @@
         :genreColor="disc.genre?.color" :link="disc.link" :averageRate="disc.averageRate"
         :averageCover="disc.averageCover" :rate="disc.userRate?.rate" :cover="disc.userRate?.cover"
         :isNew="!disc.userRate" :userDiscRate="disc.userRate?.id" :favoriteId="disc.favoriteId"
-        :pendingId="disc.pendingId" />
+        :pendingId="disc.pendingId" :comment-count="disc.commentCount" />
     </div>
 
     <!-- Elemento para disparar la carga adicional -->
