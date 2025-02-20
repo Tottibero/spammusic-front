@@ -150,7 +150,7 @@
       <div class="flex mt-2 space-x-2 w-full">
         <button
           @click="toggleVotes"
-          class="w-1/2 bg-gray-900 text-white font-bold py-2 px-2 rounded-lg shadow-sm border-4 border-transparent hover:border-gray-900 hover:bg-gradient-to-l from-gray-600 to-gray-900 flex items-center justify-center space-x-2"
+          class="w-1/3 bg-gray-900 text-white font-bold py-2 px-1 rounded-lg shadow-sm border-4 border-transparent hover:border-gray-900 hover:bg-gradient-to-l from-gray-600 to-gray-900 flex items-center justify-center space-x-2"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -170,17 +170,20 @@
         </button>
 
         <button
-          @click="openComentsModal"
-          class="w-1/3 gap-2 bg-gray-900 text-white font-bold py-2 px-2 rounded-lg shadow-sm border-4 border-transparent hover:border-gray-900 hover:bg-gradient-to-l from-gray-600 to-gray-900 flex items-center justify-center"
-        >
-        <i class="fa-solid fa-comment-dots text-white text-sm gap"></i>
-          <span>Notas <span v-if="commentCount > 0">{{ commentCount }}</span></span>
-        </button>
+  @click="openComentsModal"
+  class="w-1/3 gap-2 bg-gray-900 text-white font-bold py-2 px-2 rounded-lg shadow-sm border-4 border-transparent hover:border-gray-900 hover:bg-gradient-to-l from-gray-600 to-gray-900 flex items-center justify-center"
+>
+  <i class="fa-solid fa-comment-dots text-white text-sm"></i>
+  <span class="flex items-center">
+    Notas
+    <span v-if="commentCount > 0" class="ml-1 text-[10px] text-[#d9e021]">(<span class="inline">{{ commentCount }}</span>)</span>
+  </span>
+</button>
 
 
         <button
           @click="submitRating"
-          class="w-1/3 bg-gray-200 text-gray-700 font-bold py-2 px-2 rounded-lg shadow-sm border-4 border-transparent hover:border-[#d9e021] hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] flex items-center justify-center space-x-2"
+          class="w-1/3 bg-gray-200 text-gray-700 font-bold py-2 px-1 rounded-lg shadow-sm border-4 border-transparent hover:border-[#d9e021] hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] flex items-center justify-center space-x-2"
         >
           <template v-if="hasVoted">
             <i class="fa-solid fa-arrows-rotate text-gray-700 text-lg"></i>
