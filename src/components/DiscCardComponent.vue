@@ -166,12 +166,20 @@
               d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z"
             />
           </svg>
-          <span>{{ showVotes ? "Ocultar" : "Votaciones" }}</span>
+          <span>{{ showVotes ? "Ocultar" : "Votos" }}</span>
         </button>
 
         <button
+          @click="openComentsModal"
+          class="w-1/3 bg-gray-900 text-white font-bold py-2 px-4 rounded-lg shadow-sm border-4 border-transparent hover:border-gray-900 hover:bg-gradient-to-l from-gray-600 to-gray-900 flex items-center justify-center"
+        >
+          <span>Notas</span>
+        </button>
+
+
+        <button
           @click="submitRating"
-          class="w-1/2 bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-lg shadow-sm border-4 border-transparent hover:border-[#d9e021] hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] flex items-center justify-center space-x-2"
+          class="w-1/3 bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-lg shadow-sm border-4 border-transparent hover:border-[#d9e021] hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] flex items-center justify-center space-x-2"
         >
           <template v-if="hasVoted">
             <i class="fa-solid fa-arrows-rotate text-gray-700 text-lg"></i>
@@ -222,6 +230,16 @@
         <ArtistDetail :disc-name="name" :artistName="artistName" @close="closeArtistDetail" />
       </div>
     </div>
+
+    <div
+      v-if="showComentsModal"
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+    >
+      <div class="p-4 relative max-w-3xl w-full">
+        <ComentsModal :discId="discData.id" @close="closeComentsModal" />
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -230,6 +248,7 @@ import { defineComponent, ref, computed, watchEffect } from "vue";
 import defaultImage from "/src/assets/disco.png";
 import DiscDetail from "./DiscDetail.vue";
 import ArtistDetail from "./ArtistDetail.vue";
+import ComentsModal from "./ComentsModal.vue"; // Nuevo componente
 import {
   getDiscRates,
   postRateService,
@@ -256,7 +275,7 @@ interface Vote {
 }
 
 export default defineComponent({
-  components: { DiscDetail, ArtistDetail },
+  components: { DiscDetail, ArtistDetail, ComentsModal },
   props: {
     id: { type: String, required: true },
     image: { type: String, required: true },
@@ -284,7 +303,6 @@ export default defineComponent({
     const hasVoted = ref(!!props.userDiscRate);
     const userDiscRateId = ref(props.userDiscRate);
 
-    // Formatear la fecha de lanzamiento
     const formattedDate = computed(() => {
       const date = new Date(props.releaseDate);
       return date.toLocaleDateString("es-ES", {
@@ -412,7 +430,6 @@ export default defineComponent({
       }
     };
 
-    // --- Modal para DiscDetail ---
     const showDiscDetail = ref(false);
     const openDiscDetail = () => {
       showDiscDetail.value = true;
@@ -421,7 +438,6 @@ export default defineComponent({
       showDiscDetail.value = false;
     };
 
-    // --- Modal para ArtistDetail ---
     const showArtistDetail = ref(false);
     const openArtistDetail = () => {
       showArtistDetail.value = true;
@@ -430,7 +446,15 @@ export default defineComponent({
       showArtistDetail.value = false;
     };
 
-    // Objeto con la información del disco para DiscDetail
+    // Variables y funciones para el modal de ComentsModal
+    const showComentsModal = ref(false);
+    const openComentsModal = () => {
+      showComentsModal.value = true;
+    };
+    const closeComentsModal = () => {
+      showComentsModal.value = false;
+    };
+
     const discData = computed(() => ({
       id: props.id,
       name: props.name,
@@ -461,10 +485,12 @@ export default defineComponent({
       closeDiscDetail,
       showDiscDetail,
       discData,
-      // Modal de ArtistDetail
       showArtistDetail,
       openArtistDetail,
       closeArtistDetail,
+      showComentsModal,
+      openComentsModal,
+      closeComentsModal,
     };
   },
 });
