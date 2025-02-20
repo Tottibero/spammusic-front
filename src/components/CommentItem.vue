@@ -37,7 +37,7 @@
       <div
         class="mt-2 flex space-x-2"
       >
-        <button @click="toggleReplyForm" class="text-blue-500 text-xs">
+        <button @click="toggleReplyForm" class="text-blue-500 text-xs" v-if="!localComment.isDeleted">
           Responder
         </button>
         <button @click="startEdit" class="text-green-500 text-xs"
