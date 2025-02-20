@@ -1,5 +1,5 @@
 <template>
-<div :class="depth > 0 ? 'ml-4 sm:ml-6 border-l pl-3' : ''" class="space-y-2">
+<div :class="depth > 0 ? 'ml-6 border-l pl-3' : ''" class="space-y-2 text-left">
     <!-- Formulario de edición -->
     <div v-if="showEditForm" class="p-3 bg-gray-100 rounded">
       <input
@@ -18,14 +18,14 @@
           @click="cancelEdit"
           class="bg-gray-500 text-white px-3 py-1 rounded text-xs hover:bg-gray-600"
         >
-          Cancelar
+          Cancelar 
         </button>
       </div>
     </div>
 
     <!-- Vista del comentario (si no está en edición) -->
-    <div v-else class="p-3 bg-gray-100 rounded">
-      <p class="text-gray-800">{{ localComment.comment }}</p>
+    <div v-else class="p-3 bg-gray-100 rounded text-left">
+      <p class="text-gray-800 text-left">{{ localComment.comment }}</p>
 
       <!-- Mostrar autor y fecha solo si el comentario NO está eliminado -->
       <div v-if="!localComment.isDeleted" class="text-xs text-gray-500 mt-1">
