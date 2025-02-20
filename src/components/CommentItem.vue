@@ -1,5 +1,5 @@
 <template>
-  <div :class="depth > 0 ? 'ml-6 border-l pl-3' : ''" class="space-y-2">
+<div :class="depth > 0 ? 'ml-4 sm:ml-6 border-l pl-3' : ''" class="space-y-2">
     <!-- Formulario de edición -->
     <div v-if="showEditForm" class="p-3 bg-gray-100 rounded">
       <input
