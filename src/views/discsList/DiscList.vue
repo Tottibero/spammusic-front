@@ -19,7 +19,7 @@
     <div class="mb-6 flex justify-start space-x-2">
       <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
         :class="viewMode === 'all'
-          ? 'bg-gray-700 text-white'
+          ? 'bg-gray-800 text-white'
           : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
           ">
         <input type="radio" v-model="viewMode" value="all" class="hidden" />
