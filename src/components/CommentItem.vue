@@ -35,16 +35,19 @@
 
       <!-- Botones: Responder, Editar, Borrar -->
       <div
-        v-if="!localComment.isDeleted && localComment.user.id === user.id"
         class="mt-2 flex space-x-2"
       >
         <button @click="toggleReplyForm" class="text-blue-500 text-xs">
           Responder
         </button>
-        <button @click="startEdit" class="text-green-500 text-xs">
+        <button @click="startEdit" class="text-green-500 text-xs"
+        v-if="!localComment.isDeleted && localComment.user.id === user.id"
+        >
           Editar
         </button>
-        <button @click="deleteComment" class="text-red-500 text-xs">
+        <button @click="deleteComment" class="text-red-500 text-xs"
+        v-if="!localComment.isDeleted && localComment.user.id === user.id"
+        >
           Borrar
         </button>
       </div>
