@@ -1,69 +1,42 @@
 <template>
-  <div
-    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-  >
-    <div
-      class="bg-white rounded-lg shadow-lg relative max-w-2xl w-full flex flex-col h-[90vh]"
-    >
-      <!-- Botón para cerrar el modal -->
-      <button
-        @click="$emit('close')"
-        class="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M6 18L18 6M6 6l12 12"
-          />
-        </svg>
-      </button>
-
-      <!-- Cabecera -->
-      <div class="border-b px-4 py-3">
-        <h2 class="text-xl font-bold">Notas</h2>
-      </div>
-
-      <!-- Lista de comentarios en forma de árbol -->
-      <div class="flex-1 overflow-y-auto px-4 py-3 space-y-4">
-        <CommentItem
-          v-for="comment in comments"
-          :key="comment.id"
-          :comment="comment"
-          :disc-id="discId"
-          :depth="0"
-          @reply-added="onReplyAdded"
-          @deleted="handleCommentDeleted"
-          @comment-updated="handleCommentUpdated"
-        />
-      </div>
-
-      <!-- Formulario para añadir un comentario de primer nivel -->
-      <div class="border-t px-4 py-3">
-        <form @submit.prevent="submitTopComment" class="flex space-x-2">
-          <input
-            v-model="topCommentText"
-            type="text"
-            placeholder="Escribe un comentario..."
-            class="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            type="submit"
-            class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            Enviar
+  <transition name="fade" appear>
+    <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+      <transition name="scale">
+        <div ref="modal"
+          class="bg-white rounded-lg shadow-lg relative w-full max-w-2xl sm:max-w-lg md:max-w-xl lg:max-w-2xl flex flex-col max-h-[90vh] sm:max-h-[90vh] h-auto">
+          <!-- Botón para cerrar el modal -->
+          <button @click="$emit('close')"
+            class="absolute top-2 right-2 text-white hover:text-[#d9e021] bg-gray-700 hover:bg-gray-800 rounded-full w-10 h-10 flex items-center justify-center shadow-md transition-all">
+            ✖
           </button>
-        </form>
-      </div>
+
+
+          <!-- Cabecera -->
+          <div class="border-b px-4 py-4">
+            <h2 class="text-xl font-bold">Notas</h2>
+          </div>
+
+          <!-- Lista de comentarios en forma de árbol -->
+          <div class="flex-1 overflow-y-auto px-4 py-3 space-y-4 max-h-[70vh] sm:max-h-[80vh]">
+            <CommentItem v-for="comment in comments" :key="comment.id" :comment="comment" :disc-id="discId" :depth="0"
+              @reply-added="onReplyAdded" @deleted="handleCommentDeleted" @comment-updated="handleCommentUpdated" />
+          </div>
+
+          <!-- Formulario para añadir un comentario de primer nivel -->
+          <div class="bg-gray-900 border-t px-4 py-3">
+            <form @submit.prevent="submitTopComment" class="flex space-x-2">
+              <input v-model="topCommentText" type="text" placeholder="Escribe un comentario..."
+                class="flex-1 border rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#d9e021]" />
+              <button type="submit"
+                class="bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-900 font-semibold px-4 py-2 rounded-lg hover:bg-gradient-to-r from-[#d9e021] to-[#fcee21] hover:brightness-95 transition-all">
+                Enviar
+              </button>
+            </form>
+          </div>
+        </div>
+      </transition>
     </div>
-  </div>
+  </transition>
 </template>
 
 <script lang="ts">
@@ -208,3 +181,41 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease-out;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Animación de escala SOLO en el modal */
+.scale-enter-active,
+.scale-leave-active {
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.scale-enter-from {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.scale-enter-to {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.scale-enter-from {
+  opacity: 0;
+  transform: scale(0.9) translateY(10px);
+}
+
+.scale-leave-to {
+  opacity: 0;
+  transform: scale(0.9) translateY(10px);
+}
+</style>

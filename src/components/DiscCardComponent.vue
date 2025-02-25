@@ -1,21 +1,14 @@
 <template>
   <div class="flex flex-wrap justify-center gap-4">
     <!-- Tarjeta individual -->
-    <div
-      class="card w-full max-w-[20rem] border rounded shadow-lg bg-white flex flex-col mx-auto p-2 relative"
-    >
+    <div class="card w-full max-w-[20rem] border rounded shadow-lg bg-white flex flex-col mx-auto p-2 relative">
       <div class="flex items-center justify-between px-2">
         <p class="text-xs text-gray-500">{{ formattedDate }}</p>
-        <p
-          v-if="isEP"
-          class="px-2 py-1 rounded-full text-xs font-medium text-white bg-blue-500 text-center shadow-sm"
-        >
+        <p v-if="isEP" class="px-2 py-1 rounded-full text-xs font-medium text-white bg-blue-500 text-center shadow-sm">
           EP
         </p>
-        <p
-          class="px-2 py-1 rounded-full text-xs font-medium text-white text-center shadow-sm"
-          :style="{ backgroundColor: genreColor || 'grey' }"
-        >
+        <p class="px-2 py-1 rounded-full text-xs font-medium text-white text-center shadow-sm"
+          :style="{ backgroundColor: genreColor || 'grey' }">
           {{ genreName || "Sin género" }}
         </p>
       </div>
@@ -23,24 +16,16 @@
       <!-- Imagen y estadísticas -->
       <div class="flex items-center mt-3">
         <div class="flex flex-col items-center">
-          <img
-            :src="computedImage"
-            :alt="name"
-            class="w-24 h-24 object-cover rounded mb-2 shadow-md cursor-zoom-in hover:opacity-80"
-            @click="openImage"
-          />
+          <img :src="computedImage" :alt="name"
+            class="w-24 h-24 object-cover rounded mb-2 shadow-md cursor-zoom-in hover:opacity-80" @click="openImage" />
           <div class="flex space-x-2 mt-1">
-            <div
-              class="flex flex-col items-center w-16 h-12 border rounded-lg shadow-md bg-gray-100 mb-1"
-            >
+            <div class="flex flex-col items-center w-16 h-12 border rounded-lg shadow-md bg-gray-100 mb-1">
               <p class="text-sm font-bold text-blue-600 mt-1">
                 {{ averageRate ? averageRate.toFixed(2) : "-" }}
               </p>
               <p class="text-xs text-gray-700">Disco</p>
             </div>
-            <div
-              class="flex flex-col items-center w-16 h-12 border rounded-lg shadow-md bg-gray-100 mb-1"
-            >
+            <div class="flex flex-col items-center w-16 h-12 border rounded-lg shadow-md bg-gray-100 mb-1">
               <p class="text-sm font-bold text-green-600 mt-1">
                 {{ averageCover ? averageCover.toFixed(2) : "-" }}
               </p>
@@ -53,65 +38,47 @@
         <div class="ml-2 flex flex-1 flex-col">
           <!-- Título y artista -->
           <div class="flex justify-between items-center">
-            <h2
-              @click="openDiscDetail"
-              class="text-sm text-gray-900 font-semibold truncate cursor-pointer"
-            >
+            <h2 @click="openDiscDetail" class="text-sm text-gray-900 font-semibold truncate cursor-pointer">
               {{ name }}
             </h2>
           </div>
           <div class="flex justify-between items-center">
             <!-- El nombre del artista se hace clickable para abrir ArtistDetail -->
-            <p
-              @click="openArtistDetail"
-              class="text-xs text-gray-500 font-semibold italic cursor-pointer hover:underline"
-            >
+            <p @click="openArtistDetail"
+              class="text-xs text-gray-500 font-semibold italic cursor-pointer hover:underline">
               {{ artistName }}
             </p>
           </div>
 
           <!-- Botón de Escuchar -->
           <div class="flex items-center space-x-2 mt-1">
-            <a
-              v-if="link"
-              :href="link"
-              target="_blank"
-              class="px-2 py-1 rounded-full text-xs font-medium text-white text-center shadow-sm bg-green-500 hover:bg-green-600 hover:text-white transition-all w-1/2 text-left"
-            >
+            <a v-if="link" :href="link" target="_blank"
+              class="px-2 py-1 rounded-full text-xs font-medium text-white text-center shadow-sm bg-green-500 hover:bg-green-600 hover:text-white transition-all w-1/2 text-left">
               Escuchar
             </a>
 
             <!-- Íconos: corazón y bookmark -->
             <div class="flex space-x-2 items-center">
               <div class="relative group">
-                <font-awesome-icon
-                  :icon="['fas', 'heart']"
-                  class="h-7 w-5 cursor-pointer transition-all duration-300 ease-in-out"
-                  :class="{
+                <font-awesome-icon :icon="['fas', 'heart']"
+                  class="h-7 w-5 cursor-pointer transition-all duration-300 ease-in-out" :class="{
                     'text-red-500 scale-110': favoriteId,
                     'text-gray-500 hover:text-red-400': !favoriteId,
-                  }"
-                  @click="toggleHeart"
-                />
+                  }" @click="toggleHeart" />
                 <span
-                  class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs font-semibold text-white bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                >
+                  class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 text-[10px] font-semibold text-white bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   Favoritos
                 </span>
               </div>
 
               <div class="relative group cursor-pointer" @click="toggleBookmark">
-                <font-awesome-icon
-                  :icon="['fas', 'bookmark']"
-                  class="h-5 w-5 mt-1 cursor-pointer transition-all duration-300 ease-in-out"
-                  :class="{
+                <font-awesome-icon :icon="['fas', 'bookmark']"
+                  class="h-5 w-5 mt-1 cursor-pointer transition-all duration-300 ease-in-out" :class="{
                     'text-yellow-400 scale-110': pendingId,
                     'text-gray-500 hover:text-yellow-300': !pendingId,
-                  }"
-                />
+                  }" />
                 <span
-                  class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs font-semibold text-white bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                >
+                  class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 text-[10px] font-semibold text-white bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   Pendientes
                 </span>
               </div>
@@ -122,25 +89,13 @@
           <div class="flex flex-col space-y-1">
             <label class="text-xs text-gray-500 translate-x-1.5">
               Disco:
-              <input
-                type="number"
-                step="0.01"
-                v-model="localRating.rate"
-                min="1"
-                max="10"
-                class="px-0 py-1 border w-16 rounded text-xs font-bold text-center text-gray-500 mt-3 mb-1 ml-0.5"
-              />
+              <input type="number" step="0.01" v-model="localRating.rate" min="1" max="10"
+                class="px-0 py-1 border w-16 rounded text-xs font-bold text-center text-gray-500 mt-3 mb-1 ml-0.5" />
             </label>
             <label class="text-xs text-gray-500">
               Portada:
-              <input
-                type="number"
-                step="0.01"
-                v-model="localRating.cover"
-                min="1"
-                max="10"
-                class="px-0 py-1 w-16 border font-bold rounded text-center text-xs mb-1 ml-0.5"
-              />
+              <input type="number" step="0.01" v-model="localRating.cover" min="1" max="10"
+                class="px-0 py-1 w-16 border font-bold rounded text-center text-xs mb-1 ml-0.5" />
             </label>
           </div>
         </div>
@@ -148,43 +103,28 @@
 
       <!-- Botones para votos y enviar calificación -->
       <div class="flex mt-2 space-x-2 w-full">
-        <button
-          @click="toggleVotes"
-          class="w-1/3 bg-gray-900 text-white font-bold py-2 px-1 rounded-lg shadow-sm border-4 border-transparent hover:border-gray-900 hover:bg-gradient-to-l from-gray-600 to-gray-900 flex items-center justify-center space-x-2"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="size-6"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z"
-            />
+        <button @click="toggleVotes"
+          class="w-1/3 bg-gray-900 text-white font-bold py-2 px-1 rounded-lg shadow-md border-4 border-transparent hover:border-gray-900 hover:bg-gradient-to-l from-gray-600 to-gray-900 flex items-center justify-center space-x-1">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="size-5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z" />
           </svg>
           <span>{{ showVotes ? "Ocultar" : "Votos" }}</span>
         </button>
 
-        <button
-  @click="openComentsModal"
-  class="w-1/3 gap-2 bg-gray-900 text-white font-bold py-2 px-2 rounded-lg shadow-sm border-4 border-transparent hover:border-gray-900 hover:bg-gradient-to-l from-gray-600 to-gray-900 flex items-center justify-center"
->
-  <i class="fa-solid fa-comment-dots text-white text-sm"></i>
-  <span class="flex items-center">
-    Notas
-    <span v-if="commentCount > 0" class="ml-1 text-[10px] text-[#d9e021]">(<span class="inline">{{ commentCount }}</span>)</span>
-  </span>
-</button>
+        <button @click="openComentsModal"
+          class="w-1/3 gap-2 bg-gray-900 text-white font-bold py-2 px-2 rounded-lg shadow-md border-4 border-transparent hover:border-gray-900 hover:bg-gradient-to-l from-gray-600 to-gray-900 flex items-center justify-center">
+          <i class="fa-solid fa-comment-dots text-white text-sm"></i>
+          <span class="flex items-center">
+            Notas
+            <span v-if="commentCount > 0" class="ml-1 text-[10px] text-[#d9e021]">(<span class="inline">{{ commentCount
+                }}</span>)</span>
+          </span>
+        </button>
 
-
-        <button
-          @click="submitRating"
-          class="w-1/3 bg-gray-200 text-gray-700 font-bold py-2 px-1 rounded-lg shadow-sm border-4 border-transparent hover:border-[#d9e021] hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] flex items-center justify-center space-x-2"
-        >
+        <button @click="submitRating"
+          class="w-1/3 bg-gray-200 text-gray-700 font-bold py-2 px-1 rounded-lg shadow-md border-4 border-transparent hover:border-[#d9e021] hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] flex items-center justify-center space-x-1">
           <template v-if="hasVoted">
             <i class="fa-solid fa-arrows-rotate text-gray-700 text-lg"></i>
           </template>
@@ -201,11 +141,7 @@
           No hay votos disponibles.
         </p>
         <ul v-else class="space-y-1">
-          <li
-            v-for="vote in votes"
-            :key="vote.id"
-            class="text-xs text-gray-700 border-b pb-1"
-          >
+          <li v-for="vote in votes" :key="vote.id" class="text-xs text-gray-700 border-b pb-1">
             <strong>{{ vote.user.username }}</strong>: Rate: {{ vote.rate }}, Cover:
             {{ vote.cover }}
           </li>
@@ -213,32 +149,23 @@
       </div>
     </div>
 
-<!-- Modal para mostrar DiscDetail -->
-<div
-  v-if="showDiscDetail"
-  class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
->
-  <div class="p-6 relative max-w-3xl w-full">
-    <!-- Se pasa la información del disco -->
-    <DiscDetail :disc="discData" @close="closeDiscDetail" />
-  </div>
-</div>
+    <!-- Modal para mostrar DiscDetail -->
+    <div v-if="showDiscDetail" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div class="p-6 relative max-w-3xl w-full">
+        <!-- Se pasa la información del disco -->
+        <DiscDetail :disc="discData" @close="closeDiscDetail" />
+      </div>
+    </div>
 
     <!-- Modal para mostrar ArtistDetail -->
-    <div
-      v-if="showArtistDetail"
-       class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-    >
-    <div class="p-4 relative max-w-3xl w-full">
+    <div v-if="showArtistDetail" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div class="p-4 relative max-w-3xl w-full">
         <!-- Se pasa el nombre del artista al componente ArtistDetail -->
         <ArtistDetail :disc-name="name" :artistName="artistName" @close="closeArtistDetail" />
       </div>
     </div>
 
-    <div
-      v-if="showComentsModal"
-      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-    >
+    <div v-if="showComentsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div class="p-4 relative max-w-3xl w-full">
         <ComentsModal :discId="discData.id" @close="closeComentsModal" />
       </div>
