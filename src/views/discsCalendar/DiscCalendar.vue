@@ -1,84 +1,120 @@
 <template>
-  <div :class="{ 'menu-open': menuVisible }" class="max-w-7xl mx-auto mt-10 px-4 sm:px-6 lg:px-8">
-    <h1 class="text-4xl font-bold mb-8 text-center text-gray-900">Calendario</h1>
+  <div
+    :class="{ 'menu-open': menuVisible }"
+    class="max-w-7xl mx-auto mt-10 px-4 sm:px-6 lg:px-8"
+  >
+    <h1 class="text-4xl font-bold mb-8 text-center text-gray-900">
+      Calendario
+    </h1>
+
+    <!-- Filtros -->
+    <DiscFilters
+      :searchQuery="searchQuery"
+      :selectedGenre="selectedGenre"
+      :genres="genres"
+      :showWeekPicker="false"
+      @update:searchQuery="searchQuery = $event"
+      @update:selectedGenre="selectedGenre = $event"
+      @reset-and-fetch="resetAndFetch"
+    />
+
     <div>
-      <div class="flex flex-wrap justify-center gap-2 mb-6 overflow-x-auto ">
-        <button v-for="(month, index) in months" :key="index" @click="selectMonth(index)" :class="{
-          'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-[#211d1d] font-semibold': selectedMonth === index,
-          'bg-gray-200 text-gray-800 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]': selectedMonth !== index
-        }"
-          class="px-4 py-2 rounded-full transition-all duration-300 whitespace-nowrap shadow-md mb-1 font-semibold text-gray-900">
+      <div class="flex flex-wrap justify-center gap-2 mb-6 overflow-x-auto">
+        <button
+          v-for="(month, index) in months"
+          :key="index"
+          @click="selectMonth(index)"
+          :class="{
+            'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-[#211d1d] font-semibold':
+              selectedMonth === index,
+            'bg-gray-200 text-gray-800 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]':
+              selectedMonth !== index,
+          }"
+          class="px-4 py-2 rounded-full transition-all duration-300 whitespace-nowrap shadow-md mb-1 font-semibold text-gray-900"
+        >
           {{ month }}
         </button>
       </div>
 
-      <!-- Lista de discos agrupados -->
-      <div v-for="(group, index) in groupedDiscs" :key="group.releaseDate" class="mb-8">
-        <!-- Encabezado del grupo con botón de toggle -->
+      <!-- Lista de discos agrupados (resto del template) -->
+      <div
+        v-for="(group, index) in filteredGroupedDiscs"
+        :key="group.releaseDate"
+        class="mb-8"
+      >
+        <!-- ... (resto del contenido del v-for, incluyendo el encabezado del grupo, el botón de toggle, etc.) ... -->
         <div
           class="flex justify-between items-center px-5 py-3 rounded-full cursor-pointer bg-gray-200 transition-all duration-300 shadow-md"
-          :class="groupState[index]
-            ? 'bg-gradient-to-r from-gray-900 to-gray-700'
-            : 'hover:bg-gradient-to-r hover:from-gray-200 hover:to-gray-300 bg-gray-100'" @click="toggleGroup(index)">
-          <h3 class="text-xl sm:text-2xl font-semibold transition-colors duration-300"
-            :style="{ color: groupState[index] ? 'white' : '#1f2937' }">
+          :class="
+            groupState[index]
+              ? 'bg-gradient-to-r from-gray-900 to-gray-700'
+              : 'hover:bg-gradient-to-r hover:from-gray-200 hover:to-gray-300 bg-gray-100'
+          "
+          @click="toggleGroup(index)"
+        >
+          <h3
+            class="text-xl sm:text-2xl font-semibold transition-colors duration-300"
+            :style="{ color: groupState[index] ? 'white' : '#1f2937' }"
+          >
             {{ formatDate(group.releaseDate) }}
           </h3>
 
-          <button class="transition-transform duration-300" :class="{ 'rotate-180': groupState[index] }">
-            <i class="fas fa-chevron-down transition-colors duration-300"
-              :style="{ color: groupState[index] ? 'white' : '#4b5563' }"></i>
+          <button
+            class="transition-transform duration-300"
+            :class="{ 'rotate-180': groupState[index] }"
+          >
+            <i
+              class="fas fa-chevron-down transition-colors duration-300"
+              :style="{ color: groupState[index] ? 'white' : '#4b5563' }"
+            ></i>
           </button>
         </div>
 
         <!-- Contenido del grupo desplegable -->
         <transition name="fade-slide" mode="out-in">
-  <div v-if="groupState[index]" class="mt-4 overflow-x-auto">
-    
-    <!-- Contenedor de botones centrado -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-center gap-2 mt-4 w-full">
-  <button 
-    v-if="new Date(group.releaseDate) < new Date()" 
-    @click="buscarEnlacesSpotify(group.discs)"
-    class="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition-all duration-300 
-           w-full max-w-[300px] sm:max-w-none sm:w-auto text-center self-center"
-  >
-    Buscar enlaces en Spotify
-  </button>
+          <div v-if="groupState[index]" class="mt-4 overflow-x-auto">
+            <!-- Contenedor de botones centrado -->
+            <div
+              class="flex flex-col sm:flex-row sm:items-center justify-center gap-2 mt-4 w-full"
+            >
+              <button
+                v-if="new Date(group.releaseDate) < new Date()"
+                @click="buscarEnlacesSpotify(group.discs)"
+                class="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition-all duration-300 w-full max-w-[300px] sm:max-w-none sm:w-auto text-center self-center"
+              >
+                Buscar enlaces en Spotify
+              </button>
 
-  <span class="hidden sm:inline-block w-4"></span>
+              <span class="hidden sm:inline-block w-4"></span>
 
-  <button 
-    @click="exportarHtml(group)"
-    class="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition-all duration-300 
-           w-full max-w-[300px] sm:max-w-none sm:w-auto text-center self-center"
-  >
-    Exportar HTML de esta semana
-  </button>
-    </div>
+              <button
+                @click="exportarHtml(group)"
+                class="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition-all duration-300 w-full max-w-[300px] sm:max-w-none sm:w-auto text-center self-center"
+              >
+                Exportar HTML de esta semana
+              </button>
+            </div>
 
-    <!-- Lista de discos -->
-    <ul class="w-full">
-      <li 
-        v-for="disc in group.discs" 
-        :key="disc.id"
-        class="flex flex-col md:flex-row md:justify-between p-4 border-b w-full"
-      >
-        <DiscComponent 
-          :disc="disc" 
-          :genres="genres" 
-          @disc-deleted="removeDisc"
-          @date-changed="handleDateChange" 
-        />
-      </li>
-    </ul>
-    
-  </div>
-</transition>
-
-
+            <!-- Lista de discos -->
+            <ul class="w-full">
+              <li
+                v-for="disc in group.discs"
+                :key="disc.id"
+                class="flex flex-col md:flex-row md:justify-between p-4 border-b w-full"
+              >
+                <DiscComponent
+                  :disc="disc"
+                  :genres="genres"
+                  @disc-deleted="removeDisc"
+                  @date-changed="handleDateChange"
+                />
+              </li>
+            </ul>
+          </div>
+        </transition>
       </div>
     </div>
+
     <!-- Cargar más -->
     <div ref="loadMore" class="text-center py-6">
       <span v-if="loading" class="text-gray-600">Cargando discos...</span>
@@ -87,48 +123,117 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, reactive } from "vue";
+import { defineComponent, ref, onMounted, reactive, computed } from "vue";
 import axios from "axios";
 import { updateDisc, deleteDisc, getDiscsDated } from "@services/discs/discs";
 import { getGenres } from "@services/genres/genres";
 import DiscComponent from "./components/DiscComponent.vue";
 import { obtenerTokenSpotify } from "@helpers/SpotifyFunctions.ts";
+import DiscFilters from "@components/DiscFilters.vue"; // Importa DiscFilters
 
 export default defineComponent({
-  components: { DiscComponent },
+  components: { DiscComponent, DiscFilters }, // Registra DiscFilters
   name: "DiscsList",
   setup() {
     const groupedDiscs = ref<any[]>([]);
     const groupState = reactive({});
 
     const months = [
-      "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+      "Enero",
+      "Febrero",
+      "Marzo",
+      "Abril",
+      "Mayo",
+      "Junio",
+      "Julio",
+      "Agosto",
+      "Septiembre",
+      "Octubre",
+      "Noviembre",
+      "Diciembre",
     ];
 
     const selectedMonth = ref(new Date().getMonth()); // Mes actual por defecto
+
+    // --- Filtros ---
+    const searchQuery = ref("");
+    const selectedGenre = ref("");
+    const selectedWeek = ref<Date | null>(null); // Debe ser null al inicio
+
+    const filteredGroupedDiscs = computed(() => {
+      return groupedDiscs.value
+        .map((group) => ({
+          ...group,
+          discs: group.discs.filter((disc) => {
+            const matchesSearch =
+              disc.name
+                .toLowerCase()
+                .includes(searchQuery.value.toLowerCase()) ||
+              disc.artist.name
+                .toLowerCase()
+                .includes(searchQuery.value.toLowerCase());
+            const matchesGenre =
+              !selectedGenre.value || disc.genre?.id === selectedGenre.value;
+
+            // Filtro por semana (si selectedWeek está definido)
+            if (selectedWeek.value) {
+              const discDate = new Date(disc.releaseDate);
+              const weekStart = new Date(selectedWeek.value); // Principio de la semana
+              const weekEnd = new Date(weekStart);
+              weekEnd.setDate(weekStart.getDate() + 6); // Fin de la semana
+
+              return (
+                matchesSearch &&
+                matchesGenre &&
+                discDate >= weekStart &&
+                discDate <= weekEnd
+              );
+            }
+
+            return matchesSearch && matchesGenre; // Si no hay filtro de semana
+          }),
+        }))
+        .filter((group) => group.discs.length > 0); // Filtra grupos vacíos
+    });
 
     const selectMonth = async (monthIndex: number) => {
       selectedMonth.value = monthIndex;
       const year = new Date().getFullYear();
       const startDate = new Date(Date.UTC(year, monthIndex, 1)).toISOString();
-      const endDate = new Date(year, monthIndex + 1, 0, 23, 59, 59, 999).toISOString();
+      const endDate = new Date(
+        year,
+        monthIndex + 1,
+        0,
+        23,
+        59,
+        59,
+        999
+      ).toISOString();
 
       offset.value = 0;
       groupedDiscs.value = [];
       await fetchDiscsByDateRange(startDate, endDate);
     };
 
-    const fetchDiscsByDateRange = async (startDate: string, endDate: string) => {
+    const fetchDiscsByDateRange = async (
+      startDate: string,
+      endDate: string
+    ) => {
       loading.value = true;
-      groupedDiscs.value = [];
+      // No es necesario limpiar groupedDiscs.value aquí, ya que se limpia en selectMonth
       try {
-        const response = await getDiscsDated(limit.value, offset.value, [startDate, endDate]);
-        response.data.forEach((newGroup: any) => {
-          newGroup.discs.forEach((disc: any) => {
-            disc.genreId = disc.genre?.id || "";
-          });
+        const response = await getDiscsDated(limit.value, offset.value, [
+          startDate,
+          endDate,
+        ]);
+        // ... (resto del código de fetchDiscsByDateRange, sin cambios) ...
+
+        // Inicializa groupState para los nuevos grupos
+        response.data.forEach((group, index) => {
+          groupState[index] = false; // Inicialmente, todos los grupos cerrados
         });
-        groupedDiscs.value = response.data;
+
+        groupedDiscs.value = response.data; // Asigna los nuevos datos
         totalItems.value = response.totalItems;
         offset.value = limit.value;
         hasMore.value = offset.value < totalItems.value;
@@ -243,12 +348,13 @@ export default defineComponent({
     const fetchGenres = async () => {
       try {
         const genresResponse = await getGenres(150, 0);
-        genres.value = genresResponse.data.sort((a, b) => a.name.localeCompare(b.name));
+        genres.value = genresResponse.data.sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
       } catch (error) {
         console.error("Error fetching genres:", error);
       }
     };
-
 
     const buscarEnlacesSpotify = async (discs: any[]) => {
       const token = await obtenerTokenSpotify();
@@ -338,6 +444,11 @@ export default defineComponent({
       URL.revokeObjectURL(link.href);
     };
 
+    const resetAndFetch = () => {
+      offset.value = 0;
+      // No limpies groupedDiscs.value aquí, ya que se maneja en selectMonth y fetchDiscsByDateRange
+      fetchDiscs(); // Llama a fetchDiscs, que ahora maneja la lógica de fechas
+    };
 
     // ----------------
     // onMounted
@@ -371,7 +482,11 @@ export default defineComponent({
       selectedMonth,
       selectMonth,
       formatDate,
-
+      searchQuery,
+      selectedGenre,
+      selectedWeek,
+      resetAndFetch,
+      filteredGroupedDiscs, // Exponer el computed
     };
   },
 });
