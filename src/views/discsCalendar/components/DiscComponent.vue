@@ -279,11 +279,15 @@ import {
   ref,
   onMounted,
   onUnmounted,
+  watch,
 } from "vue";
 import type { PropType } from "vue";
 import { updateDisc, deleteDisc } from "@services/discs/discs";
 import { updateArtist, postArtist } from "@services/artist/artist";
-import { postPendingService , deletePendingService } from "@services/pendings/pendings";
+import {
+  postPendingService,
+  deletePendingService,
+} from "@services/pendings/pendings";
 import Swal from "sweetalert2";
 import axios from "axios";
 import SpotifyArtistButton from "@components/SpotifyArtistButton.vue";
@@ -328,8 +332,17 @@ export default defineComponent({
   setup(props, { emit }) {
     // Para edición de género (se usa el SearchableSelect)
     const editedData = reactive({
-      genreId: props.disc.genreId,
+      genreId: props.disc.genre.id,
     });
+
+    // Watch para sincronizar editedData con props.disc
+    watch(
+      () => props.disc,
+      (newDisc) => {
+        editedData.genreId = newDisc.genre.id; // Actualiza genreId
+      },
+      { deep: true, immediate: true } // Observa cambios profundos e inmediatamente
+    );
 
     const formattedDate = computed(() => {
       return new Date(props.disc.releaseDate).toLocaleDateString("es-ES", {
@@ -769,7 +782,6 @@ export default defineComponent({
     const closeArtistDetail = () => {
       showArtistDetail.value = false;
     };
-
 
     onMounted(() => {
       window.addEventListener("resize", updateSize);
