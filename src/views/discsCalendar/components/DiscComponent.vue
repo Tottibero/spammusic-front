@@ -14,8 +14,7 @@
         <i class="fa-solid fa-image"></i>
       </button>
       <img
-        v-if="disc.image"
-        :src="disc.image"
+        :src="disc.image || 'URL_DE_IMAGEN_POR_DEFECTO'"
         alt="Disc cover"
         class="w-28 h-28 rounded-md cursor-pointer object-cover"
         @click="openImageModal"
