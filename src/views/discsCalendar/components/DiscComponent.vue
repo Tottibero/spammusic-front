@@ -14,7 +14,7 @@
         <i class="fa-solid fa-image"></i>
       </button>
       <img
-        :src="disc.image || 'URL_DE_IMAGEN_POR_DEFECTO'"
+        :src="disc.image || require('@/assets/disco.png')"
         alt="Disc cover"
         class="w-28 h-28 rounded-md cursor-pointer object-cover"
         @click="openImageModal"
