@@ -68,7 +68,7 @@
         @click="toggleNewPointForm"
         class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center"
       >
-        <i class="fa-solid fa-plus"></i>
+        <i class="text-sm font-bold">Añadir punto</i>
       </button>
     </div>
 
@@ -82,7 +82,7 @@
         <div>
           <label for="new-titulo" class="block font-medium">Título</label>
           <input
-            v-model="newPoint.titulo"
+            v-model="newPoint.titulo" 
             type="text"
             id="new-titulo"
             class="w-full p-2 border border-gray-300 rounded-lg"
@@ -152,7 +152,7 @@
               @click="toggleContentVisibility(index)"
               class="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center"
             >
-            <i :class="point.showContent ? 'fa-solid fa-minus' : 'fa-solid fa-plus'"></i>
+            <i :class="point.showContent ? 'fa-solid fa-minus' : 'fa-solid fa-chevron-down'"></i>
           </button>
           </div>
         </div>

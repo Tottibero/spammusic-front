@@ -38,7 +38,7 @@
                 <strong>{{ point.titulo }}</strong>
               </div>
               <button @click="toggleContent(point.id)" class="px-3 py-1 bg-green-500 text-white rounded-lg hover:bg-green-600">
-                <i :class="expandedPoint === point.id ? 'fa-solid fa-minus' : 'fa-solid fa-plus'"></i>
+                <i :class="expandedPoint === point.id ? 'fa-solid fa-minus' : 'fa-solid fa-chevron-down'"></i>
               </button>
             </div>
             <div v-if="expandedPoint === point.id" class="mt-2 p-2 bg-white border border-gray-300 rounded-lg">
