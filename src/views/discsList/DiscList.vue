@@ -113,6 +113,7 @@
         :favoriteId="disc.favoriteId"
         :pendingId="disc.pendingId"
         :comment-count="disc.commentCount"
+        :rateCount="disc.rateCount"
       />
     </div>
 
