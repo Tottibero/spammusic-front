@@ -141,11 +141,15 @@
   
         // Count occurrences of each rate and cover value, and round
         props.votes.forEach((vote) => {
-          const rate = Math.round(vote.rate);
-          const cover = Math.round(vote.cover);
-  
-          rateCounts[rate] = (rateCounts[rate] || 0) + 1;
-          coverCounts[cover] = (coverCounts[cover] || 0) + 1;
+          // Only count votes where rate and cover are greater than 0.01 and not null
+          if (vote.rate !== null && vote.rate > 0.01) {
+            const rate = Math.round(vote.rate);
+            rateCounts[rate] = (rateCounts[rate] || 0) + 1;
+          }
+          if (vote.cover !== null && vote.cover > 0.01) {
+             const cover = Math.round(vote.cover);
+            coverCounts[cover] = (coverCounts[cover] || 0) + 1;
+          }
         });
   
         const rateLabels = Object.keys(rateCounts).sort((a, b) => Number(a) - Number(b));
