@@ -169,7 +169,17 @@
               d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z"
             />
           </svg>
-          <span>{{ showVotes ? "Ocultar" : "Votos" }}</span>
+          <span>   
+
+          {{ showVotes ? "Ocultar" : "Votos" }} 
+          <span
+              v-if="rateCount > 0"
+              class="ml-1 text-[10px] text-[#d9e021]"
+              >(<span class="inline">{{ rateCount }}</span
+              >)</span
+            >
+
+        </span>
         </button>
 
         <button
@@ -312,6 +322,7 @@ export default defineComponent({
     favoriteId: { type: String, required: false },
     pendingId: { type: String, required: false },
     commentCount: { type: Number, required: false, default: null },
+    rateCount: { type: Number, required: false, default: null }
   },
   setup(props) {
     const localRating = ref({ rate: props.rate, cover: props.cover });
@@ -321,6 +332,7 @@ export default defineComponent({
     const hasVoted = ref(!!props.userDiscRate);
     const userDiscRateId = ref(props.userDiscRate);
     const commentCount = ref(props.commentCount);
+    const rateCount = ref(props.rateCount);
     const formattedDate = computed(() => {
       const date = new Date(props.releaseDate);
       return date.toLocaleDateString("es-ES", {
@@ -510,6 +522,7 @@ export default defineComponent({
       openComentsModal,
       closeComentsModal,
       commentCount,
+      rateCount
     };
   },
 });
