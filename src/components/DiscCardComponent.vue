@@ -205,18 +205,22 @@
       <!-- Lista de votos -->
     </div>
 
-
-        <!-- Modal para mostrar DiscDetail -->
-        <div
+    <!-- Modal para mostrar DiscDetail -->
+    <div
       v-if="showVotes"
       class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
     >
       <div class="p-6 relative max-w-3xl w-full">
         <!-- Se pasa la información del disco -->
-        <VotesModal  :votes="votes" :showVotes="showVotes" @close="showVotes = false" />
+        <VotesModal
+          :albumName="name"
+          :artistName="artistName"
+          :votes="votes"
+          :showVotes="showVotes"
+          @close="showVotes = false"
+        />
       </div>
     </div>
-
 
     <!-- Modal para mostrar DiscDetail -->
     <div
@@ -393,22 +397,22 @@ export default defineComponent({
       console.log("Before toggle:", showVotes.value); // ADD THIS
       showVotes.value = !showVotes.value;
       console.log("After toggle:", showVotes.value); // ADD THIS
-        try {
-          votes.value = await getDiscRates(props.id);
-        } catch (error) {
-          console.error("Error fetching votes:", error);
-          Swal.fire({
-            title: "Error",
-            text: "No se pudieron obtener los votos.",
-            icon: "error",
-            position: "top-end",
-            timer: 3000,
-            timerProgressBar: true,
-            showConfirmButton: false,
-            toast: true,
-          });
-        }
-    }
+      try {
+        votes.value = await getDiscRates(props.id);
+      } catch (error) {
+        console.error("Error fetching votes:", error);
+        Swal.fire({
+          title: "Error",
+          text: "No se pudieron obtener los votos.",
+          icon: "error",
+          position: "top-end",
+          timer: 3000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          toast: true,
+        });
+      }
+    };
 
     const submitRating = async () => {
       const payload = {

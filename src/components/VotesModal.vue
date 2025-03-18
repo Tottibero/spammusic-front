@@ -9,7 +9,7 @@
           </svg>
         </button>
   
-        <h2 class="text-xl font-semibold mb-4 text-gray-800">Votos</h2>
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">Votos de {{ albumName }} - {{ artistName }}</h2>
   
         <div class="flex flex-col md:flex-row gap-4">
           <!-- Flex container for table and chart -->
@@ -88,6 +88,14 @@
       },
       showVotes: {
         type: Boolean,
+        required: true,
+      },
+      albumName: { // New prop
+        type: String,
+        required: true,
+      },
+      artistName: { // New prop
+        type: String,
         required: true,
       },
     },
