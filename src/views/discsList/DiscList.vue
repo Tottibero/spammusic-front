@@ -1,120 +1,69 @@
 <template>
-  <div
-    :class="{ 'menu-open': menuVisible }"
-    class="max-w-[100rem] mx-auto mt-10 px-4"
-  >
+  <div :class="{ 'menu-open': menuVisible }" class="max-w-[100rem] mx-auto mt-10 px-4">
     <h1 class="text-4xl font-bold mb-8 text-center text-gray-900">Discos</h1>
 
-    <DiscFilters
-      :searchQuery="searchQuery"
-      :selectedGenre="selectedGenre"
-      :selectedWeek="selectedWeek"
-      :genres="genres"
-      @update:searchQuery="searchQuery = $event"
-      @update:selectedGenre="selectedGenre = $event"  
-      @update:selectedWeek="selectedWeek = $event"
-      @resetAndFetch="resetAndFetch"
-    />
+    <DiscFilters :searchQuery="searchQuery" :selectedGenre="selectedGenre" :selectedWeek="selectedWeek" :genres="genres"
+      @update:searchQuery="searchQuery = $event" @update:selectedGenre="selectedGenre = $event"
+      @update:selectedWeek="selectedWeek = $event" @resetAndFetch="resetAndFetch" />
 
     <!-- Selección de tipo de vista (Estilo Chips) -->
     <div class="mb-6 flex justify-start space-x-2">
       <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
         :class="viewMode === 'all'
-          ? 'bg-gray-800 text-white'
-          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-          ">
+    ? 'bg-gray-800 text-white'
+    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+    ">
         <input type="radio" v-model="viewMode" value="all" class="hidden" />
         Todos los discos <span v-if="totalDisc !== ''">({{ totalDisc }})</span>
       </label>
 
-      <label
-        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
-        :class="
-          viewMode === 'rates'
-            ? 'bg-blue-500 text-white'
-            : 'bg-gray-200 hover:bg-gray-300'
-        "
-      >
+      <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
+        :class="viewMode === 'rates'
+    ? 'bg-blue-500 text-white'
+    : 'bg-gray-200 hover:bg-gray-300'
+    ">
         <input type="radio" v-model="viewMode" value="rates" class="hidden" />
         Mis votos <span v-if="totalRates !== ''">({{ totalRates }})</span>
       </label>
 
-      <label
-        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
-        :class="
-          viewMode === 'covers'
-            ? 'bg-green-500 text-white'
-            : 'bg-gray-200 hover:bg-gray-300'
-        "
-      >
+      <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
+        :class="viewMode === 'covers'
+    ? 'bg-green-500 text-white'
+    : 'bg-gray-200 hover:bg-gray-300'
+    ">
         <input type="radio" v-model="viewMode" value="covers" class="hidden" />
         Mis portadas <span v-if="totalCovers !== ''">({{ totalCovers }})</span>
       </label>
 
-      <label
-        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
-        :class="
-          viewMode === 'favorites'
-            ? 'bg-red-500 text-white'
-            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-        "
-      >
-        <input
-          type="radio"
-          v-model="viewMode"
-          value="favorites"
-          class="hidden"
-        />
+      <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
+        :class="viewMode === 'favorites'
+    ? 'bg-red-500 text-white'
+    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+    ">
+        <input type="radio" v-model="viewMode" value="favorites" class="hidden" />
         Favoritos
         <span v-if="totalFavorites !== ''">({{ totalFavorites }})</span>
       </label>
 
-      <label
-        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
-        :class="
-          viewMode === 'pendientes'
-            ? 'bg-yellow-500 text-white'
-            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-        "
-      >
-        <input
-          type="radio"
-          v-model="viewMode"
-          value="pendientes"
-          class="hidden"
-        />
+      <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
+        :class="viewMode === 'pendientes'
+    ? 'bg-yellow-500 text-white'
+    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+    ">
+        <input type="radio" v-model="viewMode" value="pendientes" class="hidden" />
         Pendientes
         <span v-if="totalPendings !== ''">({{ totalPendings }})</span>
       </label>
     </div>
 
     <!-- Contenedor de cuadrícula para las tarjetas -->
-    <div
-      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6"
-    >
-      <DiscCard
-        v-for="disc in discs"
-        :key="disc.id"
-        :id="disc.id"
-        :ep="disc.ep"
-        :image="disc.image"
-        :name="disc.name"
-        :releaseDate="disc.releaseDate"
-        :artistName="disc.artist?.name || 'Desconocido'"
-        :genreName="disc.genre?.name"
-        :genreColor="disc.genre?.color"
-        :link="disc.link"
-        :averageRate="disc.averageRate"
-        :averageCover="disc.averageCover"
-        :rate="disc.userRate?.rate"
-        :cover="disc.userRate?.cover"
-        :isNew="!disc.userRate"
-        :userDiscRate="disc.userRate?.id"
-        :favoriteId="disc.favoriteId"
-        :pendingId="disc.pendingId"
-        :comment-count="disc.commentCount"
-        :rateCount="disc.voteCount"
-      />
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      <DiscCard v-for="disc in discs" :key="disc.id" :id="disc.id" :ep="disc.ep" :image="disc.image" :name="disc.name"
+        :releaseDate="disc.releaseDate" :artistName="disc.artist?.name || 'Desconocido'" :genreName="disc.genre?.name"
+        :genreColor="disc.genre?.color" :link="disc.link" :averageRate="disc.averageRate"
+        :averageCover="disc.averageCover" :rate="disc.userRate?.rate" :cover="disc.userRate?.cover"
+        :isNew="!disc.userRate" :userDiscRate="disc.userRate?.id" :favoriteId="disc.favoriteId"
+        :pendingId="disc.pendingId" :comment-count="disc.commentCount" :rateCount="disc.voteCount" />
     </div>
 
     <!-- Elemento para disparar la carga adicional -->
@@ -217,6 +166,8 @@ export default defineComponent({
                 cover: rate.cover,
                 id: rate.id,
               },
+              commentCount: rate.disc.commentCount,
+              voteCount: rate.disc.voteCount,
             }))
           );
         } else if (viewMode.value === "covers") {
@@ -238,6 +189,8 @@ export default defineComponent({
                 cover: rate.cover,
                 id: rate.id,
               },
+              commentCount: rate.disc.commentCount,
+              voteCount: rate.disc.voteCount,
             }))
           );
         } else if (viewMode.value === "favorites") {
@@ -258,16 +211,19 @@ export default defineComponent({
                 : null,
               userRate: favorite.disc.userRate
                 ? {
-                    id: favorite.disc.userRate.id,
-                    rate: favorite.disc.userRate.rate,
-                    cover: favorite.disc.userRate.cover,
-                  }
+                  id: favorite.disc.userRate.id,
+                  rate: favorite.disc.userRate.rate,
+                  cover: favorite.disc.userRate.cover,
+                }
                 : null,
+              commentCount: favorite.disc.commentCount,
+              voteCount: favorite.disc.voteCount,
+
             }))
           );
           console.log("disc.value", discs.value);
         } else if (viewMode.value === "pendientes") {
-          // Nueva rama para pendientes
+
           response = await getPendingsByUser(
             limit.value,
             offset.value,
@@ -276,93 +232,19 @@ export default defineComponent({
             selectedGenre.value
           );
           totalPendings.value = response.totalItems;
-          console.log("response data", response.data[0]);
           discs.value.push(
             ...response.data.map((pending) => ({
               ...pending.disc,
               pendingId: pending.id,
               userRate: pending.disc.userRate
                 ? {
-                    id: pending.disc.userRate.id,
-                    rate: pending.disc.userRate.rate,
-                    cover: pending.disc.userRate.cover,
-                  }
+                  id: pending.disc.userRate.id,
+                  rate: pending.disc.userRate.rate,
+                  cover: pending.disc.userRate.cover,
+                }
                 : null,
-            }))
-          );
-          console.log("disc.value", discs.value);
-        } else if (viewMode.value === "pendientes") {
-          // Nueva rama para pendientes
-          response = await getPendingsByUser(
-            limit.value,
-            offset.value,
-            searchQuery.value,
-            selectedWeek.value,
-            selectedGenre.value
-          );
-          totalPendings.value = response.totalItems;
-          console.log("response data", response.data[0]);
-          discs.value.push(
-            ...response.data.map((pending) => ({
-              ...pending.disc,
-              pendingId: pending.id,
-              userRate: pending.disc.userRate
-                ? {
-                    id: pending.disc.userRate.id,
-                    rate: pending.disc.userRate.rate,
-                    cover: pending.disc.userRate.cover,
-                  }
-                : null,
-            }))
-          );
-          console.log("disc.value", discs.value);
-        } else if (viewMode.value === "pendientes") {
-          // Nueva rama para pendientes
-          response = await getPendingsByUser(
-            limit.value,
-            offset.value,
-            searchQuery.value,
-            selectedWeek.value,
-            selectedGenre.value
-          );
-          totalPendings.value = response.totalItems;
-          console.log("response data", response.data[0]);
-          discs.value.push(
-            ...response.data.map((pending) => ({
-              ...pending.disc,
-              pendingId: pending.id,
-              userRate: pending.disc.userRate
-                ? {
-                    id: pending.disc.userRate.id,
-                    rate: pending.disc.userRate.rate,
-                    cover: pending.disc.userRate.cover,
-                  }
-                : null,
-            }))
-          );
-          console.log("disc.value", discs.value);
-        } else if (viewMode.value === "pendientes") {
-          // Nueva rama para pendientes
-          response = await getPendingsByUser(
-            limit.value,
-            offset.value,
-            searchQuery.value,
-            selectedWeek.value,
-            selectedGenre.value
-          );
-          totalPendings.value = response.totalItems;
-          console.log("response data", response.data[0]);
-          discs.value.push(
-            ...response.data.map((pending) => ({
-              ...pending.disc,
-              pendingId: pending.id,
-              userRate: pending.disc.userRate
-                ? {
-                    id: pending.disc.userRate.id,
-                    rate: pending.disc.userRate.rate,
-                    cover: pending.disc.userRate.cover,
-                  }
-                : null,
+              commentCount: pending.disc.commentCount,
+              voteCount: pending.disc.voteCount,
             }))
           );
         } else {
