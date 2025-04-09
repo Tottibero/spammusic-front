@@ -111,7 +111,7 @@ export default defineComponent({
     // Filtrar las asignaciones por usuario
     const filteredAssignments = (asignations: any[]) => {
       return asignations.filter(
-        (assignment) => assignment.user.id === user.value.id
+        (assignment) => assignment.user?.id === user.value.id
       );
     };
 
