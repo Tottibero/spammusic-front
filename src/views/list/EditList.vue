@@ -118,12 +118,22 @@
     </div>
 
     <!-- Tabla de discos -->
-    <AsignationList :type="form.type" />
+    <AsignationList
+    v-if="form.type !== ListType.SPECIAL"  
+    :type="form.type" 
+    />
+
+    <SpecialAsignationList
+    v-if="form.type == ListType.SPECIAL"  
+    :list-id="id" 
+    :asignations="asignations"
+    />
+
 
     <!-- Listado de Discos por Fecha -->
-    <div class="bg-white p-6 rounded-2xl shadow-md">
+    <div class="bg-white p-6 rounded-2xl shadow-md"  v-if="form.type !== ListType.SPECIAL">
       <h3 class="text-lg font-bold mb-4">Listado de Discos por Fecha</h3>
-      <DiscsByDate :date="form.listDate" :type="form.type" :list-id="id" />
+      <DiscsByDate  :date="form.listDate" :type="form.type" :list-id="id" />
     </div>
 
     <!-- Modal de Información de Estados -->
@@ -177,6 +187,7 @@ import { defineComponent, reactive, ref, onMounted, computed } from "vue";
 import { getListDetails, updateList } from "@services/list/list";
 import DiscsByDate from "./components/DiscByDate.vue";
 import AsignationList from "./components/AsignationList.vue";
+import SpecialAsignationList from "./components/SpecialAsignationList.vue";
 import { useAsignationStore } from "@stores/asignation/asignation";
 import { useUserStore } from "@stores/user/users";
 import SwalService from "@services/swal/SwalService";
@@ -211,7 +222,7 @@ const statusOrder = [
 
 export default defineComponent({
   name: "EditListForm",
-  components: { DiscsByDate, AsignationList },
+  components: { DiscsByDate, AsignationList, SpecialAsignationList },
   props: {
     id: {
       type: String,
@@ -231,10 +242,13 @@ export default defineComponent({
     const showStatusInfo = ref(false);
     const asignationStore = useAsignationStore();
     const userStore = useUserStore();
+    const asignations = ref<any[]>([]); // <<<<<< AÑADIMOS ESTA LINEA
 
     const loadListDetails = async () => {
       try {
         const details = await getListDetails(props.id);
+        console.log("List details fetched:", details);
+        asignations.value = details.asignations || [];
         Object.assign(form, details); // Pre-fill form with list details
       } catch (error) {
         console.error("Error fetching list details:", error);
@@ -352,6 +366,7 @@ export default defineComponent({
       statusClass,
       showStatusInfo,
       statusList,
+      asignations,
     };
   },
 });
