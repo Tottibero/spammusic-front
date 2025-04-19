@@ -60,13 +60,28 @@
 
         <!-- Chart and Toggle -->
         <div class="w-full md:w-1/2 flex flex-col items-center">
-          <!-- Botón Toggle -->
-          <button
-            @click="toggleData"
-            class="mb-4 bg-gray-700 text-white py-2 px-4 rounded hover:bg-gray-600"
-          >
-            {{ isRateSelected ? 'Mostrar Portada' : 'Mostrar Disco' }}
-          </button>
+<!-- Switch Disco / Portada -->
+<div class="mb-4 flex items-center justify-center space-x-2 bg-gray-200 rounded-full p-1">
+  <button
+    @click="isRateSelected = true"
+    :class="[
+      'text-sm font-semibold px-4 py-1 rounded-full transition-all duration-200',
+      isRateSelected ? 'bg-gray-700 text-white' : 'text-gray-700 hover:text-black'
+    ]"
+  >
+    Disco
+  </button>
+  <button
+    @click="isRateSelected = false"
+    :class="[
+      'text-sm font-semibold px-4 py-1 rounded-full transition-all duration-200',
+      !isRateSelected ? 'bg-gray-700 text-white' : 'text-gray-700 hover:text-black'
+    ]"
+  >
+    Portada
+  </button>
+</div>
+
 
           <!-- Contenedor con altura fija o máxima para el chart -->
           <div class="relative w-full h-64">
@@ -132,11 +147,6 @@ export default defineComponent({
 
     const closeModal = () => {
       emit('close');
-    };
-
-    // Toggle function to switch between rate and cover
-    const toggleData = () => {
-      isRateSelected.value = !isRateSelected.value;
     };
 
     // Function to generate color based on a numeric value (rating or cover)
@@ -291,7 +301,6 @@ export default defineComponent({
     return {
       closeModal,
       pieChart,
-      toggleData,
       isRateSelected,
     };
   },
