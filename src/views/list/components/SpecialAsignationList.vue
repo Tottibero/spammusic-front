@@ -96,7 +96,7 @@
                 @click="deleteAsignation(asignation.id)"
                 class="bg-red-500 text-white text-sm px-3 py-1 rounded hover:bg-red-600"
               >
-                🗑️ Borrar
+                Eliminar
               </button>
             </div>
           </div>
@@ -139,7 +139,7 @@
             <span class="font-semibold">Usuario:</span>
             {{ asignation.user?.username || "N/A" }} <br />
             <span class="font-semibold">Descripción:</span>
-            {{ asignation.description }}
+<p v-html="formatTextWithLineBreaks(asignation.description)"></p>
           </div>
         </li>
       </ul>
@@ -185,6 +185,10 @@ export default defineComponent({
       description: "",
       done: false,
     });
+
+    const formatTextWithLineBreaks = (text: string): string => {
+  return text.replace(/\n/g, "<br>");
+};
 
     const fetchUsers = async () => {
       try {
@@ -335,6 +339,7 @@ export default defineComponent({
       toggleDone,
       showCreateForm,
       deleteAsignation,
+      formatTextWithLineBreaks
     };
   },
 });
