@@ -162,7 +162,7 @@
           v-if="point.showContent"
           class="mt-4 bg-gray-100 p-4 rounded-lg"
         >
-          <p class="text-gray-600">{{ point.content }}</p>
+        <p class="text-gray-600" v-html="formatContent(point.content)"></p>
         </div>
 
         <!-- Formulario para editar punto -->
@@ -249,6 +249,10 @@ export default defineComponent({
       titulo: "",
       content: "",
     });
+
+    const formatContent = (text) => {
+  return text.replace(/\n/g, "<br>");
+};
 
     const formatDate = (dateString) => {
       return new Date(dateString).toLocaleString();
@@ -377,6 +381,7 @@ export default defineComponent({
 
     return {
       formatDate,
+      formatContent,
       reunion,
       showEditReunionForm,
       newPoint,
