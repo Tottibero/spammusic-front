@@ -8,13 +8,6 @@
       class="bg-white p-6 rounded-lg shadow-xl w-full max-w-3xl relative 
              max-h-[80vh] overflow-y-auto"
     >
-      <!-- Botón de cierre -->
-      <button
-        @click="closeModal"
-        class="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-      >
-        <!-- Icono SVG -->
-      </button>
 
       <!-- Título -->
       <h2 class="text-xl font-semibold mb-4 text-gray-800">
@@ -67,13 +60,28 @@
 
         <!-- Chart and Toggle -->
         <div class="w-full md:w-1/2 flex flex-col items-center">
-          <!-- Botón Toggle -->
-          <button
-            @click="toggleData"
-            class="mb-4 bg-gray-700 text-white py-2 px-4 rounded hover:bg-gray-600"
-          >
-            {{ isRateSelected ? 'Mostrar Portada' : 'Mostrar Disco' }}
-          </button>
+<!-- Switch Disco / Portada -->
+<div class="mb-4 flex items-center justify-center space-x-2 bg-gray-200 rounded-full p-1">
+  <button
+    @click="isRateSelected = true"
+    :class="[
+      'text-sm font-semibold px-4 py-1 rounded-full transition-all duration-200',
+      isRateSelected ? 'bg-gray-700 text-white' : 'text-gray-700 hover:text-black'
+    ]"
+  >
+    Disco
+  </button>
+  <button
+    @click="isRateSelected = false"
+    :class="[
+      'text-sm font-semibold px-4 py-1 rounded-full transition-all duration-200',
+      !isRateSelected ? 'bg-gray-700 text-white' : 'text-gray-700 hover:text-black'
+    ]"
+  >
+    Portada
+  </button>
+</div>
+
 
           <!-- Contenedor con altura fija o máxima para el chart -->
           <div class="relative w-full h-64">
@@ -87,12 +95,12 @@
 
       <!-- Botón de cerrar al final -->
       <div class="mt-6 flex justify-center">
-        <button
-          @click="closeModal"
-          class="bg-gray-700 text-white py-2 px-4 rounded hover:bg-gray-600"
-        >
-          Cerrar
-        </button>
+        <button 
+  @click="$emit('close')" 
+  class="absolute top-3 right-3 text-white hover:text-[#d9e021] bg-gray-700 hover:bg-gray-800 rounded-full w-10 h-10 flex items-center justify-center shadow-md transition-all"
+>
+  ✖
+</button>
       </div>
     </div>
   </div>
@@ -139,11 +147,6 @@ export default defineComponent({
 
     const closeModal = () => {
       emit('close');
-    };
-
-    // Toggle function to switch between rate and cover
-    const toggleData = () => {
-      isRateSelected.value = !isRateSelected.value;
     };
 
     // Function to generate color based on a numeric value (rating or cover)
@@ -298,7 +301,6 @@ export default defineComponent({
     return {
       closeModal,
       pieChart,
-      toggleData,
       isRateSelected,
     };
   },

@@ -42,7 +42,7 @@
               </button>
             </div>
             <div v-if="expandedPoint === point.id" class="mt-2 p-2 bg-white border border-gray-300 rounded-lg">
-              {{ point.content }}
+              <p v-html="formatContent(point.content)" class="text-gray-700"></p>
             </div>
           </li>
         </ul>
@@ -73,6 +73,10 @@ export default {
     formatDate(date) {
       return new Date(date).toLocaleString();
     },
+    formatContent(text) {
+      return text.replace(/\n/g, "<br>");
+    },
   },
 };
 </script>
+
