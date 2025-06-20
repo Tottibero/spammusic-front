@@ -137,6 +137,14 @@ router.beforeEach((to) => {
     return { name: "Home" };
   }
 
+  const restrictedForBabyUser = ["/import"];
+  if (
+    authStore.hasRole("babyUser") &&
+    restrictedForBabyUser.includes(to.path)
+  ) {
+    return { name: "Home" };
+  }
+
   return true;
 });
 
