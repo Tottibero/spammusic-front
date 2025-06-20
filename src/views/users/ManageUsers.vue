@@ -2,10 +2,7 @@
   <div class="p-6">
     <h2 class="text-xl font-bold mb-4">Lista de usuarios</h2>
 
-    <button
-      @click="showForm = true"
-      class="mb-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-    >
+    <button @click="showForm = true" class="mb-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
       Crear Usuario
     </button>
 
@@ -17,7 +14,13 @@
       <p v-if="passwordValidation(newUser.password)" class="error-text">
         {{ passwordValidation(newUser.password) }}
       </p>
-      <div class="flex space-x-2">
+ <div class="flex flex-wrap gap-2 mt-2">
+          <label><input type="checkbox" v-model="newUser.roles" value="babyUser" /> Baby User</label>
+          <label><input type="checkbox" v-model="newUser.roles" value="user" /> User</label>
+          <label><input type="checkbox" v-model="newUser.roles" value="superUser" /> Superuser</label>
+          <label><input type="checkbox" v-model="newUser.roles" value="riffValley" /> Riff Valley</label>
+        </div>
+        <div class="flex space-x-2 mt-2">
         <button @click="createUser" class="btn-save">Guardar</button>
         <button @click="showForm = false" class="btn-cancel">Cancelar</button>
       </div>
@@ -43,6 +46,7 @@
             <td class="p-2 border"><input v-model="user.username" class="input-field" /></td>
             <td class="p-2 border">
               <div class="flex flex-wrap gap-2">
+                <label><input type="checkbox" v-model="user.roles" value="babyUser" /> Baby User</label>
                 <label><input type="checkbox" v-model="user.roles" value="user" /> User</label>
                 <label><input type="checkbox" v-model="user.roles" value="superUser" /> Superuser</label>
                 <label><input type="checkbox" v-model="user.roles" value="riffValley" /> Riff Valley</label>
@@ -60,9 +64,9 @@
             </td>
           </tr>
         </tbody>
-    </table>
+      </table>
+    </div>
   </div>
-</div>
 </template>
 
 <script lang="ts">
@@ -76,7 +80,7 @@ export default defineComponent({
     const userStore = useUserStore();
     const users = ref([]);
     const showForm = ref(false);
-    const newUser = ref({ email: "", username: "", password: "" });
+    const newUser = ref({ email: "", username: "", password: "", roles: [] })
 
     onMounted(async () => {
       try {
