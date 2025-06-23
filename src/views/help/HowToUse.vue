@@ -84,13 +84,13 @@
 
             <div>
                 <h2 class="text-xl font-semibold mt-6">
-                    <i class="fa-solid fa-circle-exclamation text-md mr-2"></i>Principal problema
+                    <i class="fa-solid fa-receipt text-md mr-2"></i>¿Por qué una suscripción?
                 </h2>
                 <p class="text-gray-700">
                     Creamos esta app por <strong>pura pasión por la música</strong>, pero como muchos sabréis,
-                    mantenemos otros trabajos a tiempo completo. Aun así, mantener activo el <em>hosting</em> de esta
+                    mantenemos nuestros trabajos a tiempo completo. Aun así, mantener activo el <em>hosting</em> de esta
                     plataforma nos supone un gasto mensual.
-                    Por ello, y de forma simbólica, pedimos una <strong>aportación voluntaria de 2€ al año</strong>
+                    Por ello, y de forma simbólica, pedimos una <strong>aportación de 2€ al año</strong>
                     para poder seguir desarrollando y mejorando este proyecto. Si deseas colaborar con más, eres
                     totalmente libre de hacerlo.
                     Hemos habilitado un <strong>bote público</strong> donde puedes realizar tu aportación. Notifícanos a
