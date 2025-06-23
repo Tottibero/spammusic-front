@@ -12,19 +12,19 @@
       </div>
       <nav class="p-4 space-y-2">
 
-<router-link v-for="route in filteredDiscAppRoutes" :key="route.to" :to="route.to"
-  class="text-left pl-6 block px-4 py-2 rounded transition-opacity duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
-  :active-class="'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-[#211d1d]'" @click="closeMenu">
-  
-  <i v-if="route.to === '/'" class="fa-solid fa-house text-md mr-1"></i>
-  <i v-if="route.to === '/disc-list'" class="fa-solid fa-compact-disc text-md mr-1"></i>
-  <i v-if="['/calendar', '/calendar-baby'].includes(route.to)"
-     class="fa-solid fa-calendar-days text-md mr-1"></i>
-  <i v-if="route.to === '/import'" class="fa-solid fa-arrow-up-from-bracket text-md mr-1"></i>
-  <i v-if="route.to === '/suggest'" class="fa-solid fa-circle-question text-md mr-1"></i>
+        <router-link v-for="route in filteredDiscAppRoutes" :key="route.to" :to="route.to"
+          class="text-left pl-6 block px-4 py-2 rounded transition-opacity duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
+          :active-class="'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-[#211d1d]'" @click="closeMenu">
 
-  {{ route.label }}
-</router-link>
+          <i v-if="route.to === '/'" class="fa-solid fa-house text-md mr-1"></i>
+          <i v-if="route.to === '/disc-list'" class="fa-solid fa-compact-disc text-md mr-1"></i>
+          <i v-if="['/calendar', '/calendar-baby'].includes(route.to)"
+            class="fa-solid fa-calendar-days text-md mr-1"></i>
+          <i v-if="route.to === '/import'" class="fa-solid fa-arrow-up-from-bracket text-md mr-1"></i>
+          <i v-if="route.to === '/suggest'" class="	fa-solid fa-lightbulb text-md mr-1"></i>
+          <i v-if="route.to === '/petitions'" class="fa-solid fa-inbox text-md mr-1"></i>
+          {{ route.label }}
+        </router-link>
       </nav>
     </div>
 
@@ -49,9 +49,10 @@
     <nav class="p-4 space-y-2 border-t border-gray-700">
       <router-link v-for="route in filteredBottomRoutes" :key="route.to" :to="route.to"
         class="text-left pl-6 block w-full px-4 py-2 rounded transition-opacity duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
-        :active-class="'bg-red-600 text-white'" @click="closeMenu">
+        :active-class="'bg-gray-600 text-white'" @click="closeMenu">
         <i v-if="route.to === '/password'" class="fa-solid fa-user text-sm mr-1"></i>
         <i v-if="route.to === '/users'" class="fa-solid fa-users text-sm mr-1"></i>
+        <i v-if="route.to === '/how-to-use'" class="fa-solid fa-circle-question text-md mr-1"></i>
         {{ route.label }}
       </router-link>
     </nav>
