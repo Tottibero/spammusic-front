@@ -47,7 +47,7 @@ Decrepid – Suffered Existence"
 
     <!-- Mensaje de confirmación -->
 <div v-if="emailSent" class="text-green-600 text-center font-semibold text-lg space-y-2">
-  <p>¡Listo! Ahora se te abrirá Outlook o algún gestor para crear un nuevo correo y que puedas enviarnos tu solicitud.</p>
+  <p>¡Listo! Ahora se te abrirá Outlook o algún navegador para crear un nuevo correo y que puedas enviarnos tu solicitud.</p>
   <p class="text-yellow-600 text-sm"><span class="mr-1">⚠️</span>Este sistema será temporal ya que estamos trabajando en una moderación de solicitudes interna.</p>
 </div>
 
