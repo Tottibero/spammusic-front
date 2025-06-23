@@ -39,16 +39,17 @@ Decrepid – Suffered Existence"
       <button
         @click="sendEmail"
         :disabled="!selectedDate || !albumText.trim()"
-        class="px-5 py-2 md:px-6 md:py-3 bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-black font-semibold rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
+        class="px-5 py-2 md:px-6 md:py-3 bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-black font-semibold rounded-full hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
       >
         Solicitar
       </button>
     </div>
 
     <!-- Mensaje de confirmación -->
-    <div v-if="emailSent" class="text-green-600 text-center font-semibold text-lg">
-      ¡Solicitado con éxito!
-    </div>
+<div v-if="emailSent" class="text-green-600 text-center font-semibold text-lg space-y-2">
+  <p>¡Listo! Ahora se te abrirá Outlook o algún gestor para crear un nuevo correo y que puedas enviarnos tu solicitud.</p>
+  <p class="text-yellow-600 text-sm"><span class="mr-1">⚠️</span>Este sistema será temporal ya que estamos trabajando en una moderación de solicitudes interna.</p>
+</div>
 
     <!-- Mensaje de error -->
     <div v-if="error" class="mt-4 md:mt-6">
