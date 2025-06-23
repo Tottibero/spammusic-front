@@ -1,10 +1,8 @@
 <template>
-  <aside
-    :class="[
-      'w-64 bg-gradient-to-l from-gray-900 to-gray-950 text-white flex flex-col justify-between fixed h-screen transform transition-transform duration-300 z-20',
-      menuVisible ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
-    ]"
-  >
+  <aside :class="[
+    'w-64 bg-gradient-to-l from-gray-900 to-gray-950 text-white flex flex-col justify-between fixed h-screen transform transition-transform duration-300 z-20',
+    menuVisible ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
+  ]">
 
     <!-- Disc-App -->
     <div>
@@ -14,17 +12,13 @@
       </div>
       <nav class="p-4 space-y-2">
 
-        <router-link
-          v-for="route in filteredDiscAppRoutes"
-          :key="route.to"
-          :to="route.to"
+        <router-link v-for="route in filteredDiscAppRoutes" :key="route.to" :to="route.to"
           class="text-left pl-6 block px-4 py-2 rounded transition-opacity duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
-          :active-class="'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-[#211d1d]'"
-          @click="closeMenu"
-        >
+          :active-class="'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-[#211d1d]'" @click="closeMenu">
           <i v-if="route.to === '/'" class="fa-solid fa-house text-md mr-1"></i>
           <i v-if="route.to === '/disc-list'" class="fa-solid fa-compact-disc text-md mr-1"></i>
-          <i v-if="route.to === '/calendar'" class="fa-solid fa-calendar-days text-md mr-1"></i>
+          <i v-if="['/calendar', '/calendar-baby'].includes(route.to)"
+            class="fa-solid fa-calendar-days text-md mr-1"></i>
           <i v-if="route.to === '/import'" class="fa-solid fa-arrow-up-from-bracket text-md mr-1"></i>
           {{ route.label }}
         </router-link>
@@ -37,17 +31,12 @@
         <div class="font-semibold text-gray-400 uppercase text-sm mb-2">
           Riff Valley
         </div>
-        <router-link
-          v-for="route in filteredRiffValleyRoutes"
-          :key="route.to"
-          :to="route.to"
+        <router-link v-for="route in filteredRiffValleyRoutes" :key="route.to" :to="route.to"
           class="text-left pl-6 block px-4 py-2 rounded transition-all duration-300 hover:bg-gradient-to-r hover:from-[#ee6f86]/60 hover:to-[#2759c1]/60 hover:text-white"
-          :active-class="'bg-gradient-to-r from-[#ee6f86] to-[#2759c1] text-[#FFFFFF]'"
-          @click="closeMenu"
-        >
-        <i v-if="route.to === '/list/lists'" class="fa-solid fa-list-check text-md mr-1"></i>
-        <i v-if="route.to === '/reunions/list'" class="fa-solid fa-comments text-md mr-1"></i>
-        <i v-if="route.to === '/recap'" class="fa-solid fa-calendar-week text-md mr-1"></i>
+          :active-class="'bg-gradient-to-r from-[#ee6f86] to-[#2759c1] text-[#FFFFFF]'" @click="closeMenu">
+          <i v-if="route.to === '/list/lists'" class="fa-solid fa-list-check text-md mr-1"></i>
+          <i v-if="route.to === '/reunions/list'" class="fa-solid fa-comments text-md mr-1"></i>
+          <i v-if="route.to === '/recap'" class="fa-solid fa-calendar-week text-md mr-1"></i>
           {{ route.label }}
         </router-link>
       </nav>
@@ -55,14 +44,9 @@
 
     <!-- Bottom -->
     <nav class="p-4 space-y-2 border-t border-gray-700">
-      <router-link
-        v-for="route in filteredBottomRoutes"
-        :key="route.to"
-        :to="route.to"
+      <router-link v-for="route in filteredBottomRoutes" :key="route.to" :to="route.to"
         class="text-left pl-6 block w-full px-4 py-2 rounded transition-opacity duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
-        :active-class="'bg-red-600 text-white'"
-        @click="closeMenu"
-      >
+        :active-class="'bg-red-600 text-white'" @click="closeMenu">
         <i v-if="route.to === '/password'" class="fa-solid fa-user text-sm mr-1"></i>
         <i v-if="route.to === '/users'" class="fa-solid fa-users text-sm mr-1"></i>
         {{ route.label }}
@@ -70,10 +54,8 @@
     </nav>
 
     <nav class="p-4 space-y-2 border-t border-gray-700">
-      <button
-        @click="handleLogout"
-        class="pl-6 font semibold block w-full text-center px-4 py-2 rounded hover:bg-red-600 flex items-center text-left gap-2"
-      >
+      <button @click="handleLogout"
+        class="pl-6 font semibold block w-full text-center px-4 py-2 rounded hover:bg-red-600 flex items-center text-left gap-2">
         <i class="fa-solid fa-right-from-bracket"></i>
         {{ logoutLabel }}
       </button>
@@ -108,7 +90,7 @@ export default defineComponent({
       emit("close-menu");
     };
 
-        // 🔍 Si `menuVisible` cambia a false, imprimir en consola
+    // 🔍 Si `menuVisible` cambia a false, imprimir en consola
     watch(
       () => props.menuVisible,
       (newValue) => {
