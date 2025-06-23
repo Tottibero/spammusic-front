@@ -5,60 +5,34 @@
     </h3>
 
     <!-- Filtros -->
-    <DiscFilters
-      :searchQuery="searchQuery"
-      :selectedGenre="selectedGenre"
-      :genres="genres"
-      :showWeekPicker="false"
-      @update:searchQuery="searchQuery = $event"
-      @update:selectedGenre="selectedGenre = $event"
-      @reset-and-fetch="resetAndFetch"
-    />
+    <DiscFilters :searchQuery="searchQuery" :selectedGenre="selectedGenre" :genres="genres" :showWeekPicker="false"
+      @update:searchQuery="searchQuery = $event" @update:selectedGenre="selectedGenre = $event"
+      @reset-and-fetch="resetAndFetch" />
 
-    <div
-      v-if="filteredDiscs.length === 0 && !loading"
-      class="text-center text-gray-500"
-    >
+    <div v-if="filteredDiscs.length === 0 && !loading" class="text-center text-gray-500">
       No discs found for the selected {{ type }}.
     </div>
     <div v-else>
       <!-- Lista de discos agrupados -->
-      <div
-        v-for="(group, index) in filteredDiscs"
-        :key="group.start || group.releaseDate"
-        class="mb-8"
-      >
+      <div v-for="(group, index) in filteredDiscs" :key="group.start || group.releaseDate" class="mb-8">
         <!-- Encabezado del grupo -->
-        <div
-          class="flex justify-between items-center bg-gray-200 px-4 py-2 rounded cursor-pointer"
-          @click="toggleGroup(index)"
-        >
+        <div class="flex justify-between items-center bg-gray-200 px-4 py-2 rounded cursor-pointer"
+          @click="toggleGroup(index)">
           <h3 class="text-xl font-bold">
             {{ type === "week" ? `${group.start}` : group.releaseDate }}
           </h3>
-          <i
-            :class="
-              groupState[index] ? 'fas fa-chevron-up' : 'fas fa-chevron-down'
-            "
-            class="text-xl"
-          ></i>
+          <i :class="groupState[index] ? 'fas fa-chevron-up' : 'fas fa-chevron-down'
+            " class="text-xl"></i>
         </div>
 
         <!-- Contenido del grupo -->
         <transition name="fade-slide" mode="out-in">
           <div v-if="groupState[index]" class="mt-4">
             <ul>
-              <li
-                v-for="disc in group.discs"
-                :key="disc.id"
-                class="flex justify-between items-center p-4 border-b"
-              >
+              <li v-for="disc in group.discs" :key="disc.id" class="flex justify-between items-center p-4 border-b">
                 <div class="flex items-center">
-                  <div
-                    v-if="disc.genre?.color"
-                    :style="{ backgroundColor: disc.genre.color }"
-                    class="w-4 h-4 rounded-full mr-2"
-                  ></div>
+                  <div v-if="disc.genre?.color" :style="{ backgroundColor: disc.genre.color }"
+                    class="w-4 h-4 rounded-full mr-2"></div>
                   <h4 class="text-md font-semibold">
                     {{ disc.artist.name }} - {{ disc.name }}
                   </h4>
@@ -66,32 +40,28 @@
                 <p class="text-sm text-gray-500">
                   Genre: {{ disc.genre?.name || "Unknown" }}
                 </p>
-                <SpotifyArtistButton :artistName="disc.artist.name" />
+                <div class="flex items-center gap-2">
+                  <SpotifyArtistButton :artistName="disc.artist.name" />
+                  <span v-if="disc.ep"
+                    class="px-2 py-1 rounded-full text-xs font-medium text-white bg-blue-500 shadow-sm">
+                    EP
+                  </span>
+                </div>
 
                 <!-- Selector de usuarios -->
-                <select
-                  v-model="selectedUser[disc.id]"
-                  class="border rounded px-2 py-1 ml-4"
-                >
-                  <option value="" disabled>Select user</option>
+                <select v-model="selectedUser[disc.id]" class="border rounded px-2 py-1 ml-4">
+                  <option value="" disabled>Seleccionar</option>
                   <option v-for="user in users" :key="user.id" :value="user.id">
                     {{ user.username }}
                   </option>
                 </select>
                 <!-- Botón de asignar -->
-                <button
-                  v-if="disc.hasExistingAsignation"
-                  @click="updateAsignation(disc.id)"
-                  class="bg-yellow-500 text-white px-4 py-2 rounded ml-2"
-                >
-                  Update
+                <button v-if="disc.hasExistingAsignation" @click="updateAsignation(disc.id)"
+                  class="bg-yellow-500 text-white px-4 py-2 rounded ml-2">
+                  Actualizar
                 </button>
-                <button
-                  v-else
-                  @click="assignUser(disc.id)"
-                  class="bg-blue-500 text-white px-4 py-2 rounded ml-2"
-                >
-                  Assign
+                <button v-else @click="assignUser(disc.id)" class="bg-blue-500 text-white px-4 py-2 rounded ml-2">
+                  Asignar
                 </button>
               </li>
             </ul>
@@ -181,109 +151,109 @@ export default defineComponent({
       loading.value = true;
 
       try {
-          const startDate = new Date(props.date);
-          const endDate = new Date(props.date);
+        const startDate = new Date(props.date);
+        const endDate = new Date(props.date);
 
-          if(props.type === "week"){
-            const day = startDate.getUTCDay();
-            const diff = startDate.getUTCDate() - day + (day === 0 ? -6 : 1);
-            startDate.setUTCDate(diff);
-            endDate.setUTCDate(startDate.getUTCDate() + 6);
+        if (props.type === "week") {
+          const day = startDate.getUTCDay();
+          const diff = startDate.getUTCDate() - day + (day === 0 ? -6 : 1);
+          startDate.setUTCDate(diff);
+          endDate.setUTCDate(startDate.getUTCDate() + 6);
 
-          }else {
-            startDate.setUTCDate(1);
-            endDate.setUTCMonth(startDate.getUTCMonth() + 1);
-            endDate.setUTCDate(0);
-          }
+        } else {
+          startDate.setUTCDate(1);
+          endDate.setUTCMonth(startDate.getUTCMonth() + 1);
+          endDate.setUTCDate(0);
+        }
 
-          formattedDate.value =
+        formattedDate.value =
+          props.type === "week"
+            ? `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`
+            : startDate.toLocaleDateString("default", {
+              month: "long",
+              year: "numeric",
+            });
+
+
+        const offset = (page.value - 1) * limit.value;
+        const response = await getDiscsDated(limit.value, offset, [
+          startDate.toISOString(),
+          endDate.toISOString(),
+        ]);
+
+        if (response.data.length === 0) {
+          hasMore.value = false;
+          return;
+        }
+
+        const updatedDiscs = response.data.map((group: any) => ({
+          start:
             props.type === "week"
-              ? `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`
-              : startDate.toLocaleDateString("default", {
-                  month: "long",
-                  year: "numeric",
-                });
+              ? new Date(group.releaseDate).toLocaleDateString()
+              : null,
+          end:
+            props.type === "week"
+              ? new Date(
+                new Date(group.releaseDate).setDate(
+                  new Date(group.releaseDate).getDate() + 6
+                )
+              ).toLocaleDateString()
+              : null,
+          releaseDate: props.type === "month" ? group.releaseDate : null,
+          discs: group.discs,
+        }));
 
+        updatedDiscs.forEach((newGroup) => {
+          const existingIndex = discs.value.findIndex((group) =>
+            props.type === "week"
+              ? group.start === newGroup.start && group.end === newGroup.end
+              : group.releaseDate === newGroup.releaseDate
+          );
 
-          const offset = (page.value - 1) * limit.value;
-          const response = await getDiscsDated(limit.value, offset, [
-            startDate.toISOString(),
-            endDate.toISOString(),
-          ]);
-
-          if (response.data.length === 0) {
-            hasMore.value = false;
-            return;
+          if (existingIndex !== -1) {
+            discs.value[existingIndex].discs = [
+              ...discs.value[existingIndex].discs,
+              ...newGroup.discs,
+            ];
+          } else {
+            discs.value.push(newGroup);
           }
 
-          const updatedDiscs = response.data.map((group: any) => ({
-            start:
-              props.type === "week"
-                ? new Date(group.releaseDate).toLocaleDateString()
-                : null,
-            end:
-              props.type === "week"
-                ? new Date(
-                    new Date(group.releaseDate).setDate(
-                      new Date(group.releaseDate).getDate() + 6
-                    )
-                  ).toLocaleDateString()
-                : null,
-            releaseDate: props.type === "month" ? group.releaseDate : null,
-            discs: group.discs,
-          }));
-
-          updatedDiscs.forEach((newGroup) => {
-            const existingIndex = discs.value.findIndex((group) =>
-              props.type === "week"
-                ? group.start === newGroup.start && group.end === newGroup.end
-                : group.releaseDate === newGroup.releaseDate
+          newGroup.discs.forEach((disc: any) => {
+            const asignation = disc.asignations?.find(
+              (asignation: any) => asignation.list.id === props.listId
             );
 
-            if (existingIndex !== -1) {
-              discs.value[existingIndex].discs = [
-                ...discs.value[existingIndex].discs,
-                ...newGroup.discs,
-              ];
+            if (asignation) {
+              selectedUser[disc.id] = asignation.user.id;
+              disc.hasExistingAsignation = true; // Marca que ya tiene una asignación
             } else {
-              discs.value.push(newGroup);
+              disc.hasExistingAsignation = false; // No tiene asignación
             }
-
-            newGroup.discs.forEach((disc: any) => {
-              const asignation = disc.asignations?.find(
-                (asignation: any) => asignation.list.id === props.listId
-              );
-
-              if (asignation) {
-                selectedUser[disc.id] = asignation.user.id;
-                disc.hasExistingAsignation = true; // Marca que ya tiene una asignación
-              } else {
-                disc.hasExistingAsignation = false; // No tiene asignación
-              }
-            });
+          });
         });
-          page.value++;
+        page.value++;
 
-      }catch(error){
-          console.error("Error fetching discs:", error);
-      }finally {
+      } catch (error) {
+        console.error("Error fetching discs:", error);
+      } finally {
         loading.value = false;
       }
     };
 
     const fetchUsers = async () => {
-       // ... (resto del código de fetchUsers, sin cambios) ...
-       try {
-          const usersResponse = await getUsers();
-          users.value = usersResponse.sort((a, b) =>
-            a.username.localeCompare(b.username)
-          );
-        } catch (error) {
-          console.error("Error fetching users:", error);
-        }
+      // ... (resto del código de fetchUsers, sin cambios) ...
+      try {
+        const usersResponse = await getUsers();
+        users.value = usersResponse.sort((a, b) =>
+          a.username.localeCompare(b.username)
+        );
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
 
     };
-      const fetchGenres = async () => {
+    const fetchGenres = async () => {
       try {
         const genresResponse = await getGenres(150, 0); // Obtiene todos los géneros
         genres.value = genresResponse.data;
@@ -301,7 +271,7 @@ export default defineComponent({
       const userId = selectedUser[discId];
 
       if (userId) {
-          try {
+        try {
           console.log(
             `Assigned user ${userId} to disc ${discId} for list ${props.listId}`
           );
@@ -337,8 +307,8 @@ export default defineComponent({
           console.error("Error creating assignment:", error);
           SwalService.error('Failed to assign user. Please try again.');
         }
-      }else {
-         SwalService.error('Please select a user before assigning.');
+      } else {
+        SwalService.error('Please select a user before assigning.');
       }
     };
 
@@ -349,7 +319,7 @@ export default defineComponent({
         JSON.stringify(removedAsignation, null, 2)
       );
 
-       if (removedAsignation && removedAsignation.disc) {
+      if (removedAsignation && removedAsignation.disc) {
         const discId = removedAsignation.disc.id;
 
         // Eliminar al usuario asignado del select
@@ -386,9 +356,9 @@ export default defineComponent({
     };
 
     const resetAndFetch = () => {
-        page.value = 1;
-        discs.value = []; // Limpia los discos existentes
-        fetchDiscs();
+      page.value = 1;
+      discs.value = []; // Limpia los discos existentes
+      fetchDiscs();
     };
 
     onMounted(() => {
@@ -406,7 +376,7 @@ export default defineComponent({
       () => asignationStore.asignations,
       (newAsignations, oldAsignations) => {
         // ... (resto del código del watcher, sin cambios) ...
-         const removedAsignation = oldAsignations.find(
+        const removedAsignation = oldAsignations.find(
           (oldA) => !newAsignations.find((newA) => newA.id === oldA.id)
         );
 
@@ -420,7 +390,7 @@ export default defineComponent({
 
     const updateAsignation = async (discId: string) => {
       // ... (resto del código de updateAsignation, sin cambios) ...
-        const userId = selectedUser[discId];
+      const userId = selectedUser[discId];
 
       // Encuentra el asignationId para el disco
       const group = discs.value.find((group) =>
