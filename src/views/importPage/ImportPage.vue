@@ -24,16 +24,16 @@
       <label for="albums" class="block text-sm font-medium text-gray-700 mb-1">
         Introduce los discos:
       </label>
-      <textarea id="albums" v-model="albumText" placeholder="Canaan – Some Last Echo (Eibon)
-Decrepid – Suffered Existence Re-Release (Brutal)" rows="6"
+      <textarea id="albums" v-model="albumText" placeholder="Lauren Babic – Too Much and Never Enough (EP)
+Decrepid – Suffered Existence" rows="6"
         class="block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"></textarea>
     </div>
 
     <!-- Botón para enviar -->
     <div class="mb-6 md:mb-8 flex justify-center">
       <button @click="processData" :disabled="!selectedDate || !albumText.trim()"
-        class="px-5 py-2 md:px-6 md:py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto">
-        Procesar Datos
+        class="px-5 py-2 md:px-6 md:py-3 bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-black font-semibold rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto">
+        Enviar
       </button>
     </div>
 

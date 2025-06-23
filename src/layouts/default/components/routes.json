@@ -33,6 +33,13 @@
     "requiredRole": "user"
   },
   {
+    "to": "/suggest",
+    "label": "Sugerir discos",
+    "activeClass": "bg-gray-700",
+    "type": "disc-app",
+    "requiredRole": "babyUser"
+  },
+  {
     "to": "/recap",
     "label": "Resumen semanal",
     "activeClass": "bg-gray-700",
