@@ -75,10 +75,14 @@
                 </h2>
                 <p class="text-gray-700">
                     <strong>Spam Music</strong> es un proyecto que hemos creado un grupo de amigos, paralelo al medio
-                    digital Riff Valley. Creamos todo esto inicialmente de manera interna para poder hacer un
-                    seguimiento de todos los lanzamientos que salen cada semana, y si encima podemos votarlos y crear un
-                    sistema social donde poder ver votos de otra gente, mejor que mejor. <strong>Cada semana vamos añadiendo a
-                    la app decenas de discos nuevos</strong> y en el calendario podrás consultar futuros lanzamientos.
+                    digital <a href="https://www.riffvalley.es/" target="_blank"
+                        class="text-blue-600 underline hover:text-blue-800">Riff Valley</a>.
+                    Creamos todo esto inicialmente de manera interna para poder hacer un seguimiento de todos los
+                    lanzamientos que salen cada semana,
+                    y si encima podemos votarlos y crear un sistema social donde poder ver votos de otra gente, mejor
+                    que mejor.
+                    <strong>Cada semana vamos añadiendo a la app decenas de discos nuevos</strong> y en el calendario
+                    podrás consultar futuros lanzamientos.
                 </p>
             </div>
 
