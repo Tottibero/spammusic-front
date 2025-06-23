@@ -9,8 +9,7 @@
         class="bg-purple-500 hover:bg-purple-600 text-white text-xs px-2 py-1 rounded shadow-md ml-2">
         <i class="fa-solid fa-image"></i>
       </button>
-      <img v-if="disc.image" :src="disc.image" alt="Disc cover" class="w-28 h-28 rounded-md cursor-pointer object-cover"
-        @click="openImageModal" />
+      <img v-if="disc.image" :src="disc.image" alt="Disc cover" class="w-28 h-28 rounded-md object-cover" />
       <div class="ml-6 flex flex-col text-center sm:text-left w-full min-w-0 overflow-hidden">
         <!-- Nombre de la banda -->
         <div class="flex items-center space-x-2">
@@ -21,9 +20,6 @@
               {{ disc.artist.name }}
             </a>
           </h3>
-          <button @click="openArtistModal" class="p-1 text-sm hover:bg-gray-200 rounded" title="Editar artista">
-            <i class="fa-solid fa-edit text-xs"></i>
-          </button>
         </div>
         <!-- Nombre del disco -->
         <div class="flex items-center space-x-2">
@@ -34,9 +30,6 @@
               {{ disc.name }}
             </span>
           </a>
-          <button @click="showNameModal = true" class="p-1 text-sm hover:bg-gray-200 rounded" title="Editar nombre">
-            <i class="fa-solid fa-edit text-xs"></i>
-          </button>
         </div>
         <p class="text-sm mt-2 w-full flex items-center space-x-2">
           <a v-if="linkButtonData.visible" :href="disc.link" target="_blank" :class="[
@@ -50,42 +43,40 @@
           <span v-else-if="!disc.link" class="text-gray-400">
             <SpotifyArtistButton :artistName="disc.artist.name" />
           </span>
-          <button @click="showLinkModal = true"
-            class="bg-gray-200 hover:bg-gray-300 text-gray-800 shadow-md text-xs px-2 py-2 h-full rounded flex items-center">
-            <i class="fa-solid fa-link"></i>
-          </button>
         </p>
-        <a class="cursor-pointer mt-2" @click="showDateModal = true">
+        <p class="mt-2 text-left sm:text-left">
           {{ formattedDate }}
-        </a>
+        </p>
       </div>
     </div>
 
-<!-- Columna derecha: Botones de acción en dos columnas -->
-<div
-  class="grid gap-2 w-full sm:w-2/3 p-2"
-  :class="{ 'grid-cols-2': !isNarrow, 'grid-cols-1': isNarrow }"
->
-  <!-- Contenedor del pill centrado verticalmente -->
-<div class="flex items-center justify-center sm:justify-start h-full">
+    <!-- Columna derecha: Botones de acción en dos columnas -->
+    <div class="grid gap-2 w-full sm:w-2/3 p-2" :class="{ 'grid-cols-2': !isNarrow, 'grid-cols-1': isNarrow }">
+      
+<!-- Contenedor de los pills: Género + EP -->
+<div class="flex items-center justify-center sm:justify-start gap-2 h-full">
   <p
-    class="px-2 py-2 rounded-full text-[12px] font-semibold text-white text-center shadow-sm w-fit leading-tight"
+    class="px-2 py-1 rounded-full text-xs font-medium text-white text-center shadow-sm"
     :style="{ backgroundColor: disc.genre?.color || 'grey' }"
   >
     {{ disc.genre?.name || "Sin género" }}
   </p>
+  <p
+    v-if="disc.ep"
+    class="px-2 py-1 rounded-full text-xs font-medium text-white bg-blue-500 text-center shadow-sm"
+  >
+    EP
+  </p>
 </div>
 
-  <!-- Botón -->
-  <button
-    @click="toggleBookmark()"
-    :class="{ 'bg-yellow-500': pendingId, 'bg-gray-300': !pendingId }"
-    class="text-white font-medium px-3 py-2 rounded shadow-md"
-  >
-    {{ pendingId ? "Guardado" : "Añadir a pendientes" }}
-  </button>
-</div>
-</div>
+
+      <!-- Botón -->
+      <button @click="toggleBookmark()" :class="{ 'bg-yellow-500': pendingId, 'bg-gray-300': !pendingId }"
+        class="text-white font-medium px-3 py-2 rounded shadow-md">
+        {{ pendingId ? "Guardado" : "Añadir a pendientes" }}
+      </button>
+    </div>
+  </div>
 
   <!-- Teleport para todos los modales -->
   <Teleport to="body">
