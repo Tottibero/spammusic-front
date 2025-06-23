@@ -15,7 +15,15 @@
     "to": "/calendar",
     "label": "Calendario",
     "activeClass": "bg-gray-700",
-    "type": "disc-app"
+    "type": "disc-app",
+    "requiredRole": "user"
+  },
+  {
+    "to": "/calendar-baby",
+    "label": "Calendario",
+    "activeClass": "bg-gray-700",
+    "type": "disc-app",
+    "requiredRole": "babyUser"
   },
   {
     "to": "/import",

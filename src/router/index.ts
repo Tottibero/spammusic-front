@@ -18,12 +18,18 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("/src/views/discsList/DiscList.vue"),
     meta: { requiresAuth: true },
   },
-  {
-    path: "/calendar",
-    name: "Calendar",
-    component: () => import("/src/views/discsCalendar/DiscCalendar.vue"),
-    meta: { requiresAuth: true },
-  },
+{
+  path: "/calendar",
+  name: "Calendar",
+  component: () => import("/src/views/discsCalendar/DiscCalendar.vue"),
+  meta: { requiresAuth: true, requiresRole: "user" }, // o sin "requiredRole" si quieres que otros lo vean también
+},
+{
+  path: "/calendar-baby",
+  name: "CalendarBaby",
+  component: () => import("/src/views/discsCalendarBaby/DiscCalendarBaby.vue"),
+  meta: { requiresAuth: true, requiresRole: "babyUser" },
+},
   {
     path: "/import",
     name: "Import",
