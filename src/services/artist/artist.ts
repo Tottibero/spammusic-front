@@ -8,11 +8,12 @@ export async function postArtist(payload: any): Promise<void> {
 export async function updateArtist(
   id: string,
   data: {
-    name: string;
+    name?: string;
+    countryId?: string;
   }
 ): Promise<void> {
-  console.log("entra", id);
-  console.log("Datos enviados al backend:", data); // Asegúrate de que 'image' esté presente aquí
+  console.log("Actualizando artista", id);
+  console.log("Datos enviados al backend:", data);
 
   await api.patch(`/artists/${id}`, data);
 }
