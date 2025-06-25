@@ -10,36 +10,36 @@
     <div class="mb-6 flex justify-start space-x-2">
       <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
         :class="viewMode === 'all'
-    ? 'bg-gray-800 text-white'
-    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-    ">
+          ? 'bg-gray-800 text-white'
+          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          ">
         <input type="radio" v-model="viewMode" value="all" class="hidden" />
         Todos los discos <span v-if="totalDisc !== ''">({{ totalDisc }})</span>
       </label>
 
       <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
         :class="viewMode === 'rates'
-    ? 'bg-blue-500 text-white'
-    : 'bg-gray-200 hover:bg-gray-300'
-    ">
+          ? 'bg-blue-500 text-white'
+          : 'bg-gray-200 hover:bg-gray-300'
+          ">
         <input type="radio" v-model="viewMode" value="rates" class="hidden" />
         Mis votos <span v-if="totalRates !== ''">({{ totalRates }})</span>
       </label>
 
       <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
         :class="viewMode === 'covers'
-    ? 'bg-green-500 text-white'
-    : 'bg-gray-200 hover:bg-gray-300'
-    ">
+          ? 'bg-green-500 text-white'
+          : 'bg-gray-200 hover:bg-gray-300'
+          ">
         <input type="radio" v-model="viewMode" value="covers" class="hidden" />
         Mis portadas <span v-if="totalCovers !== ''">({{ totalCovers }})</span>
       </label>
 
       <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
         :class="viewMode === 'favorites'
-    ? 'bg-red-500 text-white'
-    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-    ">
+          ? 'bg-red-500 text-white'
+          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          ">
         <input type="radio" v-model="viewMode" value="favorites" class="hidden" />
         Favoritos
         <span v-if="totalFavorites !== ''">({{ totalFavorites }})</span>
@@ -47,9 +47,9 @@
 
       <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
         :class="viewMode === 'pendientes'
-    ? 'bg-yellow-500 text-white'
-    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-    ">
+          ? 'bg-yellow-500 text-white'
+          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          ">
         <input type="radio" v-model="viewMode" value="pendientes" class="hidden" />
         Pendientes
         <span v-if="totalPendings !== ''">({{ totalPendings }})</span>
@@ -58,12 +58,13 @@
 
     <!-- Contenedor de cuadrícula para las tarjetas -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-      <DiscCard v-for="disc in discs" :key="disc.id" :id="disc.id" :ep="disc.ep" :image="disc.image" :name="disc.name"
-        :releaseDate="disc.releaseDate" :artistName="disc.artist?.name || 'Desconocido'" :genreName="disc.genre?.name"
-        :genreColor="disc.genre?.color" :link="disc.link" :averageRate="disc.averageRate"
-        :averageCover="disc.averageCover" :rate="disc.userRate?.rate" :cover="disc.userRate?.cover"
-        :isNew="!disc.userRate" :userDiscRate="disc.userRate?.id" :favoriteId="disc.favoriteId"
-        :pendingId="disc.pendingId" :comment-count="disc.commentCount" :rateCount="disc.voteCount" />
+      <DiscCard v-for="disc in discs" :key="disc.id" :id="disc.id" :ep="disc.ep" :artistCountry="disc.artist?.country"
+        :image="disc.image" :name="disc.name" :releaseDate="disc.releaseDate"
+        :artistName="disc.artist?.name || 'Desconocido'" :genreName="disc.genre?.name" :genreColor="disc.genre?.color"
+        :link="disc.link" :averageRate="disc.averageRate" :averageCover="disc.averageCover" :rate="disc.userRate?.rate"
+        :cover="disc.userRate?.cover" :isNew="!disc.userRate" :userDiscRate="disc.userRate?.id"
+        :favoriteId="disc.favoriteId" :pendingId="disc.pendingId" :comment-count="disc.commentCount"
+        :rateCount="disc.voteCount" />
     </div>
 
     <!-- Elemento para disparar la carga adicional -->
