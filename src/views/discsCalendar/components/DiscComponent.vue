@@ -6,6 +6,8 @@
   >
     <!-- Columna izquierda: Imagen del disco -->
     <div class="flex items-center w-full sm:w-1/3 p-4 min-w-0">
+
+
       <button
         v-if="!disc.image"
         @click="openImageModal"
@@ -24,27 +26,38 @@
         class="ml-6 flex flex-col text-center sm:text-left w-full min-w-0 overflow-hidden"
       >
         <!-- Nombre de la banda -->
-        <div class="flex items-center space-x-2">
-          <h3
-            class="font-bold text-lg truncate min-w-0 overflow-hidden"
-            :style="{ maxWidth: 'clamp(12ch, 65vw, 30ch)' }"
-          >
-            <!-- Se añade @click para abrir ArtistDetail -->
-            <a
-              @click="openArtistDetail"
-              class="block truncate w-full cursor-pointer hover:underline"
-            >
-              {{ disc.artist.name }}
-            </a>
-          </h3>
-          <button
-            @click="openArtistModal"
-            class="p-1 text-sm hover:bg-gray-200 rounded"
-            title="Editar artista"
-          >
-            <i class="fa-solid fa-edit text-xs"></i>
-          </button>
-        </div>
+<!-- Nombre de la banda con acciones -->
+<div class="flex items-center space-x-2">
+  <h3 class="font-bold text-lg truncate min-w-0 overflow-hidden" :style="{ maxWidth: 'clamp(12ch, 65vw, 30ch)' }">
+    <a @click="openArtistDetail" class="block truncate w-full cursor-pointer hover:underline">
+      {{ disc.artist.name }}
+    </a>
+  </h3>
+
+  <!-- Botón editar artista -->
+  <button
+    @click="openArtistModal"
+    class="p-1 text-sm hover:bg-gray-200 rounded"
+    title="Editar artista"
+  >
+    <i class="fa-solid fa-edit text-xs"></i>
+  </button>
+
+  <!-- Botón de país con bandera -->
+  <button
+    @click="updateCountryId"
+    :class="[
+      disc.artist.countryId === COUNTRY_ID
+        ? 'bg-yellow-500 hover:bg-yellow-600'
+        : 'bg-gray-300 hover:bg-gray-400',
+      'text-white font-medium text-sm px-2 py-1 rounded shadow-md'
+    ]"
+    title="Alternar país"
+  >
+    🇪🇸
+  </button>
+</div>
+
         <!-- Nombre del disco -->
         <div class="flex items-center space-x-2">
           <!-- Se añade @click para abrir DiscDetail -->
@@ -763,6 +776,44 @@ export default defineComponent({
       }
     };
 
+const COUNTRY_ID = "4108d9b0-a44e-4877-a839-a5541eac852d";
+const ALT_COUNTRY_ID = "a121dfc4-7ee8-4435-ab26-1db8e4071dde";
+
+
+const updateCountryId = async () => {
+  const currentId = props.disc.artist.countryId;
+
+  // Lógica de alternancia
+  const newId =
+    currentId === COUNTRY_ID ? ALT_COUNTRY_ID : COUNTRY_ID;
+
+  try {
+    await updateArtist(props.disc.artist.id, { countryId: newId });
+    props.disc.artist.countryId = newId;
+
+    Swal.fire({
+      title: "¡Éxito!",
+      text: `El país se ha cambiado correctamente.`,
+      icon: "success",
+      timer: 3000,
+      toast: true,
+      position: "top-end",
+      showConfirmButton: false,
+    });
+  } catch (error) {
+    console.error("Error al actualizar el país:", error);
+    Swal.fire({
+      title: "Error",
+      text: "No se pudo actualizar el país.",
+      icon: "error",
+      timer: 3000,
+      toast: true,
+      position: "top-end",
+      showConfirmButton: false,
+    });
+  }
+};
+
     // NUEVAS VARIABLES y funciones para abrir los modales de detalle
     const showDiscDetail = ref(false);
     const showArtistDetail = ref(false);
@@ -828,6 +879,8 @@ export default defineComponent({
       showArtistDetail,
       closeDiscDetail,
       closeArtistDetail,
+      updateCountryId,
+      COUNTRY_ID
     };
   },
 });
