@@ -162,6 +162,10 @@ export default defineComponent({
           discs.value.push(
             ...response.data.map((rate) => ({
               ...rate.disc,
+              artist: {
+                ...rate.disc.artist,
+                country: rate.disc.artist?.country ?? null,
+              },
               userRate: {
                 rate: rate.rate,
                 cover: rate.cover,
@@ -185,6 +189,10 @@ export default defineComponent({
           discs.value.push(
             ...response.data.map((rate) => ({
               ...rate.disc,
+              artist: {
+                ...rate.disc.artist,
+                country: rate.disc.artist?.country ?? null,
+              },
               userRate: {
                 rate: rate.rate,
                 cover: rate.cover,
@@ -206,6 +214,10 @@ export default defineComponent({
           discs.value.push(
             ...response.data.map((favorite) => ({
               ...favorite.disc,
+              artist: {
+                ...favorite.disc.artist,
+                country: favorite.disc.artist?.country ?? null,
+              },
               favoriteId: favorite.id,
               pendingId: favorite.disc.userPending
                 ? favorite.disc.userPending.id
@@ -219,7 +231,6 @@ export default defineComponent({
                 : null,
               commentCount: favorite.disc.commentCount,
               voteCount: favorite.disc.voteCount,
-
             }))
           );
           console.log("disc.value", discs.value);
@@ -236,6 +247,10 @@ export default defineComponent({
           discs.value.push(
             ...response.data.map((pending) => ({
               ...pending.disc,
+              artist: {
+                ...pending.disc.artist,
+                country: pending.disc.artist?.country ?? null,
+              },
               pendingId: pending.id,
               userRate: pending.disc.userRate
                 ? {
