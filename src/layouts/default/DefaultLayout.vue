@@ -98,9 +98,6 @@ export default {
 
 /* Ocultar barra lateral en pantallas pequeñas */
 @media (max-width: 768px) {
-  aside {
-    display: none;
-  }
 
   .menu-hamburguesa {
     display: block;
