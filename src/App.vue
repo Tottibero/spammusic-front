@@ -51,17 +51,29 @@ export default defineComponent({
       menuVisible.value = false;
     });
 
-    watch(menuVisible, (visible) => {
-      const html = document.documentElement;
-      const body = document.body;
-      if (visible) {
-        html.style.overflow = 'hidden';
-        body.style.overflow = 'hidden';
-      } else {
-        html.style.overflow = '';
-        body.style.overflow = '';
-      }
-    });
+let scrollY = 0;
+
+watch(menuVisible, (visible) => {
+  const html = document.documentElement;
+  const body = document.body;
+
+  if (visible) {
+    scrollY = window.scrollY;
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.left = '0';
+    body.style.right = '0';
+    body.style.overflow = 'hidden';
+  } else {
+    body.style.position = '';
+    body.style.top = '';
+    body.style.left = '';
+    body.style.right = '';
+    body.style.overflow = '';
+    window.scrollTo(0, scrollY);
+  }
+});
+
 
     return {
       menuVisible,

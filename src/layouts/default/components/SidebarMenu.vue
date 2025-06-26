@@ -1,14 +1,13 @@
 <template>
-<aside
-  :class="[ 
-    'w-64 h-screen min-h-[100dvh] bg-gradient-to-l from-gray-900 to-gray-950 text-white fixed z-30 transform transition-transform duration-300 overflow-y-auto',
-    menuVisible ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-  ]"
->
-    <!-- Contenedor vertical -->
+  <aside
+    :class="[
+      'w-64 bg-gradient-to-l from-gray-900 to-gray-950 text-white fixed left-0 top-0 z-30 transform transition-transform duration-300 h-screen',
+      menuVisible ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+    ]"
+  >
     <div class="flex flex-col h-full">
-            <div class="flex-1 overflow-y-auto overscroll-contain touch-auto">
-      <div class="flex-1 overflow-y-auto">
+      <!-- Scrollable content -->
+      <div class="flex-1 overflow-y-auto overscroll-contain touch-auto">
         <div class="p-4 text-xl font-bold border-b border-gray-700 flex items-center justify-center space-x-3">
           <img src="/LOGO-SPAM-MUSIC.svg" alt="Logo" class="w-8 h-8" />
           <span>Spam Music</span>
@@ -67,7 +66,7 @@
         </nav>
       </div>
 
-      <!-- Pie con botón fijo -->
+      <!-- Footer -->
       <nav class="p-4 space-y-2 border-t border-gray-700">
         <button
           @click="handleLogout"
@@ -77,7 +76,6 @@
           {{ logoutLabel }}
         </button>
       </nav>
-      </div>
     </div>
   </aside>
 </template>
@@ -108,6 +106,8 @@ export default defineComponent({
       console.log("📌 Emitiendo `close-menu` desde SidebarMenu.vue");
       emit("close-menu");
     };
+
+ const scrollY = window.scrollY;
 
     watch(
       () => props.menuVisible,
@@ -155,6 +155,7 @@ export default defineComponent({
       filteredDiscAppRoutes,
       filteredRiffValleyRoutes,
       filteredBottomRoutes,
+      scrollY,
     };
   },
 });
