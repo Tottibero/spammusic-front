@@ -1,14 +1,12 @@
 <template>
-  <aside
-    :class="[
-      'fixed z-30 top-0 left-0 w-64 h-screen bg-gradient-to-l from-gray-900 to-gray-950 text-white transform transition-transform duration-300',
-      menuVisible ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-    ]"
-  >
+<aside
+  :class="[
+    'w-64 h-screen bg-gradient-to-l from-gray-900 to-gray-950 text-white fixed z-30 transform transition-transform duration-300',
+    menuVisible ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+  ]"
+>
     <!-- Contenedor vertical -->
     <div class="flex flex-col h-full">
-      
-      <!-- Scroll SOLO para el contenido -->
       <div class="flex-1 overflow-y-auto">
         <div class="p-4 text-xl font-bold border-b border-gray-700 flex items-center justify-center space-x-3">
           <img src="/LOGO-SPAM-MUSIC.svg" alt="Logo" class="w-8 h-8" />
