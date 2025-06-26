@@ -25,7 +25,7 @@
       <div
         class="ml-6 flex flex-col text-center sm:text-left w-full min-w-0 overflow-hidden"
       >
-        <!-- Nombre de la banda -->
+      
 <!-- Nombre de la banda con acciones -->
 <div class="flex items-center space-x-2">
   <h3 class="font-bold text-lg truncate min-w-0 overflow-hidden" :style="{ maxWidth: 'clamp(12ch, 65vw, 30ch)' }">

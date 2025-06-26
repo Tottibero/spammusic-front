@@ -52,22 +52,20 @@
 
     <!-- Columna derecha: Botones de acción en dos columnas -->
     <div class="grid gap-2 w-full sm:w-2/3 p-2" :class="{ 'grid-cols-2': !isNarrow, 'grid-cols-1': isNarrow }">
-      
-<!-- Contenedor de los pills: Género + EP -->
-<div class="flex items-center justify-center sm:justify-start gap-2 h-full">
-  <p
-    class="px-2 py-1 rounded-full text-xs font-medium text-white text-center shadow-sm"
-    :style="{ backgroundColor: disc.genre?.color || 'grey' }"
-  >
-    {{ disc.genre?.name || "Sin género" }}
-  </p>
-  <p
-    v-if="disc.ep"
-    class="px-2 py-1 rounded-full text-xs font-medium text-white bg-blue-500 text-center shadow-sm"
-  >
-    EP
-  </p>
-</div>
+
+      <!-- Contenedor de los pills: Género + EP -->
+      <div class="flex items-center justify-center sm:justify-start gap-2 h-full">
+        <p class="px-2 py-1 rounded-full text-xs font-medium text-white text-center shadow-sm"
+          :style="{ backgroundColor: disc.genre?.color || 'grey' }">
+          {{ disc.genre?.name || "Sin género" }}
+        </p>
+        <p v-if="disc.ep"
+          class="px-2 py-1 rounded-full text-xs font-medium text-white bg-blue-500 text-center shadow-sm">
+          EP
+        </p>
+        <img v-if="artistCountry?.name === 'SPAIN'" src="/src/assets/spain-flag-round.svg" alt="ES" class="rounded-full"
+          style="width: 20px; height: 20px; object-fit: cover;" />
+      </div>
 
 
       <!-- Botón -->
@@ -182,22 +180,27 @@ export default defineComponent({
     DiscDetail,
     ArtistDetail,
   },
-  props: {
-    disc: {
-      type: Object as PropType<{
-        id: string;
-        name: string;
-        artist: { name: string };
-        genreId: string;
-        link: string | null;
-        image: string | null;
-        ep: boolean;
-        verified: boolean;
-        releaseDate: Date;
-        pendingId: string;
-      }>,
-      required: true,
-    },
+props: {
+  disc: {
+    type: Object as PropType<{
+      id: string;
+      name: string;
+      artist: { name: string };
+      genreId: string;
+      link: string | null;
+      image: string | null;
+      ep: boolean;
+      verified: boolean;
+      releaseDate: Date;
+      pendingId: string;
+    }>,
+    required: true,
+  },
+  artistCountry: {
+    type: Object as PropType<{ name: string }>,
+    required: false,
+    default: null,
+  },
     genres: {
       type: Array as PropType<{ id: string; name: string; color?: string }[]>,
       required: true,
