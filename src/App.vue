@@ -58,13 +58,17 @@ watch(menuVisible, (visible) => {
   const body = document.body;
 
   if (visible) {
+    // 1. Guardar scroll actual
     scrollY = window.scrollY;
+
+    // 2. Fijar posición y bloquear scroll sin perder scroll actual
     body.style.position = 'fixed';
     body.style.top = `-${scrollY}px`;
     body.style.left = '0';
     body.style.right = '0';
     body.style.overflow = 'hidden';
   } else {
+    // 3. Restaurar scroll
     body.style.position = '';
     body.style.top = '';
     body.style.left = '';

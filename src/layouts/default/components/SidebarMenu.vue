@@ -8,6 +8,7 @@
     <div class="flex flex-col h-full">
       <!-- Scrollable content -->
       <div class="flex-1 overflow-y-auto overscroll-contain touch-auto">
+              <div class="flex-1 overflow-y-auto">
         <div class="p-4 text-xl font-bold border-b border-gray-700 flex items-center justify-center space-x-3">
           <img src="/LOGO-SPAM-MUSIC.svg" alt="Logo" class="w-8 h-8" />
           <span>Spam Music</span>
@@ -76,6 +77,7 @@
           {{ logoutLabel }}
         </button>
       </nav>
+      </div>
     </div>
   </aside>
 </template>
