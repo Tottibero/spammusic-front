@@ -116,7 +116,8 @@
         :genreColor="disc.genre?.color" :link="disc.link" :averageRate="disc.averageRate"
         :averageCover="disc.averageCover" :rate="disc.userRate?.rate" :cover="disc.userRate?.cover"
         :isNew="!disc.userRate" :userDiscRate="disc.userRate?.id" :favoriteId="disc.userFavoriteId"
-        :pendingId="disc.pendingId" :comment-count="disc.commentCount" :rateCount="disc.voteCount" />
+        :pendingId="disc.pendingId" :comment-count="disc.commentCount" :rateCount="disc.voteCount"
+        :artistCountry="disc.artist?.country" />
     </div>
   </div>
 </template>
@@ -260,7 +261,13 @@ export default defineComponent({
           dateRange = undefined;
         }
         const response: DiscsStatsResponse = await getTopRatedOrFeaturedAndStats(dateRange);
-        discs.value = response.discs;
+        discs.value = response.discs.map((disc) => ({
+          ...disc,
+          artist: {
+            ...disc.artist,
+            country: disc.artist?.country ?? null,
+          },
+        }));
         stats.value.totalDiscs = response.totalDiscs;
         stats.value.totalVotes = response.totalVotes;
         topUsersByRates.value = response.topUsersByRates;
