@@ -3,8 +3,8 @@
     'w-64 bg-gradient-to-l from-gray-900 to-gray-950 text-white flex flex-col justify-between fixed h-screen transform transition-transform duration-300 z-20',
     menuVisible ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
   ]">
-
     <!-- Disc-App -->
+       <div class="flex flex-col justify-between h-full overflow-y-auto">
     <div>
       <div class="p-4 text-xl font-bold border-b border-gray-700 flex items-center justify-center space-x-3">
         <img src="/LOGO-SPAM-MUSIC.svg" alt="Logo" class="w-8 h-8" />
@@ -64,6 +64,7 @@
         {{ logoutLabel }}
       </button>
     </nav>
+    </div>
   </aside>
 </template>
 
@@ -94,11 +95,16 @@ export default defineComponent({
       emit("close-menu");
     };
 
-    // 🔍 Si `menuVisible` cambia a false, imprimir en consola
     watch(
       () => props.menuVisible,
       (newValue) => {
         console.log("🔄 `menuVisible` cambiado en SidebarMenu.vue:", newValue);
+
+        if (newValue) {
+          document.body.style.overflow = "hidden"; // 🚫 Bloquea scroll
+        } else {
+          document.body.style.overflow = ""; // ✅ Restaura scroll
+        }
       }
     );
 
