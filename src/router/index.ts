@@ -139,11 +139,11 @@ const routes: Array<RouteRecordRaw> = [
     component: Login,
   },
   {
-  path: "/how-to-use",
-  name: "HowToUse",
-  component: () => import("/src/views/help/HowToUse.vue"),
-  meta: { requiresAuth: true }
-}
+    path: "/how-to-use",
+    name: "HowToUse",
+    component: () => import("/src/views/help/HowToUse.vue"),
+    meta: { requiresAuth: true },
+  },
 ];
 
 const router = createRouter({
@@ -158,13 +158,16 @@ router.beforeEach((to) => {
     return { name: "Login" };
   }
 
-  if (to.meta.requiresRole && !authStore.hasRole(to.meta.requiresRole)) {
+  if (
+    to.meta.requiresRole &&
+    !(authStore.roles || "").includes(to.meta.requiresRole)
+  ) {
     return { name: "Home" };
   }
 
   const restrictedForBabyUser = ["/import"];
   if (
-    authStore.hasRole("babyUser") &&
+    (authStore.roles || "").includes("babyUser") &&
     restrictedForBabyUser.includes(to.path)
   ) {
     return { name: "Home" };
