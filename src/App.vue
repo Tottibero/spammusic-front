@@ -1,10 +1,18 @@
 <template>
   <div id="app-container">
-    <!-- Mostrar SidebarMenu solo si no es la página de login -->
-    <SidebarMenu 
+    <!-- FONDO OSCURO SOLO CUANDO EL MENÚ ESTÁ ABIERTO -->
+    <div
+      v-if="menuVisible && !isLoginPage"
+      class="fixed inset-0 bg-black bg-opacity-50 z-10"
+      @click="closeMenuHandler"
+    />
+
+    <!-- Sidebar (por encima del overlay) -->
+    <SidebarMenu
       v-if="!isLoginPage"
       :menuVisible="menuVisible"
       @close-menu="closeMenuHandler"
+      class="z-20"
     />
 
     <!-- Layout logic -->
@@ -42,6 +50,34 @@ export default defineComponent({
       console.log("🔄 Cambio de ruta detectado, cerrando menú...");
       menuVisible.value = false;
     });
+
+let scrollY = 0;
+
+watch(menuVisible, (visible) => {
+  const html = document.documentElement;
+  const body = document.body;
+
+  if (visible) {
+    // 1. Guardar scroll actual
+    scrollY = window.scrollY;
+
+    // 2. Fijar posición y bloquear scroll sin perder scroll actual
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.left = '0';
+    body.style.right = '0';
+    body.style.overflow = 'hidden';
+  } else {
+    // 3. Restaurar scroll
+    body.style.position = '';
+    body.style.top = '';
+    body.style.left = '';
+    body.style.right = '';
+    body.style.overflow = '';
+    window.scrollTo(0, scrollY);
+  }
+});
+
 
     return {
       menuVisible,
