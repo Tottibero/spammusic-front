@@ -7,7 +7,7 @@ export const useAuthStore = defineStore("auth", {
     token: localStorage.getItem("token") as string | null,
     username: localStorage.getItem("username") as string | null,
     userId: localStorage.getItem("userId") as string | null,
-    roles: localStorage.getItem("roles") as string[], // Roles almacenados solo en la store, no en localStorage
+    roles: localStorage.getItem("roles")  as string[], // Roles almacenados solo en la store, no en localStorage
   }),
   actions: {
     async login(payload: LoginPayload) {
@@ -24,7 +24,7 @@ export const useAuthStore = defineStore("auth", {
         localStorage.setItem("token", response.token);
         localStorage.setItem("username", response.username);
         localStorage.setItem("userId", response.id);
-        localStorage.setItem("roles", JSON.stringify(response.roles));
+        localStorage.setItem("roles", response.roles);
 
         // Configura el token en Axios para futuras solicitudes
         api.defaults.headers.common[
