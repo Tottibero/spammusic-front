@@ -1,17 +1,12 @@
 <template>
-  <div 
-    v-if="showVotes" 
-    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-  >
+  <div v-if="showVotes" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
     <!-- Modal Container con altura máxima de 80% de la pantalla -->
-    <div 
-      class="bg-white p-6 rounded-lg shadow-xl w-full max-w-3xl relative 
-             max-h-[80vh] overflow-y-auto"
-    >
+    <div
+      class="bg-white p-4 sm:p-6 rounded-lg shadow-xl w-[95%] sm:w-full sm:max-w-3xl relative max-h-[80vh] overflow-y-auto">
 
       <!-- Título -->
-      <h2 class="text-xl font-semibold mb-4 text-gray-800">
-        Votos de {{ albumName }} - {{ artistName }}
+      <h2 class="text-xl font-semibold mb-8 text-gray-800 text-center mx-6 sm:mx-12">
+        {{ albumName }} - {{ artistName }}
       </h2>
 
       <!-- Contenedor principal -->
@@ -20,20 +15,11 @@
         <!-- Table -->
         <div class="w-full md:w-1/2">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-gray-100 text-gray-700 text-xs uppercase tracking-wider">
               <tr>
-                <th scope="col"
-                    class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Usuario
-                </th>
-                <th scope="col"
-                    class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Disco
-                </th>
-                <th scope="col"
-                    class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Portada
-                </th>
+                <th class="px-3 py-2 text-center font-semibold border-b border-gray-300">Usuario</th>
+                <th class="px-3 py-2 text-center font-semibold border-b border-gray-300">Disco</th>
+                <th class="px-3 py-2 text-center font-semibold border-b border-gray-300">Portada</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
@@ -49,8 +35,7 @@
                 </td>
               </tr>
               <tr v-if="votes.length === 0">
-                <td colspan="3"
-                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td colspan="3" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   No hay votos disponibles.
                 </td>
               </tr>
@@ -60,47 +45,42 @@
 
         <!-- Chart and Toggle -->
         <div class="w-full md:w-1/2 flex flex-col items-center">
-<!-- Switch Disco / Portada -->
-<div class="mb-4 flex items-center justify-center space-x-2 bg-gray-200 rounded-full p-1">
-  <button
-    @click="isRateSelected = true"
-    :class="[
-      'text-sm font-semibold px-4 py-1 rounded-full transition-all duration-200',
-      isRateSelected ? 'bg-gray-700 text-white' : 'text-gray-700 hover:text-black'
-    ]"
-  >
-    Disco
-  </button>
-  <button
-    @click="isRateSelected = false"
-    :class="[
-      'text-sm font-semibold px-4 py-1 rounded-full transition-all duration-200',
-      !isRateSelected ? 'bg-gray-700 text-white' : 'text-gray-700 hover:text-black'
-    ]"
-  >
-    Portada
-  </button>
-</div>
+          <!-- Switch Disco / Portada -->
+          <div class="mb-4 flex items-center justify-center space-x-2 bg-gray-200 rounded-full p-1">
+            <button @click="isRateSelected = true" :class="[
+              'text-sm font-semibold px-4 py-1 rounded-full transition-all duration-200',
+              isRateSelected ? 'bg-gray-700 text-white' : 'text-gray-700 hover:text-black'
+            ]">
+              Disco
+            </button>
+            <button @click="isRateSelected = false" :class="[
+              'text-sm font-semibold px-4 py-1 rounded-full transition-all duration-200',
+              !isRateSelected ? 'bg-gray-700 text-white' : 'text-gray-700 hover:text-black'
+            ]">
+              Portada
+            </button>
+          </div>
 
-
-          <!-- Contenedor con altura fija o máxima para el chart -->
-          <div class="relative w-full h-64">
-            <canvas 
-              ref="pieChart" 
-              class="absolute top-0 left-0 w-full h-full"
-            ></canvas>
+          <!-- Donut + leyenda envueltos en un div -->
+          <div class="relative w-full h-56 top-1 flex flex-col items-center justify-center">
+            <canvas ref="doughnut" class="w-full h-full"></canvas>
+            <!-- Contenedor para leyenda personalizada -->
+            <div class="flex flex-wrap justify-center gap-x-1 gap-y-1 mt-4 text-xs text-gray-800">
+              <div v-for="(label, i) in customLegend" :key="i" class="flex items-center space-x-1">
+                <div :style="{ backgroundColor: label.color }" class="w-2.5 h-2.5 rounded-full"></div>
+                <span>{{ label.text }}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Botón de cerrar al final -->
       <div class="mt-6 flex justify-center">
-        <button 
-  @click="$emit('close')" 
-  class="absolute top-3 right-3 text-white hover:text-[#d9e021] bg-gray-700 hover:bg-gray-800 rounded-full w-10 h-10 flex items-center justify-center shadow-md transition-all"
->
-  ✖
-</button>
+        <button @click="$emit('close')"
+          class="absolute top-3 right-3 text-white hover:text-[#d9e021] bg-gray-700 hover:bg-gray-800 rounded-full w-10 h-10 flex items-center justify-center shadow-md transition-all">
+          ✖
+        </button>
       </div>
     </div>
   </div>
@@ -140,14 +120,18 @@ export default defineComponent({
   },
   emits: ['close'],
   setup(props, { emit }) {
-    const pieChart = ref<HTMLCanvasElement | null>(null);
+    const doughnut = ref<HTMLCanvasElement | null>(null);
     const chartInstance = ref<Chart | null>(null);
+    let createChartTimeout: ReturnType<typeof setTimeout> | null = null;
     // Control whether to show "rate" or "cover" - starts showing rate
     const isRateSelected = ref(true);
 
     const closeModal = () => {
       emit('close');
     };
+
+    const customLegend = ref<{ text: string; color: string }[]>([]);
+
 
     // Function to generate color based on a numeric value (rating or cover)
     const getColor = (value: number) => {
@@ -181,7 +165,9 @@ export default defineComponent({
     };
 
     const createChart = () => {
-      if (!pieChart.value) return;
+      if (!doughnut.value) return;
+
+
 
       // Count occurrences for rate & cover
       const rateCounts: { [key: number]: number } = {};
@@ -203,8 +189,7 @@ export default defineComponent({
       const coverLabels = Object.keys(coverCounts).sort((a, b) => Number(a) - Number(b));
 
       // Combine them into one set to keep possible shared labels
-      const allLabelsSet = new Set([...rateLabels, ...coverLabels]);
-      const allLabels = Array.from(allLabelsSet).sort((a, b) => Number(a) - Number(b));
+      const allLabels = Array.from({ length: 10 }, (_, i) => String(i + 1));
 
       // Build datasets
       const rateData = allLabels.map((label) => rateCounts[Number(label)] || 0);
@@ -223,12 +208,49 @@ export default defineComponent({
       const selectedData = isRateSelected.value ? rateData : coverData;
       const selectedLabel = isRateSelected.value ? 'Disco' : 'Portada';
       const dynamicTitle = isRateSelected.value
-        ? 'Distribución de Votos: Disco'
-        : 'Distribución de Votos: Portada';
-      
+        ? 'Votos en Disco'
+        : 'Votos en Portada';
 
-      chartInstance.value = new Chart(pieChart.value, {
-        type: 'pie',
+      const field = isRateSelected.value ? 'rate' : 'cover';
+
+      // Aseguramos que hay números válidos
+      const validValues = props.votes
+        .map(v => Number(v[field]))
+        .filter(n => !isNaN(n) && n > 0);
+
+      // Calcular media
+      const average = validValues.length > 0
+        ? (validValues.reduce((acc, val) => acc + val, 0) / validValues.length).toFixed(2)
+        : '0.00';
+
+      const centerTextPlugin = {
+        id: 'centerText',
+        beforeDraw: (chart) => {
+          const { width, height, ctx } = chart;
+
+          // Protege contra canvas no inicializado
+          if (!ctx || typeof ctx.fillText !== 'function') return;
+
+          ctx.save();
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+
+          const numVotes = validValues.length;
+          const averageText = average;
+          const votesText = `${numVotes} voto${numVotes === 1 ? '' : 's'}`;
+
+          ctx.fillStyle = '#1f2937';
+          ctx.font = 'bold 22px sans-serif';
+          ctx.fillText(averageText, width / 2, height / 2 + 13);
+
+          ctx.font = 'normal 11px sans-serif';
+          ctx.fillText(votesText, width / 2, height / 2 + 31);
+          ctx.restore();
+        },
+      };
+
+      chartInstance.value = new Chart(doughnut.value, {
+        type: 'doughnut',
         data: {
           labels: allLabels,
           datasets: [
@@ -244,19 +266,45 @@ export default defineComponent({
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          
           plugins: {
             title: {
               display: true,
               text: dynamicTitle,
             },
             legend: {
-              display: true,
+              display: false,
               position: 'bottom',
+              labels: {
+                boxWidth: 8,
+                boxHeight: 8,
+                padding: 8,
+                color: '#1f2937',
+                font: { size: 11, weight: 'regular' },
+                usePointStyle: true,
+                generateLabels: (chart) => {
+                  const data = chart.data;
+                  return data.labels?.map((label, i) => ({
+                    text: `${label}`,
+                    fillStyle: data.datasets[0].backgroundColor?.[i],
+                    strokeStyle: data.datasets[0].borderColor?.[i],
+                    lineWidth: 1,
+                    index: i,
+                  })) ?? [];
+                }
+              }
             },
           },
         },
+        plugins: [centerTextPlugin],
       });
+      // ✅ Aquí va esto:
+      customLegend.value = allLabels.map((label, i) => ({
+        text: `${label}`,
+        color: backgroundColors[i]
+      }));
     };
+
 
     // Create chart when component is mounted
     onMounted(() => {
@@ -293,15 +341,20 @@ export default defineComponent({
 
     // Rebuild chart whenever toggle changes
     watch(isRateSelected, () => {
-      nextTick(() => {
-        createChart();
-      });
+      if (createChartTimeout) clearTimeout(createChartTimeout);
+      createChartTimeout = setTimeout(() => {
+        nextTick(() => {
+          createChart();
+        });
+      }, 200); // 200ms de margen de seguridad
     });
 
     return {
       closeModal,
-      pieChart,
+      doughnut,
       isRateSelected,
+      createChart,
+      customLegend,
     };
   },
 });
