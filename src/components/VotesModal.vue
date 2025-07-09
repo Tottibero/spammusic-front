@@ -206,7 +206,7 @@ export default defineComponent({
 
       // Decide which data to display based on isRateSelected
       const selectedData = isRateSelected.value ? rateData : coverData;
-      const selectedLabel = isRateSelected.value ? 'Disco' : 'Portada';
+      const selectedLabel = isRateSelected.value ? 'Votos' : 'Votos';
       const dynamicTitle = isRateSelected.value
         ? 'Votos en Disco'
         : 'Votos en Portada';
