@@ -22,11 +22,13 @@
                 </h2>
                 <p class="text-gray-700">
                     En la sección <strong>Discos</strong> encontrarás el listado completo de lanzamientos mediante
-                    tarjetas. Puedes ver
-                    sus portadas, puntuarlos, dejar comentarios, guardarlos como favoritos o marcarlos como pendientes.
+                    tarjetas. Puedes ver sus portadas, puntuarlos, dejar comentarios<i class="fa-solid fa-comment-dots text-sm text-gray-600 ml-1"></i>,
+                    guardarlos como favoritos<i class="fa-solid fa-heart text-sm text-red-500 ml-1"></i>
+                    o marcarlos como pendientes<i class="fa-solid fa-bookmark text-sm text-yellow-400 ml-1"></i>.
                     Esta sección es la más importante y la más social.
                 </p>
             </div>
+
 
             <div>
                 <h2 class="text-xl font-semibold mt-6">
@@ -104,7 +106,7 @@
             </div>
 
             <div class="mt-4 text-center">
-                <a href="https://www.paypal.com/pool/9bdQ9jZv5c?sr=ancr" target="_blank"
+                <a href="https://www.paypal.com/pool/9gt3NQqIBG?sr=wccr" target="_blank"
                     class="inline-block bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-black font-semibold px-6 py-2 rounded-full shadow transition duration-200">
                     Ir al Paypal colaborativo
                 </a>
