@@ -1,6 +1,13 @@
 <template>
-    <div class="min-h-screen bg-gray-100 py-6">
-        <div class="max-w-4xl mx-auto px-4 py-6">
+    <div class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+        <div
+            class="bg-white rounded-3xl shadow-xl max-w-3xl w-[90vw] sm:w-full max-h-[90vh] overflow-y-auto relative p-6">
+            <!-- Botón de cierre -->
+            <button @click="$emit('close')"
+                class="absolute top-2 right-2 text-white hover:text-[#d9e021] bg-gray-700 hover:bg-gray-800 rounded-full w-10 h-10 flex items-center justify-center shadow-md transition-all">
+                ✖
+            </button>
+
             <h1
                 class="text-xl font-bold mb-3 text-white bg-gray-700 px-4 py-1 rounded-full text-center inline-block mx-auto shadow">
                 Cómo usar la app
@@ -100,7 +107,7 @@
                                 calendario
                                 podrás consultar futuros lanzamientos.
                             </p>
-                            <a href="https://www.riffvalley.es/" target="_blank" rel="noopener">
+                                                        <a href="https://www.riffvalley.es/" target="_blank" rel="noopener">
                                 <img src="@/assets/RVEjemplo.webp" alt="Ejemplo sección Discos"
                                     class="rounded-lg shadow-md mx-auto my-4 w-full max-w-md" />
                             </a>
@@ -148,7 +155,9 @@
                                 </a>
                                 para no perderte ninguna novedad.
                             </p>
+
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -157,7 +166,7 @@
 </template>
 
 <script setup>
-// No necesitas lógica por ahora
+// sin lógica necesaria, solo emitimos `close`
 </script>
 
 <style scoped>
