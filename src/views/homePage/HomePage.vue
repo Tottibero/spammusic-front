@@ -49,7 +49,18 @@
               </li>
             </ul>
           </div>
+          <!-- Botón para abrir estadísticas detalladas -->
+          <div class="mt-8">
+            <button @click="showDetailedStats = true" class="inline-flex items-center text-[#211d1d] font-semibold px-4 py-2 rounded-full shadow transition duration-100
+           bg-gray-100 hover:bg-gradient-to-r hover:from-[#fcee21] hover:to-[#d9e021] hover:text-[#211d1d]">
+              <i class="fa-solid fa-chart-bar text-md mr-2"></i>
+              Estadísticas detalladas
+            </button>
+            <StatsModal v-if="showDetailedStats" @close="showDetailedStats = false" />
+          </div>
+
         </div>
+
       </div>
     </div>
 
@@ -127,12 +138,14 @@ import { defineComponent, ref, onMounted, computed, watch } from "vue";
 import { getTopRatedOrFeaturedAndStats } from "@services/discs/discs";
 import type { Disc, DiscsStatsResponse } from "@services/discs/disc";
 import DiscCard from "@components/DiscCardComponent.vue";
-import RatingBarChart from "./components/RatingBarChar.vue"; // Componente del gráfico
+import RatingBarChart from "./components/RatingBarChar.vue";
+import StatsModal from "@components/StatsModal.vue";
 
 export default defineComponent({
   components: {
     DiscCard,
     RatingBarChart,
+    StatsModal,
   },
   setup() {
     const discs = ref<Disc[]>([]);
@@ -143,6 +156,7 @@ export default defineComponent({
     const topUsersByRates = ref<any[]>([]);
     const topUsersByCover = ref<any[]>([]);
     const ratingDistribution = ref<Array<{ rate: number; count: number }>>([]);
+    const showDetailedStats = ref(false);
 
     // Período seleccionado: 'week' (por defecto), 'month', 'year' o 'all'
     const selectedPeriod = ref("week");
@@ -326,6 +340,7 @@ export default defineComponent({
       optionsForSelect,
       fetchDiscs,
       getTrophyIcon,
+      showDetailedStats,
     };
   },
 });
