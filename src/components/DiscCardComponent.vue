@@ -118,7 +118,7 @@
           </svg>
           <span class="flex items-center">
             {{ showVotes ? "Ocultar" : "Votos" }}
-            <span v-if="rateCount > 0" class="ml-1 text-[10px] text-[#d9e021]">({{ rateCount }})</span>
+            <span v-if="rateCount > 0" class="ml-1 mt-1 text-[9px] text-[#d9e021]">({{ rateCount }})</span>
           </span>
         </button>
 
@@ -127,8 +127,8 @@
           <i class="fa-solid fa-comment-dots text-white text-sm"></i>
           <span class="flex items-center">
             Notas
-            <span v-if="commentCount > 0" class="ml-1 text-[10px] text-[#d9e021]">(<span class="inline">{{ commentCount
-            }}</span>)</span>
+            <span v-if="commentCount > 0" class="ml-1 mt-1 text-[9px] text-[#d9e021]">(<span class="inline">{{ commentCount
+                }}</span>)</span>
           </span>
         </button>
 
