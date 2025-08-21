@@ -149,7 +149,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, watch } from "vue";
-import { getUsers } from "@services/users/users";
+import { getRvUsers } from "@services/users/users";
 import SwalService from "@services/swal/SwalService";
 import {
   postAsignationService,
@@ -192,7 +192,7 @@ export default defineComponent({
 
     const fetchUsers = async () => {
       try {
-        const response = await getUsers();
+        const response = await getRvUsers();
         users.value = response;
       } catch (error) {
         console.error("Error fetching users:", error);
