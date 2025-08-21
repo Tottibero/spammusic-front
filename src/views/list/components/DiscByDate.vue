@@ -85,7 +85,7 @@ import {
   computed,
 } from "vue";
 import { getDiscsDated } from "@services/discs/discs";
-import { getUsers } from "@services/users/users";
+import { getRvUsers } from "@services/users/users";
 import { getGenres } from "@services/genres/genres"; // Importa getGenres
 import SwalService from "@services/swal/SwalService";
 import { obtenerEnlaceArtistaSpotify } from "@helpers/SpotifyFunctions";
@@ -244,7 +244,7 @@ export default defineComponent({
     const fetchUsers = async () => {
       // ... (resto del código de fetchUsers, sin cambios) ...
       try {
-        const usersResponse = await getUsers();
+        const usersResponse = await getRvUsers();
         users.value = usersResponse.sort((a, b) =>
           a.username.localeCompare(b.username)
         );
