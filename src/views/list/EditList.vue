@@ -349,7 +349,7 @@ export default defineComponent({
     onMounted(async () => {
       loadListDetails();
       await asignationStore.loadAsignations(props.id);
-      await userStore.loadUsers();
+      await userStore.loadRvUsers();
     });
 
     return {
