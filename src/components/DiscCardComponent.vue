@@ -58,7 +58,7 @@
 
           <!-- Botón de Escuchar -->
           <div class="flex items-center space-x-2 mt-1">
-            <a v-if="link" @click="openSpotify(link)"
+            <a v-if="link" @click="openPlatformLink(link)"
               class="px-2 py-1 rounded-full cursor-pointer text-xs font-medium text-white text-center shadow-sm bg-green-500 hover:bg-green-600 hover:text-white transition-all w-1/2 text-left">
               Escuchar
             </a>
@@ -127,8 +127,9 @@
           <i class="fa-solid fa-comment-dots text-white text-sm"></i>
           <span class="flex items-center">
             Notas
-            <span v-if="commentCount > 0" class="ml-1 mt-1 text-[9px] text-[#d9e021]">(<span class="inline">{{ commentCount
-                }}</span>)</span>
+            <span v-if="commentCount > 0" class="ml-1 mt-1 text-[9px] text-[#d9e021]">(<span class="inline">{{
+              commentCount
+            }}</span>)</span>
           </span>
         </button>
 
@@ -427,21 +428,38 @@ export default defineComponent({
 
     const openSpotify = (webLink: string) => {
       try {
-        const albumIdMatch = webLink.match(/album\/([a-zA-Z0-9]+)/);
-        if (albumIdMatch) {
-          const albumId = albumIdMatch[1];
-          const spotifyAppLink = `spotify://album/${albumId}`;
-          window.location.href = spotifyAppLink;
-
-          setTimeout(() => {
-            window.open(webLink, "_blank");
-          }, 1500); // Espera 1.5s para fallback si no se abre la app
-        } else {
-          window.open(webLink, "_blank");
+        const kinds = ["album", "track", "artist", "playlist", "episode", "show"];
+        for (const kind of kinds) {
+          const m = webLink.match(new RegExp(`${kind}\\/([a-zA-Z0-9]+)`));
+          if (m && m[1]) {
+            const id = m[1];
+            const uri = `spotify://${kind}/${id}`;
+            window.location.href = uri;
+            setTimeout(() => window.open(webLink, "_blank", "noopener"), 1500);
+            return;
+          }
         }
-      } catch (error) {
-        console.error("Error al intentar abrir Spotify:", error);
-        window.open(webLink, "_blank");
+        window.open(webLink, "_blank", "noopener");
+      } catch (e) {
+        console.error("Error al deep-linkear Spotify:", e);
+        window.open(webLink, "_blank", "noopener");
+      }
+    };
+
+    const openPlatformLink = (webLink: string) => {
+      if (!webLink) return;
+
+      if (webLink.includes("spotify.com")) {
+        openSpotify(webLink); // intenta app + fallback
+      } else if (
+        webLink.includes("youtube.com") ||
+        webLink.includes("youtu.be") ||
+        webLink.includes("music.youtube.com") ||
+        webLink.includes("bandcamp.com")
+      ) {
+        window.open(webLink, "_blank", "noopener"); // web para YouTube/Bandcamp
+      } else {
+        window.open(webLink, "_blank", "noopener"); // otros
       }
     };
 
@@ -484,6 +502,7 @@ export default defineComponent({
       commentCount,
       rateCount,
       openSpotify,
+      openPlatformLink,
       isSubmittingRating,
       disableSubmitButton
     };
