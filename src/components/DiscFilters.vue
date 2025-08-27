@@ -1,6 +1,7 @@
 <template>
   <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:space-x-4">
     <input
+      v-if="showSearchQuery"
       v-model="searchQuery"
       type="text"
       placeholder="Buscar álbum o artista..."
@@ -55,6 +56,7 @@ export default defineComponent({
       default: () => [],
     },
     showWeekPicker: { type: Boolean, default: true },
+    showSearchQuery: { type: Boolean, default: true },
   },
   emits: [
     "update:searchQuery",

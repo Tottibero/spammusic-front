@@ -100,6 +100,16 @@
       </button>
     </div>
 
+    <!-- Filtros -->
+    <DiscFilters
+      :selectedGenre="selectedGenre"
+      :selectedWeek="null"
+      :genres="genres"
+      :showWeekPicker="false"
+      :showSearchQuery="false"
+      @update:selectedGenre="selectedGenre = $event"
+      @resetAndFetch="fetchDiscs" />
+
     <!-- Select para elegir el rango (solo para semana, mes o año) -->
     <div v-if="selectedPeriod !== 'all'" class="mb-6 flex justify-center">
       <div class="relative w-44">
@@ -137,15 +147,18 @@
 import { defineComponent, ref, onMounted, computed, watch } from "vue";
 import { getTopRatedOrFeaturedAndStats } from "@services/discs/discs";
 import type { Disc, DiscsStatsResponse } from "@services/discs/disc";
+import { getGenres } from "@services/genres/genres";
 import DiscCard from "@components/DiscCardComponent.vue";
 import RatingBarChart from "./components/RatingBarChar.vue";
 import StatsModal from "@components/StatsModal.vue";
+import DiscFilters from "@components/DiscFilters.vue";
 
 export default defineComponent({
   components: {
     DiscCard,
     RatingBarChart,
     StatsModal,
+    DiscFilters,
   },
   setup() {
     const discs = ref<Disc[]>([]);
@@ -162,6 +175,21 @@ export default defineComponent({
     const selectedPeriod = ref("week");
     // Almacena el rango seleccionado mediante el <select>
     const selectedOption = ref<{ start: string; end: string; label: string } | null>(null);
+
+    // Filtros
+    const searchQuery = ref("");
+    const selectedGenre = ref("");
+    const genres = ref<any[]>([]);
+
+    // Función para obtener los géneros
+    const fetchGenres = async () => {
+      try {
+        const response = await getGenres(150, 0);
+        genres.value = response.data.sort((a, b) => a.name.localeCompare(b.name));
+      } catch (error) {
+        console.error("Error fetching genres:", error);
+      }
+    };
 
     // Función auxiliar para formatear la fecha en formato local (YYYY-MM-DD)
     const formatLocalDate = (date: Date): string => {
@@ -274,7 +302,11 @@ export default defineComponent({
         } else {
           dateRange = undefined;
         }
-        const response: DiscsStatsResponse = await getTopRatedOrFeaturedAndStats(dateRange);
+        console.log('Fetching discs with genre:', selectedGenre.value);
+        const response: DiscsStatsResponse = await getTopRatedOrFeaturedAndStats(
+          dateRange,
+          selectedGenre.value ? selectedGenre.value : undefined
+        );
         discs.value = response.discs.map((disc) => ({
           ...disc,
           artist: {
@@ -295,13 +327,13 @@ export default defineComponent({
     // ---------------------------------
     // Actualiza la opción seleccionada cuando cambia el período
     // ---------------------------------
-    watch(selectedPeriod, (newPeriod) => {
-      if (newPeriod === "week") {
+    watch([selectedPeriod, selectedGenre], () => {
+      console.log('Period or Genre changed:', { period: selectedPeriod.value, genre: selectedGenre.value });
+      if (selectedPeriod.value === "week") {
         selectedOption.value = weekOptions.value[weekOptions.value.length - 1];
-      } else if (newPeriod === "month") {
-        // Por defecto se asigna la opción "30 días naturales" (índice 0)
+      } else if (selectedPeriod.value === "month") {
         selectedOption.value = monthOptions.value[0];
-      } else if (newPeriod === "year") {
+      } else if (selectedPeriod.value === "year") {
         selectedOption.value = yearOptions.value[0];
       }
       fetchDiscs();
@@ -322,11 +354,15 @@ export default defineComponent({
       }
     };
 
-    onMounted(() => {
+    onMounted(async () => {
+      console.log('HomePage mounting...');
+      await fetchGenres();
+      
       if (selectedPeriod.value === "week" && weekOptions.value.length) {
         selectedOption.value = weekOptions.value[weekOptions.value.length - 1];
       }
-      fetchDiscs();
+      
+      await fetchDiscs();
     });
 
     return {
@@ -341,6 +377,10 @@ export default defineComponent({
       fetchDiscs,
       getTrophyIcon,
       showDetailedStats,
+      // Filter related
+      searchQuery,
+      selectedGenre,
+      genres
     };
   },
 });
