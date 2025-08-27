@@ -1,29 +1,13 @@
 <template>
-  <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:space-x-4">
-    <input
-      v-model="searchQuery"
-      type="text"
-      placeholder="Buscar álbum o artista..."
-      class="flex-[3] p-2 shadow-md rounded-md mb-4 sm:mb-0"
-    />
+  <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:space-x-4">
+    <input v-if="showSearchQuery" v-model="searchQuery" type="text" placeholder="Buscar álbum o artista..."
+      class="flex-[2] p-1.5 shadow-md rounded-full pl-4 pr-8 mb-4 sm:mb-0" />
 
-    <SearchableSelect
-      v-model="selectedGenre"
-      :options="genres"
-      placeholder="Seleccione un género"
-      title="name"
-      trackby="id"
-      :max="150"
-      class="flex-[2] px-3 py-2 w-full rounded-md bg-white rounded shadow-md custom-height-select placeholder-gray-400"
-    />
+    <SearchableSelect v-model="selectedGenre" :options="genres" placeholder="Selecciona un género" title="name"
+      trackby="id" :max="150" class="select-pill" :class="selectClass" />
 
-    <Datepicker
-      v-if="showWeekPicker"
-      v-model="selectedWeek"
-      :weekPicker="true"
-      placeholder="Selecciona una semana"
-      class="flex-[2] px-3 py-2 w-full rounded-lg border-white mt-2 pl-1"
-    />
+    <Datepicker v-if="showWeekPicker" v-model="selectedWeek" :weekPicker="true" placeholder="Selecciona una semana"
+      class="flex-[2] px-3 py-2 w-full rounded-lg border-white mt-2 pl-1" />
   </div>
 </template>
 
@@ -54,7 +38,13 @@ export default defineComponent({
       type: Array,
       default: () => [],
     },
+
+    selectClass: { type: String, default: "" },       // clases para el <SearchableSelect>
+    triggerHeight: { type: [Number, String], default: 36 }, // alto del botón/trigger
+    wrapperClass: { type: String, default: "" },      // clases para el wrapper raíz
+
     showWeekPicker: { type: Boolean, default: true },
+    showSearchQuery: { type: Boolean, default: true },
   },
   emits: [
     "update:searchQuery",
@@ -92,14 +82,17 @@ input[type="checkbox"] {
   margin-right: 0.5rem;
 }
 
-.custom-height-select .search_input_trigger {
-  height: 26px;
-  padding: 0.6rem 0.75rem;
-  font-size: 1rem;
-  font-weight: 500;
+/* Botón/trigger del select */
+:deep(.select-pill .search_input_trigger) {
+  @apply rounded-full h-9 leading-9 bg-white border border-gray-200 shadow-md pl-6 pr-4;
 }
 
-.search__input::placeholder {
-  color: #9ca3af;
+:deep(.select-pill .search__input) {
+  @apply pl-4;
 }
+
+:deep(.select-pill .search_input_trigger svg) {
+  @apply right-3;
+}
+
 </style>

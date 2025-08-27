@@ -4,7 +4,9 @@
 
     <DiscFilters :searchQuery="searchQuery" :selectedGenre="selectedGenre" :selectedWeek="selectedWeek" :genres="genres"
       @update:searchQuery="searchQuery = $event" @update:selectedGenre="selectedGenre = $event"
-      @update:selectedWeek="selectedWeek = $event" @resetAndFetch="resetAndFetch" />
+      @update:selectedWeek="selectedWeek = $event" selectClass="w-[280px] sm:w-[300px]"
+      wrapperClass="w-full sm:w-auto flex justify-center sm:justify-start sm:ml-3 sm:translate-y-[1px]"
+      @resetAndFetch="resetAndFetch" />
 
     <!-- Selección de tipo de vista (Estilo Chips) -->
     <div class="mb-6 flex justify-start space-x-2">
