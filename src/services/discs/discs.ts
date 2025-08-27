@@ -95,9 +95,12 @@ export async function deleteDisc(id: string): Promise<void> {
   await api.delete(`/discs/${id}`);
 }
 
-export async function getTopRatedOrFeaturedAndStats(dateRange?: [string, string]): Promise<DiscsStatsResponse> {
+export async function getTopRatedOrFeaturedAndStats(dateRange?: [string, string], genreId?: string): Promise<DiscsStatsResponse> {
   const response = await api.get<DiscsStatsResponse>("/discs/homeDiscs", {
-    params: { ...(dateRange && { dateRange }) },
+    params: { 
+      ...(dateRange && { dateRange }),
+      ...(genreId && { genreId })
+    },
   });
   return response.data;
 }
