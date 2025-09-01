@@ -11,7 +11,8 @@
     <DiscFilters
       :searchQuery="searchQuery"
       :selectedGenre="selectedGenre"
-      :genres="genres"
+      :genres="genreOptions"
+      :countries="countries"
       :showWeekPicker="false"
       @update:searchQuery="searchQuery = $event"
       @update:selectedGenre="selectedGenre = $event"
@@ -127,6 +128,7 @@ import { defineComponent, ref, onMounted, reactive, computed } from "vue";
 import axios from "axios";
 import { updateDisc, deleteDisc, getDiscsDated } from "@services/discs/discs";
 import { getGenres } from "@services/genres/genres";
+import { getCountries } from "@services/countries/countries";
 import DiscComponent from "./components/DiscComponent.vue";
 import { obtenerTokenSpotify } from "@helpers/SpotifyFunctions.ts";
 import DiscFilters from "@components/DiscFilters.vue"; // Importa DiscFilters
@@ -263,7 +265,20 @@ export default defineComponent({
 
     // Lista de géneros
     const genres = ref<any[]>([]);
+    const genreOptions = computed(() =>
+    (genres.value ?? [])
+          .filter(g => g && g.id) // limpia nulos
+          .map(g => ({
+            id: g.id,
+            name: g.name && g.name.trim() ? g.name : "(Sin nombre)",
+            color: g.color ?? null,
+          }))
+          .sort((a, b) => a.name.localeCompare(b.name))
+      );
+
     const genres2 = ref<any[]>([]);
+    const countries = ref<any[]>([]);
+
     genres2.value = ["list", "of", "options"];
 
     // ---------------------------
@@ -353,6 +368,17 @@ export default defineComponent({
         );
       } catch (error) {
         console.error("Error fetching genres:", error);
+      }
+    };
+
+    const fetchCountries = async () => {
+      try {
+        const countriesResponse = await getCountries(250, 0); // ajusta límite si hace falta
+        countries.value = countriesResponse.data.sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
+      } catch (error) {
+        console.error("Error fetching countries:", error);
       }
     };
 
@@ -459,6 +485,7 @@ export default defineComponent({
       }
 
       selectMonth(new Date().getMonth());
+      fetchCountries();
       fetchGenres();
     });
 
@@ -487,6 +514,8 @@ export default defineComponent({
       selectedWeek,
       resetAndFetch,
       filteredGroupedDiscs, // Exponer el computed
+      countries,
+      genreOptions
     };
   },
 });
