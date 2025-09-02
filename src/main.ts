@@ -11,6 +11,11 @@ import 'sweetalert2/dist/sweetalert2.min.css';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 
+// Circle flags
+import CircleFlags from "vue-circle-flags";
+import "vue-circle-flags/dist/vue-circle-flags.css";
+
+
 // Importar SidebarMenu
 import SidebarMenu from "./layouts/default/components/SidebarMenu.vue";
 console.log(SidebarMenu);
@@ -27,6 +32,9 @@ import './style.css';
 import './index.css';
 
 const app = createApp(App);
+
+// Circle flags
+app.use(CircleFlags);
 app.use(createPinia());
 app.use(router);
 app.use(VueSweetalert2);

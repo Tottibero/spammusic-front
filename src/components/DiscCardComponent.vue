@@ -1,5 +1,7 @@
 <template>
   <div class="flex flex-wrap justify-center gap-4">
+
+
     <!-- Tarjeta individual -->
     <div class="card w-full max-w-[20rem] border rounded shadow-lg bg-white flex flex-col mx-auto p-2 relative">
       <div class="flex items-center justify-between px-2">
@@ -9,9 +11,11 @@
             class="px-2 py-1 rounded-full text-xs font-medium text-white bg-blue-500 text-center shadow-sm">
             EP
           </p>
-          <img v-if="artistCountry?.name === 'SPAIN'" src="/src/assets/spain-flag-round.svg" alt="ES"
-            class="rounded-full" style="width: 20px; height: 20px; object-fit: cover;" />
-
+          <CircleFlags
+            v-if="artistCountry?.isoCode && artistCountry.isoCode.length >= 2"
+            :country="artistCountry.isoCode.slice(0,2).toLowerCase()"
+            :show-flag-name="false"
+          />
         </div>
         <p class="px-2 py-1 rounded-full text-xs font-medium text-white text-center shadow-sm"
           :style="{ backgroundColor: genreColor || 'grey' }">
@@ -233,7 +237,8 @@ export default defineComponent({
     isNew: { type: Boolean, required: true },
     ep: { type: Boolean, required: false },
     artistCountry: {
-      type: Object as PropType<{ id: string; name: string }>,
+      type: Object as PropType<{ id: string; name: string; isoCode: string }>,
+
       required: false,
       default: null,
     },
