@@ -120,26 +120,32 @@
       :class="{ 'grid-cols-2': !isNarrow, 'grid-cols-1': isNarrow }"
     >
       <!-- ... Botones y otros controles ... -->
-      <SearchableSelect
-        v-model="editedData.genreId"
-        :options="genres"
-        placeholder="Seleccione un género"
-        title="name"
-        trackby="id"
-        :max="200"
-        class="rounded shadow-md w-full px-3 py-2 bg-white text-black"
-        @update:modelValue="() => saveChanges('genreId')"
-      />
-      <SearchableSelect
-        v-model="editedArtist.countryId"
-        :options="countries"
-        placeholder="Seleccione un país"
-        title="name"
-        trackby="id"
-        :max="300"
-        class="rounded shadow-md w-full px-3 py-2 bg-white text-black"
-        @update:modelValue="saveCountry"
-      />
+<SearchableSelect
+  v-model="editedData.genreId"
+  :options="genres"
+  title="name"
+  trackby="id"
+  placeholder="Buscar género..."
+  trigger-placeholder="Selecciona un género"
+  all-label="Todos los géneros"
+  :max="200"
+  class="rounded shadow-md w-full px-3 py-2 bg-white text-black"
+  @update:modelValue="() => saveChanges('genreId')"
+/>
+
+<SearchableSelect
+  v-model="editedArtist.countryId"
+  :options="countries"
+  title="name"
+  trackby="id"
+  placeholder="Buscar país..."
+  trigger-placeholder="Selecciona un país"
+  all-label="Todos los países"
+  :max="300"
+  class="rounded shadow-md w-full px-3 py-2 bg-white text-black"
+  @update:modelValue="saveCountry"
+/>
+
 
       <button
         @click="toggleEp()"

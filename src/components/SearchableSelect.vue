@@ -3,31 +3,22 @@
     <!-- Contenedor que actúa como "select" -->
     <div @click="toggleSearchbox" class="search_input_trigger">
       <p :class="{
-        'text-gray-400 font-normal': selectedText === placeholder,
-        'text-gray-600 font-medium': selectedText !== placeholder
+        'text-gray-400 font-normal': !selectedText,
+        'text-gray-600 font-medium': !!selectedText
       }">
-        {{ selectedText || placeholder }}
+        {{ selectedText || triggerPlaceholder }}
       </p>
       <i class="fas fa-chevron-down"></i>
     </div>
+
 
     <!-- Caja desplegable -->
     <div v-if="showSearchbox" class="searchable__select">
       <!-- Campo de búsqueda interno -->
       <div class="relative">
-        <input
-          :value="inputText"
-          @input="onInput"
-          @focus="onFocus"
-          @keydown.down="onArrowDown"
-          @keydown.enter.prevent="onSelectOption"
-          @keydown.up="onArrowUp"
-          @keydown.esc="onESC"
-          class="search__input"
-          type="text"
-          :placeholder="placeholder"
-          ref="searchInput"
-        />
+        <input :value="inputText" @input="onInput" @focus="onFocus" @keydown.down="onArrowDown"
+          @keydown.enter.prevent="onSelectOption" @keydown.up="onArrowUp" @keydown.esc="onESC" class="search__input"
+          type="text" :placeholder="placeholder" ref="searchInput" />
         <!-- Spinner si loading es true -->
         <div v-if="loading" class="absolute right-0 top-0">
           <i class="fas fa-spinner fa-spin" style="width:40px; height:40px;"></i>
@@ -36,18 +27,13 @@
 
       <!-- Lista de resultados -->
       <ul v-if="showDropdown" class="search__results" ref="dropdownList">
-        <li
-          v-for="(option, i) in filteredOptions"
-          :key="i"
-          @click="onSelectOption($event, i)"
-          ref="optionRefs"
-          :class="{
-            'bg-gray-300 text-gray-900': isAllOption(option),
-            'active': !isAllOption(option) && getTrack(option) === modelValue
-          }"
-        >
+        <li v-for="(option, i) in filteredOptions" :key="i" @click="onSelectOption($event, i)" ref="optionRefs" :class="{
+          'bg-gray-300 text-gray-900': option[title] === allLabel,
+          'active': option[title] !== allLabel && option[trackby] === modelValue
+        }">
           {{ getOptionTitle(option) }}
         </li>
+
       </ul>
     </div>
   </div>
@@ -62,26 +48,25 @@ import {
   onMounted,
   onUnmounted,
   nextTick,
-  watch,
 } from "vue";
 
 export default {
   name: "SearchableSelect",
   emits: ["update:modelValue", "search"],
   props: {
-    modelValue: { type: [String, Number, null], default: "" },
-    options: { type: Array, default: () => [] }, // ✅ seguro por defecto
+    modelValue: { type: [String, Number], required: false, default: "" },
+    options: { type: Array, required: true },
     title: { type: String, default: "name" },
     trackby: { type: String, default: "id" },
-    placeholder: { type: String, default: "Selecciona una opción" }, // ✅ configurable
+    placeholder: { type: String, default: "" },
+    triggerPlaceholder: { type: String, default: "Selecciona un género" },
+    allLabel: { type: String, default: "Todos los géneros" },
     max: { type: Number, default: 5 },
-    loading: { type: Boolean, default: false }, // ✅ ya lo usabas en el template
-    includeAllOption: { type: Boolean, default: true }, // ✅ para “Todos …”
-    allLabel: { type: String, default: "Todos" }, // ✅ texto de la opción global
   },
+
   setup(props, { emit }) {
     const data = reactive({
-      selectedText: props.placeholder, // ✅ inicia con placeholder
+      selectedText: "",
       inputText: "",
       activeIndex: 0,
       showDropdown: false,
@@ -93,57 +78,7 @@ export default {
     const dropdownList = ref(null);
     const optionRefs = ref([]);
 
-    const safeOptions = computed(() => Array.isArray(props.options) ? props.options : []);
-
-    // Texto de la opción "todos"
-    const allText = computed(() => props.allLabel);
-
-    // Construye la opción “todos” con las claves que espera el componente
-    const allOption = computed(() => ({
-      [props.trackby]: "",
-      [props.title]: allText.value,
-      __all__: true,
-    }));
-
-    const isAllOption = (opt) => typeof opt === "object" && opt.__all__ === true;
-
-    // Filtrado
-    const filteredOptions = computed(() => {
-      let filtered = safeOptions.value.filter((opt) => {
-        if (!data.inputText) return true;
-        const label =
-          typeof opt === "object" ? opt[props.title] : String(opt ?? "");
-        return label.toLowerCase().includes(data.inputText.toLowerCase());
-      });
-
-      if (props.max && props.max < filtered.length) {
-        filtered = filtered.slice(0, props.max);
-      }
-
-      return props.includeAllOption ? [allOption.value, ...filtered] : filtered;
-    });
-
-    // Track y título seguros
-    const getTrack = (opt) =>
-      typeof opt === "object" ? opt?.[props.trackby] : opt;
-
-    const getOptionTitle = (option) =>
-      typeof option === "object" ? option?.[props.title] : String(option ?? "");
-
-    // Si se pasa un modelValue inicial o cambian las options, setea el texto
-    const setInitialText = () => {
-      if (!props.modelValue) {
-        data.selectedText = props.placeholder;
-        return;
-      }
-      const found = safeOptions.value.find((opt) =>
-        typeof opt === "object"
-          ? opt?.[props.trackby] === props.modelValue
-          : opt === props.modelValue
-      );
-      data.selectedText = found ? getOptionTitle(found) : props.placeholder;
-    };
-
+    // Al montar el componente, escuchamos clics fuera y seteamos texto inicial
     onMounted(() => {
       document.addEventListener("click", handleOutsideClick);
       setInitialText();
@@ -152,16 +87,42 @@ export default {
       document.removeEventListener("click", handleOutsideClick);
     });
 
-    watch(
-      () => [props.modelValue, safeOptions.value],
-      () => setInitialText(),
-      { deep: false }
-    );
+    // Filtrar opciones y dejar "Todos los géneros" fijo
+    const filteredOptions = computed(() => {
+      let filtered = props.options.filter((opt) => {
+        if (!data.inputText) return true;
+        const label = typeof opt === "object" ? opt[props.title] : String(opt);
+        return label.toLowerCase().includes(data.inputText.toLowerCase());
+      });
+
+      // Limita a 'max' (menos 1 para dejar espacio a "Todos los géneros")
+      if (props.max && props.max < filtered.length) {
+        filtered = filtered.slice(0, props.max);
+      }
+
+      // "Todos los géneros" fijo en la parte superior
+      const allOption = { [props.trackby]: "", [props.title]: props.allLabel };
+
+      return [allOption, ...filtered];
+    });
+
+    // Si se pasa un modelValue inicial, buscar su nombre en las opciones
+    function setInitialText() {
+      if (!props.modelValue) {
+        data.selectedText = ""; // mostrará triggerPlaceholder en el template
+        return;
+      }
+      const found = props.options.find(opt =>
+        typeof opt === "object" ? opt[props.trackby] === props.modelValue : opt === props.modelValue
+      );
+      if (found) data.selectedText = typeof found === "object" ? found[props.title] : String(found);
+    }
+
 
     function toggleSearchbox() {
       data.showSearchbox = !data.showSearchbox;
       nextTick(() => {
-        if (data.showSearchbox && searchInput.value) {
+        if (data.showSearchbox) {
           searchInput.value.focus();
           scrollToSelectedOption();
           toggleDropdown();
@@ -174,7 +135,7 @@ export default {
     }
 
     function handleOutsideClick(e) {
-      if (!wrapperEl.value || !wrapperEl.value.contains(e.target)) {
+      if (wrapperEl.value && !wrapperEl.value.contains(e.target)) {
         data.showDropdown = false;
         data.showSearchbox = false;
       }
@@ -184,7 +145,6 @@ export default {
       data.inputText = e.target.value;
       data.activeIndex = 0;
       emit("search", data.inputText);
-      toggleDropdown();
     }
 
     function onFocus() {
@@ -192,15 +152,11 @@ export default {
     }
 
     function onArrowDown() {
-      if (!filteredOptions.value.length) return;
       data.activeIndex = (data.activeIndex + 1) % filteredOptions.value.length;
     }
 
     function onArrowUp() {
-      if (!filteredOptions.value.length) return;
-      data.activeIndex =
-        (data.activeIndex - 1 + filteredOptions.value.length) %
-        filteredOptions.value.length;
+      data.activeIndex = (data.activeIndex - 1 + filteredOptions.value.length) % filteredOptions.value.length;
     }
 
     function onESC() {
@@ -208,16 +164,13 @@ export default {
     }
 
     function onSelectOption(_, index = data.activeIndex) {
-      if (!data.showDropdown || !filteredOptions.value.length) return;
-
+      if (!data.showDropdown) return;
       const selected = filteredOptions.value[index];
 
-      if (isAllOption(selected)) {
-        data.selectedText = props.placeholder; // al elegir “Todos…”
-        emit("update:modelValue", "");
-      } else if (typeof selected === "object") {
-        data.selectedText = getOptionTitle(selected);
-        emit("update:modelValue", getTrack(selected));
+      if (typeof selected === "object") {
+        const isAll = selected[props.title] === props.allLabel;
+        data.selectedText = isAll ? "" : selected[props.title];
+        emit("update:modelValue", selected[props.trackby]); // "" si es “Todos…”
       } else {
         data.selectedText = String(selected);
         emit("update:modelValue", selected);
@@ -234,17 +187,18 @@ export default {
 
     function scrollToSelectedOption() {
       nextTick(() => {
-        const selectedIndex = filteredOptions.value.findIndex(
-          (opt) => !isAllOption(opt) && getTrack(opt) === props.modelValue
-        );
+        const selectedIndex = filteredOptions.value.findIndex(opt => opt[props.trackby] === props.modelValue);
         if (dropdownList.value && selectedIndex !== -1) {
-          const el = optionRefs.value[selectedIndex];
-          if (el) {
-            dropdownList.value.scrollTop =
-              el.offsetTop - dropdownList.value.offsetTop;
+          const selectedOptionElement = optionRefs.value[selectedIndex];
+          if (selectedOptionElement) {
+            dropdownList.value.scrollTop = selectedOptionElement.offsetTop - dropdownList.value.offsetTop;
           }
         }
       });
+    }
+
+    function getOptionTitle(option) {
+      return typeof option === "object" ? option[props.title] : String(option);
     }
 
     return {
@@ -263,29 +217,76 @@ export default {
       getOptionTitle,
       toggleSearchbox,
       scrollToSelectedOption,
-      isAllOption,
-      placeholder: props.placeholder,
-      loading: props.loading,
     };
   },
 };
 </script>
 
 <style scoped>
-.main_wrapper { position: relative; }
+.main_wrapper {
+  position: relative;
+}
+
 .search_input_trigger {
-  display: flex; align-items: center; justify-content: space-between;
-  border-radius: 0.375rem; padding: 0.3rem 0.75rem; height: 28px; width: 100%;
-  font-size: 1rem; background-color: #ffffff; color: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 0.375rem;
+  padding: 0.3rem 0.75rem;
+  height: 28px;
+  width: 100%;
+  font-size: 1rem;
+  background-color: #ffffff;
+  color: #000000;
 }
+
 .searchable__select {
-  position: absolute; width: 100%; background-color: white; border: 1px solid #ccc;
-  border-radius: 0.25rem; z-index: 999; margin-top: 0.25rem;
+  position: absolute;
+  width: 100%;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  z-index: 999;
+  /* para aparecer por encima de otros elementos */
+  margin-top: 0.25rem;
 }
-.search__input { width: 100%; padding: 0.5rem; border: 0; outline: none; box-sizing: border-box; }
-.search__results { max-height: 200px; overflow-y: auto; margin: 0; padding: 0; list-style: none; }
-.search__results li { padding: 0.5rem; cursor: pointer; text-align: left; padding-left: 0.75rem; }
-.search__results li:hover { background-color: #f0f0f0; }
-.search__results li.active { background-color: #d9e021 !important; color: #1a202c !important; font-weight: bold; }
-.search__results li.text-gray-900 { color: white; background-color: #374151 !important; }
+
+.search__input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 0;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.search__results {
+  max-height: 200px;
+  /* altura máxima para el scroll */
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.search__results li {
+  padding: 0.5rem;
+  cursor: pointer;
+  text-align: left;
+  padding-left: 0.75rem;
+}
+
+.search__results li:hover {
+  background-color: #f0f0f0;
+}
+
+.search__results li.active {
+  background-color: #d9e021 !important;
+  color: #1a202c !important;
+  font-weight: bold;
+}
+
+.search__results li.text-gray-900 {
+  color: white;
+  background-color: #374151 !important;
+}
 </style>
