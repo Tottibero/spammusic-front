@@ -84,3 +84,8 @@ button:focus-visible {
  #app-container{
   height: 100%;
  }
+
+div.circle-flags {
+  height: 25px;
+  width: 25px;
+}
