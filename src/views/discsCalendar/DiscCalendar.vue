@@ -106,6 +106,7 @@
                 <DiscComponent
                   :disc="disc"
                   :genres="genres"
+                  :countries="countries"
                   @disc-deleted="removeDisc"
                   @date-changed="handleDateChange"
                 />
