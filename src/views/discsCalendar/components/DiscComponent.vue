@@ -2,61 +2,37 @@
   <div
     class="p-4 border rounded-md flex flex-col sm:flex-row items-center justify-between w-full sm:w-1/2 bg-white shadow-md"
     :style="{ backgroundColor: getGenreColor(disc.genreId) }"
-    :class="{ 'text-white': getGenreColor(disc.genreId) !== 'transparent' }"
-  >
+    :class="{ 'text-white': getGenreColor(disc.genreId) !== 'transparent' }">
     <!-- Columna izquierda: Imagen del disco -->
     <div class="flex items-center w-full sm:w-1/3 p-4 min-w-0">
-      <button
-        v-if="!disc.image"
-        @click="openImageModal"
-        class="bg-purple-500 hover:bg-purple-600 text-white text-xs px-2 py-1 rounded shadow-md ml-2"
-      >
+      <button v-if="!disc.image" @click="openImageModal"
+        class="bg-purple-500 hover:bg-purple-600 text-white text-xs px-2 py-1 rounded shadow-md ml-2">
         <i class="fa-solid fa-image"></i>
       </button>
-      <img
-        v-if="disc.image"
-        :src="disc.image"
-        alt="Disc cover"
-        class="w-28 h-28 rounded-md cursor-pointer object-cover"
-        @click="openImageModal"
-      />
-      <div
-        class="ml-6 flex flex-col text-center sm:text-left w-full min-w-0 overflow-hidden"
-      >
+      <img v-if="disc.image" :src="disc.image" alt="Disc cover" class="w-28 h-28 rounded-md cursor-pointer object-cover"
+        @click="openImageModal" />
+      <div class="ml-6 flex flex-col text-center sm:text-left w-full min-w-0 overflow-hidden">
         <!-- Nombre de la banda con acciones -->
         <div class="flex items-center space-x-2">
-          <h3
-            class="font-bold text-lg truncate min-w-0 overflow-hidden"
-            :style="{ maxWidth: 'clamp(12ch, 65vw, 30ch)' }"
-          >
-            <a
-              @click="openArtistDetail"
-              class="block truncate w-full cursor-pointer hover:underline"
-            >
+          <h3 class="font-bold text-lg truncate min-w-0 overflow-hidden"
+            :style="{ maxWidth: 'clamp(12ch, 65vw, 30ch)' }">
+            <a @click="openArtistDetail" class="block truncate w-full cursor-pointer hover:underline">
               {{ disc.artist.name }}
             </a>
           </h3>
 
           <!-- Botón editar artista -->
-          <button
-            @click="openArtistModal"
-            class="p-1 text-sm hover:bg-gray-200 rounded"
-            title="Editar artista"
-          >
+          <button @click="openArtistModal" class="p-1 text-sm hover:bg-gray-200 rounded" title="Editar artista">
             <i class="fa-solid fa-edit text-xs"></i>
           </button>
 
           <!-- Botón de país con bandera -->
-          <button
-            @click="updateCountryId"
-            :class="[
-              disc.artist.countryId === COUNTRY_ID
-                ? 'bg-yellow-500 hover:bg-yellow-600'
-                : 'bg-gray-300 hover:bg-gray-400',
-              'text-white font-medium text-sm px-2 py-1 rounded shadow-md',
-            ]"
-            title="Alternar país"
-          >
+          <button @click="updateCountryId" :class="[
+            disc.artist.countryId === COUNTRY_ID
+              ? 'bg-yellow-500 hover:bg-yellow-600'
+              : 'bg-gray-300 hover:bg-gray-400',
+            'text-white font-medium text-sm px-2 py-1 rounded shadow-md',
+          ]" title="Alternar país">
             🇪🇸
           </button>
         </div>
@@ -64,36 +40,22 @@
         <!-- Nombre del disco -->
         <div class="flex items-center space-x-2">
           <!-- Se añade @click para abrir DiscDetail -->
-          <a
-            @click="openDiscDetail"
-            class="text-sm truncate min-w-0 cursor-pointer hover:underline"
-            :style="{ maxWidth: 'clamp(12ch, 65vw, 30ch)' }"
-          >
+          <a @click="openDiscDetail" class="text-sm truncate min-w-0 cursor-pointer hover:underline"
+            :style="{ maxWidth: 'clamp(12ch, 65vw, 30ch)' }">
             <span class="block truncate">
               {{ disc.name }}
             </span>
           </a>
-          <button
-            @click="showNameModal = true"
-            class="p-1 text-sm hover:bg-gray-200 rounded"
-            title="Editar nombre"
-          >
+          <button @click="showNameModal = true" class="p-1 text-sm hover:bg-gray-200 rounded" title="Editar nombre">
             <i class="fa-solid fa-edit text-xs"></i>
           </button>
         </div>
         <p class="text-sm mt-2 w-full flex items-center space-x-2">
-          <a
-            v-if="linkButtonData.visible"
-            :href="disc.link"
-            target="_blank"
-            rel="noopener"
-            :class="[
-              linkButtonData.color,
-              linkButtonData.hover,
-              'text-white px-2 py-1 rounded shadow-md inline-flex items-center space-x-1 text-sm',
-            ]"
-            @click.prevent="handleListenClick"
-          >
+          <a v-if="linkButtonData.visible" :href="disc.link" target="_blank" rel="noopener" :class="[
+            linkButtonData.color,
+            linkButtonData.hover,
+            'text-white px-2 py-1 rounded shadow-md inline-flex items-center space-x-1 text-sm',
+          ]" @click.prevent="handleListenClick">
             <i :class="[linkButtonData.icon, 'text-base']"></i>
             <span>{{ linkButtonData.text }}</span>
           </a>
@@ -101,10 +63,8 @@
           <span v-else-if="!disc.link" class="text-gray-400">
             <SpotifyArtistButton :artistName="disc.artist.name" />
           </span>
-          <button
-            @click="showLinkModal = true"
-            class="bg-gray-200 hover:bg-gray-300 text-gray-800 shadow-md text-xs px-2 py-2 h-full rounded flex items-center"
-          >
+          <button @click="showLinkModal = true"
+            class="bg-gray-200 hover:bg-gray-300 text-gray-800 shadow-md text-xs px-2 py-2 h-full rounded flex items-center">
             <i class="fa-solid fa-link"></i>
           </button>
         </p>
@@ -115,72 +75,38 @@
     </div>
 
     <!-- Columna derecha: Botones de acción en dos columnas -->
-    <div
-      class="grid gap-2 w-full sm:w-2/3 p-2"
-      :class="{ 'grid-cols-2': !isNarrow, 'grid-cols-1': isNarrow }"
-    >
+    <div class="grid gap-2 w-full sm:w-2/3 p-2" :class="{ 'grid-cols-2': !isNarrow, 'grid-cols-1': isNarrow }">
       <!-- ... Botones y otros controles ... -->
-<SearchableSelect
-  v-model="editedData.genreId"
-  :options="genres"
-  title="name"
-  trackby="id"
-  placeholder="Buscar género..."
-  trigger-placeholder="Selecciona un género"
-  all-label="Todos los géneros"
-  :max="200"
-  class="rounded shadow-md w-full px-3 py-2 bg-white text-black"
-  @update:modelValue="() => saveChanges('genreId')"
-/>
+      <SearchableSelect v-model="editedData.genreId" :options="genres" title="name" trackby="id"
+        placeholder="Buscar género..." trigger-placeholder="Selecciona un género" all-label="Todos los géneros"
+        :max="200" class="rounded shadow-md w-full px-3 py-2 bg-white text-black"
+        @update:modelValue="() => saveChanges('genreId')" />
 
-<SearchableSelect
-  v-model="editedArtist.countryId"
-  :options="countries"
-  title="name"
-  trackby="id"
-  placeholder="Buscar país..."
-  trigger-placeholder="Selecciona un país"
-  all-label="Todos los países"
-  :max="300"
-  class="rounded shadow-md w-full px-3 py-2 bg-white text-black"
-  @update:modelValue="saveCountry"
-/>
+      <SearchableSelect v-model="editedArtist.countryId" :options="countries" title="name" trackby="id"
+        placeholder="Buscar país..." trigger-placeholder="Selecciona un país" all-label="Todos los países" :max="300"
+        class="rounded shadow-md w-full px-3 py-2 bg-white text-black" @update:modelValue="saveCountry" />
 
 
-      <button
-        @click="toggleEp()"
-        :class="{ 'bg-blue-500': disc.ep, 'bg-gray-300': !disc.ep }"
-        class="text-white font-medium px-3 py-2 rounded shadow-md"
-      >
+      <button @click="toggleEp()" :class="{ 'bg-blue-500': disc.ep, 'bg-gray-300': !disc.ep }"
+        class="text-white font-medium px-3 py-2 rounded shadow-md">
         {{ disc.ep ? "EP" : "Álbum" }}
       </button>
-      <button
-        @click="toggleVerified()"
-        :class="{
-          'bg-gray-700': disc.verified,
-          'bg-gray-300': !disc.verified,
-        }"
-        class="text-white font-medium px-3 py-2 rounded shadow-md"
-      >
+      <button @click="toggleVerified()" :class="{
+        'bg-gray-700': disc.verified,
+        'bg-gray-300': !disc.verified,
+      }" class="text-white font-medium px-3 py-2 rounded shadow-md">
         {{ disc.verified ? "Verificado" : "No Verificado" }}
       </button>
-      <button
-        @click="toggleBookmark()"
-        :class="{ 'bg-yellow-500': pendingId, 'bg-gray-300': !pendingId }"
-        class="text-white font-medium px-3 py-2 rounded shadow-md"
-      >
+      <button @click="toggleBookmark()" :class="{ 'bg-yellow-500': pendingId, 'bg-gray-300': !pendingId }"
+        class="text-white font-medium px-3 py-2 rounded shadow-md">
         {{ pendingId ? "Pendiente" : "Guardar" }}
       </button>
-      <button
-        @click="buscarGeneroSpotify(disc)"
-        class="bg-green-500 hover:bg-green-600 text-white font-medium px-3 py-2 rounded shadow-md"
-      >
+      <button @click="buscarGeneroSpotify(disc)"
+        class="bg-green-500 hover:bg-green-600 text-white font-medium px-3 py-2 rounded shadow-md">
         Buscar Género
       </button>
-      <button
-        @click="confirmDelete(disc.id)"
-        class="bg-red-500 hover:bg-red-600 text-white font-medium px-3 py-2 rounded shadow-md"
-      >
+      <button @click="confirmDelete(disc.id)"
+        class="bg-red-500 hover:bg-red-600 text-white font-medium px-3 py-2 rounded shadow-md">
         Borrar
       </button>
     </div>
@@ -189,33 +115,20 @@
   <!-- Teleport para todos los modales -->
   <Teleport to="body">
     <!-- Modal para actualizar/crear artista (permanece para edición) -->
-    <div
-      v-if="showArtistModal"
-      class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50"
-    >
+    <div v-if="showArtistModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
       <div class="bg-white p-6 rounded-lg shadow-lg w-96">
         <h2 class="text-lg font-semibold mb-4">Actualizar o Crear Artista</h2>
         <label class="flex items-center mb-4">
           <input type="checkbox" v-model="creatingNewArtist" class="mr-2" />
           Crear nuevo artista
         </label>
-        <input
-          v-model="newArtistName"
-          type="text"
-          placeholder="Introduce el nombre del artista"
-          class="border p-2 w-full rounded-md"
-        />
+        <input v-model="newArtistName" type="text" placeholder="Introduce el nombre del artista"
+          class="border p-2 w-full rounded-md" />
         <div class="flex justify-end mt-4 space-x-2">
-          <button
-            @click="closeArtistModal"
-            class="bg-gray-400 text-white px-4 py-2 rounded-md"
-          >
+          <button @click="closeArtistModal" class="bg-gray-400 text-white px-4 py-2 rounded-md">
             Cancelar
           </button>
-          <button
-            @click="handleArtistUpdate"
-            class="bg-blue-500 text-white px-4 py-2 rounded-md"
-          >
+          <button @click="handleArtistUpdate" class="bg-blue-500 text-white px-4 py-2 rounded-md">
             Guardar
           </button>
         </div>
@@ -223,86 +136,45 @@
     </div>
 
     <!-- Modal para editar el nombre del disco -->
-    <EditModal
-      v-model:show="showNameModal"
-      v-model="editedName"
-      title="Editar Nombre del Disco"
-      placeholder="Introduce el nombre del disco"
-      @save="updateDiscName"
-    />
+    <EditModal v-model:show="showNameModal" v-model="editedName" title="Editar Nombre del Disco"
+      placeholder="Introduce el nombre del disco" @save="updateDiscName" />
 
     <!-- Modal para editar el link del disco -->
-    <EditModal
-      v-model:show="showLinkModal"
-      v-model="editedLink"
-      title="Editar Link del Disco"
-      placeholder="Introduce el link del disco"
-      @save="updateDiscLink"
-    />
+    <EditModal v-model:show="showLinkModal" v-model="editedLink" title="Editar Link del Disco"
+      placeholder="Introduce el link del disco" @save="updateDiscLink" />
 
     <!-- Modal para cambiar la imagen del disco -->
-    <EditModal
-      v-model:show="showImageModal"
-      v-model="newImageUrl"
-      title="Cambiar Imagen del Disco"
-      placeholder="Introduce la URL de la imagen"
-      @save="updateImageUrl"
-    />
+    <EditModal v-model:show="showImageModal" v-model="newImageUrl" title="Cambiar Imagen del Disco"
+      placeholder="Introduce la URL de la imagen" @save="updateImageUrl" />
 
     <!-- Modal para cambiar la fecha del disco -->
-    <EditModal
-      v-model:show="showDateModal"
-      v-model="editedReleaseDate"
-      title="Cambiar Fecha del Disco"
-      placeholder="Selecciona la fecha"
-      inputType="date"
-      @save="updateDiscReleaseDate"
-    />
+    <EditModal v-model:show="showDateModal" v-model="editedReleaseDate" title="Cambiar Fecha del Disco"
+      placeholder="Selecciona la fecha" inputType="date" @save="updateDiscReleaseDate" />
 
     <!-- Modal para mostrar DiscDetail al hacer clic en el nombre del disco -->
 
     <!-- Modal para mostrar ArtistDetail al hacer clic en el nombre de la banda -->
   </Teleport>
 
-  <div
-    v-if="showDiscDetail"
-    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-  >
+  <div v-if="showDiscDetail" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
     <div class="bg-white rounded-lg p-4 relative max-w-3xl w-full">
-      <button
-        class="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-2xl"
-        @click="closeDiscDetail"
-      >
+      <button class="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-2xl" @click="closeDiscDetail">
         &times;
       </button>
       <!-- Se pasa la información del disco -->
-      <DiscDetail
-        v-if="showDiscDetail"
-        :disc="disc"
-        @close="showDiscDetail = false"
-      />
+      <DiscDetail v-if="showDiscDetail" :disc="disc" @close="showDiscDetail = false" />
     </div>
   </div>
 
   <!-- Modal para mostrar ArtistDetail -->
-  <div
-    v-if="showArtistDetail"
-    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-  >
+  <div v-if="showArtistDetail" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
     <div class="bg-white rounded-lg p-4 relative max-w-3xl w-full">
-      <button
-        class="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-2xl"
-        @click="closeArtistDetail"
-      >
+      <button class="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-2xl" @click="closeArtistDetail">
         &times;
       </button>
       <!-- Se pasa el nombre del artista al componente ArtistDetail -->
-      <ArtistDetail
-        v-if="showArtistDetail"
-        :disc-name="disc.name"
-        :artistName="disc.artist.name"
-        @close="showArtistDetail = false"
-      />
+      <ArtistDetail v-if="showArtistDetail" :disc-name="disc.name" :artistName="disc.artist.name"
+        @close="showArtistDetail = false" />
     </div>
   </div>
 </template>
