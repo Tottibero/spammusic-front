@@ -212,6 +212,7 @@ import SwalService from "@services/swal/SwalService";
 interface Vote {
   id: string;
   user: {
+    id: string;       
     username: string;
   };
   rate: number;
