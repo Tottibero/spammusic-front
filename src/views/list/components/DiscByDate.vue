@@ -31,18 +31,16 @@
           <div v-if="groupState[index]" class="mt-4">
             <ul>
               <li v-for="disc in group.discs" :key="disc.id" class="flex justify-between items-center p-4 border-b">
-                <div class="flex items-center">
-                  <div v-if="disc.genre?.color" :style="{ backgroundColor: disc.genre.color }"
-                    class="w-4 h-4 rounded-full mr-2"></div>
+
+                <div class="flex items-center gap-2">
+                  <p class="px-2 py-1 rounded-full text-xs font-medium text-white text-center shadow-sm"
+                    :style="{ backgroundColor: disc.genre?.color || 'grey' }">
+                    {{ disc.genre?.name || "Sin género" }}
+                  </p>
+
                   <h4 class="text-md font-semibold">
                     {{ disc.artist.name }} - {{ disc.name }}
                   </h4>
-
-                </div>
-                <p class="text-sm text-gray-500">
-                  Genre: {{ disc.genre?.name || "Unknown" }}
-                </p>
-                <div class="flex items-center gap-2">
                   <SpotifyArtistButton :artistName="disc.artist.name" />
                   <span v-if="disc.ep"
                     class="px-2 py-1 rounded-full text-xs font-medium text-white bg-blue-500 shadow-sm">
