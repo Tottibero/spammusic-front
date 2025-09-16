@@ -27,6 +27,7 @@
 
         <!-- Contenido del grupo -->
         <transition name="fade-slide" mode="out-in">
+
           <div v-if="groupState[index]" class="mt-4">
             <ul>
               <li v-for="disc in group.discs" :key="disc.id" class="flex justify-between items-center p-4 border-b">
@@ -36,6 +37,7 @@
                   <h4 class="text-md font-semibold">
                     {{ disc.artist.name }} - {{ disc.name }}
                   </h4>
+
                 </div>
                 <p class="text-sm text-gray-500">
                   Genre: {{ disc.genre?.name || "Unknown" }}
@@ -46,6 +48,26 @@
                     class="px-2 py-1 rounded-full text-xs font-medium text-white bg-blue-500 shadow-sm">
                     EP
                   </span>
+                  <!-- Bandera (con fallback por si el backend manda artistCountry plano) -->
+                  <div v-if="(disc.artist?.country?.isoCode?.length >= 2) || (disc.artistCountry?.isoCode?.length >= 2)"
+                    class="relative group">
+                    <CircleFlags
+                      :country="(disc.artist?.country?.isoCode || disc.artistCountry?.isoCode).slice(0, 2).toLowerCase()"
+                      :show-flag-name="false" class="h-5 w-5 cursor-help" aria-hidden="true" />
+                    <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[9px] font-semibold
+           text-white bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300
+           max-w-[160px] whitespace-normal text-center z-20"
+                      style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">
+                      {{
+                        countryAbbr[disc.artist?.country?.name]
+                        || disc.artist?.country?.name
+                        || countryAbbr[disc.artistCountry?.name]
+                        || disc.artistCountry?.name
+                        || (disc.artist?.country?.isoCode || disc.artistCountry?.isoCode).slice(0, 2).toUpperCase()
+                      }}
+                    </span>
+                  </div>
+
                 </div>
 
                 <!-- Selector de usuarios -->
@@ -108,6 +130,11 @@ export default defineComponent({
       type: String,
       required: true,
       validator: (value: string) => ["week", "month"].includes(value),
+    },
+    artistCountry: {
+      type: Object as PropType<{ id: string; name: string; isoCode: string }>,
+      required: false,
+      default: null,
     },
     listId: { type: String, required: true },
   },
@@ -426,6 +453,11 @@ export default defineComponent({
         );
       }
     };
+    // Abreviaturas
+    const countryAbbr: Record<string, string> = {
+      "United States of America": "USA",
+      "United Kingdom of Great Britain and Northern Ireland": "United Kingdom",
+    }
 
     return {
       discs,
@@ -440,11 +472,12 @@ export default defineComponent({
       selectedUser,
       assignUser,
       updateAsignation,
-      searchQuery, // Exponer searchQuery
-      selectedGenre, // Exponer selectedGenre
-      genres, // Exponer genres
-      filteredDiscs, // Exponer filteredDiscs
+      searchQuery,
+      selectedGenre,
+      genres,
+      filteredDiscs,
       resetAndFetch,
+      countryAbbr
     };
   },
 });
