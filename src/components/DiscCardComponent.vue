@@ -11,11 +11,18 @@
             class="px-2 py-1 rounded-full text-xs font-medium text-white bg-blue-500 text-center shadow-sm">
             EP
           </p>
-          <CircleFlags
-            v-if="artistCountry?.isoCode && artistCountry.isoCode.length >= 2"
-            :country="artistCountry.isoCode.slice(0,2).toLowerCase()"
-            :show-flag-name="false"
-          />
+
+          <div v-if="artistCountry?.isoCode && artistCountry.isoCode.length >= 2" class="relative group">
+            <CircleFlags :country="artistCountry.isoCode.slice(0, 2).toLowerCase()" :show-flag-name="false"
+              class="cursor-help" />
+            <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 text-[9px] font-semibold 
+         text-white bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300
+         max-w-[160px] whitespace-normal text-center"
+              style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+              {{ countryAbbr[artistCountry?.name] || artistCountry?.name || artistCountry?.isoCode?.slice(0,
+                2).toUpperCase() }}
+            </span>
+          </div>
         </div>
         <p class="px-2 py-1 rounded-full text-xs font-medium text-white text-center shadow-sm"
           :style="{ backgroundColor: genreColor || 'grey' }">
@@ -76,8 +83,8 @@
                     'text-gray-500 hover:text-red-400': !favoriteId,
                   }" @click="toggleHeart" />
                 <span
-                  class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 text-[10px] font-semibold text-white bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  Favoritos
+                  class="absolute bottom-full left-1/2 transform -translate-x-1/2 px-2 py-1 text-[9px] font-semibold text-white bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  Favs
                 </span>
               </div>
 
@@ -88,8 +95,8 @@
                     'text-gray-500 hover:text-yellow-300': !pendingId,
                   }" />
                 <span
-                  class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 text-[10px] font-semibold text-white bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  Pendientes
+                  class="absolute bottom-full left-1/2 transform -translate-x-1/2 px-2 py-1 text-[9px] font-semibold text-white bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  Guardar
                 </span>
               </div>
             </div>
@@ -116,7 +123,7 @@
         <button @click="toggleVotes"
           class="w-1/3 bg-gray-900 text-white font-bold py-2 px-1 rounded-lg shadow-md border-4 border-transparent hover:border-gray-900 hover:bg-gradient-to-l from-gray-600 to-gray-900 flex items-center justify-center space-x-1">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-            stroke="currentColor" class="size-5">
+            stroke="currentColor" class="size-4">
             <path stroke-linecap="round" stroke-linejoin="round"
               d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z" />
           </svg>
@@ -128,7 +135,7 @@
 
         <button @click="openComentsModal"
           class="w-1/3 gap-2 bg-gray-900 text-white font-bold py-2 px-2 rounded-lg shadow-md border-4 border-transparent hover:border-gray-900 hover:bg-gradient-to-l from-gray-600 to-gray-900 flex items-center justify-center">
-          <i class="fa-solid fa-comment-dots text-white text-sm"></i>
+          <i class="fa-solid fa-comment-dots text-white text-md"></i>
           <span class="flex items-center">
             Notas
             <span v-if="commentCount > 0" class="ml-1 mt-1 text-[9px] text-[#d9e021]">(<span class="inline">{{
@@ -141,12 +148,12 @@
           class="w-1/3 bg-gray-200 text-gray-700 font-bold py-2 px-1 rounded-lg shadow-md border-4 border-transparent hover:border-[#d9e021] hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] flex items-center justify-center space-x-1"
           :class="{ 'opacity-50 cursor-not-allowed': disableSubmitButton }">
           <template v-if="hasVoted">
-            <i class="fa-solid fa-arrows-rotate text-gray-700 text-lg"></i>
+            <i class="fa-solid fa-arrows-rotate text-gray-700 text-md"></i>
           </template>
           <template v-else>
-            <i class="fa-solid fa-pen-to-square text-gray-700 text-lg"></i>
+            <i class="fa-solid fa-pen-to-square text-gray-700 text-md"></i>
           </template>
-          <span>{{ hasVoted ? "Actualizar" : "Votar" }}</span>
+          <span>{{ hasVoted ? "Modificar" : "Votar" }}</span>
         </button>
       </div>
 
@@ -212,7 +219,7 @@ import SwalService from "@services/swal/SwalService";
 interface Vote {
   id: string;
   user: {
-    id: string;       
+    id: string;
     username: string;
   };
   rate: number;
@@ -265,6 +272,12 @@ export default defineComponent({
         year: "numeric",
       });
     });
+
+    // Abreviaturas
+    const countryAbbr: Record<string, string> = {
+      "United States of America": "USA",
+      "United Kingdom of Great Britain and Northern Ireland": "United Kingdom",
+    }
 
     const computedImage = computed(() => props.image || defaultImage);
 
@@ -510,7 +523,8 @@ export default defineComponent({
       openSpotify,
       openPlatformLink,
       isSubmittingRating,
-      disableSubmitButton
+      disableSubmitButton,
+      countryAbbr
     };
   },
 });
