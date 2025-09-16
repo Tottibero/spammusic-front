@@ -50,27 +50,33 @@
       </div>
     </div>
 
-    <!-- Columna derecha: Botones de acción en dos columnas -->
-    <div class="grid gap-2 w-full sm:w-2/3 p-2" :class="{ 'grid-cols-2': !isNarrow, 'grid-cols-1': isNarrow }">
-
-      <!-- Contenedor de los pills: Género + EP -->
-      <div class="flex items-center justify-center sm:justify-start gap-2 h-full">
+<div class="w-full sm:w-2/3 p-2 flex flex-col items-start gap-y-3 sm:gap-y-4">
+      <div class="flex items-center gap-2">
         <p class="px-2 py-1 rounded-full text-xs font-medium text-white text-center shadow-sm"
           :style="{ backgroundColor: disc.genre?.color || 'grey' }">
           {{ disc.genre?.name || "Sin género" }}
         </p>
+
         <p v-if="disc.ep"
           class="px-2 py-1 rounded-full text-xs font-medium text-white bg-blue-500 text-center shadow-sm">
           EP
         </p>
-        <img v-if="artistCountry?.name === 'SPAIN'" src="/src/assets/spain-flag-round.svg" alt="ES" class="rounded-full"
-          style="width: 20px; height: 20px; object-fit: cover;" />
+
+        <div v-if="artistCountry?.isoCode && artistCountry.isoCode.length >= 2" class="relative group">
+          <CircleFlags :country="artistCountry.isoCode.slice(0, 2).toLowerCase()" :show-flag-name="false"
+            class="h-5 w-5 cursor-help" aria-hidden="true" />
+          <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[9px] font-semibold
+               text-white bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300
+               max-w-[160px] whitespace-normal text-center z-20"
+            style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">
+            {{ countryAbbr[artistCountry?.name] || artistCountry?.name ||
+              artistCountry?.isoCode?.slice(0, 2).toUpperCase() }}
+          </span>
+        </div>
       </div>
 
-
-      <!-- Botón -->
-      <button @click="toggleBookmark()" :class="{ 'bg-yellow-500': pendingId, 'bg-gray-300': !pendingId }"
-        class="text-white font-medium px-3 py-2 rounded shadow-md">
+      <button @click="toggleBookmark()" :class="{ 'bg-yellow-500': pendingId, 'bg-gray-400': !pendingId }"
+        class="text-white font-medium px-3 py-1 full-rounded shadow-md self-start">
         {{ pendingId ? "Guardado" : "Añadir a pendientes" }}
       </button>
     </div>
@@ -180,27 +186,27 @@ export default defineComponent({
     DiscDetail,
     ArtistDetail,
   },
-props: {
-  disc: {
-    type: Object as PropType<{
-      id: string;
-      name: string;
-      artist: { name: string };
-      genreId: string;
-      link: string | null;
-      image: string | null;
-      ep: boolean;
-      verified: boolean;
-      releaseDate: Date;
-      pendingId: string;
-    }>,
-    required: true,
-  },
-  artistCountry: {
-    type: Object as PropType<{ name: string }>,
-    required: false,
-    default: null,
-  },
+  props: {
+    disc: {
+      type: Object as PropType<{
+        id: string;
+        name: string;
+        artist: { name: string };
+        genreId: string;
+        link: string | null;
+        image: string | null;
+        ep: boolean;
+        verified: boolean;
+        releaseDate: Date;
+        pendingId: string;
+      }>,
+      required: true,
+    },
+    artistCountry: {
+      type: Object as PropType<{ id: string; name: string; isoCode: string }>,
+      required: false,
+      default: null,
+    },
     genres: {
       type: Array as PropType<{ id: string; name: string; color?: string }[]>,
       required: true,
@@ -599,7 +605,6 @@ props: {
       }
     };
 
-    // Modal para actualizar/crear artista (edición)
     const showArtistModal = ref(false);
     const newArtistName = ref("");
     const creatingNewArtist = ref(false);
@@ -640,7 +645,6 @@ props: {
       }
     };
 
-    // NUEVAS VARIABLES y funciones para abrir los modales de detalle
     const showDiscDetail = ref(false);
     const showArtistDetail = ref(false);
 
@@ -659,6 +663,12 @@ props: {
     const closeArtistDetail = () => {
       showArtistDetail.value = false;
     };
+
+    // Abreviaturas
+    const countryAbbr: Record<string, string> = {
+      "United States of America": "USA",
+      "United Kingdom of Great Britain and Northern Ireland": "United Kingdom",
+    }
 
     onMounted(() => {
       window.addEventListener("resize", updateSize);
@@ -705,6 +715,7 @@ props: {
       showArtistDetail,
       closeDiscDetail,
       closeArtistDetail,
+      countryAbbr
     };
   },
 });
