@@ -7,6 +7,7 @@
     <!-- Filtros -->
     <DiscFilters :searchQuery="searchQuery" :selectedGenre="selectedGenre" :genres="genres" :showWeekPicker="false"
       @update:searchQuery="searchQuery = $event" @update:selectedGenre="selectedGenre = $event"
+    selectClass="w-[280px] sm:w-[300px]"
       @reset-and-fetch="resetAndFetch" />
 
     <div>
