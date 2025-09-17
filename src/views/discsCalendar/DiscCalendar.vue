@@ -7,8 +7,7 @@
     <!-- Filtros -->
     <DiscFilters :searchQuery="searchQuery" :selectedGenre="selectedGenre" :genres="genreOptions" :countries="countries"
       :showWeekPicker="false" @update:searchQuery="searchQuery = $event" @update:selectedGenre="selectedGenre = $event"
-    selectClass="w-[280px] sm:w-[300px]"
-      @reset-and-fetch="resetAndFetch" />
+      selectClass="w-[280px] sm:w-[300px]" @reset-and-fetch="resetAndFetch" />
 
     <div>
       <div class="flex flex-wrap justify-center gap-2 mb-6 overflow-x-auto">
@@ -29,8 +28,8 @@
         <div
           class="flex justify-between items-center px-5 py-3 rounded-full cursor-pointer bg-gray-200 transition-all duration-300 shadow-md"
           :class="groupState[index]
-              ? 'bg-gradient-to-r from-gray-900 to-gray-700'
-              : 'hover:bg-gradient-to-r hover:from-gray-200 hover:to-gray-300 bg-gray-100'
+            ? 'bg-gradient-to-r from-gray-900 to-gray-700'
+            : 'hover:bg-gradient-to-r hover:from-gray-200 hover:to-gray-300 bg-gray-100'
             " @click="toggleGroup(index)">
           <h3 class="text-xl sm:text-2xl font-semibold transition-colors duration-300"
             :style="{ color: groupState[index] ? 'white' : '#1f2937' }">
@@ -82,17 +81,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, reactive, computed } from "vue";
+import { defineComponent, ref, onMounted, reactive, computed, nextTick } from "vue";
 import axios from "axios";
 import { updateDisc, deleteDisc, getDiscsDated } from "@services/discs/discs";
 import { getGenres } from "@services/genres/genres";
 import { getCountries } from "@services/countries/countries";
 import DiscComponent from "./components/DiscComponent.vue";
 import { obtenerTokenSpotify } from "@helpers/SpotifyFunctions.ts";
-import DiscFilters from "@components/DiscFilters.vue"; // Importa DiscFilters
+import DiscFilters from "@components/DiscFilters.vue"; 
 
 export default defineComponent({
-  components: { DiscComponent, DiscFilters }, // Registra DiscFilters
+  components: { DiscComponent, DiscFilters }, 
   name: "DiscsList",
   setup() {
     const groupedDiscs = ref<any[]>([]);
@@ -113,12 +112,12 @@ export default defineComponent({
       "Diciembre",
     ];
 
-    const selectedMonth = ref(new Date().getMonth()); // Mes actual por defecto
+    const selectedMonth = ref(new Date().getMonth()); 
 
     // --- Filtros ---
     const searchQuery = ref("");
     const selectedGenre = ref("");
-    const selectedWeek = ref<Date | null>(null); // Debe ser null al inicio
+    const selectedWeek = ref<Date | null>(null); 
 
     const filteredGroupedDiscs = computed(() => {
       return groupedDiscs.value
@@ -135,12 +134,11 @@ export default defineComponent({
             const matchesGenre =
               !selectedGenre.value || disc.genre?.id === selectedGenre.value;
 
-            // Filtro por semana (si selectedWeek está definido)
             if (selectedWeek.value) {
               const discDate = new Date(disc.releaseDate);
-              const weekStart = new Date(selectedWeek.value); // Principio de la semana
+              const weekStart = new Date(selectedWeek.value); 
               const weekEnd = new Date(weekStart);
-              weekEnd.setDate(weekStart.getDate() + 6); // Fin de la semana
+              weekEnd.setDate(weekStart.getDate() + 6); 
 
               return (
                 matchesSearch &&
@@ -150,50 +148,58 @@ export default defineComponent({
               );
             }
 
-            return matchesSearch && matchesGenre; // Si no hay filtro de semana
+            return matchesSearch && matchesGenre; 
           }),
         }))
-        .filter((group) => group.discs.length > 0); // Filtra grupos vacíos
+        .filter((group) => group.discs.length > 0); 
     });
+
+    const fetchAllPagesForMonth = async () => {
+
+      try { if (loadMore.value) observer.unobserve(loadMore.value); } catch { }
+
+      while (hasMore.value) {
+        await fetchDiscs();   
+        await nextTick();     
+      }
+
+
+      try { if (loadMore.value) observer.observe(loadMore.value); } catch { }
+    };
 
     const selectMonth = async (monthIndex: number) => {
       selectedMonth.value = monthIndex;
       const year = new Date().getFullYear();
       const startDate = new Date(Date.UTC(year, monthIndex, 1)).toISOString();
-      const endDate = new Date(
-        year,
-        monthIndex + 1,
-        0,
-        23,
-        59,
-        59,
-        999
-      ).toISOString();
+      const endDate = new Date(year, monthIndex + 1, 0, 23, 59, 59, 999).toISOString();
 
       offset.value = 0;
       groupedDiscs.value = [];
-      await fetchDiscsByDateRange(startDate, endDate);
+
+      await fetchDiscsByDateRange(startDate, endDate); 
+      await fetchAllPagesForMonth();                  
     };
+
 
     const fetchDiscsByDateRange = async (
       startDate: string,
       endDate: string
     ) => {
       loading.value = true;
-      // No es necesario limpiar groupedDiscs.value aquí, ya que se limpia en selectMonth
+
       try {
         const response = await getDiscsDated(limit.value, offset.value, [
           startDate,
           endDate,
         ]);
-        // ... (resto del código de fetchDiscsByDateRange, sin cambios) ...
 
-        // Inicializa groupState para los nuevos grupos
+
+
         response.data.forEach((group, index) => {
-          groupState[index] = false; // Inicialmente, todos los grupos cerrados
+          groupState[index] = false; 
         });
 
-        groupedDiscs.value = response.data; // Asigna los nuevos datos
+        groupedDiscs.value = response.data; 
         totalItems.value = response.totalItems;
         offset.value = limit.value;
         hasMore.value = offset.value < totalItems.value;
@@ -208,24 +214,20 @@ export default defineComponent({
       groupState[index] = !groupState[index];
     };
 
-    // Paginación
     const limit = ref(200);
 
     const offset = ref(0);
     const totalItems = ref(0);
     const hasMore = ref(true);
 
-    // Estado de carga
     const loading = ref(false);
 
-    // Referencia para scroll infinito
     const loadMore = ref<HTMLDivElement | null>(null);
 
-    // Lista de géneros
     const genres = ref<any[]>([]);
     const genreOptions = computed(() =>
       (genres.value ?? [])
-        .filter(g => g && g.id) // limpia nulos
+        .filter(g => g && g.id) 
         .map(g => ({
           id: g.id,
           name: g.name && g.name.trim() ? g.name : "(Sin nombre)",
@@ -239,17 +241,13 @@ export default defineComponent({
 
     genres2.value = ["list", "of", "options"];
 
-    // ---------------------------
-    // Función para obtener discos
-    // ---------------------------
-
     const fetchDiscs = async () => {
       if (loading.value || !hasMore.value) return;
 
       loading.value = true;
 
       try {
-        // Calcular el rango de fechas del mes seleccionado
+
         const year = new Date().getFullYear();
         const startDate = new Date(
           Date.UTC(year, selectedMonth.value, 1)
@@ -264,7 +262,6 @@ export default defineComponent({
           999
         ).toISOString();
 
-        // Realizar la solicitud con el rango de fechas
         const response = await getDiscsDated(limit.value, offset.value, [
           startDate,
           endDate,
@@ -295,7 +292,6 @@ export default defineComponent({
       }
     };
 
-    // Agregar en setup()
     const formatDate = (dateString: string) => {
       const date = new Date(dateString);
       const optionsDate: Intl.DateTimeFormatOptions = {
@@ -307,17 +303,13 @@ export default defineComponent({
         weekday: "long",
       };
 
-      // Obtener la fecha en formato DD/MM/YYYY
       const formattedDate = date.toLocaleDateString("es-ES", optionsDate);
-      // Obtener el día de la semana
+
       const formattedWeekday = date.toLocaleDateString("es-ES", optionsWeekday);
 
       return `${formattedDate}, ${formattedWeekday}`;
     };
 
-    // --------------------------------
-    // Función para obtener todos los géneros
-    // --------------------------------
     const fetchGenres = async () => {
       try {
         const genresResponse = await getGenres(150, 0);
@@ -331,7 +323,7 @@ export default defineComponent({
 
     const fetchCountries = async () => {
       try {
-        const countriesResponse = await getCountries(250, 0); // ajusta límite si hace falta
+        const countriesResponse = await getCountries(250, 0); 
         countries.value = countriesResponse.data.sort((a, b) =>
           a.name.localeCompare(b.name)
         );
@@ -364,7 +356,7 @@ export default defineComponent({
           if (response.data.albums.items.length > 0) {
             const album = response.data.albums.items[0];
             disc.link = album.external_urls.spotify;
-            disc.image = album.images?.[0]?.url || null; // Obtiene la URL de la imagen
+            disc.image = album.images?.[0]?.url || null;
             console.log("disc.image", disc.image);
 
             console.log("Datos enviados al backend:", {
@@ -386,8 +378,6 @@ export default defineComponent({
         }
       }
     };
-
-    // Función para obtener el token de Spotify
 
     const exportarHtml = (group: any) => {
       let html = `
@@ -419,7 +409,6 @@ export default defineComponent({
         </table>
       </figure>`;
 
-      // Crear un blob con el HTML y descargarlo
       const blob = new Blob([html], { type: "text/html" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
@@ -430,13 +419,10 @@ export default defineComponent({
 
     const resetAndFetch = () => {
       offset.value = 0;
-      // No limpies groupedDiscs.value aquí, ya que se maneja en selectMonth y fetchDiscsByDateRange
-      fetchDiscs(); // Llama a fetchDiscs, que ahora maneja la lógica de fechas
+     
+      fetchDiscs(); 
     };
 
-    // ----------------
-    // onMounted
-    // ----------------
     onMounted(() => {
       if (loadMore.value) {
         observer.observe(loadMore.value);
@@ -471,7 +457,7 @@ export default defineComponent({
       selectedGenre,
       selectedWeek,
       resetAndFetch,
-      filteredGroupedDiscs, // Exponer el computed
+      filteredGroupedDiscs, 
       countries,
       genreOptions
     };
