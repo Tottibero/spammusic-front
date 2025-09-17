@@ -120,7 +120,7 @@
                                 para poder seguir desarrollando y mejorando este proyecto. Si deseas colaborar con más,
                                 eres
                                 totalmente libre de hacerlo.
-                                Hemos habilitado un <strong>bote público</strong> donde puedes realizar tu aportación.
+                                Hemos habilitado un <strong>una cuenta de PayPal</strong> donde puedes realizar tu aportación.
                                 Notifícanos a
                                 <strong>contacto@riffvalley.es</strong> cualquier duda con respecto a esto sin problema.
                                 Aquí tienes
@@ -129,9 +129,9 @@
                         </div>
 
                         <div class="mt-4 text-center">
-                            <a href="https://www.paypal.com/pool/9gt3NQqIBG?sr=wccr" target="_blank"
+                            <a href="http://paypal.me/RiffValley" target="_blank"
                                 class="inline-block bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-black font-semibold px-6 py-2 rounded-full shadow transition duration-200">
-                                Ir al Paypal colaborativo
+                                Ir al PayPal
                             </a>
                         </div>
 
