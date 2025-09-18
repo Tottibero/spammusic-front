@@ -7,11 +7,11 @@
     <!-- Filtros -->
     <DiscFilters :searchQuery="searchQuery" :selectedGenre="selectedGenre" :genres="genres" :showWeekPicker="false"
       @update:searchQuery="searchQuery = $event" @update:selectedGenre="selectedGenre = $event"
-    selectClass="w-[280px] sm:w-[300px]"
+    selectClass="w-[280px] sm:w-[300px] w-full" 
       @reset-and-fetch="resetAndFetch" />
 
     <div>
-      <div class="flex flex-wrap justify-center gap-2 mb-6 overflow-x-auto">
+      <div class="flex flex-wrap justify-center gap-2 mb-6 mt-6 overflow-x-auto">
         <button v-for="(month, index) in months" :key="index" @click="selectMonth(index)" :class="{
           'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-[#211d1d] font-semibold':
             selectedMonth === index,
