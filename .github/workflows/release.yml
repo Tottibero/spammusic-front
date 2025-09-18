@@ -3,6 +3,11 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -12,7 +17,8 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: '20'     # <-- usa Node 20 (>=20.8.1)
+          check-latest: true
       - run: corepack enable
       - run: yarn install --immutable
       - run: npx semantic-release
