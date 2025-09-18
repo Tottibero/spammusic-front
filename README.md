@@ -83,7 +83,7 @@ fix(ui): corrige padding en el header
 docs(readme): añade guía de instalación
 refactor(api): simplifica validación de usuarios
 ```
-
+-
 ### Breaking Changes
 Si un cambio rompe compatibilidad, márcalo de una de estas formas:
 
