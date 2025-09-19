@@ -96,7 +96,8 @@ export async function getRatesByUser(
   query?: string,
   dateRange?: any,
   genre?: string,
-  type?: string
+  type?: string,
+  orderBy?: string,            // 👈 nuevo
 ): Promise<DiscRate[]> {
   const response = await api.get<any>("/rates", {
     params: {
@@ -105,7 +106,8 @@ export async function getRatesByUser(
       query, // Incluye el query en los parámetros si está definido
       dateRange,
       genre,
-      type
+      type,
+      orderBy,
     },
   });
   return response.data;
