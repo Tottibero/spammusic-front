@@ -1,0 +1,29 @@
+{
+  "files": [],
+  "types": [
+    "vue-sweetalert2",
+    "node"
+  ],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ],
+  "compilerOptions": {
+    "strict": true,
+    "moduleResolution": "node16", 
+    "module": "Node16", // Cambiado para ser compatible con "moduleResolution: node16"
+    "verbatimModuleSyntax": true,
+    "target": "ESNext",
+    "baseUrl": ".",
+    "paths": {
+      "@assets/*": ["src/assets/*"],
+      "@helpers/*": ["src/helpers/*"],
+      "@stores/*": ["src/stores/*"],
+      "@views/*": ["src/views/*"],
+      "@components/*": ["src/components/*"],
+      "@services/*": ["src/services/*"],
+      "@interfaces/*": ["src/interfaces/*"],
+      "@":["src"]
+    }
+  }
+}
