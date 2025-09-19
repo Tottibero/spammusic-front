@@ -1,0 +1,89 @@
+[
+  {
+    "to": "/",
+    "label": "Home",
+    "activeClass": "bg-gray-700",
+    "type": "disc-app"
+  },
+  {
+    "to": "/disc-list",
+    "label": "Discos",
+    "activeClass": "bg-gray-700",
+    "type": "disc-app"
+  },
+  {
+    "to": "/calendar",
+    "label": "Calendario",
+    "activeClass": "bg-gray-700",
+    "type": "disc-app",
+    "requiredRole": "user"
+  },
+  {
+    "to": "/calendar-baby",
+    "label": "Calendario",
+    "activeClass": "bg-gray-700",
+    "type": "disc-app",
+    "requiredRole": "babyUser"
+  },
+  {
+    "to": "/import",
+    "label": "Añadir discos",
+    "activeClass": "bg-gray-700",
+    "type": "disc-app",
+    "requiredRole": "user"
+  },
+  {
+    "to": "/suggest",
+    "label": "Sugerir discos",
+    "activeClass": "bg-gray-700",
+    "type": "disc-app",
+    "requiredRole": "babyUser"
+  },
+  {
+    "to": "/petitions",
+    "label": "Peticiones",
+    "activeClass": "bg-gray-700",
+    "type": "disc-app",
+    "requiredRole": "user"
+  },
+  {
+    "to": "/recap",
+    "label": "Resumen semanal",
+    "activeClass": "bg-gray-700",
+    "type": "riff-valley",
+    "requiredRole": "riffValley"
+  },
+  {
+    "to": "/reunions/list",
+    "label": "Reuniones",
+    "activeClass": "bg-gray-700",
+    "type": "riff-valley",
+    "requiredRole": "riffValley"
+  },
+  {
+    "to": "/list/lists",
+    "label": "Listas",
+    "activeClass": "bg-gray-700",
+    "type": "riff-valley",
+    "requiredRole": "riffValley"
+  },
+  {
+    "to": "/password",
+    "label": "Perfil",
+    "activeClass": "bg-red-600",
+    "type": "bottom"
+  },
+  {
+    "to": "/users",
+    "label": "Gestionar usuarios",
+    "activeClass": "bg-red-600",
+    "type": "bottom",
+    "requiredRole": "superUser"
+  },
+  {
+  "to": "/how-to-use",
+  "label": "Cómo usar la app",
+  "activeClass": "bg-gray-700",
+  "type": "bottom"
+}
+]

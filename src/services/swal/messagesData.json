@@ -1,0 +1,46 @@
+{
+  "0": {
+    "titles": ["❄️ DEPLORABLE ❄️"],
+    "messages": ["Ni con tus oidos", "Menudo bodrio colega"]
+  },
+  "1": {
+    "titles": ["💤 PERO QUE... 💤"],
+    "messages": ["Llevate esta basura por favor", "¿Otro disco de Soulkick?"]
+  },
+  "2": {
+    "titles": ["🥱 BAH 🥱"],
+    "messages": ["¿Como te sientes despues de perder tanto tiempo?", "Bazofia es poco"]
+  },
+  "3": {
+    "titles": ["🤨 MEH 🤨"],
+    "messages": ["Este voto es como un WiFi con 3 rayitas... aceptable, pero no lo mejor.", "Podría ser peor, podría haber sido un disco de Orslok."]
+  },
+  "4": {
+    "titles": ["🤷‍♂️ NOT BAD 🤷‍♂️"],
+    "messages": ["El disco es el equivalente a pedir pizza hawaiana: polémico, pero respetable.", "El disco es como un buen chisme... empieza bien, pero puede mejorar."]
+  },
+  "5": {
+    "titles": ["🤔 DECENTE 🤔"],
+    "messages": [ "Este disco es como un lunes no estuvo tan mal, pero sigue siendo lunes.", "Es como un abrazo de tu tía: inesperado, pero te deja bien."]
+  },
+  "6": {
+    "titles": ["👍 DECENTE 👍"],
+    "messages": ["Se puede volver a escuchar", "No es un 10, pero tampoco es el ultimo de Mago de Oz", "Es como encontrar un billete en la lavadora: inesperado, pero bienvenido."]
+  },
+  "7": {
+    "titles": ["👀 BIEN 👀"],
+    "messages": ["No sé qué elegiste, pero me dieron ganas de aplaudir.", "Parece que alguien vino a votar con criterio, ¡bien ahí!"]
+  },
+  "8": {
+    "titles": ["👏 ¡BUENO! 👏"],
+    "messages": ["Aquí hay talento, esto no fue un disco cualquiera.", "Esto es como un all-you-can-eat de sushi, ¡calidad y cantidad!", "Este disco es como un plot twist en una serie... inesperado, pero épico."]
+  },
+  "9": {
+    "titles": ["🔥 WOW! 🔥"],
+    "messages": ["Este disco es como un perrito saludándote en la calle... PURA FELICIDAD.", "Mierda de la buena, ¡si señor!"]
+  },
+  "10": {
+    "titles": ["💯 DIOS! 💯"],
+    "messages": [ "Esto es un 10/10, aprobado por la ONU, la NASA y tu abuela."]
+  }
+}
