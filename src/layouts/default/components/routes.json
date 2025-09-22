@@ -3,87 +3,110 @@
     "to": "/",
     "label": "Home",
     "activeClass": "bg-gray-700",
-    "type": "disc-app"
+    "type": "disc-app",
+    "icon": "fa-solid fa-house"
   },
   {
     "to": "/disc-list",
     "label": "Discos",
     "activeClass": "bg-gray-700",
-    "type": "disc-app"
+    "type": "disc-app",
+    "icon": "fa-solid fa-compact-disc"
   },
   {
     "to": "/calendar",
     "label": "Calendario",
     "activeClass": "bg-gray-700",
     "type": "disc-app",
-    "requiredRole": "user"
+    "requiredRole": "user",
+    "icon": "fa-solid fa-calendar-days"
   },
   {
     "to": "/calendar-baby",
     "label": "Calendario",
     "activeClass": "bg-gray-700",
     "type": "disc-app",
-    "requiredRole": "babyUser"
+    "requiredRole": "babyUser",
+    "icon": "fa-solid fa-calendar-days"
   },
   {
     "to": "/import",
     "label": "Añadir discos",
     "activeClass": "bg-gray-700",
     "type": "disc-app",
-    "requiredRole": "user"
+    "requiredRole": "user",
+    "icon": "fa-solid fa-arrow-up-from-bracket"
   },
   {
     "to": "/suggest",
     "label": "Sugerir discos",
     "activeClass": "bg-gray-700",
     "type": "disc-app",
-    "requiredRole": "babyUser"
+    "requiredRole": "babyUser",
+    "icon": "fa-solid fa-lightbulb"
   },
   {
     "to": "/petitions",
     "label": "Peticiones",
     "activeClass": "bg-gray-700",
     "type": "disc-app",
-    "requiredRole": "user"
+    "requiredRole": "user",
+    "icon": "fa-solid fa-inbox"
   },
+
   {
     "to": "/recap",
     "label": "Resumen semanal",
     "activeClass": "bg-gray-700",
     "type": "riff-valley",
-    "requiredRole": "riffValley"
+    "requiredRole": "riffValley",
+    "icon": "fa-solid fa-calendar-week"
   },
   {
     "to": "/reunions/list",
     "label": "Reuniones",
     "activeClass": "bg-gray-700",
     "type": "riff-valley",
-    "requiredRole": "riffValley"
+    "requiredRole": "riffValley",
+    "icon": "fa-solid fa-comments"
   },
   {
     "to": "/list/lists",
     "label": "Listas",
     "activeClass": "bg-gray-700",
     "type": "riff-valley",
-    "requiredRole": "riffValley"
+    "requiredRole": "riffValley",
+    "icon": "fa-solid fa-list-check"
   },
+  {
+    "to": "/spotify",
+    "label": "Spotify",
+    "activeClass": "bg-gray-700",
+    "type": "riff-valley",
+    "requiredRole": "riffValley",
+    "icon": "fa-brands fa-spotify text-[#1DB954]"
+  },
+
   {
     "to": "/password",
     "label": "Perfil",
     "activeClass": "bg-red-600",
-    "type": "bottom"
+    "type": "bottom",
+    "icon": "fa-solid fa-user"
   },
   {
     "to": "/users",
     "label": "Gestionar usuarios",
     "activeClass": "bg-red-600",
     "type": "bottom",
-    "requiredRole": "superUser"
+    "requiredRole": "superUser",
+    "icon": "fa-solid fa-users"
   },
   {
-  "to": "/how-to-use",
-  "label": "Cómo usar la app",
-  "activeClass": "bg-gray-700",
-  "type": "bottom"
-}
+    "to": "/how-to-use",
+    "label": "Cómo usar la app",
+    "activeClass": "bg-gray-700",
+    "type": "bottom",
+    "icon": "fa-solid fa-circle-question"
+  }
 ]
