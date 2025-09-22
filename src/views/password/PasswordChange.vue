@@ -1,17 +1,17 @@
 <template>
   <div class="container mx-auto px-4 py-8 max-w-md">
-
     <!-- Selector de Avatares -->
     <div class="mb-6">
       <label class="block font-medium mb-2">Selecciona un Avatar</label>
       <div class="flex flex-wrap gap-2 justify-center">
         <div v-for="avatar in avatars" :key="avatar" @click="selectAvatar(avatar)"
-  class="cursor-pointer border-2 rounded-full overflow-hidden w-20 h-20 flex items-center justify-center 
-  transition-transform duration-300 hover:scale-110"
-  :class="avatar === selectedAvatar ? 'border-[#d9e021] shadow-md' : 'border-gray-300'">
-  <img :src="avatar" class="w-full h-full object-cover" alt="Avatar" />
-</div>
-
+          class="cursor-pointer border-2 rounded-full overflow-hidden w-20 h-20 flex items-center justify-center transition-transform duration-300 hover:scale-110"
+          :class="avatar === selectedAvatar
+              ? 'border-[#d9e021] shadow-md'
+              : 'border-gray-300'
+            ">
+          <img :src="avatar" class="w-full h-full object-cover" alt="Avatar" />
+        </div>
       </div>
 
       <!-- Botón para guardar solo el avatar -->
@@ -20,7 +20,6 @@
         Guardar Avatar
       </button>
     </div>
-
 
     <h2 class="text-2xl font-bold mb-4 mt-5 text-center">Cambiar Contraseña</h2>
     <form @submit.prevent="changePassword" class="bg-white p-6 rounded-lg shadow-md">
@@ -89,10 +88,10 @@ export default {
     });
 
     // ✅ Cargar el usuario desde `fetchUser()` en `onMounted()`
-onMounted(async () => {
-  await userStore.fetchUser();
-  loadAvatars();
-});
+    onMounted(async () => {
+      await userStore.fetchUser();
+      loadAvatars();
+    });
 
     // Cargar avatares desde la carpeta "public/avatar/"
     const loadAvatars = async () => {
@@ -118,28 +117,28 @@ onMounted(async () => {
           "/avatar/avatar17.png",
           "/avatar/avatar18.png"
         ];
-    // Verificar si el usuario está cargado en `userStore`
-    if (!userStore.user) {
-      console.warn("⚠️ No se ha encontrado un usuario autenticado. Intentando cargarlo...");
-      
-      if (userStore.fetchUser) {
-        await userStore.fetchUser(); // Intentamos cargar el usuario si hay una función para ello
-      } else {
-        console.error("❌ No se encontró `fetchUser` en userStore. Verifica cómo se carga el usuario.");
-        return;
-      }
-    }
+        // Verificar si el usuario está cargado en `userStore`
+        if (!userStore.user) {
+          console.warn("⚠️ No se ha encontrado un usuario autenticado. Intentando cargarlo...");
 
-    if (userStore.user && userStore.user.avatarUrl) {
-      selectedAvatar.value = userStore.user.avatarUrl;
-    } else {
-      console.warn("⚠️ No hay avatar almacenado. Usando avatar por defecto.");
-      selectedAvatar.value = avatars.value[0]; // Asignar un avatar por defecto
-    }
-  } catch (error) {
-    console.error("❌ Error cargando avatares:", error);
-  }
-};
+          if (userStore.fetchUser) {
+            await userStore.fetchUser(); // Intentamos cargar el usuario si hay una función para ello
+          } else {
+            console.error("❌ No se encontró `fetchUser` en userStore. Verifica cómo se carga el usuario.");
+            return;
+          }
+        }
+
+        if (userStore.user && userStore.user.image) {
+          selectedAvatar.value = userStore.user.image;
+        } else {
+          console.warn("⚠️ No hay avatar almacenado. Usando avatar por defecto.");
+          selectedAvatar.value = avatars.value[0]; // Asignar un avatar por defecto
+        }
+      } catch (error) {
+        console.error("❌ Error cargando avatares:", error);
+      }
+    };
 
     // Seleccionar un avatar
     const selectAvatar = (avatar) => {
@@ -148,84 +147,48 @@ onMounted(async () => {
 
     // Guardar solo el avatar
     const saveAvatar = async () => {
-  try {
-    if (!userStore.user) {
-      console.error("❌ No se ha encontrado un usuario autenticado.");
-      
-      Swal.fire({
-        title: "Error",
-        text: "No se pudo actualizar el avatar. Inténtalo de nuevo.",
-        icon: "error",
-        confirmButtonText: "Ok",
-      });
-
-      return;
-    }
-
-    // ✅ 1️⃣ Actualizar avatar en la base de datos
-    await userStore.updateUserStore({ avatarUrl: selectedAvatar.value });
-
-    // ✅ 2️⃣ Actualizar en `userStore` para que persista en sesión
-    userStore.setUser({ ...userStore.user, avatarUrl: selectedAvatar.value });
-
-    // ✅ 3️⃣ Guardar el avatar en `localStorage`
-    localStorage.setItem("userAvatar", selectedAvatar.value);
-
-    // ✅ 4️⃣ Emitir evento global para actualizar los comentarios
-    window.dispatchEvent(new Event("avatarUpdated"));
-
-    // ✅ 5️⃣ Mostrar alerta de éxito
-    Swal.fire({
-      title: "Éxito",
-      text: "Avatar actualizado correctamente",
-      icon: "success",
-      confirmButtonText: "Ok",
-    });
-
-  } catch (error) {
-    Swal.fire({
-      title: "Error",
-      text: "Error al actualizar el avatar",
-      icon: "error",
-      confirmButtonText: "Ok",
-    });
-
-    console.error("❌ Error al actualizar avatar:", error);
-  }
-};
-
-
-
-    // Guardar cambios de contraseña
-    const changePassword = async () => {
-      if (passwordMismatch.value || passwordError.value) return;
-
       try {
-        await userStore.updateUserStore({ password: password.value });
-        SwalService.success("Contraseña cambiada con éxito");
-
-        password.value = "";
-        confirmPassword.value = "";
+        await userStore.updateUserStore({ image: selectedAvatar.value });
+        SwalService.success("Avatar actualizado correctamente");
         errorMessage.value = "";
       } catch (error) {
         errorMessage.value = error.response?.data?.message || "Ocurrió un error inesperado";
       }
     };
 
-    onMounted(loadAvatars);
 
-    return {
-      password,
-      confirmPassword,
-      passwordMismatch,
-      passwordError,
-      changePassword,
-      errorMessage,
-      avatars,
-      selectedAvatar,
-      selectAvatar,
-      saveAvatar
-    };
+
+
+// Guardar cambios de contraseña
+const changePassword = async () => {
+  if (passwordMismatch.value || passwordError.value) return;
+
+  try {
+    await userStore.updateUserStore({ password: password.value });
+    SwalService.success("Contraseña cambiada con éxito");
+
+    password.value = "";
+    confirmPassword.value = "";
+    errorMessage.value = "";
+  } catch (error) {
+    errorMessage.value = error.response?.data?.message || "Ocurrió un error inesperado";
+  }
+};
+
+onMounted(loadAvatars);
+
+return {
+  password,
+  confirmPassword,
+  passwordMismatch,
+  passwordError,
+  changePassword,
+  errorMessage,
+  avatars,
+  selectedAvatar,
+  selectAvatar,
+  saveAvatar
+};
   },
 };
 </script>
