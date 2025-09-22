@@ -152,7 +152,7 @@ export default defineComponent({
       const end = isoEndUTC(new Date(Date.UTC(y, m + 1, 0)));
       return {
         key: `M-${y}-${m + 1}`,
-        label: `Mes completo: ${monthNames[m]} ${y}`,
+        label: `Mes completo`,
         start,
         end,
       };
