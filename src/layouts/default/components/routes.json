@@ -81,9 +81,16 @@
     "requiredRole": "superUser"
   },
   {
-  "to": "/how-to-use",
-  "label": "Cómo usar la app",
-  "activeClass": "bg-gray-700",
-  "type": "bottom"
-}
+    "to": "/versions",
+    "label": "Gestionar versiones",
+    "activeClass": "bg-red-600",
+    "type": "bottom",
+    "requiredRole": "superUser"
+  },
+  {
+    "to": "/how-to-use",
+    "label": "Cómo usar la app",
+    "activeClass": "bg-gray-700",
+    "type": "bottom"
+  }
 ]
