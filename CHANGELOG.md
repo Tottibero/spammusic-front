@@ -1,3 +1,7 @@
+## 1.1.0 (2025-09-22)
+
+* feat(spotify): listas de spotify, CRUD ([493abd1](https://github.com/Tottibero/spammusic-front/commit/493abd1))
+
 ## <small>1.0.1 (2025-09-20)</small>
 
 * fix(calendar): normalized names for calendar search ([f2e7bb6](https://github.com/Tottibero/spammusic-front/commit/f2e7bb6))
