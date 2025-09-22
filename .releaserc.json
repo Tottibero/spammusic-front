@@ -1,0 +1,44 @@
+{
+  "branches": ["main", "ordenacion"],
+  "tagFormat": "v${version}",
+  "plugins": [
+    ["@semantic-release/commit-analyzer", {
+      "preset": "conventionalcommits",
+      "releaseRules": [
+        { "type": "build", "release": "patch" }
+      ]
+    }],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits",
+        "presetConfig": {
+          "types": [
+            { "type": "feat", "section": "✨ Features" },
+            { "type": "fix",  "section": "🐞 Correcciones" },
+            { "type": "build","section": "📦 Paquetes incluidos" },
+            { "type": "perf", "section": "⚡️ Performance" },
+            { "type": "refactor", "section": "♻️ Refactor" },
+            { "type": "docs", "section": "📝 Docs" },
+            { "type": "test", "section": "✅ Tests" },
+            { "type": "chore", "hidden": true }
+          ]
+        }
+      }
+    ],
+    ["@semantic-release/changelog", { "changelogFile": "CHANGELOG.md" }],
+    ["@semantic-release/npm", { "npmPublish": false }],
+    ["@semantic-release/git", {
+      "assets": [
+        "CHANGELOG.md",
+        "package.json",
+        "package-lock.json",
+        "npm-shrinkwrap.json",
+        "pnpm-lock.yaml",
+        "yarn.lock"
+      ],
+      "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+    }],
+    "@semantic-release/github"
+  ]
+}

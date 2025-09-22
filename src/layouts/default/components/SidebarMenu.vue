@@ -6,158 +6,139 @@
     ]"
   >
     <div class="flex flex-col h-full">
-      <!-- Scrollable content -->
       <div class="flex-1 overflow-y-auto overscroll-contain touch-auto">
-              <div class="flex-1 overflow-y-auto">
-        <div class="p-4 text-xl font-bold border-b border-gray-700 flex items-center justify-center space-x-3">
-          <img src="/LOGO-SPAM-MUSIC.svg" alt="Logo" class="w-8 h-8" />
-          <span>Spam Music</span>
+        <div class="flex-1 overflow-y-auto">
+          <div class="p-4 text-xl font-bold border-b border-gray-700 flex items-center justify-center space-x-3">
+            <img src="/LOGO-SPAM-MUSIC.svg" alt="Logo" class="w-8 h-8" />
+            <span>Spam Music</span>
+          </div>
+
+          <!-- Disc App -->
+          <nav class="px-4 py-4 space-y-2">
+            <router-link
+              v-for="route in filteredDiscAppRoutes"
+              :key="route.to"
+              :to="route.to"
+              class="text-left pl-6 block px-4 py-2 rounded transition-opacity duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
+              :active-class="route.activeClass || 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-[#211d1d]'"
+              @click="closeMenu"
+            >
+              <i :class="[route.icon, 'text-md mr-2']"></i>
+              {{ route.label }}
+            </router-link>
+          </nav>
+
+          <!-- Riff Valley -->
+          <nav class="px-4 py-4 space-y-2 border-t border-gray-700">
+            <div class="font-semibold text-gray-400 uppercase text-sm mb-2">Riff Valley</div>
+            <router-link
+              v-for="route in filteredRiffValleyRoutes"
+              :key="route.to"
+              :to="route.to"
+              class="text-left pl-6 block px-4 py-2 rounded transition-all duration-300 hover:bg-gradient-to-r hover:from-[#ee6f86]/60 hover:to-[#2759c1]/60 hover:text-white"
+              :active-class="route.activeClass || 'bg-gradient-to-r from-[#ee6f86] to-[#2759c1] text-white'"
+              @click="closeMenu"
+            >
+              <i :class="[route.icon, 'text-md mr-2']"></i>
+              {{ route.label }}
+            </router-link>
+          </nav>
+
+          <!-- Bottom -->
+          <nav class="px-4 py-4 space-y-2 border-t border-gray-700">
+            <router-link
+              v-for="route in filteredBottomRoutes"
+              :key="route.to"
+              :to="route.to"
+              class="text-left pl-6 block w-full px-4 py-2 rounded transition-opacity duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
+              :active-class="route.activeClass || 'bg-gray-600 text-white'"
+              @click="closeMenu"
+            >
+              <i :class="[route.icon, 'text-md mr-2']"></i>
+              {{ route.label }}
+            </router-link>
+          </nav>
         </div>
 
-        <nav class="p-4 space-y-2">
-          <router-link
-            v-for="route in filteredDiscAppRoutes"
-            :key="route.to"
-            :to="route.to"
-            class="text-left pl-6 block px-4 py-2 rounded transition-opacity duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
-            :active-class="'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-[#211d1d]'"
-            @click="closeMenu"
-          >
-            <i v-if="route.to === '/'" class="fa-solid fa-house text-md mr-1"></i>
-            <i v-if="route.to === '/disc-list'" class="fa-solid fa-compact-disc text-md mr-1"></i>
-            <i v-if="['/calendar', '/calendar-baby'].includes(route.to)" class="fa-solid fa-calendar-days text-md mr-1"></i>
-            <i v-if="route.to === '/import'" class="fa-solid fa-arrow-up-from-bracket text-md mr-1"></i>
-            <i v-if="route.to === '/suggest'" class="fa-solid fa-lightbulb text-md mr-1"></i>
-            <i v-if="route.to === '/petitions'" class="fa-solid fa-inbox text-md mr-1"></i>
-            {{ route.label }}
-          </router-link>
-        </nav>
-
+        <!-- Footer -->
         <nav class="p-4 space-y-2 border-t border-gray-700">
-          <div class="font-semibold text-gray-400 uppercase text-sm mb-2">Riff Valley</div>
-          <router-link
-            v-for="route in filteredRiffValleyRoutes"
-            :key="route.to"
-            :to="route.to"
-            class="text-left pl-6 block px-4 py-2 rounded transition-all duration-300 hover:bg-gradient-to-r hover:from-[#ee6f86]/60 hover:to-[#2759c1]/60 hover:text-white"
-            :active-class="'bg-gradient-to-r from-[#ee6f86] to-[#2759c1] text-white'"
-            @click="closeMenu"
+          <button
+            @click="handleLogout"
+            class="pl-6 font-semibold block w-full text-left px-4 py-2 rounded hover:bg-red-600 flex items-center gap-2"
           >
-            <i v-if="route.to === '/list/lists'" class="fa-solid fa-list-check text-md mr-1"></i>
-            <i v-if="route.to === '/reunions/list'" class="fa-solid fa-comments text-md mr-1"></i>
-            <i v-if="route.to === '/recap'" class="fa-solid fa-calendar-week text-md mr-1"></i>
-            {{ route.label }}
-          </router-link>
+            <i class="fa-solid fa-right-from-bracket"></i>
+            {{ logoutLabel }}
+          </button>
         </nav>
-
-        <nav class="p-4 space-y-2 border-t border-gray-700">
-          <router-link
-            v-for="route in filteredBottomRoutes"
-            :key="route.to"
-            :to="route.to"
-            class="text-left pl-6 block w-full px-4 py-2 rounded transition-opacity duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
-            :active-class="'bg-gray-600 text-white'"
-            @click="closeMenu"
-          >
-            <i v-if="route.to === '/password'" class="fa-solid fa-user text-sm mr-1"></i>
-            <i v-if="route.to === '/users'" class="fa-solid fa-users text-sm mr-1"></i>
-            <i v-if="route.to === '/how-to-use'" class="fa-solid fa-circle-question text-md mr-1"></i>
-            {{ route.label }}
-          </router-link>
-        </nav>
-      </div>
-
-      <!-- Footer -->
-      <nav class="p-4 space-y-2 border-t border-gray-700">
-        <button
-          @click="handleLogout"
-          class="pl-6 font-semibold block w-full text-center px-4 py-2 rounded hover:bg-red-600 flex items-center text-left gap-2"
-        >
-          <i class="fa-solid fa-right-from-bracket"></i>
-          {{ logoutLabel }}
-        </button>
-      </nav>
       </div>
     </div>
   </aside>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, watch } from "vue";
-import { useAuthStore } from "@stores/auth/auth.ts";
-import routes from "./routes.json"; // Archivo JSON con las rutas
+import { defineComponent, computed, watch } from 'vue';
+import { useAuthStore } from '@stores/auth/auth.ts';
+import routes from './routes.json';
+
+type AppRoute = {
+  to: string;
+  label: string;
+  type: 'disc-app' | 'riff-valley' | 'bottom';
+  activeClass?: string;
+  requiredRole?: string;
+  icon?: string; // <- NUEVO
+};
 
 export default defineComponent({
-  name: "SidebarMenu",
+  name: 'SidebarMenu',
   props: {
-    menuVisible: {
-      type: Boolean,
-      required: true,
-    },
+    menuVisible: { type: Boolean, required: true },
   },
-  emits: ["close-menu"],
+  emits: ['close-menu'],
   setup(props, { emit }) {
     const authStore = useAuthStore();
 
     const handleLogout = () => {
       authStore.logout();
-      window.location.href = "/"; // Redirige al usuario al inicio tras el logout
+      window.location.href = '/';
     };
 
     const closeMenu = () => {
-      console.log("📌 Emitiendo `close-menu` desde SidebarMenu.vue");
-      emit("close-menu");
+      emit('close-menu');
     };
-
- const scrollY = window.scrollY;
 
     watch(
       () => props.menuVisible,
-      (newValue) => {
-        console.log("🔄 `menuVisible` cambiado en SidebarMenu.vue:", newValue);
-
-        if (newValue) {
-          document.body.style.overflow = "hidden"; // 🚫 Bloquea scroll
-        } else {
-          document.body.style.overflow = ""; // ✅ Restaura scroll
-        }
+      (open) => {
+        document.body.style.overflow = open ? 'hidden' : '';
       }
     );
 
-    const filterRoutesByRole = (routesList, requiredRole = null) => {
+    const filterRoutesByRole = (routesList: AppRoute[], requiredRole: string | null = null) => {
       return routesList.filter((route) => {
-        if (route.requiredRole) {
-          return authStore.hasRole(route.requiredRole);
-        }
-        if (requiredRole) {
-          return authStore.hasRole(requiredRole);
-        }
+        if (route.requiredRole) return authStore.hasRole(route.requiredRole);
+        if (requiredRole) return authStore.hasRole(requiredRole);
         return true;
       });
     };
 
     const filteredDiscAppRoutes = computed(() =>
-      filterRoutesByRole(routes.filter((route) => route.type === "disc-app"))
+      filterRoutesByRole((routes as AppRoute[]).filter((r) => r.type === 'disc-app'))
     );
     const filteredRiffValleyRoutes = computed(() =>
-      filterRoutesByRole(
-        routes.filter((route) => route.type === "riff-valley"),
-        "riffValley"
-      )
+      filterRoutesByRole((routes as AppRoute[]).filter((r) => r.type === 'riff-valley'), 'riffValley')
     );
-
     const filteredBottomRoutes = computed(() =>
-      filterRoutesByRole(routes.filter((route) => route.type === "bottom"))
+      filterRoutesByRole((routes as AppRoute[]).filter((r) => r.type === 'bottom'))
     );
 
     return {
       handleLogout,
       closeMenu,
-      logoutLabel: "Cerrar sesión",
+      logoutLabel: 'Cerrar sesión',
       filteredDiscAppRoutes,
       filteredRiffValleyRoutes,
       filteredBottomRoutes,
-      scrollY,
     };
   },
 });
