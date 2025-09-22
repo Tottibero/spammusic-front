@@ -144,6 +144,13 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("/src/views/help/HowToUse.vue"),
     meta: { requiresAuth: true },
   },
+    {
+    path: "/spotify",
+    name: "Spotify",
+    component: () => import("/src/views/spotify/ListSpotify.vue"),
+    meta: { requiresAuth: true },
+  },
+
 ];
 
 const router = createRouter({
