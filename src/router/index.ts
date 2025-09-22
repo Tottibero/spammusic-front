@@ -74,6 +74,18 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresAuth: true, requiresRole: "superUser" },
   },
   {
+    path: "/versions",
+  name: "versions-admin",   // 👈 cambia aquí
+    component: () => import("/src/views/versions/ManageVersions.vue"),
+    meta: { requiresAuth: true, requiresRole: "superUser" },
+  },
+  {
+    path: '/versions/kanban',
+    name: 'versions-kanban',
+    component: () => import("/src/views/versions/VersionKanban.vue"),
+  },
+
+  {
     path: "/list",
     name: "List",
     component: () => import("/src/layouts/list/ListLayout.vue"),
