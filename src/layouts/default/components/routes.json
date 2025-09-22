@@ -103,6 +103,14 @@
     "icon": "fa-solid fa-users"
   },
   {
+    "to": "/versions",
+    "label": "Gestionar versiones",
+    "activeClass": "bg-red-600",
+    "type": "bottom",
+    "requiredRole": "superUser",
+    "icon": "fa-solid fa-code-branch"
+  },
+  {
     "to": "/how-to-use",
     "label": "Cómo usar la app",
     "activeClass": "bg-gray-700",
