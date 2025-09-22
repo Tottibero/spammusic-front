@@ -1,3 +1,9 @@
+## 1.2.0 (2025-09-22)
+
+* Merge branch 'main' of https://github.com/Tottibero/spammusic-front ([d6a4a1f](https://github.com/Tottibero/spammusic-front/commit/d6a4a1f))
+* refactor: merge origin/versions ([49db795](https://github.com/Tottibero/spammusic-front/commit/49db795))
+* feat(versions): versions 1.0 ([39074aa](https://github.com/Tottibero/spammusic-front/commit/39074aa))
+
 ## 1.1.0 (2025-09-22)
 
 * feat(spotify): listas de spotify, CRUD ([493abd1](https://github.com/Tottibero/spammusic-front/commit/493abd1))
