@@ -1,3 +1,10 @@
+## <small>1.4.1 (2025-09-23)</small>
+
+* fix(env): apunta a produccion ([77000f6](https://github.com/Tottibero/spammusic-front/commit/77000f6))
+* Merge branch 'main' of https://github.com/Tottibero/spammusic-front ([722a921](https://github.com/Tottibero/spammusic-front/commit/722a921))
+* Revert "refactor(merge): merge ordenacion en main" ([05dbbfa](https://github.com/Tottibero/spammusic-front/commit/05dbbfa))
+* Revert "refactor(merge): merge ordenacion en main" ([68c0837](https://github.com/Tottibero/spammusic-front/commit/68c0837))
+
 ## 1.4.0 (2025-09-23)
 
 * refactor(merge): merge ordenacion en main ([30ecdc7](https://github.com/Tottibero/spammusic-front/commit/30ecdc7))
