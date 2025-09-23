@@ -24,7 +24,7 @@ export async function deleteFavoriteService(id: string): Promise<void> {
       params: {
         limit,
         offset,
-        query, // Incluye el query en los parámetros si está definido
+        query, 
         dateRange,
         genre,
         type,
