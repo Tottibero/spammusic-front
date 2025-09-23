@@ -1,3 +1,7 @@
+## 1.6.0 (2025-09-23)
+
+* feat(filters): add new filters in dates ([3a612c1](https://github.com/Tottibero/spammusic-front/commit/3a612c1))
+
 ## 1.5.0 (2025-09-23)
 
 * feat(order): filter to order the discs ([a6b70db](https://github.com/Tottibero/spammusic-front/commit/a6b70db))
