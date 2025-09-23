@@ -1,3 +1,13 @@
+## <small>1.4.2 (2025-09-23)</small>
+
+* fix(gitignore): añadido env ([5792287](https://github.com/Tottibero/spammusic-front/commit/5792287))
+* Merge branch 'main' of https://github.com/Tottibero/spammusic-front ([f217c08](https://github.com/Tottibero/spammusic-front/commit/f217c08))
+* Merge branch 'ordenacion' ([18c0653](https://github.com/Tottibero/spammusic-front/commit/18c0653))
+* Merge branch 'ordenacion' ([cdca12c](https://github.com/Tottibero/spammusic-front/commit/cdca12c))
+* Reapply "refactor(merge): merge ordenacion en main" ([0e81ebc](https://github.com/Tottibero/spammusic-front/commit/0e81ebc))
+* chore: trigger re-merge after revert ([c5a7354](https://github.com/Tottibero/spammusic-front/commit/c5a7354))
+* chore: trigger re-merge after revert ([b31490f](https://github.com/Tottibero/spammusic-front/commit/b31490f))
+
 ## <small>1.4.1 (2025-09-23)</small>
 
 * fix(env): apunta a produccion ([77000f6](https://github.com/Tottibero/spammusic-front/commit/77000f6))
