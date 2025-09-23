@@ -12,9 +12,16 @@
 
 
           <!-- Cabecera -->
-          <div class="border-b px-4 py-4">
-            <h2 class="text-xl font-bold">Notas</h2>
-          </div>
+<div class="border-b px-4 py-6 text-center">
+  <h2 class="mb-2">
+    <span class="bg-gray-700 text-white px-4 py-1 rounded-full text-xl font-bold">
+      NOTAS
+    </span>
+  </h2>
+  <p class="text-lg text-gray-800 mt-2">
+    {{ artistName }} – <span class="italic">{{ albumName }}</span>
+  </p>
+</div>
 
           <!-- Lista de comentarios en forma de árbol -->
           <div class="flex-1 overflow-y-auto px-4 py-3 space-y-4 max-h-[70vh] sm:max-h-[80vh]">
@@ -40,14 +47,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from "vue";
+import { defineComponent, ref, onMounted, toRefs } from "vue";
 import CommentItem from "./CommentItem.vue";
 import { getDisccomments, postcommentService } from "@services/comments/comments";
 import SwalService from "@services/swal/SwalService";
-/**
- * Construye un árbol de comentarios a partir de un array plano,
- * organizándolos como replies dentro de 'replies'.
- */
+
 function buildCommentTree(flatComments: any[]): any[] {
   const commentMap: Record<string, any> = {};
   // Crea un map de id -> comentario
@@ -73,10 +77,7 @@ function buildCommentTree(flatComments: any[]): any[] {
   return rootComments;
 }
 
-/**
- * Marca un comentario como eliminado (isDeleted = true) en el árbol.
- * No se elimina físicamente, solo se cambia su contenido a "Comentario eliminado".
- */
+
 function markCommentAsDeleted(comments: any[], commentId: string): any[] {
   comments.forEach((comment) => {
     if (comment.id === commentId) {
@@ -90,10 +91,7 @@ function markCommentAsDeleted(comments: any[], commentId: string): any[] {
   return comments;
 }
 
-/**
- * Función recursiva para actualizar un comentario en el árbol
- * con la info devuelta por la API tras editarlo.
- */
+
 function updateCommentInTree(commentList: any[], updated: any) {
   commentList.forEach((c) => {
     if (c.id === updated.id) {
@@ -108,20 +106,24 @@ function updateCommentInTree(commentList: any[], updated: any) {
 
 export default defineComponent({
   name: "ComentsModal",
-  components: {
-    CommentItem,
-  },
+  components: { CommentItem },
   props: {
     discId: { type: String, required: true },
+    artistName: { type: String, required: true },
+    albumName: { type: String, required: true },
   },
+
+  emits: ["close"], // opcional pero recomendable
   setup(props, { emit }) {
     const comments = ref<any[]>([]);
     const topCommentText = ref("");
 
+    const { artistName, albumName, discId } = toRefs(props);
+
     // Carga inicial de comentarios
     const fetchComments = async () => {
       try {
-        const fetchedComments = await getDisccomments(props.discId);
+        const fetchedComments = await getDisccomments(discId.value);
         comments.value = buildCommentTree(fetchedComments);
       } catch (error) {
         console.error("Error al cargar los comentarios:", error);
@@ -177,6 +179,9 @@ export default defineComponent({
       onReplyAdded,
       handleCommentDeleted,
       handleCommentUpdated,
+      artistName,
+      albumName,
+      discId,
     };
   },
 });
