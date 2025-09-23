@@ -1,3 +1,7 @@
+## 1.5.0 (2025-09-23)
+
+* feat(order): filter to order the discs ([a6b70db](https://github.com/Tottibero/spammusic-front/commit/a6b70db))
+
 ## <small>1.4.2 (2025-09-23)</small>
 
 * fix(gitignore): añadido env ([5792287](https://github.com/Tottibero/spammusic-front/commit/5792287))
