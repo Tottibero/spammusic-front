@@ -68,11 +68,29 @@
 
           <!-- Botón de Escuchar -->
           <div class="flex items-center space-x-2 mt-1">
-            <a v-if="link" @click="openPlatformLink(link)"
-              class="px-2 py-1 rounded-full cursor-pointer text-xs font-medium text-white text-center shadow-sm bg-green-500 hover:bg-green-600 hover:text-white transition-all w-1/2 text-left">
-              Escuchar
+            <a v-if="link" @click="openPlatformLink(link)" class="flex-1 px-3 py-3 rounded-full cursor-pointer text-xs font-medium text-white text-center shadow-sm 
+           bg-green-500 hover:bg-green-600 transition-all">
+              <i class="fa-solid fa-play mr-1 text-[10px]"></i>
             </a>
 
+            <!-- Botón 30s (si no hay preview se ve gris y no hace nada) -->
+            <button @click.stop="togglePreview" :disabled="!hasPreview"
+              :aria-label="isPreviewPlaying ? 'Pausar preview' : 'Reproducir 30s'" class="flex-2 px-3 py-1 rounded-full text-xs font-medium text-white text-center shadow-sm 
+         transition flex items-center justify-center
+         bg-gray-900 hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              :title="!hasPreview ? 'Sin preview disponible' : (isPreviewPlaying ? 'Pausar' : 'Reproducir 30s')">
+              <template v-if="!isPreviewPlaying">
+                30s
+              </template>
+              <template v-else>
+                <i class="fa-solid fa-pause"></i>
+              </template>
+            </button>
+
+            <!-- Audio oculto -->
+            <audio ref="audioEl" v-if="hasPreview" :src="previewUrl || undefined" :key="previewUrl" preload="auto"
+              playsinline webkit-playsinline crossorigin="anonymous" @canplay="onCanPlay" @ended="onPreviewEnded"
+              @pause="onPreviewPaused" @error="onPreviewError" style="display:none" />
             <!-- Íconos: corazón y bookmark -->
             <div class="flex space-x-2 items-center">
               <div class="relative group">
@@ -139,7 +157,7 @@
             Notas
             <span v-if="commentCount > 0" class="ml-1 mt-1 text-[9px] text-[#d9e021]">(<span class="inline">{{
               commentCount
-            }}</span>)</span>
+                }}</span>)</span>
           </span>
         </button>
 
@@ -193,7 +211,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, watchEffect } from "vue";
+import { defineComponent, ref, computed, watchEffect, onBeforeUnmount } from "vue";
+import type { PropType } from "vue";
 import defaultImage from "/src/assets/disco.png";
 import DiscDetail from "./DiscDetail.vue";
 import ArtistDetail from "./ArtistDetail.vue";
@@ -236,6 +255,7 @@ export default defineComponent({
     genreName: { type: String, required: false, default: "" },
     genreColor: { type: String, required: false, default: "grey" },
     link: { type: String, required: false, default: "" },
+    previewUrl: { type: String, required: false, default: "" },
     averageRate: { type: Number, required: false, default: null },
     averageCover: { type: Number, required: false, default: null },
     userDiscRate: { type: String, required: false, default: null },
@@ -289,6 +309,65 @@ export default defineComponent({
 
     watchEffect(() => {
       favoriteId.value = props.favoriteId;
+    });
+
+    // --- Preview 30s sin redirección ni backend ---
+    const isPreviewPlaying = ref(false);
+    const audioEl = ref<HTMLAudioElement | null>(null);
+    let stopTimer: number | null = null;
+
+    const previewUrl = computed(() => (props.previewUrl || "").trim());
+    const hasPreview = computed(() => previewUrl.value.length > 0);
+
+    const togglePreview = async () => {
+      if (!hasPreview.value || !audioEl.value) return;
+
+      try {
+        if (!isPreviewPlaying.value) {
+          // asegurar src por si cambia la tarjeta
+          if (audioEl.value.src !== previewUrl.value) audioEl.value.src = previewUrl.value;
+          await audioEl.value.play();
+          isPreviewPlaying.value = true;
+
+          // corta a los 30s por seguridad
+          if (stopTimer) clearTimeout(stopTimer);
+          stopTimer = window.setTimeout(() => {
+            if (audioEl.value) {
+              audioEl.value.pause();
+              audioEl.value.currentTime = 0;
+            }
+            isPreviewPlaying.value = false;
+          }, 30000);
+        } else {
+          audioEl.value.pause();
+          isPreviewPlaying.value = false;
+          if (stopTimer) { clearTimeout(stopTimer); stopTimer = null; }
+        }
+      } catch (e) {
+        // no redirigimos: simplemente fallará silenciosamente si el navegador lo bloquea
+        console.warn("No se pudo reproducir el preview:", e);
+      }
+    };
+
+    const onPreviewEnded = () => {
+      isPreviewPlaying.value = false;
+      if (stopTimer) { clearTimeout(stopTimer); stopTimer = null; }
+    };
+    const onPreviewPaused = () => {
+      isPreviewPlaying.value = false;
+      if (stopTimer) { clearTimeout(stopTimer); stopTimer = null; }
+    };
+    const onPreviewError = () => {
+      isPreviewPlaying.value = false;
+      if (stopTimer) { clearTimeout(stopTimer); stopTimer = null; }
+    };
+
+    onBeforeUnmount(() => {
+      if (stopTimer) clearTimeout(stopTimer);
+      if (audioEl.value) {
+        audioEl.value.pause();
+        audioEl.value.src = "";
+      }
     });
 
     const toggleHeart = async () => {
@@ -523,7 +602,15 @@ export default defineComponent({
       openPlatformLink,
       isSubmittingRating,
       disableSubmitButton,
-      countryAbbr
+      countryAbbr,
+      hasPreview,
+      previewUrl,
+      isPreviewPlaying,
+      audioEl,
+      togglePreview,
+      onPreviewEnded,
+      onPreviewPaused,
+      onPreviewError,
     };
   },
 });

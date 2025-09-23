@@ -149,7 +149,7 @@
         :averageCover="disc.averageCover" :rate="disc.userRate?.rate" :cover="disc.userRate?.cover"
         :isNew="!disc.userRate" :userDiscRate="disc.userRate?.id" :favoriteId="disc.userFavoriteId"
         :pendingId="disc.pendingId" :comment-count="disc.commentCount" :rateCount="disc.voteCount"
-        :artistCountry="disc.artist?.country" />
+        :artistCountry="disc.artist?.country" :preview-url="disc.previewUrl" />
     </div>
   </div>
 </template>
