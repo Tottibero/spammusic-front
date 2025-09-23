@@ -82,6 +82,8 @@
               <option v-for="t in changeTypes" :key="t" :value="t">{{ t }}</option>
             </select>
             <input v-model="newItem[state].description" class="p-2 border rounded" placeholder="Descripción" />
+            <!-- NUEVO: branch -->
+            <input v-model="newItem[state].branch" class="p-2 border rounded font-mono" placeholder="Nombre de la branch (obligatorio)" />
             <div class="flex items-center justify-between">
               <label class="flex items-center gap-2 text-sm">
                 <input type="checkbox" v-model="newItem[state].publicVisible" />
@@ -130,6 +132,22 @@
 
                 <div class="text-xs text-gray-500 mt-1" v-if="it.scope">scope: {{ it.scope }}</div>
                 <div class="text-xs text-gray-500 mt-1">estado: {{ it.state }}</div>
+
+                <!-- NUEVO: Branch (lectura/edición) -->
+                <div class="text-xs text-gray-700 mt-1 flex items-center gap-1">
+                  <template v-if="!editing[it.id]">
+                    <i class="fa-solid fa-code-branch"></i>
+                    <span class="font-mono">branch: {{ (it as any).branch }}</span>
+                  </template>
+                  <template v-else>
+                    <i class="fa-solid fa-code-branch"></i>
+                    <input
+                      v-model="editCache[it.id].branch"
+                      class="p-1 border rounded text-xs font-mono"
+                      placeholder="branch"
+                    />
+                  </template>
+                </div>
               </div>
               <div class="flex flex-col gap-1">
                 <button
@@ -165,13 +183,11 @@
             <!-- Público (checkbox) -->
             <div class="flex items-center justify-between mt-2">
               <label class="flex items-center gap-2 text-xs">
-                <!-- Editable solo en modo edición -->
                 <input
                   v-if="editing[it.id]"
                   type="checkbox"
                   v-model="editCache[it.id].publicVisible"
                 />
-                <!-- Modo lectura: deshabilitado para evitar v-model con expresión -->
                 <input
                   v-else
                   type="checkbox"
@@ -264,10 +280,10 @@ async function saveVersion() {
 }
 
 // ------- Crear item -------
-const newItem = reactive<Record<string, Partial<CreateVersionItemDto>>>({});
+const newItem = reactive<Record<string, Partial<CreateVersionItemDto> & { branch?: string }>>({});
 const showNewItemForm = reactive<Record<string, boolean>>({});
 function resetNewItem(state: string) {
-  newItem[state] = { type: 'feat', description: '', publicVisible: false, state: state as any };
+  newItem[state] = { type: 'feat', description: '', publicVisible: false, state: state as any, branch: '' };
 }
 function toggleNewItemForm(state: string) {
   showNewItemForm[state] = !showNewItemForm[state];
@@ -279,13 +295,18 @@ async function createItem(state: string) {
     SwalService.error('Falta tipo o descripción');
     return;
   }
+  if (!payload.branch || !payload.branch.trim()) {
+    SwalService.error('La branch es obligatoria');
+    return;
+  }
   try {
     const created = await createVersionItem(version.value.id, {
       type: payload.type!,
       description: payload.description!,
       publicVisible: !!payload.publicVisible,
       state: state as any,
-    });
+      branch: payload.branch!.trim(),
+    } as any);
     version.value.items.push(created);
     resetNewItem(state);
     showNewItemForm[state] = false;
@@ -314,7 +335,7 @@ async function onDrop(targetState: string) {
     const updated = await updateVersionItem(version.value.id, it.id, { state: targetState as any });
     Object.assign(it, updated);
   } catch (e) {
-    it.state = prev as any;
+    (it as any).state = prev as any;
     console.error(e);
     SwalService.error('No se pudo mover el item');
   }
@@ -322,17 +343,26 @@ async function onDrop(targetState: string) {
 
 // ------- Editar / eliminar item -------
 const editing = reactive<Record<string, boolean>>({});
-const editCache = reactive<Record<string, { description: string; type: any; publicVisible: boolean }>>({});
+const editCache = reactive<Record<string, { description: string; type: any; publicVisible: boolean; branch: string }>>({});
 function startEdit(it: VersionItem) {
   editing[it.id] = true;
-  editCache[it.id] = { description: it.description, type: it.type, publicVisible: it.publicVisible };
+  editCache[it.id] = {
+    description: it.description,
+    type: it.type,
+    publicVisible: it.publicVisible,
+    branch: (it as any).branch ?? ''
+  };
 }
 function cancelEdit(it: VersionItem) { editing[it.id] = false; }
 async function saveEdit(it: VersionItem) {
   if (!version.value) return;
   try {
     const dto = editCache[it.id];
-    const updated = await updateVersionItem(version.value.id, it.id, dto);
+    if (!dto.branch || !dto.branch.trim()) {
+      SwalService.error('La branch es obligatoria');
+      return;
+    }
+    const updated = await updateVersionItem(version.value.id, it.id, dto as any);
     Object.assign(it, updated);
     editing[it.id] = false;
   } catch (e) {
