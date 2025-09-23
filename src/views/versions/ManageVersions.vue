@@ -106,7 +106,7 @@
                 <!-- Form nuevo item -->
                 <div class="p-3 border rounded bg-gray-50">
                   <h4 class="text-sm font-semibold mb-2">Nuevo item</h4>
-                  <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+                  <div class="grid grid-cols-1 md:grid-cols-5 gap-2">
                     <select v-model="newItem[v.id].type" class="p-2 border rounded">
                       <option v-for="t in changeTypes" :key="t" :value="t">{{ t }}</option>
                     </select>
@@ -118,6 +118,11 @@
                     <select v-model="newItem[v.id].state" class="p-2 border rounded">
                       <option v-for="s in devStates" :key="s" :value="s">{{ s }}</option>
                     </select>
+                    <input
+                      v-model="newItem[v.id].branch"
+                      placeholder="<i class='fa-solid fa-code-branch'></i> Branch (obligatorio)"
+                      class="p-2 border rounded font-mono"
+                    />
                     <label class="flex items-center gap-2 text-sm">
                       <input type="checkbox" v-model="newItem[v.id].publicVisible" />
                       Público
@@ -135,12 +140,13 @@
 
                 <!-- Lista items -->
                 <div class="overflow-x-auto">
-                  <table class="w-full border border-gray-300 min-w-[700px]">
+                  <table class="w-full border border-gray-300 min-w-[800px]">
                     <thead class="bg-gray-100">
                       <tr>
                         <th class="p-2 border text-left">Tipo</th>
                         <th class="p-2 border text-left">Descripción</th>
                         <th class="p-2 border text-left">Estado</th>
+                        <th class="p-2 border text-left"><i class='fa-solid fa-code-branch'></i> Branch</th>
                         <th class="p-2 border text-left">Público</th>
                         <th class="p-2 border text-left">Acciones</th>
                       </tr>
@@ -159,6 +165,9 @@
                           <select v-model="it.state" class="p-2 border rounded w-full">
                             <option v-for="s in devStates" :key="s" :value="s">{{ s }}</option>
                           </select>
+                        </td>
+                        <td class="p-2 border">
+                          <input v-model="(it as any).branch" class="w-full p-2 border rounded font-mono" />
                         </td>
                         <td class="p-2 border text-center">
                           <input type="checkbox" v-model="it.publicVisible" />
@@ -274,7 +283,7 @@ function goToKanban() {
 
 const versions = ref<Version[]>([]);
 const open = reactive<Record<string, boolean>>({});
-const newItem = reactive<Record<string, Partial<CreateVersionItemDto>>>({});
+const newItem = reactive<Record<string, Partial<CreateVersionItemDto> & { branch?: string }>>({});
 const dates = reactive<Record<string, { releaseDate: string; publishedAt: string }>>({});
 
 const changeTypes = [
@@ -323,7 +332,7 @@ async function load() {
 
   for (const v of versions.value) {
     open[v.id] = false;
-    newItem[v.id] = { type: 'feat', description: '', state: 'todo', publicVisible: false };
+    newItem[v.id] = { type: 'feat', description: '', state: 'todo', publicVisible: false, branch: '' };
     dates[v.id] = {
       releaseDate: v.releaseDate ?? '',
       publishedAt: toLocalDT(v.publishedAt),
@@ -370,7 +379,7 @@ async function saveVersionForm() {
       const created = await createVersion(dto);
       versions.value.push(created);
       open[created.id] = false;
-      newItem[created.id] = { type: 'feat', description: '', state: 'todo', publicVisible: false };
+      newItem[created.id] = { type: 'feat', description: '', state: 'todo', publicVisible: false, branch: '' };
       dates[created.id] = {
         releaseDate: created.releaseDate ?? '',
         publishedAt: toLocalDT(created.publishedAt),
@@ -425,10 +434,20 @@ async function createItem(versionId: string) {
       SwalService.error('Falta tipo o descripción');
       return;
     }
-    const created = await createVersionItem(versionId, payload as CreateVersionItemDto);
+    if (!payload.branch || !payload.branch.trim()) {
+      SwalService.error('La branch es obligatoria');
+      return;
+    }
+    const created = await createVersionItem(versionId, {
+      type: payload.type!,
+      description: payload.description!,
+      state: payload.state!,
+      publicVisible: !!payload.publicVisible,
+      branch: payload.branch!.trim(),
+    } as CreateVersionItemDto & { branch: string });
     const v = versions.value.find((x) => x.id === versionId);
     if (v) v.items.push(created);
-    newItem[versionId] = { type: 'feat', description: '', state: 'todo', publicVisible: false };
+    newItem[versionId] = { type: 'feat', description: '', state: 'todo', publicVisible: false, branch: '' };
   } catch (e) {
     console.error(e);
     SwalService.error('No se pudo crear el item');
@@ -437,12 +456,18 @@ async function createItem(versionId: string) {
 
 async function saveItem(versionId: string, it: VersionItem) {
   try {
+    const branch = (it as any).branch;
+    if (!branch || !String(branch).trim()) {
+      SwalService.error('La branch es obligatoria');
+      return;
+    }
     const updated = await updateVersionItem(versionId, it.id, {
       type: it.type,
       description: it.description,
       state: it.state,
       publicVisible: it.publicVisible,
-    });
+      branch: String(branch).trim(),
+    } as any);
     Object.assign(it, updated);
     SwalService.success('Item actualizado');
   } catch (e) {
