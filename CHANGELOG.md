@@ -1,3 +1,7 @@
+## <small>1.7.1 (2025-09-23)</small>
+
+* fix(ui): several fix ui ([4286584](https://github.com/Tottibero/spammusic-front/commit/4286584))
+
 ## 1.7.0 (2025-09-23)
 
 * feat(avatar): avatar in profile ([dc9bc57](https://github.com/Tottibero/spammusic-front/commit/dc9bc57))
