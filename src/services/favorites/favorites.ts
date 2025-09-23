@@ -17,6 +17,8 @@ export async function deleteFavoriteService(id: string): Promise<void> {
     query?: string,
     dateRange?: any,
     genre?: string,
+    type?: string,
+    orderBy?: string,            // 👈 nuevo
   ): Promise<any[]> {
     const response = await api.get<any[]>("/favorites", {
       params: {
@@ -25,6 +27,8 @@ export async function deleteFavoriteService(id: string): Promise<void> {
         query, // Incluye el query en los parámetros si está definido
         dateRange,
         genre,
+        type,
+        orderBy,
       },
     });
     return response.data;
