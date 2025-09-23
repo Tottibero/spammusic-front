@@ -96,16 +96,18 @@ export async function getRatesByUser(
   query?: string,
   dateRange?: any,
   genre?: string,
-  type?: string
+  type?: string,
+  orderBy?: string,
 ): Promise<DiscRate[]> {
   const response = await api.get<any>("/rates", {
     params: {
       limit,
       offset,
-      query, // Incluye el query en los parámetros si está definido
+      query, 
       dateRange,
       genre,
-      type
+      type,
+      orderBy,
     },
   });
   return response.data;
