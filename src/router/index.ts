@@ -74,6 +74,18 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresAuth: true, requiresRole: "superUser" },
   },
   {
+    path: "/versions",
+  name: "versions-admin",   // 👈 cambia aquí
+    component: () => import("/src/views/versions/ManageVersions.vue"),
+    meta: { requiresAuth: true, requiresRole: "superUser" },
+  },
+  {
+    path: '/versions/kanban',
+    name: 'versions-kanban',
+    component: () => import("/src/views/versions/VersionKanban.vue"),
+  },
+
+  {
     path: "/list",
     name: "List",
     component: () => import("/src/layouts/list/ListLayout.vue"),
@@ -144,6 +156,13 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("/src/views/help/HowToUse.vue"),
     meta: { requiresAuth: true },
   },
+    {
+    path: "/spotify",
+    name: "Spotify",
+    component: () => import("/src/views/spotify/ListSpotify.vue"),
+    meta: { requiresAuth: true },
+  },
+
 ];
 
 const router = createRouter({
