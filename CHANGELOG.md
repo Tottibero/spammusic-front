@@ -1,3 +1,7 @@
+## <small>1.2.1 (2025-09-22)</small>
+
+* fix(list): date string ([5b48218](https://github.com/Tottibero/spammusic-front/commit/5b48218))
+
 ## 1.2.0 (2025-09-22)
 
 * Merge branch 'main' of https://github.com/Tottibero/spammusic-front ([d6a4a1f](https://github.com/Tottibero/spammusic-front/commit/d6a4a1f))
