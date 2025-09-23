@@ -1,3 +1,8 @@
+## 1.3.0 (2025-09-23)
+
+* Merge branch 'main' of https://github.com/Tottibero/spammusic-front ([bd65b32](https://github.com/Tottibero/spammusic-front/commit/bd65b32))
+* feat(version-items): add branch field ([49347d1](https://github.com/Tottibero/spammusic-front/commit/49347d1))
+
 ## <small>1.2.1 (2025-09-22)</small>
 
 * fix(list): date string ([5b48218](https://github.com/Tottibero/spammusic-front/commit/5b48218))
