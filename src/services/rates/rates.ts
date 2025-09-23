@@ -97,7 +97,7 @@ export async function getRatesByUser(
   dateRange?: any,
   genre?: string,
   type?: string,
-  orderBy?: string,            // 👈 nuevo
+  orderBy?: string,
 ): Promise<DiscRate[]> {
   const response = await api.get<any>("/rates", {
     params: {

@@ -58,13 +58,10 @@
         />
       </div>
 
-
-
       <!-- Link Input -->
+      <div class="mb-4"></div>
       <div class="mb-4">
-      </div>
-      <div class="mb-4">
-      <p>Status: {{form.status}}</p>
+        <p>Status: {{ form.status }}</p>
       </div>
       <!-- Submit Button -->
       <div>
@@ -82,7 +79,7 @@
 <script lang="ts">
 import { defineComponent, reactive } from "vue";
 import { postList } from "@services/list/list";
-import SwalService from '@services/swal/SwalService';
+import SwalService from "@services/swal/SwalService";
 import { useRouter } from "vue-router";
 
 export enum ListType {
@@ -113,23 +110,25 @@ export default defineComponent({
         const response = await postList({
           name: form.name,
           type: form.type,
-          listDate: form.listDate || null, // Envía null si no hay fecha
-          releaseDate: form.releaseDate || null, // Envía null si no hay fecha
-          status: "new"
+          listDate: form.listDate ? `${form.listDate}T00:00:00.000Z` : null,
+          releaseDate: form.releaseDate
+            ? `${form.releaseDate}T00:00:00.000Z`
+            : null,
+          status: "new",
         });
 
         // Muestra la respuesta del servidor
         console.log("List created successfully:", response);
 
         // Opcional: muestra una notificación de éxito
-        SwalService.success('List created successfully!');
+        SwalService.success("List created successfully!");
         router.push({ name: "ListDefault" });
-
       } catch (error) {
         // Maneja errores de la solicitud
         console.error("Error creating list:", error);
-        SwalService.error('An error occurred while creating the list. Please try again.');
-
+        SwalService.error(
+          "An error occurred while creating the list. Please try again."
+        );
       }
     };
 
