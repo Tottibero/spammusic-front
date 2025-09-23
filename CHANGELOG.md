@@ -1,3 +1,7 @@
+## 1.7.0 (2025-09-23)
+
+* feat(avatar): avatar in profile ([dc9bc57](https://github.com/Tottibero/spammusic-front/commit/dc9bc57))
+
 ## 1.6.0 (2025-09-23)
 
 * feat(filters): add new filters in dates ([3a612c1](https://github.com/Tottibero/spammusic-front/commit/3a612c1))
