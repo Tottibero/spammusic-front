@@ -385,7 +385,6 @@ export default defineComponent({
     };
 
     watch([viewMode, searchQuery, selectedWeek, selectedGenre, orderBy], () => {
-      // Incluye selectedGenre en el watch
       resetAndFetch(); // Llama a resetAndFetch directamente
     });
 
