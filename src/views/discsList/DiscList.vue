@@ -92,7 +92,7 @@
         <span v-if="totalPendings !== ''">({{ totalPendings }})</span>
       </label>
     </div>
-<div v-if="viewMode === 'rates' || viewMode === 'covers'" class="mb-6 flex justify-start">
+<div v-if="viewMode === 'rates' || viewMode === 'covers' || viewMode === 'favorites'" class="mb-6 flex justify-start">
 
   <select
     v-model="orderBy"
@@ -295,7 +295,9 @@ export default defineComponent({
             offset.value,
             searchQuery.value,
             selectedWeek.value,
-            selectedGenre.value
+            selectedGenre.value,
+            type,
+            orderBy.value
           );
           totalFavorites.value = response.totalItems;
           discs.value.push(
