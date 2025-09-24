@@ -22,7 +22,7 @@
       :class="selectClass"
     />
 
-    <div class="flex items-center flex-wrap gap-2 mt-2 sm:mt-0">
+    <div class="flex items-center flex-wrap gap-2 mt-2 sm:mt-0" v-if="showWeekPicker">
       <!-- Mes -->
       <select
         v-model.number="weeksMonth"
