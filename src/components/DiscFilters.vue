@@ -267,4 +267,13 @@ export default defineComponent({
 :deep(.select-pill .search_input_trigger svg) {
   @apply right-3;
 }
+
+:deep(.select-pill .dropdown-panel),
+:deep(.select-pill .search__menu),
+:deep(.select-pill .options),
+:deep(.select-pill .menu) {
+  z-index: 9999 !important;
+  position: absolute; /* o fixed, según tu componente */
+}
+
 </style>
