@@ -23,18 +23,19 @@
     />
 
     <div class="flex items-center flex-wrap gap-2 mt-2 sm:mt-0" v-if="showWeekPicker">
-      <!-- Mes -->
+      <!-- MES: primera opción = Año completo – {weeksYear} -->
       <select
         v-model.number="weeksMonth"
         class="rounded-full h-9 bg-white border border-gray-200 shadow-md px-4"
       >
-        <option disabled value="">Mes</option>
+        <!-- valor 0 representa AÑO COMPLETO -->
+        <option :value="0">Año completo</option>
         <option v-for="m in 12" :key="m" :value="m">
           {{ monthNames[m - 1] }}
         </option>
       </select>
 
-      <!-- Año -->
+      <!-- AÑO -->
       <select
         v-model.number="weeksYear"
         class="rounded-full h-9 bg-white border border-gray-200 shadow-md px-4"
@@ -43,15 +44,13 @@
         <option v-for="y in availableYears" :key="y" :value="y">{{ y }}</option>
       </select>
 
-      <!-- Periodo (Mes completo + semanas) -->
+      <!-- PERIODO (solo cuando hay mes seleccionado) -->
       <select
         v-if="weeksMonth && weeksYear"
         v-model="selectedPeriodKey"
         class="rounded-full h-9 leading-9 bg-white border border-gray-200 shadow-md px-4"
       >
-        <optgroup
-          :label="`Periodo – ${monthNames[weeksMonth - 1]} ${weeksYear}`"
-        >
+        <optgroup :label="`Periodo – ${monthNames[weeksMonth - 1]} ${weeksYear}`">
           <option :value="monthOption.key">{{ monthOption.label }}</option>
         </optgroup>
         <optgroup label="Semanas">
@@ -76,47 +75,32 @@ export default defineComponent({
   props: {
     searchQuery: { type: String, default: "" },
     selectedGenre: { type: String, default: "" },
-    selectedWeek: { type: Array, default: null }, // seguimos emitiendo un array [start,end]
+    selectedWeek: { type: Array, default: null },
     genres: { type: Array, default: () => [] },
 
     selectClass: { type: String, default: "" },
     triggerHeight: { type: [Number, String], default: 36 },
     wrapperClass: { type: String, default: "" },
 
-    showWeekPicker: { type: Boolean, default: true }, // (ya no se usa el datepicker, pero mantengo la prop)
+    showWeekPicker: { type: Boolean, default: true },
     showSearchQuery: { type: Boolean, default: true },
   },
-  emits: [
-    "update:searchQuery",
-    "update:selectedGenre",
-    "update:selectedWeek",
-    "resetAndFetch",
-  ],
+  emits: ["update:searchQuery", "update:selectedGenre", "update:selectedWeek", "resetAndFetch"],
   setup(props, { emit }) {
-    // filtros existentes
     const searchQuery = ref(props.searchQuery);
     const selectedGenre = ref(props.selectedGenre);
     watch(searchQuery, (v) => emit("update:searchQuery", v));
     watch(selectedGenre, (v) => emit("update:selectedGenre", v));
 
-    // Mes/año que controlan el listado de semanas
+    // Estado base
     const today = new Date();
-    const weeksMonth = ref<number | "">(today.getUTCMonth() + 1);
-    const weeksYear = ref<number | "">(Math.max(2025, today.getUTCFullYear()));
+    // Por defecto: AÑO COMPLETO (weeksMonth = 0)
+    const weeksMonth = ref<number>(0);
+    const weeksYear = ref<number>(Math.max(2025, today.getUTCFullYear()));
 
     const monthNames = [
-      "Enero",
-      "Febrero",
-      "Marzo",
-      "Abril",
-      "Mayo",
-      "Junio",
-      "Julio",
-      "Agosto",
-      "Septiembre",
-      "Octubre",
-      "Noviembre",
-      "Diciembre",
+      "Enero","Febrero","Marzo","Abril","Mayo","Junio",
+      "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre",
     ];
 
     const availableYears = computed(() => {
@@ -127,7 +111,7 @@ export default defineComponent({
       return arr;
     });
 
-    // Utilidades UTC
+    // Utils UTC
     const isoStartUTC = (d: Date) => {
       const x = new Date(d);
       x.setUTCHours(0, 0, 0, 0);
@@ -135,109 +119,90 @@ export default defineComponent({
     };
     const isoEndUTC = (d: Date) => {
       const x = new Date(d);
-      x.setUTCHours(0, 0, 0, 0);
+      x.setUTCHours(23, 59, 59, 999);
       return x.toISOString();
     };
-    const shiftDaysUTC = (d: Date, days: number) => {
-      const x = new Date(d);
-      x.setUTCDate(x.getUTCDate() + days);
-      return x;
-    };
 
-    // Mes completo -> opción
-    const monthOption = computed<Option>(() => {
-      const y = Number(weeksYear.value),
-        m = Number(weeksMonth.value) - 1;
-      const start = isoStartUTC(new Date(Date.UTC(y, m, 1)));
-      const end = isoEndUTC(new Date(Date.UTC(y, m + 1, 0)));
+    // Año completo
+    const yearOption = computed<Option>(() => {
+      const y = Number(weeksYear.value);
       return {
-        key: `M-${y}-${m + 1}`,
-        label: `Mes completo`,
-        start,
-        end,
+        key: `Y-${y}`,
+        label: `Año completo`,
+        start: isoStartUTC(new Date(Date.UTC(y, 0, 1))),
+        end: isoEndUTC(new Date(Date.UTC(y, 11, 31))),
       };
     });
 
-    // Semanas viernes→viernes (end = jueves 23:59:59.999)
+    // Mes completo
+    const monthOption = computed<Option>(() => {
+      const y = Number(weeksYear.value), m = Math.max(0, Number(weeksMonth.value) - 1);
+      const start = isoStartUTC(new Date(Date.UTC(y, m, 1)));
+      const end = isoEndUTC(new Date(Date.UTC(y, m + 1, 0)));
+      return { key: `M-${y}-${m + 1}`, label: "Mes completo", start, end };
+    });
+
+    // Semanas viernes→jueves
     const weekOptions = computed<Option[]>(() => {
       if (!weeksMonth.value || !weeksYear.value) return [];
-      const y = Number(weeksYear.value),
-        m = Number(weeksMonth.value) - 1;
+      const y = Number(weeksYear.value), m = Number(weeksMonth.value) - 1;
 
-      // 1) encontrar el primer viernes del mes (UTC)
-      const firstOfMonth = new Date(Date.UTC(y, m, 1));
-      let d = new Date(firstOfMonth);
-      // 5 = Friday en getUTCDay()
-      const addDays = (date: Date, days: number) => {
-        const n = new Date(date);
-        n.setUTCDate(n.getUTCDate() + days);
-        return n;
+      const first = new Date(Date.UTC(y, m, 1));
+      let d = new Date(first);
+      const add = (date: Date, days: number) => {
+        const n = new Date(date); n.setUTCDate(n.getUTCDate() + days); return n;
       };
-      const day = d.getUTCDay();
+      const day = d.getUTCDay(); // 0..6
       const toFriday = day <= 5 ? 5 - day : 7 - (day - 5);
-      d = addDays(d, toFriday);
+      d = add(d, toFriday);
 
       const opts: Option[] = [];
-      const monthEnd = new Date(Date.UTC(y, m + 1, 0)); // último día del mes
+      const monthEnd = new Date(Date.UTC(y, m + 1, 0));
 
       const short = (date: Date) =>
-        `${String(date.getUTCDate()).padStart(2, "0")} ${monthNames[
-          date.getUTCMonth()
-        ].slice(0, 3)}`;
+        `${String(date.getUTCDate()).padStart(2, "0")} ${monthNames[date.getUTCMonth()].slice(0, 3)}`;
 
       while (d.getUTCMonth() === m) {
-        const start = isoStartUTC(d); // viernes 00:00
-        const endThurs = addDays(d, 6); // jueves
+        const start = isoStartUTC(d);
+        const endThurs = add(d, 6);
         const end = isoEndUTC(endThurs);
-
-        opts.push({
-          key: `W-${d.toISOString().slice(0, 10)}`,
-          label: `${short(d)} – ${short(endThurs)}`,
-          start,
-          end,
-        });
-
-        // siguiente viernes
-        d = addDays(d, 7);
-        // seguridad para salir si se pasó demasiado
-        if (d > addDays(monthEnd, 7)) break;
+        opts.push({ key: `W-${d.toISOString().slice(0,10)}`, label: `${short(d)} – ${short(endThurs)}`, start, end });
+        d = add(d, 7);
+        if (d > add(monthEnd, 7)) break;
       }
       return opts;
     });
 
-    // Valor seleccionado del select combinado
     const selectedPeriodKey = ref<string | null>(null);
 
-    // Emitir cuando cambia la selección
+    // Emitir según selección
+    const emitYear = () => emit("update:selectedWeek", [yearOption.value.start, yearOption.value.end] as RangeTuple);
+    const emitMonth = () => emit("update:selectedWeek", [monthOption.value.start, monthOption.value.end] as RangeTuple);
+
+    // Si cambia mes/año:
+    watch([weeksMonth, weeksYear], () => {
+      if (!weeksYear.value) return;
+      if (weeksMonth.value === 0) {
+        // Año completo -> ocultamos Periodo y emitimos rango anual
+        selectedPeriodKey.value = null;
+        emitYear();
+      } else {
+        // Mes seleccionado -> por defecto "Mes completo"
+        selectedPeriodKey.value = monthOption.value.key;
+        emitMonth();
+      }
+    }, { immediate: true });
+
+    // Cuando cambia el select de "Periodo"
     watch(selectedPeriodKey, (k) => {
       if (!k) return;
       const all = [monthOption.value, ...weekOptions.value];
-      const picked = all.find((o) => o.key === k);
+      const picked = all.find(o => o.key === k);
       if (!picked) return;
-
-      let start = picked.start;
-      let end = picked.end;
-
-      // Solo para semanas (no para "Mes completo")
-      // if (picked.key.startsWith("W-")) {
-      //   start = isoStartUTC(shiftDaysUTC(new Date(start), -7));
-      //   end = isoEndUTC(shiftDaysUTC(new Date(end), -7));
-      // }
-
-      emit("update:selectedWeek", [start, end] as RangeTuple);
+      emit("update:selectedWeek", [picked.start, picked.end] as RangeTuple);
     });
 
-    // Si cambian mes/año, reseteamos elección
-    watch(
-      [weeksMonth, weeksYear],
-      () => {
-        selectedPeriodKey.value = monthOption.value.key;
-      },
-      { immediate: true }
-    );
-
     return {
-      // modelos
       searchQuery,
       selectedGenre,
       weeksMonth,
@@ -268,12 +233,12 @@ export default defineComponent({
   @apply right-3;
 }
 
+/* eleva el menú del select de géneros */
 :deep(.select-pill .dropdown-panel),
 :deep(.select-pill .search__menu),
 :deep(.select-pill .options),
 :deep(.select-pill .menu) {
   z-index: 9999 !important;
-  position: absolute; /* o fixed, según tu componente */
+  position: absolute;
 }
-
 </style>
