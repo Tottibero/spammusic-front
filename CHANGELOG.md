@@ -1,3 +1,8 @@
+## <small>1.8.1 (2025-09-24)</small>
+
+* Merge branch 'main' of https://github.com/Tottibero/spammusic-front ([becc3dd](https://github.com/Tottibero/spammusic-front/commit/becc3dd))
+* fix(comment): avatar in comment ([2d510aa](https://github.com/Tottibero/spammusic-front/commit/2d510aa))
+
 ## 1.8.0 (2025-09-24)
 
 * Merge branch 'fix/searchable-select' ([ae21da4](https://github.com/Tottibero/spammusic-front/commit/ae21da4))
