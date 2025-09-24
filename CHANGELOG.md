@@ -1,3 +1,8 @@
+## <small>1.7.3 (2025-09-24)</small>
+
+* Merge branch 'main' of https://github.com/Tottibero/spammusic-front ([5c81896](https://github.com/Tottibero/spammusic-front/commit/5c81896))
+* fix(filters): searchable select ([cd5e663](https://github.com/Tottibero/spammusic-front/commit/cd5e663))
+
 ## <small>1.7.2 (2025-09-24)</small>
 
 * fix(filters): filters in home ([8ceeeaf](https://github.com/Tottibero/spammusic-front/commit/8ceeeaf))
