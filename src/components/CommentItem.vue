@@ -33,8 +33,8 @@
         class="relative w-9 h-9 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-500"
       >
         <img
-          v-if="displayedAvatar"
-          :src="displayedAvatar"
+          v-if="localComment.user.image"
+          :src="localComment.user.image"
           alt="Avatar"
           class="w-full h-full object-cover"
         />
