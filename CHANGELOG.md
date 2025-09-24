@@ -1,3 +1,7 @@
+## <small>1.7.2 (2025-09-24)</small>
+
+* fix(filters): filters in home ([8ceeeaf](https://github.com/Tottibero/spammusic-front/commit/8ceeeaf))
+
 ## <small>1.7.1 (2025-09-23)</small>
 
 * fix(ui): several fix ui ([4286584](https://github.com/Tottibero/spammusic-front/commit/4286584))
