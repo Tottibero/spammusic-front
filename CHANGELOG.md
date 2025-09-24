@@ -1,3 +1,9 @@
+## 1.8.0 (2025-09-24)
+
+* Merge branch 'fix/searchable-select' ([ae21da4](https://github.com/Tottibero/spammusic-front/commit/ae21da4))
+* Merge branch 'main' of https://github.com/Tottibero/spammusic-front ([0dd3cc6](https://github.com/Tottibero/spammusic-front/commit/0dd3cc6))
+* feat(select): año completo ([f69da27](https://github.com/Tottibero/spammusic-front/commit/f69da27))
+
 ## <small>1.7.3 (2025-09-24)</small>
 
 * Merge branch 'main' of https://github.com/Tottibero/spammusic-front ([5c81896](https://github.com/Tottibero/spammusic-front/commit/5c81896))
