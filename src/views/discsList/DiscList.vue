@@ -5,18 +5,18 @@
   >
     <h1 class="text-4xl font-bold mb-8 text-center text-gray-900">Discos</h1>
 
-    <DiscFilters
-      :searchQuery="searchQuery"
-      :selectedGenre="selectedGenre"
-      :selectedWeek="selectedWeek"
-      :genres="genres"
-      @update:searchQuery="searchQuery = $event"
-      @update:selectedGenre="selectedGenre = $event"
-      @update:selectedWeek="selectedWeek = $event"
-      selectClass="w-[280px] sm:w-[300px] w-full"
-      wrapperClass="w-full sm:w-auto flex justify-center sm:justify-start sm:ml-3 sm:translate-y-[1px]"
-      @resetAndFetch="resetAndFetch"
-    />
+<DiscFilters
+  :searchQuery="searchQuery"
+  :selectedGenre="selectedGenre"
+  :selectedWeek="selectedWeek"
+  :genres="genres"
+  @update:searchQuery="searchQuery = $event"
+  @update:selectedGenre="selectedGenre = $event"
+  @update:selectedWeek="selectedWeek = $event"
+  selectClass="w-full"
+  wrapperClass=""
+  @resetAndFetch="resetAndFetch"
+/>
 
     <div class="mb-6 flex justify-start space-x-2">
       <label
@@ -32,7 +32,7 @@
       </label>
 
       <label
-        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
+        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-md font-medium transition-all duration-200"
         :class="
           viewMode === 'rates'
             ? 'bg-blue-500 text-white'
@@ -44,7 +44,7 @@
       </label>
 
       <label
-        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
+        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-md font-medium transition-all duration-200"
         :class="
           viewMode === 'covers'
             ? 'bg-green-500 text-white'
@@ -56,7 +56,7 @@
       </label>
 
       <label
-        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
+        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-md font-medium transition-all duration-200"
         :class="
           viewMode === 'favorites'
             ? 'bg-red-500 text-white'
@@ -75,7 +75,7 @@
 
 
       <label
-        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
+        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-md font-medium transition-all duration-200"
         :class="
           viewMode === 'pendientes'
             ? 'bg-yellow-500 text-white'
@@ -96,7 +96,7 @@
 
   <select
     v-model="orderBy"
-    class="px-3 py-2 rounded-md border border-gray-300 text-sm shadow-sm focus:outline-none"
+        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-md font-medium transition-all duration-200"
   >
     <option v-for="opt in orderOptions" :key="opt.value" :value="opt.value">
       {{ opt.label }}

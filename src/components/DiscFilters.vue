@@ -1,77 +1,59 @@
 <template>
-  <div
-    class="mb-4 flex flex-col sm:flex-row sm:items-center sm:space-x-4"
-    :class="wrapperClass"
-  >
-    <input
-      v-if="showSearchQuery"
-      v-model="searchQuery"
-      type="text"
-      placeholder="Buscar álbum o artista..."
-      class="flex-[2] p-1.5 shadow-md rounded-full pl-4 pr-8 mb-4 sm:mb-0"
-    />
+  <!-- wrapper del componente -->
+  <div class="mb-4 flex flex-col gap-0 filters-pills" :class="wrapperClass">
+    <!-- Fila 1: Buscar + Género -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+      <input v-if="showSearchQuery" v-model="searchQuery" type="text" placeholder="Buscar álbum o artista..."
+        class="pill-control" />
 
-    <SearchableSelect
-      v-model="selectedGenre"
-      :options="genres"
-      placeholder="Selecciona un género"
-      title="name"
-      trackby="id"
-      :max="150"
-      class="select-pill"
-      :class="selectClass"
-    />
-
-    <div class="flex items-center flex-wrap gap-2 mt-2 sm:mt-0" v-if="showWeekPicker">
-      <!-- MES: primera opción = Año completo – {weeksYear} -->
-      <select
-        v-model.number="weeksMonth"
-        class="rounded-full h-9 bg-white border border-gray-200 shadow-md px-4"
-      >
-        <!-- valor 0 representa AÑO COMPLETO -->
-        <option :value="0">Año completo</option>
-        <option v-for="m in 12" :key="m" :value="m">
-          {{ monthNames[m - 1] }}
-        </option>
-      </select>
-
-      <!-- AÑO -->
-      <select
-        v-model.number="weeksYear"
-        class="rounded-full h-9 bg-white border border-gray-200 shadow-md px-4"
-      >
-        <option disabled value="">Año</option>
-        <option v-for="y in availableYears" :key="y" :value="y">{{ y }}</option>
-      </select>
-
-      <!-- PERIODO (solo cuando hay mes seleccionado) -->
-      <select
-        v-if="weeksMonth && weeksYear"
-        v-model="selectedPeriodKey"
-        class="rounded-full h-9 leading-9 bg-white border border-gray-200 shadow-md px-4"
-      >
-        <optgroup :label="`Periodo – ${monthNames[weeksMonth - 1]} ${weeksYear}`">
-          <option :value="monthOption.key">{{ monthOption.label }}</option>
-        </optgroup>
-        <optgroup label="Semanas">
-          <option v-for="w in weekOptions" :key="w.key" :value="w.key">
-            {{ w.label }}
-          </option>
-        </optgroup>
-      </select>
+      <SearchableSelect v-model="selectedGenre" :options="genres" placeholder="Selecciona un género" title="name"
+        trackby="id" :max="150" class="select-pill w-full" :class="selectClass" />
     </div>
+
+    <!-- Fila 2: Año / Mes / Semana -->
+    <div v-if="showWeekPicker" class="mt-4 mb-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+      <!-- MES -->
+<SimpleSelect
+  class="select-pill w-full"
+  :options="monthsOptions"
+  v-model="weeksMonth"
+  placeholder="Mes"
+/>
+
+  <!-- AÑO -->
+  <SimpleSelect
+    class="select-pill w-full"
+    :options="yearsOptions"
+    v-model="weeksYear"
+    :group-label="`Año – ${weeksYear}`"
+    placeholder="Año"
+  />
+
+  <!-- SEMANAS -->
+  <SimpleSelect
+    v-if="weeksMonth && weeksYear"
+    class="select-pill w-full"
+    :options="periodOptions"
+    v-model="selectedPeriodKey"
+    :group-label="`Semanas – ${monthNames[weeksMonth - 1]} ${weeksYear}`"
+    placeholder="Semana"
+  />
+    </div>
+
   </div>
 </template>
+
 
 <script lang="ts">
 import { defineComponent, ref, watch, computed } from "vue";
 import SearchableSelect from "@components/SearchableSelect.vue";
+import SimpleSelect from '@components/SimpleSelect.vue';
 
 type RangeTuple = [string, string];
 type Option = { key: string; label: string; start: string; end: string };
 
 export default defineComponent({
-  components: { SearchableSelect },
+  components: { SearchableSelect, SimpleSelect, },
   props: {
     searchQuery: { type: String, default: "" },
     selectedGenre: { type: String, default: "" },
@@ -99,8 +81,8 @@ export default defineComponent({
     const weeksYear = ref<number>(Math.max(2025, today.getUTCFullYear()));
 
     const monthNames = [
-      "Enero","Febrero","Marzo","Abril","Mayo","Junio",
-      "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre",
+      "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+      "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
     ];
 
     const availableYears = computed(() => {
@@ -134,6 +116,25 @@ export default defineComponent({
       };
     });
 
+const monthsOptions = computed(() => [
+  { value: 0, label: 'Año completo' },
+  ...monthNames.map((label, i) => ({ value: i + 1, label }))
+]);
+
+const yearsOptions = computed(() =>
+  availableYears.value.map(y => ({ value: y, label: String(y) }))
+);
+
+const periodOptions = computed(() => {
+  if (!weeksMonth.value || !weeksYear.value) return [];
+  // Primero “Mes completo”
+  const base = [{ value: monthOption.value.key, label: 'Mes completo' }];
+  // Luego semanas
+  const weeks = weekOptions.value.map(w => ({ value: w.key, label: w.label }));
+  return [...base, ...weeks];
+});
+
+
     // Mes completo
     const monthOption = computed<Option>(() => {
       const y = Number(weeksYear.value), m = Math.max(0, Number(weeksMonth.value) - 1);
@@ -166,7 +167,7 @@ export default defineComponent({
         const start = isoStartUTC(d);
         const endThurs = add(d, 6);
         const end = isoEndUTC(endThurs);
-        opts.push({ key: `W-${d.toISOString().slice(0,10)}`, label: `${short(d)} – ${short(endThurs)}`, start, end });
+        opts.push({ key: `W-${d.toISOString().slice(0, 10)}`, label: `${short(d)} – ${short(endThurs)}`, start, end });
         d = add(d, 7);
         if (d > add(monthEnd, 7)) break;
       }
@@ -212,28 +213,23 @@ export default defineComponent({
       selectedPeriodKey,
       weekOptions,
       monthOption,
+      monthsOptions,
+      yearsOptions,
+      periodOptions,
     };
   },
 });
 </script>
 
 <style scoped>
+/* --- layout menores que ya tenías --- */
 .flex-[2] {
   display: flex;
   align-items: center;
   justify-content: start;
 }
-:deep(.select-pill .search_input_trigger) {
-  @apply rounded-full h-9 leading-9 bg-white border border-gray-200 shadow-md pl-6 pr-4;
-}
-:deep(.select-pill .search__input) {
-  @apply pl-4;
-}
-:deep(.select-pill .search_input_trigger svg) {
-  @apply right-3;
-}
 
-/* eleva el menú del select de géneros */
+/* Z-index del menú del SearchableSelect */
 :deep(.select-pill .dropdown-panel),
 :deep(.select-pill .search__menu),
 :deep(.select-pill .options),
@@ -241,4 +237,84 @@ export default defineComponent({
   z-index: 9999 !important;
   position: absolute;
 }
+
+.filters-pills {
+  /* ajusta aquí para compactar o expandir */
+  --pill-h: 2.25rem;
+  /* 2.75rem si la quieres más alta, 2.25rem más compacta */
+  --pill-lh: 2.5rem;
+  /* igual a la altura para centrar el texto */
+  --pill-pl: 1.0rem;
+  /* padding-left */
+  --pill-pr: 1.0rem;
+  /* padding-right (sube si la flecha pisa el texto) */
+  --pill-radius: 9999px;
+  --pill-border: 1px solid rgb(229 231 235);
+  /* border-gray-200 */
+  --pill-shadow: 0 1px 3px rgba(0, 0, 0, .08), 0 1px 2px rgba(0, 0, 0, .06);
+  --pill-bg: #fff;
+  --pill-ring: 2px solid rgba(209, 213, 219, .8);
+  /* ring-gray-300 */
+}
+
+/* Base común para input + select nativo */
+.pill-control {
+  width: 100%;
+  height: var(--pill-h);
+  line-height: var(--pill-lh);
+  padding-left: var(--pill-pl);
+  padding-right: var(--pill-pr);
+  border-radius: var(--pill-radius);
+  border: var(--pill-border);
+  background: var(--pill-bg);
+  box-shadow: var(--pill-shadow);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.pill-control:focus {
+  box-shadow: var(--pill-shadow);
+  outline: var(--pill-ring);
+}
+
+/* SearchableSelect: aplicamos exactamente lo mismo al trigger */
+:deep(.select-pill .search_input_trigger) {
+  width: 100%;
+  height: var(--pill-h);
+  line-height: var(--pill-lh);
+  padding-left: calc(var(--pill-pl) + 0.5rem);
+  /* un poco más si el icono va dentro */
+  padding-right: var(--pill-pr);
+  border-radius: var(--pill-radius);
+  border: var(--pill-border);
+  background: var(--pill-bg);
+  box-shadow: var(--pill-shadow);
+  position: relative;
+}
+
+:deep(.select-pill .search_input_trigger:focus) {
+  outline: var(--pill-ring);
+}
+
+:deep(.select-pill .search__input) {
+  padding-left: 0;
+}
+
+/* ya damos PL en el trigger */
+:deep(.select-pill .search_input_trigger svg) {
+  right: .75rem;
+}
+
+/* Compactación rápida por si quieres apretar aún más:
+   En vez de tocar varias reglas, cambia solo estos tres valores: */
+/*
+.filters-pills {
+  --pill-h: 2.25rem;
+  --pill-lh: 2.25rem;
+  --pill-pl: .75rem;
+  --pill-pr: .75rem;
+}
+*/
+
 </style>
