@@ -1,98 +1,320 @@
 <template>
-  <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:space-x-4">
-    <input v-if="showSearchQuery" v-model="searchQuery" type="text" placeholder="Buscar álbum o artista..."
-      class="flex-[2] p-1.5 shadow-md rounded-full pl-4 pr-8 mb-4 sm:mb-0" />
+  <!-- wrapper del componente -->
+  <div class="mb-4 flex flex-col gap-0 filters-pills" :class="wrapperClass">
+    <!-- Fila 1: Buscar + Género -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+      <input v-if="showSearchQuery" v-model="searchQuery" type="text" placeholder="Buscar álbum o artista..."
+        class="pill-control" />
 
-    <SearchableSelect v-model="selectedGenre" :options="genres" placeholder="Selecciona un género" title="name"
-      trackby="id" :max="150" class="select-pill" :class="selectClass" />
+      <SearchableSelect v-model="selectedGenre" :options="genres" placeholder="Selecciona un género" title="name"
+        trackby="id" :max="150" class="select-pill w-full" :class="selectClass" />
+    </div>
 
-    <Datepicker v-if="showWeekPicker" v-model="selectedWeek" :weekPicker="true" placeholder="Selecciona una semana"
-      class="flex-[2] px-3 py-2 w-full rounded-lg border-white mt-2 pl-1" />
+    <!-- Fila 2: Año / Mes / Semana -->
+    <div v-if="showWeekPicker" class="mt-4 mb-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+      <!-- MES -->
+<SimpleSelect
+  class="select-pill w-full"
+  :options="monthsOptions"
+  v-model="weeksMonth"
+  placeholder="Mes"
+/>
+
+  <!-- AÑO -->
+  <SimpleSelect
+    class="select-pill w-full"
+    :options="yearsOptions"
+    v-model="weeksYear"
+    :group-label="`Año – ${weeksYear}`"
+    placeholder="Año"
+  />
+
+  <!-- SEMANAS -->
+  <SimpleSelect
+    v-if="weeksMonth && weeksYear"
+    class="select-pill w-full"
+    :options="periodOptions"
+    v-model="selectedPeriodKey"
+    :group-label="`Semanas – ${monthNames[weeksMonth - 1]} ${weeksYear}`"
+    placeholder="Semana"
+  />
+    </div>
+
   </div>
 </template>
 
+
 <script lang="ts">
-import { defineComponent, ref, watch } from "vue";
-import Datepicker from "@vuepic/vue-datepicker";
+import { defineComponent, ref, watch, computed } from "vue";
 import SearchableSelect from "@components/SearchableSelect.vue";
+import SimpleSelect from '@components/SimpleSelect.vue';
+
+type RangeTuple = [string, string];
+type Option = { key: string; label: string; start: string; end: string };
 
 export default defineComponent({
-  components: {
-    Datepicker,
-    SearchableSelect,
-  },
+  components: { SearchableSelect, SimpleSelect, },
   props: {
-    searchQuery: {
-      type: String,
-      default: "",
-    },
-    selectedGenre: {
-      type: String,
-      default: "",
-    },
-    selectedWeek: {
-      type: Object,
-      default: null,
-    },
-    genres: {
-      type: Array,
-      default: () => [],
-    },
+    searchQuery: { type: String, default: "" },
+    selectedGenre: { type: String, default: "" },
+    selectedWeek: { type: Array, default: null },
+    genres: { type: Array, default: () => [] },
 
-    selectClass: { type: String, default: "" },       // clases para el <SearchableSelect>
-    triggerHeight: { type: [Number, String], default: 36 }, // alto del botón/trigger
-    wrapperClass: { type: String, default: "" },      // clases para el wrapper raíz
+    selectClass: { type: String, default: "" },
+    triggerHeight: { type: [Number, String], default: 36 },
+    wrapperClass: { type: String, default: "" },
 
     showWeekPicker: { type: Boolean, default: true },
     showSearchQuery: { type: Boolean, default: true },
   },
-  emits: [
-    "update:searchQuery",
-    "update:selectedGenre",
-    "update:selectedWeek",
-    "resetAndFetch",
-  ],
+  emits: ["update:searchQuery", "update:selectedGenre", "update:selectedWeek", "resetAndFetch"],
   setup(props, { emit }) {
     const searchQuery = ref(props.searchQuery);
     const selectedGenre = ref(props.selectedGenre);
-    const selectedWeek = ref(props.selectedWeek);
+    watch(searchQuery, (v) => emit("update:searchQuery", v));
+    watch(selectedGenre, (v) => emit("update:selectedGenre", v));
 
-    watch(searchQuery, (newValue) => emit("update:searchQuery", newValue));
-    watch(selectedGenre, (newValue) => emit("update:selectedGenre", newValue)); // Emite el nuevo valor
-    watch(selectedWeek, (newValue) => emit("update:selectedWeek", newValue));
+    // Estado base
+    const today = new Date();
+    // Por defecto: AÑO COMPLETO (weeksMonth = 0)
+    const weeksMonth = ref<number>(0);
+    const weeksYear = ref<number>(Math.max(2025, today.getUTCFullYear()));
+
+    const monthNames = [
+      "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+      "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+    ];
+
+    const availableYears = computed(() => {
+      const base = 2025;
+      const current = new Date().getFullYear();
+      const arr: number[] = [];
+      for (let y = base; y <= current; y++) arr.push(y);
+      return arr;
+    });
+
+    // Utils UTC
+    const isoStartUTC = (d: Date) => {
+      const x = new Date(d);
+      x.setUTCHours(0, 0, 0, 0);
+      return x.toISOString();
+    };
+    const isoEndUTC = (d: Date) => {
+      const x = new Date(d);
+      x.setUTCHours(23, 59, 59, 999);
+      return x.toISOString();
+    };
+
+    // Año completo
+    const yearOption = computed<Option>(() => {
+      const y = Number(weeksYear.value);
+      return {
+        key: `Y-${y}`,
+        label: `Año completo`,
+        start: isoStartUTC(new Date(Date.UTC(y, 0, 1))),
+        end: isoEndUTC(new Date(Date.UTC(y, 11, 31))),
+      };
+    });
+
+const monthsOptions = computed(() => [
+  { value: 0, label: 'Año completo' },
+  ...monthNames.map((label, i) => ({ value: i + 1, label }))
+]);
+
+const yearsOptions = computed(() =>
+  availableYears.value.map(y => ({ value: y, label: String(y) }))
+);
+
+const periodOptions = computed(() => {
+  if (!weeksMonth.value || !weeksYear.value) return [];
+  // Primero “Mes completo”
+  const base = [{ value: monthOption.value.key, label: 'Mes completo' }];
+  // Luego semanas
+  const weeks = weekOptions.value.map(w => ({ value: w.key, label: w.label }));
+  return [...base, ...weeks];
+});
+
+
+    // Mes completo
+    const monthOption = computed<Option>(() => {
+      const y = Number(weeksYear.value), m = Math.max(0, Number(weeksMonth.value) - 1);
+      const start = isoStartUTC(new Date(Date.UTC(y, m, 1)));
+      const end = isoEndUTC(new Date(Date.UTC(y, m + 1, 0)));
+      return { key: `M-${y}-${m + 1}`, label: "Mes completo", start, end };
+    });
+
+    // Semanas viernes→jueves
+    const weekOptions = computed<Option[]>(() => {
+      if (!weeksMonth.value || !weeksYear.value) return [];
+      const y = Number(weeksYear.value), m = Number(weeksMonth.value) - 1;
+
+      const first = new Date(Date.UTC(y, m, 1));
+      let d = new Date(first);
+      const add = (date: Date, days: number) => {
+        const n = new Date(date); n.setUTCDate(n.getUTCDate() + days); return n;
+      };
+      const day = d.getUTCDay(); // 0..6
+      const toFriday = day <= 5 ? 5 - day : 7 - (day - 5);
+      d = add(d, toFriday);
+
+      const opts: Option[] = [];
+      const monthEnd = new Date(Date.UTC(y, m + 1, 0));
+
+      const short = (date: Date) =>
+        `${String(date.getUTCDate()).padStart(2, "0")} ${monthNames[date.getUTCMonth()].slice(0, 3)}`;
+
+      while (d.getUTCMonth() === m) {
+        const start = isoStartUTC(d);
+        const endThurs = add(d, 6);
+        const end = isoEndUTC(endThurs);
+        opts.push({ key: `W-${d.toISOString().slice(0, 10)}`, label: `${short(d)} – ${short(endThurs)}`, start, end });
+        d = add(d, 7);
+        if (d > add(monthEnd, 7)) break;
+      }
+      return opts;
+    });
+
+    const selectedPeriodKey = ref<string | null>(null);
+
+    // Emitir según selección
+    const emitYear = () => emit("update:selectedWeek", [yearOption.value.start, yearOption.value.end] as RangeTuple);
+    const emitMonth = () => emit("update:selectedWeek", [monthOption.value.start, monthOption.value.end] as RangeTuple);
+
+    // Si cambia mes/año:
+    watch([weeksMonth, weeksYear], () => {
+      if (!weeksYear.value) return;
+      if (weeksMonth.value === 0) {
+        // Año completo -> ocultamos Periodo y emitimos rango anual
+        selectedPeriodKey.value = null;
+        emitYear();
+      } else {
+        // Mes seleccionado -> por defecto "Mes completo"
+        selectedPeriodKey.value = monthOption.value.key;
+        emitMonth();
+      }
+    }, { immediate: true });
+
+    // Cuando cambia el select de "Periodo"
+    watch(selectedPeriodKey, (k) => {
+      if (!k) return;
+      const all = [monthOption.value, ...weekOptions.value];
+      const picked = all.find(o => o.key === k);
+      if (!picked) return;
+      emit("update:selectedWeek", [picked.start, picked.end] as RangeTuple);
+    });
 
     return {
       searchQuery,
       selectedGenre,
-      selectedWeek,
+      weeksMonth,
+      weeksYear,
+      monthNames,
+      availableYears,
+      selectedPeriodKey,
+      weekOptions,
+      monthOption,
+      monthsOptions,
+      yearsOptions,
+      periodOptions,
     };
   },
 });
 </script>
 
 <style scoped>
-/* Estilos específicos del componente si es necesario */
+/* --- layout menores que ya tenías --- */
 .flex-[2] {
   display: flex;
   align-items: center;
   justify-content: start;
 }
 
-input[type="checkbox"] {
-  margin-right: 0.5rem;
+/* Z-index del menú del SearchableSelect */
+:deep(.select-pill .dropdown-panel),
+:deep(.select-pill .search__menu),
+:deep(.select-pill .options),
+:deep(.select-pill .menu) {
+  z-index: 9999 !important;
+  position: absolute;
 }
 
-/* Botón/trigger del select */
+.filters-pills {
+  /* ajusta aquí para compactar o expandir */
+  --pill-h: 2.25rem;
+  /* 2.75rem si la quieres más alta, 2.25rem más compacta */
+  --pill-lh: 2.5rem;
+  /* igual a la altura para centrar el texto */
+  --pill-pl: 1.0rem;
+  /* padding-left */
+  --pill-pr: 1.0rem;
+  /* padding-right (sube si la flecha pisa el texto) */
+  --pill-radius: 9999px;
+  --pill-border: 1px solid rgb(229 231 235);
+  /* border-gray-200 */
+  --pill-shadow: 0 1px 3px rgba(0, 0, 0, .08), 0 1px 2px rgba(0, 0, 0, .06);
+  --pill-bg: #fff;
+  --pill-ring: 2px solid rgba(209, 213, 219, .8);
+  /* ring-gray-300 */
+}
+
+/* Base común para input + select nativo */
+.pill-control {
+  width: 100%;
+  height: var(--pill-h);
+  line-height: var(--pill-lh);
+  padding-left: var(--pill-pl);
+  padding-right: var(--pill-pr);
+  border-radius: var(--pill-radius);
+  border: var(--pill-border);
+  background: var(--pill-bg);
+  box-shadow: var(--pill-shadow);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.pill-control:focus {
+  box-shadow: var(--pill-shadow);
+  outline: var(--pill-ring);
+}
+
+/* SearchableSelect: aplicamos exactamente lo mismo al trigger */
 :deep(.select-pill .search_input_trigger) {
-  @apply rounded-full h-9 leading-9 bg-white border border-gray-200 shadow-md pl-6 pr-4;
+  width: 100%;
+  height: var(--pill-h);
+  line-height: var(--pill-lh);
+  padding-left: calc(var(--pill-pl) + 0.5rem);
+  /* un poco más si el icono va dentro */
+  padding-right: var(--pill-pr);
+  border-radius: var(--pill-radius);
+  border: var(--pill-border);
+  background: var(--pill-bg);
+  box-shadow: var(--pill-shadow);
+  position: relative;
+}
+
+:deep(.select-pill .search_input_trigger:focus) {
+  outline: var(--pill-ring);
 }
 
 :deep(.select-pill .search__input) {
-  @apply pl-4;
+  padding-left: 0;
 }
 
+/* ya damos PL en el trigger */
 :deep(.select-pill .search_input_trigger svg) {
-  @apply right-3;
+  right: .75rem;
 }
+
+/* Compactación rápida por si quieres apretar aún más:
+   En vez de tocar varias reglas, cambia solo estos tres valores: */
+/*
+.filters-pills {
+  --pill-h: 2.25rem;
+  --pill-lh: 2.25rem;
+  --pill-pl: .75rem;
+  --pill-pr: .75rem;
+}
+*/
 
 </style>

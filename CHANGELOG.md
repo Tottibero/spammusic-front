@@ -1,3 +1,35 @@
+## <small>1.8.1 (2025-09-24)</small>
+
+* Merge branch 'main' of https://github.com/Tottibero/spammusic-front ([becc3dd](https://github.com/Tottibero/spammusic-front/commit/becc3dd))
+* fix(comment): avatar in comment ([2d510aa](https://github.com/Tottibero/spammusic-front/commit/2d510aa))
+
+## 1.8.0 (2025-09-24)
+
+* Merge branch 'fix/searchable-select' ([ae21da4](https://github.com/Tottibero/spammusic-front/commit/ae21da4))
+* Merge branch 'main' of https://github.com/Tottibero/spammusic-front ([0dd3cc6](https://github.com/Tottibero/spammusic-front/commit/0dd3cc6))
+* feat(select): año completo ([f69da27](https://github.com/Tottibero/spammusic-front/commit/f69da27))
+
+## <small>1.7.3 (2025-09-24)</small>
+
+* Merge branch 'main' of https://github.com/Tottibero/spammusic-front ([5c81896](https://github.com/Tottibero/spammusic-front/commit/5c81896))
+* fix(filters): searchable select ([cd5e663](https://github.com/Tottibero/spammusic-front/commit/cd5e663))
+
+## <small>1.7.2 (2025-09-24)</small>
+
+* fix(filters): filters in home ([8ceeeaf](https://github.com/Tottibero/spammusic-front/commit/8ceeeaf))
+
+## <small>1.7.1 (2025-09-23)</small>
+
+* fix(ui): several fix ui ([4286584](https://github.com/Tottibero/spammusic-front/commit/4286584))
+
+## 1.7.0 (2025-09-23)
+
+* feat(avatar): avatar in profile ([dc9bc57](https://github.com/Tottibero/spammusic-front/commit/dc9bc57))
+
+## 1.6.0 (2025-09-23)
+
+* feat(filters): add new filters in dates ([3a612c1](https://github.com/Tottibero/spammusic-front/commit/3a612c1))
+
 ## 1.5.0 (2025-09-23)
 
 * feat(order): filter to order the discs ([a6b70db](https://github.com/Tottibero/spammusic-front/commit/a6b70db))

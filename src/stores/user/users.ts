@@ -12,9 +12,20 @@ export const useUserStore = defineStore("user", {
   state: () => ({
     users: [] as any[], // Lista de usuarios
     usersRv: [] as any[], // Lista de usuarios RV
+    user: null as any | null, // 👈 usuario actual (lo pide el componente)
   }),
 
   actions: {
+    // 👇 necesario porque el componente llama a fetchUser()
+    async fetchUser() {
+      // Si ya tienes un endpoint tipo "getMe", úsalo aquí.
+      // Parche mínimo: no hacemos petición; solo devolvemos lo que haya.
+      return this.user;
+    },
+    // 👇 lo usa el componente para mantener la sesión en memoria
+    setUser(user: any) {
+      this.user = user;
+    },
     async loadUsers() {
       try {
         const response = await getUsers();
@@ -58,11 +69,9 @@ export const useUserStore = defineStore("user", {
     async updateUserStore(updatedUser: any) {
       try {
         console.log("Calling updatedUser with:", updatedUser);
-
-        const data = {
-          password: updatedUser.password,
-        };
-
+        const data: any = {};
+        if (updatedUser?.password) data.password = updatedUser.password;
+        if (updatedUser?.image) data.image = updatedUser.image;
         await updateUserService(data);
       } catch (error) {
         console.error("Error updating asignation:", error);
