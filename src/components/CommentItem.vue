@@ -1,14 +1,26 @@
 <template>
-  <div :class="depth > 0 ? 'ml-6 border-l pl-3' : ''" class="space-y-2 text-left">
+  <div
+    :class="depth > 0 ? 'ml-6 border-l pl-3' : ''"
+    class="space-y-2 text-left"
+  >
     <!-- Formulario de edición -->
     <div v-if="showEditForm" class="p-3 bg-gray-100 rounded">
-      <input v-model="editText" type="text"
-        class="border rounded w-full px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      <input
+        v-model="editText"
+        type="text"
+        class="border rounded w-full px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
       <div class="flex space-x-2 mt-2">
-        <button @click="submitEdit" class="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600">
+        <button
+          @click="submitEdit"
+          class="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600"
+        >
           Guardar
         </button>
-        <button @click="cancelEdit" class="bg-gray-500 text-white px-3 py-1 rounded text-xs hover:bg-gray-600">
+        <button
+          @click="cancelEdit"
+          class="bg-gray-500 text-white px-3 py-1 rounded text-xs hover:bg-gray-600"
+        >
           Cancelar
         </button>
       </div>
@@ -16,17 +28,30 @@
 
     <!-- Vista del comentario (si no está en edición) -->
     <div v-else class="p-3 bg-gray-100 rounded flex items-start space-x-3">
-
       <!-- Avatar del usuario -->
-      <div class="relative w-9 h-9 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-500">
-        <img v-if="localComment.user.avatarUrl" :src="localComment.user.avatarUrl" alt="Avatar"
-          class="w-full h-full object-cover" />
-        <svg v-else class="absolute w-11 h-11 text-gray-400 -left-1" fill="currentColor" viewBox="0 0 20 20"
-          xmlns="http://www.w3.org/2000/svg">
-          <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+      <div
+        class="relative w-9 h-9 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-500"
+      >
+        <img
+          v-if="localComment.user.image"
+          :src="localComment.user.image"
+          alt="Avatar"
+          class="w-full h-full object-cover"
+        />
+        <svg
+          v-else
+          class="absolute w-11 h-11 text-gray-400 -left-1"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+            clip-rule="evenodd"
+          ></path>
         </svg>
       </div>
-
 
       <!-- Contenido del comentario -->
       <div class="flex-1">
@@ -34,19 +59,30 @@
 
         <!-- Mostrar autor y fecha solo si el comentario NO está eliminado -->
         <div v-if="!localComment.isDeleted" class="text-xs text-gray-500 mt-1">
-          Por: {{ localComment.user.username }} - {{ formatDate(localComment.createdAt) }}
+          Por: {{ localComment.user.username }} -
+          {{ formatDate(localComment.createdAt) }}
         </div>
         <!-- Botones: Responder, Editar, Borrar -->
         <div class="mt-2 flex space-x-2">
-          <button @click="toggleReplyForm" class="text-blue-500 text-xs" v-if="!localComment.isDeleted">
+          <button
+            @click="toggleReplyForm"
+            class="text-blue-500 text-xs"
+            v-if="!localComment.isDeleted"
+          >
             Responder
           </button>
-          <button @click="startEdit" class="text-green-500 text-xs"
-            v-if="!localComment.isDeleted && localComment.user.id === user.id">
+          <button
+            @click="startEdit"
+            class="text-green-500 text-xs"
+            v-if="!localComment.isDeleted && localComment.user.id === user.id"
+          >
             Editar
           </button>
-          <button @click="deleteComment" class="text-red-500 text-xs"
-            v-if="!localComment.isDeleted && localComment.user.id === user.id">
+          <button
+            @click="deleteComment"
+            class="text-red-500 text-xs"
+            v-if="!localComment.isDeleted && localComment.user.id === user.id"
+          >
             Borrar
           </button>
         </div>
@@ -56,26 +92,43 @@
     <!-- Formulario para responder, solo si el comentario no está eliminado -->
     <div v-if="showReplyForm && !localComment.isDeleted" class="ml-4 mt-2">
       <form @submit.prevent="submitReply" class="flex space-x-2">
-        <input v-model="replyText" type="text" placeholder="Escribe tu respuesta..."
-          class="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs" />
-        <button type="submit"
-          class="bg-blue-500 text-white px-3 py-1 rounded-lg text-xs hover:bg-blue-600 transition-colors">
+        <input
+          v-model="replyText"
+          type="text"
+          placeholder="Escribe tu respuesta..."
+          class="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
+        />
+        <button
+          type="submit"
+          class="bg-blue-500 text-white px-3 py-1 rounded-lg text-xs hover:bg-blue-600 transition-colors"
+        >
           Enviar
         </button>
       </form>
     </div>
 
     <!-- Renderizado recursivo de las respuestas -->
-    <div v-if="localComment.replies && localComment.replies.length" class="mt-2 space-y-2">
-      <CommentItem v-for="reply in localComment.replies" :key="reply.id" :comment="reply" :disc-id="discId"
-        :depth="depth + 1" @reply-added="$emit('reply-added', $event)" @deleted="$emit('deleted', $event)"
-        @comment-updated="$emit('comment-updated', $event)" />
+    <div
+      v-if="localComment.replies && localComment.replies.length"
+      class="mt-2 space-y-2"
+    >
+      <CommentItem
+        v-for="reply in localComment.replies"
+        :key="reply.id"
+        :comment="reply"
+        :disc-id="discId"
+        :depth="depth + 1"
+        @reply-added="$emit('reply-added', $event)"
+        @deleted="$emit('deleted', $event)"
+        @comment-updated="$emit('comment-updated', $event)"
+      />
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { computed, defineComponent, ref, watch } from "vue";
+
 import {
   postcommentService,
   updateCommentService,
@@ -113,6 +166,25 @@ export default defineComponent({
     const authStore = useAuthStore();
     const user = computed(() => authStore.loggedUser);
 
+    const displayedAvatar = computed(() => {
+      const u = localComment.value?.user || {};
+      // 1) si el comentario ya trae avatar en el payload
+      if (u.avatarUrl && typeof u.avatarUrl === "string" && u.avatarUrl.length)
+        return u.avatarUrl;
+      if (u.image && typeof u.image === "string" && u.image.length)
+        return u.image;
+      // 2) si el comentario es del usuario actual, usa el avatar de la store
+      if (
+        u.id &&
+        user.value?.id &&
+        u.id === user.value.id &&
+        authStore.avatarUrl
+      )
+        return authStore.avatarUrl;
+      // 3) sin avatar
+      return null;
+    });
+
     // Toggle del formulario de respuesta
     const toggleReplyForm = () => {
       if (!localComment.value.isDeleted) {
@@ -135,6 +207,21 @@ export default defineComponent({
         if (!localComment.value.replies) {
           localComment.value.replies = [];
         }
+        // 👇 si la API no envía avatar, y la reply es del usuario actual, usa el de la store
+        if (
+          newReply?.user?.id &&
+          user.value?.id &&
+          newReply.user.id === user.value.id
+        ) {
+          if (
+            !newReply.user.avatarUrl &&
+            !newReply.user.image &&
+            authStore.avatarUrl
+          ) {
+            newReply.user.avatarUrl = authStore.avatarUrl;
+          }
+        }
+
         localComment.value.replies.push(newReply);
         SwalService.success("Respuesta añadida");
         emit("reply-added", {
@@ -227,6 +314,7 @@ export default defineComponent({
       deleteComment,
       formatDate,
       user,
+      displayedAvatar,
     };
   },
 });

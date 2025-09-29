@@ -55,14 +55,13 @@
         <div class="ml-2 flex flex-1 flex-col">
           <!-- Título y artista -->
           <div class="flex justify-between items-center">
-            <h2 @click="openDiscDetail" class="text-sm text-gray-900 font-semibold truncate cursor-pointer">
+            <h2 @click="openDiscDetail" class="text-sm text-gray-900 font-semibold italic truncate cursor-pointer">
               {{ name }}
             </h2>
           </div>
           <div class="flex justify-between items-center">
             <!-- El nombre del artista se hace clickable para abrir ArtistDetail -->
-            <p @click="openArtistDetail"
-              class="text-xs text-gray-500 font-semibold italic cursor-pointer hover:underline">
+            <p @click="openArtistDetail" class="text-xs text-gray-500 font-semibold cursor-pointer hover:underline">
               {{ artistName }}
             </p>
           </div>
@@ -187,7 +186,7 @@
 
     <div v-if="showComentsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div class="p-4 relative max-w-3xl w-full">
-        <ComentsModal :discId="discData.id" @close="closeComentsModal" />
+        <ComentsModal :disc-id="discData.id" :artist-name="artistName" :album-name="name" @close="closeComentsModal" />
       </div>
     </div>
   </div>

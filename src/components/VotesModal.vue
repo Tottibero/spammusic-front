@@ -8,11 +8,16 @@
       class="bg-white p-4 sm:p-6 rounded-lg shadow-xl w-[95%] sm:w-full sm:max-w-3xl relative max-h-[80vh] overflow-y-auto"
     >
       <!-- Título -->
-      <h2
-        class="text-xl font-semibold mb-8 text-gray-800 text-center mx-6 sm:mx-12"
-      >
-        {{ albumName }} - {{ artistName }}
-      </h2>
+<div class="text-center mb-8">
+  <h2 class="mb-2">
+    <span class="bg-gray-700 text-white px-4 py-1 rounded-full text-xl font-bold">
+      VOTOS
+    </span>
+  </h2>
+  <p class="text-lg text-gray-800 mt-2">
+    {{ artistName }} – <span class="italic">{{ albumName }}</span>
+  </p>
+</div>
 
       <!-- Contenedor principal -->
       <div class="flex flex-col md:flex-row gap-4">
@@ -141,7 +146,6 @@
     v-if="showUserModal"
     :username="selectedUserName"
     :user-id="selectedUserId"
-
     @close="showUserModal = false"
   />
 </template>
