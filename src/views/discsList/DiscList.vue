@@ -7,7 +7,7 @@
       @update:selectedWeek="selectedWeek = $event" selectClass="w-full" wrapperClass=""
       @resetAndFetch="resetAndFetch" />
 
-    <div class="mb-6 flex justify-start space-x-2">
+    <div class="filters-wrap flex justify-start space-x-2 mb-6">
       <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
         :class="viewMode === 'all'
           ? 'bg-gray-800 text-white'
@@ -64,7 +64,7 @@
     </div>
 
     <!-- Contenedor de cuadrícula para las tarjetas -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+    <div class="cards-grid">
       <DiscCard v-for="disc in discs" :key="disc.id" :id="disc.id" :ep="disc.ep" :artistCountry="disc.artist?.country"
         :image="disc.image" :name="disc.name" :releaseDate="disc.releaseDate"
         :artistName="disc.artist?.name || 'Desconocido'" :genreName="disc.genre?.name" :genreColor="disc.genre?.color"
@@ -312,14 +312,14 @@ export default defineComponent({
       }
     };
 
-const ORDER = {
-  NEWS_DESC:  { label: "Más recientes", value: "disc.releaseDate:DESC,artist.name:ASC" },
-  DATE_ASC:   { label: "Más antiguos",  value: "disc.releaseDate:ASC,artist.name:ASC"  },
-  RATE_DESC:  { label: "Nota",    value: "rate.rate:DESC,disc.releaseDate:DESC",  icon: "up"   },
-  RATE_ASC:   { label: "Nota",    value: "rate.rate:ASC,disc.releaseDate:DESC",   icon: "down" },
-  COVER_DESC: { label: "Portada", value: "rate.cover:DESC,artist.name:ASC",       icon: "up"   },
-  COVER_ASC:  { label: "Portada", value: "rate.cover:ASC,artist.name:ASC",        icon: "down" },
-};
+    const ORDER = {
+      NEWS_DESC: { label: "Más recientes", value: "disc.releaseDate:DESC,artist.name:ASC" },
+      DATE_ASC: { label: "Más antiguos", value: "disc.releaseDate:ASC,artist.name:ASC" },
+      RATE_DESC: { label: "Nota", value: "rate.rate:DESC,disc.releaseDate:DESC", icon: "up" },
+      RATE_ASC: { label: "Nota", value: "rate.rate:ASC,disc.releaseDate:DESC", icon: "down" },
+      COVER_DESC: { label: "Portada", value: "rate.cover:DESC,artist.name:ASC", icon: "up" },
+      COVER_ASC: { label: "Portada", value: "rate.cover:ASC,artist.name:ASC", icon: "down" },
+    };
 
     const defaultOrderByForTab = computed(() => {
       switch (viewMode.value) {
@@ -398,30 +398,24 @@ const ORDER = {
 });
 </script>
 
-<style>
-.grid {
+<style scoped>
+.cards-grid {
   display: grid;
   gap: 1.5rem;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
-.mb-6 {
+.filters-wrap {
   display: flex;
   flex-direction: column;
 }
 
 @media (min-width: 640px) {
-  .mb-6 {
+  .filters-wrap {
     flex-direction: row;
     align-items: center;
     gap: 1rem;
   }
-}
-
-.flex-[2] {
-  display: flex;
-  align-items: center;
-  justify-content: start;
 }
 
 input[type="checkbox"] {
