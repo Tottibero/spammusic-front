@@ -235,8 +235,8 @@ const devStates = ['todo', 'in_progress', 'in_review', 'done'] as const;
 const labels: Record<(typeof devStates)[number], string> = {
   todo: 'Por hacer',
   in_progress: 'En progreso',
-  in_review: 'En revisión',
-  done: 'Completado',
+  in_review: 'En dev',
+  done: 'Subido',
 };
 const changeTypes = ['feat','fix','docs','style','refactor','perf','test','build','ci','chore','revert'] as const;
 

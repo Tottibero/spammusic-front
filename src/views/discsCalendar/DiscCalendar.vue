@@ -192,8 +192,8 @@ export default defineComponent({
               norm(disc.name).includes(q) ||
               norm(disc.artist.name).includes(q);
             const matchesGenre =
-              !selectedGenre.value || disc.genre?.id === selectedGenre.value;
-            // … (lo de la semana igual)
+              !selectedGenre.value ||
+              String(disc.genre?.id ?? "") === String(selectedGenre.value);
             return matchesSearch && matchesGenre;
           }),
         }))
@@ -241,7 +241,6 @@ export default defineComponent({
       endDate: string
     ) => {
       loading.value = true;
-
       try {
         const response = await getDiscsDated(limit.value, offset.value, [
           startDate,
@@ -250,6 +249,9 @@ export default defineComponent({
 
         response.data.forEach((group, index) => {
           groupState[index] = false;
+          group.discs.forEach((disc: any) => {
+            disc.genreId = disc.genre?.id ?? "";
+          });
         });
 
         groupedDiscs.value = response.data;
@@ -420,6 +422,7 @@ export default defineComponent({
               link: disc.link,
               image: disc.image,
               verified: true,
+              genreId: disc.genreId ?? disc.genre?.id ?? null,
             });
           } else {
             disc.link = "No se encontró el álbum";
@@ -432,34 +435,40 @@ export default defineComponent({
     };
 
     const exportarHtml = (group: any) => {
+      const genreById = new Map(
+        genres.value.map((g: any) => [String(g.id), g.name || "(Sin nombre)"])
+      );
+
       let html = `
-      <figure class="wp-block-table is-style-stripes">
-        <table>
-          <tbody>`;
+  <figure class="wp-block-table is-style-stripes">
+    <table>
+      <tbody>`;
 
       group.discs.forEach((disc: any) => {
         const genreName =
-          genres.value.find((genre) => genre.id === disc.genreId)?.name ||
+          genreById.get(String(disc.genreId ?? disc.genre?.id ?? "")) ||
+          disc.genre?.name ||
           "Sin género";
+
         if (disc.link) {
           html += `
-            <tr>
-              <td class="has-text-align-left" data-align="left">${genreName}</td>
-              <td><strong><a href="${disc.link}" target="_blank" rel="noreferrer noopener">${disc.artist.name} - ${disc.name}</a></strong></td>
-            </tr>`;
+        <tr>
+          <td class="has-text-align-left" data-align="left">${genreName}</td>
+          <td><strong><a href="${disc.link}" target="_blank" rel="noreferrer noopener">${disc.artist.name} - ${disc.name}</a></strong></td>
+        </tr>`;
         } else {
           html += `
-            <tr>
-              <td class="has-text-align-left" data-align="left">${genreName}</td>
-              <td><strong>${disc.artist.name} - ${disc.name}</strong></td>
-            </tr>`;
+        <tr>
+          <td class="has-text-align-left" data-align="left">${genreName}</td>
+          <td><strong>${disc.artist.name} - ${disc.name}</strong></td>
+        </tr>`;
         }
       });
 
       html += `
-          </tbody>
-        </table>
-      </figure>`;
+      </tbody>
+    </table>
+  </figure>`;
 
       const blob = new Blob([html], { type: "text/html" });
       const link = document.createElement("a");
