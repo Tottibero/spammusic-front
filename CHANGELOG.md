@@ -1,3 +1,8 @@
+## <small>1.8.2 (2025-10-01)</small>
+
+* Merge branch 'main' of https://github.com/Tottibero/spammusic-front ([08c66fb](https://github.com/Tottibero/spammusic-front/commit/08c66fb))
+* fix(calendar): fix calendar and export ([404c496](https://github.com/Tottibero/spammusic-front/commit/404c496))
+
 ## <small>1.8.1 (2025-09-24)</small>
 
 * Merge branch 'main' of https://github.com/Tottibero/spammusic-front ([becc3dd](https://github.com/Tottibero/spammusic-front/commit/becc3dd))
