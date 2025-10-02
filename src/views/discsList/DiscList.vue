@@ -45,7 +45,6 @@
         <span v-if="totalFavorites !== ''">({{ totalFavorites }})</span>
       </label>
 
-
       <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-md font-medium transition-all duration-200"
         :class="viewMode === 'pendientes'
           ? 'bg-yellow-500 text-white'
