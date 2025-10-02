@@ -41,14 +41,11 @@
           </div>
         </div>
 
-<button
-  type="button"
-  @click="saveAvatar"
-  class="w-full mt-6 bg-gradient-to-r from-[#fcee21] to-[#d9e021] text-black font-bold py-2 rounded-full
+        <button type="button" @click="saveAvatar" class="w-full mt-6 bg-gradient-to-r from-[#fcee21] to-[#d9e021] text-black font-bold py-2 rounded-full
          hover:from-[#fbd900] hover:to-[#c5d600] focus:outline-none focus:ring-4 focus:ring-yellow-300
          disabled:opacity-50 disabled:cursor-not-allowed">
-  Guardar Avatar
-</button>
+          Guardar Avatar
+        </button>
 
       </section>
 
@@ -81,8 +78,7 @@
             {{ errorMessage }}
           </p>
 
-          <button type="submit"
-              class="w-full mt-6 bg-gradient-to-r from-[#fcee21] to-[#d9e021] text-black font-bold py-2 rounded-full
+          <button type="submit" class="w-full mt-6 bg-gradient-to-r from-[#fcee21] to-[#d9e021] text-black font-bold py-2 rounded-full
          hover:from-[#fbd900] hover:to-[#c5d600] focus:outline-none focus:ring-4 focus:ring-yellow-300
          disabled:opacity-50 disabled:cursor-not-allowed">
             Guardar Contraseña
@@ -127,13 +123,15 @@ export default {
       music: [
         "/avatar/avatar1.png", "/avatar/avatar2.png", "/avatar/avatar3.png", "/avatar/avatar4.png",
         "/avatar/avatar5.png", "/avatar/avatar6.png", "/avatar/avatar7.png", "/avatar/avatar8.png", "/avatar/avatar9.png", "/avatar/avatar10.png", "/avatar/avatar11.png", "/avatar/avatar12.png", "/avatar/avatar13.png", "/avatar/avatar14.png",
-        "/avatar/avatar15.png", "/avatar/avatar16.png", "/avatar/avatar17.png", "/avatar/avatar18.png",
+        "/avatar/avatar15.png", "/avatar/avatar16.png", "/avatar/avatar17.png", "/avatar/avatar18.png", "/avatar/avatar19.png",
       ],
       animals: [
-
+        "/avatar/avatar21.png", "/avatar/avatar22.png", "/avatar/avatar23.png", "/avatar/avatar24.png",
+        "/avatar/avatar25.png", "/avatar/avatar26.png", "/avatar/avatar27.png", "/avatar/avatar28.png", "/avatar/avatar29.png", "/avatar/avatar30.png", "/avatar/avatar31.png", "/avatar/avatar32.png", "/avatar/avatar33.png", "/avatar/avatar34.png",
+        "/avatar/avatar35.png", "/avatar/avatar36.png", "/avatar/avatar37.png", "/avatar/avatar38.png", 
       ],
       misc: [
-
+        "/avatar/avatar20.png",
       ],
     });
 
