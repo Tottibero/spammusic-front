@@ -14,8 +14,8 @@
           <!-- Cabecera -->
 <div class="border-b px-4 py-6 text-center">
   <h2 class="mb-2">
-    <span class="bg-gray-700 text-white px-4 py-1 rounded-full text-xl font-bold">
-      NOTAS
+    <span class="bg-gray-700 text-white px-4 py-1 rounded-full text-md font-bold">
+      CHAT
     </span>
   </h2>
   <p class="text-lg text-gray-800 mt-2">
