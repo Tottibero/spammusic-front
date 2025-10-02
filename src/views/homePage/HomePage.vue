@@ -1,6 +1,6 @@
 <template>
   <div :class="{ 'menu-open': menuVisible }" class="max-w-[100rem] mx-auto mt-10 px-4">
-    <div class="bg-white shadow-lg rounded-lg p-4 sm:p-6 mb-10 max-w-[90vw] md:max-w-[100rem] mx-auto">
+    <div class="bg-white shadow-lg rounded-lg p-4 sm:p-6 mb-4 max-w-[90vw] md:max-w-[100rem] mx-auto">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
         <!-- Estadísticas de la App -->
         <div class="text-center md:border-r border-gray-200 pb-4 md:pb-0 md:pr-4 text-sm sm:text-base md:text-lg">
