@@ -35,14 +35,27 @@
             <tbody class="bg-white divide-y divide-gray-200">
               <tr v-for="vote in votes" :key="vote.id">
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  <button class="text-blue-600 hover:underline focus:outline-none" @click="openUserModal(
-                    vote.user.username,
-                    vote.user.id,
-                    vote.user.avatarUrl || vote.user.image || ''   // 👈
-                  )">
-                    {{ vote.user.username }}
-                  </button>
+                  <div class="flex items-center gap-2">
+                    <!-- Avatar -->
+                    <div class="relative overflow-hidden rounded-full bg-gray-200 w-10 h-10 shrink-0">
+                      <img v-if="vote.user.avatarUrl || vote.user.image" :src="vote.user.avatarUrl || vote.user.image"
+                        alt="Avatar" class="w-full h-full object-cover" />
+                      <svg v-else class="w-full h-full text-gray-400" viewBox="0 0 20 20" fill="currentColor"
+                        aria-hidden="true">
+                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                          clip-rule="evenodd" />
+                      </svg>
+                    </div>
 
+                    <!-- Nombre (abre el modal y le pasa el avatar) -->
+                    <button class="text-blue-600 hover:underline px-1 focus:outline-none" @click="openUserModal(
+                      vote.user.username,
+                      vote.user.id,
+                      vote.user.avatarUrl || vote.user.image || ''
+                    )">
+                      {{ vote.user.username }}
+                    </button>
+                  </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {{ vote.rate }}
