@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ 'menu-open': menuVisible }" class="w-full max-w-[90%] sm:max-w-full mx-auto mt-10">
+  <div :class="{ 'menu-open': menuVisible }" class="max-w-[100rem] mx-auto mt-10 px-4">
     <div class="bg-white shadow-lg rounded-lg p-4 sm:p-6 mb-10 max-w-[90vw] md:max-w-[100rem] mx-auto">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
         <!-- Estadísticas de la App -->
@@ -64,82 +64,70 @@
       </div>
     </div>
 
-    <h2 class="text-2xl md:text-3xl font-bold text-gray-900 text-center justify-center">Mejores discos</h2>
+    <h2 class="text-2xl md:text-3xl font-bold text-gray-900 text-center justify-center py-8">Mejores discos</h2>
 
-    <div class="flex flex-col items-center
-         sm:flex-row sm:items-center sm:justify-center
-         gap-2 sm:gap-4
-         mt-4 sm:mt-6
-         mb-3 sm:mb-6
-         font-semibold">
+    <!-- Columna 1: Selector de género -->
 
-      <!-- Botones periodo -->
-      <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-2 sm:mb-0">
-        <button @click="selectedPeriod = 'week'"
-          :class="selectedPeriod === 'week'
-            ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold'
-            : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'"
-          class="px-4 py-1.5 rounded-full shadow-md text-sm">
-          Semana
-        </button>
-        <button @click="selectedPeriod = 'month'"
-          :class="selectedPeriod === 'month'
-            ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold'
-            : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'"
-          class="px-4 py-1.5 rounded-full shadow-md text-sm">
-          Mes
-        </button>
-        <button @click="selectedPeriod = 'year'"
-          :class="selectedPeriod === 'year'
-            ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold'
-            : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'"
-          class="px-4 py-1.5 rounded-full shadow-md text-sm">
-          Año
-        </button>
-        <button @click="{ selectedPeriod = 'all'; fetchDiscs(); }"
-          :class="selectedPeriod === 'all'
-            ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold'
-            : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'"
-          class="px-4 py-1.5 rounded-full shadow-md text-sm">
-          Todos
-        </button>
-      </div>
-
-      <div class="flex flex-col items-center
-         sm:flex-row sm:items-center sm:justify-center
-         mt-5
-         font-semibold">
-
-        <DiscFilters :selectedGenre="selectedGenre" :selectedWeek="null" :genres="genres" :showWeekPicker="false"
-          :showSearchQuery="false" selectClass="w-[280px] sm:w-[300px]"
-          wrapperClass="w-full sm:w-auto flex justify-center sm:justify-start sm:ml-3 sm:translate-y-[1px]"
-          @update:selectedGenre="selectedGenre = $event" @resetAndFetch="fetchDiscs" />
-
-      </div>
+    <div>
+      <DiscFilters :selectedGenre="selectedGenre" :selectedWeek="null" :genres="genres" :showWeekPicker="false"
+        :showSearchQuery="false" selectClass="w-full" wrapperClass="w-full"
+        @update:selectedGenre="selectedGenre = $event" @resetAndFetch="fetchDiscs" />
     </div>
+    
 
-    <!-- Select para elegir el rango (solo para semana, mes o año) -->
-    <div v-if="selectedPeriod !== 'all'" class="-mt-[8px] sm:-mt-[16px] mb-4 sm:mb-8 flex justify-center">
-      <div class="relative w-44">
-        <select v-model="selectedOption" @change="fetchDiscs" class="appearance-none w-full px-4 py-2 border font-semibold
-             bg-gradient-to-r from-[#d9e021] to-[#fcee21]
-             border-[#d9e021] rounded-full shadow-md bg-white text-gray-800">
+    <!-- Columna 2: Botones de periodo + selector de rango como pill -->
+    <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 sm:gap-5 mt-6 mb-8">
+
+      <button @click="selectedPeriod = 'week'"
+        :class="selectedPeriod === 'week'
+          ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold'
+          : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'"
+        class="px-4 py-1.5 rounded-full shadow-md text-md">
+        Semana
+      </button>
+
+      <button @click="selectedPeriod = 'month'"
+        :class="selectedPeriod === 'month'
+          ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold'
+          : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'"
+        class="px-4 py-1.5 rounded-full shadow-md text-md">
+        Mes
+      </button>
+
+      <button @click="selectedPeriod = 'year'"
+        :class="selectedPeriod === 'year'
+          ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold'
+          : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'"
+        class="px-4 py-1.5 rounded-full shadow-md text-md">
+        Año
+      </button>
+
+      <button @click="{ selectedPeriod = 'all'; fetchDiscs(); }"
+        :class="selectedPeriod === 'all'
+          ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold'
+          : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'"
+        class="px-4 py-1.5 rounded-full shadow-md text-md">
+        Todos
+      </button>
+
+      <div v-if="selectedPeriod !== 'all'" class="relative">
+        <select v-model="selectedOption" @change="fetchDiscs" class="min-w-[12rem] px-4 pr-9 py-1.5 rounded-full shadow-md text-md font-semibold
+           text-gray-800 appearance-none
+           bg-gradient-to-r from-[#d9e021] to-[#fcee21]
+           focus:outline-none focus:ring-2 focus:ring-[#d9e021]/50 cursor-pointer">
           <option v-for="option in optionsForSelect" :key="option.label" :value="option">
             {{ option.label }}
           </option>
         </select>
-        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-          <!-- Icono de flecha -->
-          <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-            <svg class="w-5 h-5 text-gray-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
 
-        </div>
+        <!-- caret -->
+        <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-800/80"
+          xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
       </div>
     </div>
+
 
     <!-- Grid de Discos -->
     <div class="grid gap-6">
@@ -152,6 +140,7 @@
         :artistCountry="disc.artist?.country" />
     </div>
   </div>
+
 </template>
 
 <script lang="ts">
