@@ -10,7 +10,7 @@
       <!-- Título -->
 <div class="text-center mb-8">
   <h2 class="mb-2">
-    <span class="bg-gray-700 text-white px-4 py-1 rounded-full text-xl font-bold">
+    <span class="bg-gray-700 text-white px-4 py-1 rounded-full text-md font-bold">
       VOTOS
     </span>
   </h2>
