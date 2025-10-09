@@ -1,3 +1,7 @@
+## <small>1.8.4 (2025-10-09)</small>
+
+* fix(gitignore): env ([71e47bb](https://github.com/Tottibero/spammusic-front/commit/71e47bb))
+
 ## <small>1.8.3 (2025-10-09)</small>
 
 * Fix(avatar)  new avatars ([6fbe772](https://github.com/Tottibero/spammusic-front/commit/6fbe772))
