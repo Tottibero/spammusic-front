@@ -1,138 +1,76 @@
 <template>
-  <div
-    :class="{ 'menu-open': menuVisible }"
-    class="max-w-[100rem] mx-auto mt-10 px-4"
-  >
+  <div :class="{ 'menu-open': menuVisible }" class="max-w-[100rem] mx-auto mt-10 px-4">
     <h1 class="text-4xl font-bold mb-8 text-center text-gray-900">Discos</h1>
 
-    <DiscFilters
-      :searchQuery="searchQuery"
-      :selectedGenre="selectedGenre"
-      :selectedWeek="selectedWeek"
-      :genres="genres"
-      @update:searchQuery="searchQuery = $event"
-      @update:selectedGenre="selectedGenre = $event"
-      @update:selectedWeek="selectedWeek = $event"
-      selectClass="w-[280px] sm:w-[300px] w-full"
-      wrapperClass="w-full sm:w-auto flex justify-center sm:justify-start sm:ml-3 sm:translate-y-[1px]"
-      @resetAndFetch="resetAndFetch"
-    />
+    <DiscFilters :searchQuery="searchQuery" :selectedGenre="selectedGenre" :selectedWeek="selectedWeek" :genres="genres"
+      @update:searchQuery="searchQuery = $event" @update:selectedGenre="selectedGenre = $event"
+      @update:selectedWeek="selectedWeek = $event" selectClass="w-full" wrapperClass=""
+      @resetAndFetch="resetAndFetch" />
 
-    <div class="mb-6 flex justify-start space-x-2">
-      <label
-        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
-        :class="
-          viewMode === 'all'
-            ? 'bg-gray-800 text-white'
-            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-        "
-      >
+    <div class="filters-wrap flex justify-start space-x-2 mb-6">
+      <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
+        :class="viewMode === 'all'
+          ? 'bg-gray-800 text-white'
+          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          ">
         <input type="radio" v-model="viewMode" value="all" class="hidden" />
         Todos los discos <span v-if="totalDisc !== ''">({{ totalDisc }})</span>
       </label>
 
-      <label
-        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
-        :class="
-          viewMode === 'rates'
-            ? 'bg-blue-500 text-white'
-            : 'bg-gray-200 hover:bg-gray-300'
-        "
-      >
+      <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-md font-medium transition-all duration-200"
+        :class="viewMode === 'rates'
+          ? 'bg-blue-500 text-white'
+          : 'bg-gray-200 hover:bg-gray-300'
+          ">
         <input type="radio" v-model="viewMode" value="rates" class="hidden" />
         Mis votos <span v-if="totalRates !== ''">({{ totalRates }})</span>
       </label>
 
-      <label
-        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
-        :class="
-          viewMode === 'covers'
-            ? 'bg-green-500 text-white'
-            : 'bg-gray-200 hover:bg-gray-300'
-        "
-      >
+      <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-md font-medium transition-all duration-200"
+        :class="viewMode === 'covers'
+          ? 'bg-green-500 text-white'
+          : 'bg-gray-200 hover:bg-gray-300'
+          ">
         <input type="radio" v-model="viewMode" value="covers" class="hidden" />
         Mis portadas <span v-if="totalCovers !== ''">({{ totalCovers }})</span>
       </label>
 
-      <label
-        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
-        :class="
-          viewMode === 'favorites'
-            ? 'bg-red-500 text-white'
-            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-        "
-      >
-        <input
-          type="radio"
-          v-model="viewMode"
-          value="favorites"
-          class="hidden"
-        />
+      <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-md font-medium transition-all duration-200"
+        :class="viewMode === 'favorites'
+          ? 'bg-red-500 text-white'
+          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          ">
+        <input type="radio" v-model="viewMode" value="favorites" class="hidden" />
         Favoritos
         <span v-if="totalFavorites !== ''">({{ totalFavorites }})</span>
       </label>
 
-
-      <label
-        class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
-        :class="
-          viewMode === 'pendientes'
-            ? 'bg-yellow-500 text-white'
-            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-        "
-      >
-        <input
-          type="radio"
-          v-model="viewMode"
-          value="pendientes"
-          class="hidden"
-        />
+      <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-md font-medium transition-all duration-200"
+        :class="viewMode === 'pendientes'
+          ? 'bg-yellow-500 text-white'
+          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          ">
+        <input type="radio" v-model="viewMode" value="pendientes" class="hidden" />
         Pendientes
         <span v-if="totalPendings !== ''">({{ totalPendings }})</span>
       </label>
     </div>
-<div v-if="viewMode === 'rates' || viewMode === 'covers' || viewMode === 'favorites'" class="mb-6 flex justify-start">
-
-  <select
-    v-model="orderBy"
-    class="px-3 py-2 rounded-md border border-gray-300 text-sm shadow-sm focus:outline-none"
-  >
-    <option v-for="opt in orderOptions" :key="opt.value" :value="opt.value">
-      {{ opt.label }}
-    </option>
-  </select>
-</div>
-
+    <!-- donde hoy tienes el select de orden -->
+    <div v-if="viewMode === 'rates' || viewMode === 'covers' || viewMode === 'favorites'"
+      class="mb-6 flex justify-start">
+      <SimpleSelect class="select-pill w-full md:w-64" v-model="orderBy" :options="orderOptionsForTab"
+        :placeholder="'Ordenar por'" />
+    </div>
 
     <!-- Contenedor de cuadrícula para las tarjetas -->
-    <div
-      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6"
-    >
-      <DiscCard
-        v-for="disc in discs"
-        :key="disc.id"
-        :id="disc.id"
-        :ep="disc.ep"
-        :artistCountry="disc.artist?.country"
-        :image="disc.image"
-        :name="disc.name"
-        :releaseDate="disc.releaseDate"
-        :artistName="disc.artist?.name || 'Desconocido'"
-        :genreName="disc.genre?.name"
-        :genreColor="disc.genre?.color"
-        :link="disc.link"
-        :averageRate="disc.averageRate"
-        :averageCover="disc.averageCover"
-        :rate="disc.userRate?.rate"
-        :cover="disc.userRate?.cover"
-        :isNew="!disc.userRate"
-        :userDiscRate="disc.userRate?.id"
-        :favoriteId="disc.favoriteId"
-        :pendingId="disc.pendingId"
-        :comment-count="disc.commentCount"
-        :rateCount="disc.voteCount"
-      />
+    <div class="cards-grid">
+      <DiscCard v-for="disc in discs" :key="disc.id" :id="disc.id" :ep="disc.ep" :artistCountry="disc.artist?.country"
+        :image="disc.image" :name="disc.name" :releaseDate="disc.releaseDate"
+        :artistName="disc.artist?.name || 'Desconocido'" :genreName="disc.genre?.name" :genreColor="disc.genre?.color"
+        :link="disc.link" :averageRate="disc.averageRate" :averageCover="disc.averageCover" :rate="disc.userRate?.rate"
+        :cover="disc.userRate?.cover" :isNew="!disc.userRate" :userDiscRate="disc.userRate?.id"
+        :favoriteId="disc.favoriteId" :pendingId="disc.pendingId" :comment-count="disc.commentCount"
+        :rateCount="disc.voteCount" />
     </div>
 
     <!-- Elemento para disparar la carga adicional -->
@@ -143,7 +81,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, watch, nextTick } from "vue";
+import { defineComponent, ref, onMounted, watch, nextTick, computed } from "vue";
 import { getDiscs } from "@services/discs/discs";
 import DiscCard from "@components/DiscCardComponent.vue";
 import Datepicker from "@vuepic/vue-datepicker";
@@ -152,8 +90,8 @@ import { getRatesByUser } from "@services/rates/rates";
 import { getFavoritesByUser } from "@services/favorites/favorites";
 import { getPendingsByUser } from "@services/pendings/pendings";
 import DiscFilters from "@components/DiscFilters.vue";
-// Importamos el componente SearchableSelect
-import SearchableSelect from "@/components/SearchableSelect.vue";
+import SearchableSelect from "@components/SearchableSelect.vue";
+import SimpleSelect from "@components/SimpleSelect.vue";
 
 export default defineComponent({
   components: {
@@ -161,6 +99,7 @@ export default defineComponent({
     Datepicker,
     SearchableSelect,
     DiscFilters,
+    SimpleSelect,
   },
   setup() {
     const discs = ref([]);
@@ -183,8 +122,7 @@ export default defineComponent({
     const genres = ref<any[]>([]);
     const selectedGenre = ref("");
 
-    const orderBy = ref<string>("disc.releaseDate:DESC,artist.name:ASC"); // 👈 por defecto igual que el backend
-    // Opciones disponibles (mapean a los alias/columnas que tu backend whitelist permite)
+    const orderBy = ref<string>("disc.releaseDate:DESC,artist.name:ASC");
     const orderOptions = [
       {
         label: "Novedades (recientes primero)",
@@ -194,16 +132,16 @@ export default defineComponent({
         label: "Fecha (antiguos primero)",
         value: "disc.releaseDate:ASC,artist.name:ASC",
       },
-      { label: "Mi voto (↑)", value: "rate.rate:DESC,disc.releaseDate:DESC" },
-      { label: "Mi voto (↓)", value: "rate.rate:ASC,disc.releaseDate:DESC" },
-      { label: 'Mis portadas (↑)',               value: 'rate.cover:DESC,artist.name:ASC' },
-      { label: 'Mis portadas (↓)',               value: 'rate.cover:ASC,artist.name:ASC' },
+      { label: "Voto ⬆️", value: "rate.rate:DESC,disc.releaseDate:DESC" },
+      { label: "Voto ⬇️", value: "rate.rate:ASC,disc.releaseDate:DESC" },
+      { label: 'Portada ⬆️', value: 'rate.cover:DESC,artist.name:ASC' },
+      { label: 'Portada ⬇️', value: 'rate.cover:ASC,artist.name:ASC' },
     ];
 
     const handleGenreChange = async (newValue: string) => {
       selectedGenre.value = newValue;
       console.log("selectedGenre" + selectedGenre.value);
-      await nextTick(); // Espera a que Vue actualice el estado antes de continuar
+      await nextTick();
     };
 
     const fetchGenres = async () => {
@@ -313,10 +251,10 @@ export default defineComponent({
                 : null,
               userRate: favorite.disc.userRate
                 ? {
-                    id: favorite.disc.userRate.id,
-                    rate: favorite.disc.userRate.rate,
-                    cover: favorite.disc.userRate.cover,
-                  }
+                  id: favorite.disc.userRate.id,
+                  rate: favorite.disc.userRate.rate,
+                  cover: favorite.disc.userRate.cover,
+                }
                 : null,
               commentCount: favorite.disc.commentCount,
               voteCount: favorite.disc.voteCount,
@@ -342,10 +280,10 @@ export default defineComponent({
               pendingId: pending.id,
               userRate: pending.disc.userRate
                 ? {
-                    id: pending.disc.userRate.id,
-                    rate: pending.disc.userRate.rate,
-                    cover: pending.disc.userRate.cover,
-                  }
+                  id: pending.disc.userRate.id,
+                  rate: pending.disc.userRate.rate,
+                  cover: pending.disc.userRate.cover,
+                }
                 : null,
               commentCount: pending.disc.commentCount,
               voteCount: pending.disc.voteCount,
@@ -373,6 +311,37 @@ export default defineComponent({
       }
     };
 
+    const ORDER = {
+      NEWS_DESC: { label: "Más recientes", value: "disc.releaseDate:DESC,artist.name:ASC" },
+      DATE_ASC: { label: "Más antiguos", value: "disc.releaseDate:ASC,artist.name:ASC" },
+      RATE_DESC: { label: "Nota", value: "rate.rate:DESC,disc.releaseDate:DESC", icon: "up" },
+      RATE_ASC: { label: "Nota", value: "rate.rate:ASC,disc.releaseDate:DESC", icon: "down" },
+      COVER_DESC: { label: "Portada", value: "rate.cover:DESC,artist.name:ASC", icon: "up" },
+      COVER_ASC: { label: "Portada", value: "rate.cover:ASC,artist.name:ASC", icon: "down" },
+    };
+
+    const defaultOrderByForTab = computed(() => {
+      switch (viewMode.value) {
+        case "rates": return ORDER.NEWS_DESC.value;
+        case "covers": return ORDER.NEWS_DESC.value;
+        case "favorites": return ORDER.NEWS_DESC.value;
+        default: return ORDER.NEWS_DESC.value;
+      }
+    });
+
+    const orderOptionsForTab = computed(() => {
+      switch (viewMode.value) {
+        case "rates":
+          return [ORDER.NEWS_DESC, ORDER.DATE_ASC, ORDER.RATE_DESC, ORDER.RATE_ASC];
+        case "covers":
+          return [ORDER.NEWS_DESC, ORDER.DATE_ASC, ORDER.COVER_DESC, ORDER.COVER_ASC];
+        case "favorites":
+          return [ORDER.NEWS_DESC, ORDER.DATE_ASC, ORDER.RATE_DESC, ORDER.RATE_ASC, ORDER.COVER_DESC, ORDER.COVER_ASC];
+        default:
+          return [];
+      }
+    });
+
     const setupObserver = () => {
       const observer = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && hasMore.value) {
@@ -384,8 +353,12 @@ export default defineComponent({
       }
     };
 
+    watch(viewMode, () => {
+      orderBy.value = defaultOrderByForTab.value;
+    });
+
     watch([viewMode, searchQuery, selectedWeek, selectedGenre, orderBy], () => {
-      resetAndFetch(); // Llama a resetAndFetch directamente
+      resetAndFetch();
     });
 
     onMounted(() => {
@@ -417,35 +390,31 @@ export default defineComponent({
       handleGenreChange,
       orderBy,
       orderOptions,
+      orderOptionsForTab,
+      defaultOrderByForTab,
     };
   },
 });
 </script>
 
-<style>
-.grid {
+<style scoped>
+.cards-grid {
   display: grid;
   gap: 1.5rem;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
-.mb-6 {
+.filters-wrap {
   display: flex;
   flex-direction: column;
 }
 
 @media (min-width: 640px) {
-  .mb-6 {
+  .filters-wrap {
     flex-direction: row;
     align-items: center;
     gap: 1rem;
   }
-}
-
-.flex-[2] {
-  display: flex;
-  align-items: center;
-  justify-content: start;
 }
 
 input[type="checkbox"] {
