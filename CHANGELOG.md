@@ -1,3 +1,9 @@
+## <small>1.8.5 (2025-10-09)</small>
+
+* git commit -m "chore: ignore .env and remove from repo" ([b51688d](https://github.com/Tottibero/spammusic-front/commit/b51688d))
+* fix(env):  gitignore con env ([92f30c0](https://github.com/Tottibero/spammusic-front/commit/92f30c0))
+* fix(env): arreglado el env y el gitignore ([5bd5ebc](https://github.com/Tottibero/spammusic-front/commit/5bd5ebc))
+
 ## <small>1.8.4 (2025-10-09)</small>
 
 * fix(gitignore): env ([71e47bb](https://github.com/Tottibero/spammusic-front/commit/71e47bb))
