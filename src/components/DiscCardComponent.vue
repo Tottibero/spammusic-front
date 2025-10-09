@@ -136,7 +136,7 @@
           class="w-1/3 gap-2 bg-gray-900 text-white font-bold py-2 px-2 rounded-lg shadow-md border-4 border-transparent hover:border-gray-900 hover:bg-gradient-to-l from-gray-600 to-gray-900 flex items-center justify-center">
           <i class="fa-solid fa-comment-dots text-white text-md"></i>
           <span class="flex items-center">
-            Notas
+            Chat
             <span v-if="commentCount > 0" class="ml-1 mt-1 text-[9px] text-[#d9e021]">(<span class="inline">{{
               commentCount
             }}</span>)</span>

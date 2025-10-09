@@ -12,23 +12,32 @@
 
 
           <!-- Cabecera -->
-<div class="border-b px-4 py-6 text-center">
-  <h2 class="mb-2">
-    <span class="bg-gray-700 text-white px-4 py-1 rounded-full text-xl font-bold">
-      NOTAS
-    </span>
-  </h2>
-  <p class="text-lg text-gray-800 mt-2">
-    {{ artistName }} – <span class="italic">{{ albumName }}</span>
-  </p>
-</div>
+          <div class="border-b px-4 py-6 text-center">
+            <h2 class="mb-4">
+              <span class="bg-gray-700 text-white px-4 py-1 rounded-full text-md font-bold">
+                CHAT
+              </span>
+            </h2>
+            <p class="text-lg text-gray-800 mt-2">
+              {{ artistName }} – <span class="italic">{{ albumName }}</span>
+            </p>
+          </div>
 
           <!-- Lista de comentarios en forma de árbol -->
           <div class="flex-1 overflow-y-auto px-4 py-3 space-y-4 max-h-[70vh] sm:max-h-[80vh]">
             <CommentItem v-for="comment in comments" :key="comment.id" :comment="comment" :disc-id="discId" :depth="0"
-              @reply-added="onReplyAdded" @deleted="handleCommentDeleted" @comment-updated="handleCommentUpdated" />
+              :avatar-size="64" @reply-added="onReplyAdded" @deleted="handleCommentDeleted"
+              @comment-updated="handleCommentUpdated"
+              @open-user="openUserModal($event.username, $event.id, $event.avatar)" />
           </div>
 
+<UserModal
+  v-if="showUserModal"
+  :username="selectedUserName"
+  :user-id="selectedUserId"
+  :avatar-src="selectedUserAvatar"   
+  @close="showUserModal = false"
+/>
           <!-- Formulario para añadir un comentario de primer nivel -->
           <div class="bg-gray-900 border-t px-4 py-3">
             <form @submit.prevent="submitTopComment" class="flex space-x-2">
@@ -51,6 +60,7 @@ import { defineComponent, ref, onMounted, toRefs } from "vue";
 import CommentItem from "./CommentItem.vue";
 import { getDisccomments, postcommentService } from "@services/comments/comments";
 import SwalService from "@services/swal/SwalService";
+import UserModal from '@/components/UserModal.vue';
 
 function buildCommentTree(flatComments: any[]): any[] {
   const commentMap: Record<string, any> = {};
@@ -106,7 +116,7 @@ function updateCommentInTree(commentList: any[], updated: any) {
 
 export default defineComponent({
   name: "ComentsModal",
-  components: { CommentItem },
+  components: { CommentItem, UserModal },
   props: {
     discId: { type: String, required: true },
     artistName: { type: String, required: true },
@@ -119,6 +129,20 @@ export default defineComponent({
     const topCommentText = ref("");
 
     const { artistName, albumName, discId } = toRefs(props);
+
+// ComentsModal.vue (setup)
+const showUserModal = ref(false);
+const selectedUserName = ref('');
+const selectedUserId = ref('');
+const selectedUserAvatar = ref(''); // 👈
+
+const openUserModal = (username: string, id: string, avatar?: string) => {
+  selectedUserName.value = username;
+  selectedUserId.value = id;
+  selectedUserAvatar.value = avatar ?? '';
+  showUserModal.value = true;
+};
+
 
     // Carga inicial de comentarios
     const fetchComments = async () => {
@@ -182,6 +206,11 @@ export default defineComponent({
       artistName,
       albumName,
       discId,
+      showUserModal,
+      selectedUserName,
+      selectedUserId,
+      openUserModal,
+      selectedUserAvatar,
     };
   },
 });
