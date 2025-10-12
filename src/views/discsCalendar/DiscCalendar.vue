@@ -136,12 +136,12 @@ import {
   computed,
   nextTick,
 } from "vue";
-import axios from "axios";
 import { updateDisc, getDiscsDated } from "@services/discs/discs";
 import { getGenres } from "@services/genres/genres";
 import { getCountries } from "@services/countries/countries";
 import DiscComponent from "./components/DiscComponent.vue";
 import { obtenerTokenSpotify } from "@helpers/SpotifyFunctions.ts";
+import { searchSpotifyAlbum } from "@helpers/spotifySearch";
 import DiscFilters from "@components/DiscFilters.vue";
 
 export default defineComponent({
@@ -513,34 +513,24 @@ export default defineComponent({
     const buscarEnlacesSpotify = async (discs: any[]) => {
       const token = await obtenerTokenSpotify();
       if (!token) {
-        console.error("No se pudo obtener el token de Spotify");
+        console.error("Unable to obtain Spotify token");
         return;
       }
 
       for (const disc of discs) {
-        try {
-          const query = encodeURIComponent(
-            `album:${disc.name} artist:${disc.artist.name}`
-          );
-          const response = await axios.get(
-            `https://api.spotify.com/v1/search?q=${query}&type=album&limit=1`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
+        const hasExistingLink = Boolean(disc?.link);
+        const hasExistingImage = Boolean(disc?.image);
+        if (hasExistingLink || hasExistingImage) continue;
 
-          if (response.data.albums.items.length > 0) {
-            const album = response.data.albums.items[0];
+        try {
+          const album = await searchSpotifyAlbum(
+            token,
+            disc.name,
+            disc.artist?.name ?? ""
+          );
+          if (album) {
             disc.link = album.external_urls.spotify;
             disc.image = album.images?.[0]?.url || null;
-            console.log("disc.image", disc.image);
-
-            console.log("Datos enviados al backend:", {
-              link: disc.link,
-              image: disc.image,
-            });
 
             await updateDisc(disc.id, {
               link: disc.link,
@@ -549,11 +539,11 @@ export default defineComponent({
               genreId: disc.genreId ?? disc.genre?.id ?? null,
             });
           } else {
-            disc.link = "No se encontró el álbum";
+            disc.link = "Album not found";
           }
         } catch (error) {
-          console.error(`Error al buscar el álbum ${disc.name}:`, error);
-          disc.link = "Error al realizar la búsqueda";
+          console.error(`Error while searching album "${disc.name}" on Spotify:`, error);
+          disc.link = "Error while performing search";
         }
       }
     };

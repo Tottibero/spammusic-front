@@ -158,7 +158,7 @@
       </button>
 
       <button
-        @click="buscarGeneroSpotify(disc)"
+        @click="searchSpotifyGenre(disc)"
         class="bg-green-500 hover:bg-green-600 text-white font-medium px-3 py-2 rounded shadow-md"
       >
         Buscar Género
@@ -271,10 +271,11 @@ import Swal from "sweetalert2";
 import axios from "axios";
 import SpotifyArtistButton from "@components/SpotifyArtistButton.vue";
 import { obtenerTokenSpotify } from "@helpers/SpotifyFunctions.ts";
+import { searchSpotifyArtist } from "@helpers/spotifySearch";
 import SearchableSelect from "@components/SearchableSelect.vue";
 import EditModal from "./EditModal.vue";
 
-// Componentes de detalle
+// Detail components
 import DiscDetail from "@components/DiscDetail.vue";
 import ArtistDetail from "@components/ArtistDetail.vue";
 
@@ -292,7 +293,7 @@ export default defineComponent({
       type: Object as PropType<{
         id: string;
         name: string;
-        artist: { id: string; name: string; countryId: string }; // ← incluye id
+        artist: { id: string; name: string; countryId: string }; // includes id
         genreId: string;
         link: string | null;
         image: string | null;
@@ -313,15 +314,15 @@ export default defineComponent({
     },
   },
   setup(props, { emit }) {
-    // Estado local del select (solo genreId)
+    // Local select state (only genreId)
     const editedData = reactive({
       genreId: props.disc.genreId ?? "",
     });
 
-    // Evita pisar el select tras guardar
+    // Avoid resetting the select immediately after saving
     const isSaving = ref(false);
 
-    // Re-inicializa el formulario solo cuando cambie el disco
+    // Reinitialize the form only when the disc changes
     watch(
       () => props.disc.id,
       () => {
@@ -330,7 +331,7 @@ export default defineComponent({
       { immediate: true }
     );
 
-    // Si el padre cambia genreId y NO estamos guardando, sincroniza
+    // If the parent updates genreId and we're not saving, stay in sync
     watch(
       () => props.disc.genreId,
       (newId) => {
@@ -340,7 +341,7 @@ export default defineComponent({
     );
 
     const formattedDate = computed(() =>
-      new Date(props.disc.releaseDate).toLocaleDateString("es-ES", {
+      new Date(props.disc.releaseDate).toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
@@ -666,54 +667,69 @@ export default defineComponent({
       isNarrow.value = window.innerWidth < 768;
     };
 
-    const buscarGeneroSpotify = async (disc: any) => {
+    const searchSpotifyGenre = async (disc: any) => {
+      const cachedGenre = typeof disc.genero === "string" ? disc.genero.trim() : "";
+      if (cachedGenre) {
+        Swal.fire({
+          title: "Already available",
+          text: `Stored genre: ${cachedGenre}`,
+          icon: "info",
+          position: "top-end",
+          timer: 3000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          toast: true,
+        });
+        return;
+      }
+
       const token = await obtenerTokenSpotify();
       if (!token) {
-        console.error("No se pudo obtener el token de Spotify");
+        console.error("Failed to obtain Spotify token");
         return;
       }
       try {
-        const query = encodeURIComponent(`artist:${disc.artist.name}`);
-        const response = await axios.get(`https://api.spotify.com/v1/search?q=${query}&type=artist&limit=1`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (response.data.artists.items.length > 0) {
-          const artist = response.data.artists.items[0];
-          const artistId = artist.id;
-          const albumsResponse = await axios.get(`https://api.spotify.com/v1/artists/${artistId}/albums`, {
+        const artist = await searchSpotifyArtist(token, disc.artist?.name ?? "");
+        if (!artist) {
+          Swal.fire({
+            title: "Artist not found",
+            text: `No Spotify information found for "${disc.artist.name}".`,
+            icon: "warning",
+            position: "top-end",
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            toast: true,
+          });
+          return;
+        }
+
+        const artistId = artist.id;
+        const albumsResponse = await axios.get(
+          `https://api.spotify.com/v1/artists/${artistId}/albums`,
+          {
             headers: { Authorization: `Bearer ${token}` },
             params: { include_groups: "album,single", limit: 1 },
-          });
-          if (albumsResponse.data.items.length > 0) {
-            const genres = artist.genres;
-            if (genres.length > 0) {
-              disc.genero = genres.join(", ");
-              Swal.fire({
-                title: "¡Éxito!",
-                text: `El género del último track: ${disc.genero}`,
-                icon: "success",
-                position: "top-end",
-                timer: 6000,
-                timerProgressBar: true,
-                showConfirmButton: false,
-                toast: true,
-              });
-            } else {
-              Swal.fire({
-                title: "Sin géneros",
-                text: `No se encontraron géneros asociados al artista "${disc.artist.name}".`,
-                icon: "warning",
-                position: "top-end",
-                timer: 3000,
-                timerProgressBar: true,
-                showConfirmButton: false,
-                toast: true,
-              });
-            }
+          }
+        );
+        if (albumsResponse.data.items.length > 0) {
+          const genres = artist.genres ?? [];
+          if (genres.length > 0) {
+            disc.genero = genres.join(", ");
+            Swal.fire({
+              title: "Success!",
+              text: `Latest track genre: ${disc.genero}`,
+              icon: "success",
+              position: "top-end",
+              timer: 6000,
+              timerProgressBar: true,
+              showConfirmButton: false,
+              toast: true,
+            });
           } else {
             Swal.fire({
-              title: "No se encontraron lanzamientos",
-              text: `No se encontraron tracks recientes para el artista "${disc.artist.name}".`,
+              title: "No genres found",
+              text: `No genre data found for artist "${disc.artist.name}".`,
               icon: "warning",
               position: "top-end",
               timer: 3000,
@@ -724,8 +740,8 @@ export default defineComponent({
           }
         } else {
           Swal.fire({
-            title: "Artista no encontrado",
-            text: `No se encontró información para el artista "${disc.artist.name}" en Spotify.`,
+            title: "No releases found",
+            text: `No recent tracks were found for artist "${disc.artist.name}".`,
             icon: "warning",
             position: "top-end",
             timer: 3000,
@@ -735,10 +751,10 @@ export default defineComponent({
           });
         }
       } catch (error) {
-        console.error("Error al buscar el género por último track:", error);
+        console.error("Error while fetching genre by latest track:", error);
         Swal.fire({
           title: "Error",
-          text: "Ocurrió un error al buscar el género del último track.",
+          text: "An error occurred while retrieving the latest track genre.",
           icon: "error",
           position: "top-end",
           timer: 3000,
@@ -841,7 +857,7 @@ export default defineComponent({
       openImageModal,
       updateImageUrl,
       isNarrow,
-      buscarGeneroSpotify,
+      searchSpotifyGenre,
       toggleBookmark,
       pendingId,
       handleListenClick,
