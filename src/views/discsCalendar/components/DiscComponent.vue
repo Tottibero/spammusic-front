@@ -619,9 +619,24 @@ export default defineComponent({
     const editedReleaseDate = ref(new Date(props.disc.releaseDate).toISOString().substr(0, 10));
     const updateDiscReleaseDate = async (newValue: string) => {
       try {
-        const newDate = new Date(newValue);
+        const previousDate = props.disc.releaseDate;
+        const newDate = new Date(`${newValue}T00:00:00.000Z`);
         await updateDisc(props.disc.id, { releaseDate: newDate });
-        props.disc.releaseDate = newDate as any;
+        const isoDate = newDate.toISOString();
+        const updatedDisc = {
+          ...props.disc,
+          releaseDate: isoDate,
+          artist: { ...props.disc.artist },
+          genre: props.disc.genre ? { ...props.disc.genre } : undefined,
+        };
+        props.disc.releaseDate = isoDate as any;
+        editedReleaseDate.value = isoDate.slice(0, 10);
+        emit("date-changed", {
+          discId: props.disc.id,
+          previousDate,
+          newDate: isoDate,
+          disc: updatedDisc,
+        });
         Swal.fire({
           title: "¡Éxito!",
           text: "La fecha del disco se ha actualizado correctamente",

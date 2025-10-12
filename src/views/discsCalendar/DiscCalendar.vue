@@ -137,7 +137,7 @@ import {
   nextTick,
 } from "vue";
 import axios from "axios";
-import { updateDisc, deleteDisc, getDiscsDated } from "@services/discs/discs";
+import { updateDisc, getDiscsDated } from "@services/discs/discs";
 import { getGenres } from "@services/genres/genres";
 import { getCountries } from "@services/countries/countries";
 import DiscComponent from "./components/DiscComponent.vue";
@@ -199,6 +199,40 @@ export default defineComponent({
         }))
         .filter((g) => g.discs.length > 0);
     });
+
+    const toDateKey = (value: string | Date | null | undefined) => {
+      if (!value) return null;
+      const date = value instanceof Date ? value : new Date(value);
+      if (Number.isNaN(date.getTime())) return null;
+      return date.toISOString().slice(0, 10);
+    };
+
+    const toIsoMidnight = (value: string | Date | null | undefined) => {
+      const key = toDateKey(value);
+      if (!key) return null;
+      return new Date(`${key}T00:00:00.000Z`).toISOString();
+    };
+
+    const captureGroupState = () => {
+      const snapshot = new Map<string, boolean>();
+      groupedDiscs.value.forEach((group, index) => {
+        const key = toDateKey(group.releaseDate);
+        if (key) {
+          snapshot.set(key, Boolean(groupState[index]));
+        }
+      });
+      return snapshot;
+    };
+
+    const restoreGroupState = (snapshot: Map<string, boolean>) => {
+      Object.keys(groupState).forEach((key) => {
+        Reflect.deleteProperty(groupState, key);
+      });
+      groupedDiscs.value.forEach((group, index) => {
+        const key = toDateKey(group.releaseDate);
+        groupState[index] = key ? snapshot.get(key) ?? false : false;
+      });
+    };
 
     const fetchAllPagesForMonth = async () => {
       try {
@@ -346,6 +380,24 @@ export default defineComponent({
       }
     };
 
+    const removeDisc = (discId: string) => {
+      const snapshot = captureGroupState();
+      let changed = false;
+      const cleanedGroups = groupedDiscs.value
+        .map((group) => {
+          const discs = group.discs.filter((disc: any) => disc.id !== discId);
+          if (discs.length === group.discs.length) return group;
+          changed = true;
+          return { ...group, discs };
+        })
+        .filter((group) => group.discs.length > 0);
+
+      if (!changed) return;
+
+      groupedDiscs.value = cleanedGroups;
+      restoreGroupState(snapshot);
+    };
+
     const formatDate = (dateString: string) => {
       const date = new Date(dateString);
       const optionsDate: Intl.DateTimeFormatOptions = {
@@ -383,6 +435,78 @@ export default defineComponent({
         );
       } catch (error) {
         console.error("Error fetching countries:", error);
+      }
+    };
+
+    const handleDateChange = (payload: {
+      discId: string;
+      previousDate?: string | Date | null;
+      newDate: string | Date | null;
+      disc: any;
+    }) => {
+      const { discId, newDate, disc } = payload;
+      const snapshot = captureGroupState();
+      const isoDate = toIsoMidnight(newDate);
+      if (!isoDate) return;
+
+      const dateKey = toDateKey(isoDate);
+      if (!dateKey) return;
+
+      const targetMonth = new Date(isoDate).getUTCMonth();
+
+      let nextGroups = groupedDiscs.value
+        .map((group) => {
+          const discs = group.discs.filter((item: any) => item.id !== discId);
+          return discs.length === group.discs.length ? group : { ...group, discs };
+        })
+        .filter((group) => group.discs.length > 0);
+
+      if (targetMonth === selectedMonth.value) {
+        const discCopy = {
+          ...disc,
+          releaseDate: isoDate,
+          artist: disc?.artist ? { ...disc.artist } : disc.artist,
+          genre: disc?.genre ? { ...disc.genre } : disc.genre,
+          genreId: disc?.genreId ?? disc?.genre?.id ?? "",
+        };
+
+        let inserted = false;
+        nextGroups = nextGroups.map((group) => {
+          if (toDateKey(group.releaseDate) !== dateKey) return group;
+          inserted = true;
+          const discs = [
+            ...group.discs.filter((item: any) => item.id !== discCopy.id),
+            discCopy,
+          ];
+          return { ...group, discs };
+        });
+
+        if (!inserted) {
+          nextGroups = [
+            ...nextGroups,
+            {
+              releaseDate: isoDate,
+              discs: [discCopy],
+            },
+          ];
+        }
+      }
+
+      nextGroups = [...nextGroups].sort(
+        (a, b) =>
+          new Date(a.releaseDate).getTime() - new Date(b.releaseDate).getTime()
+      );
+
+      groupedDiscs.value = nextGroups;
+      restoreGroupState(snapshot);
+
+      if (targetMonth === selectedMonth.value) {
+        const newIndex = groupedDiscs.value.findIndex(
+          (group) => toDateKey(group.releaseDate) === dateKey
+        );
+        if (newIndex !== -1) {
+          groupState[newIndex] = true;
+        }
       }
     };
 
@@ -510,6 +634,8 @@ export default defineComponent({
       buscarEnlacesSpotify,
       exportarHtml,
       toggleGroup,
+      removeDisc,
+      handleDateChange,
       months,
       selectedMonth,
       selectMonth,
