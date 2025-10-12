@@ -31,13 +31,13 @@
               @open-user="openUserModal($event.username, $event.id, $event.avatar)" />
           </div>
 
-<UserModal
-  v-if="showUserModal"
-  :username="selectedUserName"
-  :user-id="selectedUserId"
-  :avatar-src="selectedUserAvatar"   
-  @close="showUserModal = false"
-/>
+          <UserModal
+            v-if="showUserModal"
+            :username="selectedUserName"
+            :user-id="selectedUserId"
+            :avatar-src="selectedUserAvatar"
+            @close="showUserModal = false"
+          />
           <!-- Formulario para añadir un comentario de primer nivel -->
           <div class="bg-gray-900 border-t px-4 py-3">
             <form @submit.prevent="submitTopComment" class="flex space-x-2">
@@ -60,7 +60,7 @@ import { defineComponent, ref, onMounted, toRefs } from "vue";
 import CommentItem from "./CommentItem.vue";
 import { getDisccomments, postcommentService } from "@services/comments/comments";
 import SwalService from "@services/swal/SwalService";
-import UserModal from '@/components/UserModal.vue';
+import UserModal from "@/components/UserModal.vue";
 
 function buildCommentTree(flatComments: any[]): any[] {
   const commentMap: Record<string, any> = {};
@@ -115,7 +115,7 @@ function updateCommentInTree(commentList: any[], updated: any) {
 }
 
 export default defineComponent({
-  name: "ComentsModal",
+  name: "CommentsModal",
   components: { CommentItem, UserModal },
   props: {
     discId: { type: String, required: true },
@@ -130,18 +130,18 @@ export default defineComponent({
 
     const { artistName, albumName, discId } = toRefs(props);
 
-// ComentsModal.vue (setup)
-const showUserModal = ref(false);
-const selectedUserName = ref('');
-const selectedUserId = ref('');
-const selectedUserAvatar = ref(''); // 👈
+    // CommentsModal.vue (setup)
+    const showUserModal = ref(false);
+    const selectedUserName = ref("");
+    const selectedUserId = ref("");
+    const selectedUserAvatar = ref("");
 
-const openUserModal = (username: string, id: string, avatar?: string) => {
-  selectedUserName.value = username;
-  selectedUserId.value = id;
-  selectedUserAvatar.value = avatar ?? '';
-  showUserModal.value = true;
-};
+    const openUserModal = (username: string, id: string, avatar?: string) => {
+      selectedUserName.value = username;
+      selectedUserId.value = id;
+      selectedUserAvatar.value = avatar ?? "";
+      showUserModal.value = true;
+    };
 
 
     // Carga inicial de comentarios

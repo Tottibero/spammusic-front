@@ -2,20 +2,7 @@
 import { defineStore } from "pinia";
 import { login, type LoginPayload } from "../../services/auth/auth";
 import api from "../../services/api/api";
-
-function loadRoles(): string[] {
-  const raw = localStorage.getItem("roles");
-  if (!raw) return [];
-  try {
-    // Caso correcto: guardado como JSON
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    // Fallback por si quedó un string antiguo tipo "user,admin"
-    if (raw.includes("[") || raw.includes("{")) return [];
-    return raw.split(",").map(r => r.trim()).filter(Boolean);
-  }
-}
+import { loadRoles } from "./loadRoles";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({

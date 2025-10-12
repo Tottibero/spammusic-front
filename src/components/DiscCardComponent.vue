@@ -132,7 +132,7 @@
           </span>
         </button>
 
-        <button @click="openComentsModal"
+        <button @click="openCommentsModal"
           class="w-1/3 gap-2 bg-gray-900 text-white font-bold py-2 px-2 rounded-lg shadow-md border-4 border-transparent hover:border-gray-900 hover:bg-gradient-to-l from-gray-600 to-gray-900 flex items-center justify-center">
           <i class="fa-solid fa-comment-dots text-white text-md"></i>
           <span class="flex items-center">
@@ -159,7 +159,7 @@
       <!-- Lista de votos -->
     </div>
 
-    <!-- Modal para mostrar DiscDetail -->
+    <!-- Modal para mostrar VotesModal -->
     <div v-if="showVotes" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div class="p-6 relative max-w-3xl w-full">
         <!-- Se pasa la información del disco -->
@@ -184,9 +184,9 @@
       </div>
     </div>
 
-    <div v-if="showComentsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div v-if="showCommentsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div class="p-4 relative max-w-3xl w-full">
-        <ComentsModal :disc-id="discData.id" :artist-name="artistName" :album-name="name" @close="closeComentsModal" />
+        <CommentsModal :disc-id="discData.id" :artist-name="artistName" :album-name="name" @close="closeCommentsModal" />
       </div>
     </div>
   </div>
@@ -198,7 +198,7 @@ import defaultImage from "/src/assets/disco.png";
 import DiscDetail from "./DiscDetail.vue";
 import ArtistDetail from "./ArtistDetail.vue";
 import VotesModal from "./VotesModal.vue"; // Import the new component
-import ComentsModal from "./ComentsModal.vue"; // Nuevo componente
+import CommentsModal from "./CommentsModal.vue"; // Nuevo componente
 import {
   getDiscRates,
   postRateService,
@@ -226,7 +226,7 @@ interface Vote {
 }
 
 export default defineComponent({
-  components: { DiscDetail, ArtistDetail, ComentsModal, VotesModal }, // Add VotesModal
+  components: { DiscDetail, ArtistDetail, CommentsModal, VotesModal }, // Add VotesModal
   props: {
     id: { type: String, required: true },
     image: { type: String, required: true },
@@ -435,13 +435,13 @@ export default defineComponent({
       showArtistDetail.value = false;
     };
 
-    // Variables y funciones para el modal de ComentsModal
-    const showComentsModal = ref(false);
-    const openComentsModal = () => {
-      showComentsModal.value = true;
+    // Variables y funciones para el modal de CommentsModal
+    const showCommentsModal = ref(false);
+    const openCommentsModal = () => {
+      showCommentsModal.value = true;
     };
-    const closeComentsModal = () => {
-      showComentsModal.value = false;
+    const closeCommentsModal = () => {
+      showCommentsModal.value = false;
     };
 
     const openSpotify = (webLink: string) => {
@@ -514,9 +514,9 @@ export default defineComponent({
       showArtistDetail,
       openArtistDetail,
       closeArtistDetail,
-      showComentsModal,
-      openComentsModal,
-      closeComentsModal,
+      showCommentsModal,
+      openCommentsModal,
+      closeCommentsModal,
       commentCount,
       rateCount,
       openSpotify,
