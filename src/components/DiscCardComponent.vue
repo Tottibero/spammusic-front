@@ -12,17 +12,37 @@
             EP
           </p>
 
-          <div v-if="artistCountry?.isoCode && artistCountry.isoCode.length >= 2" class="relative group">
-            <CircleFlags :country="artistCountry.isoCode.slice(0, 2).toLowerCase()" :show-flag-name="false"
-              class="cursor-help" />
-            <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 text-[9px] font-semibold 
-         text-white bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300
-         max-w-[160px] whitespace-normal text-center"
-              style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-              {{ countryAbbr[artistCountry?.name] || artistCountry?.name || artistCountry?.isoCode?.slice(0,
-                2).toUpperCase() }}
-            </span>
-          </div>
+<div v-if="artistCountry?.isoCode" class="relative group">
+  <!-- Caso especial: International (isoCode = 'int') -->
+  <template v-if="artistCountry.isoCode === 'int'">
+    <img
+      src="/int.svg"
+      alt="International"
+      class="rounded-full cursor-help object-cover"
+      style="width: 25px; height: 25px;"
+    />
+  </template>
+
+  <!-- Resto de países: CircleFlags -->
+  <template v-else-if="artistCountry.isoCode.length >= 2">
+    <CircleFlags
+      :country="artistCountry.isoCode.slice(0, 2).toLowerCase()"
+      :show-flag-name="false"
+      class="cursor-help"
+    />
+  </template>
+
+  <!-- Tooltip -->
+  <span
+    class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 text-[9px] font-semibold 
+           text-white bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300
+           max-w-[160px] whitespace-normal text-center"
+    style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"
+  >
+    {{ countryLabel }}
+  </span>
+</div>
+
         </div>
         <p class="px-2 py-1 rounded-full text-xs font-medium text-white text-center shadow-sm"
           :style="{ backgroundColor: genreColor || 'grey' }">
@@ -276,13 +296,33 @@ export default defineComponent({
     const countryAbbr: Record<string, string> = {
       "United States of America": "USA",
       "United Kingdom of Great Britain and Northern Ireland": "United Kingdom",
-    }
+    };
+
+    const countryLabel = computed(() => {
+      if (!props.artistCountry) return "";
+
+      // Caso especial: International
+      if (props.artistCountry.isoCode === "int") {
+        return "International";
+      }
+
+      const name = props.artistCountry.name;
+      const iso = props.artistCountry.isoCode;
+
+      return (
+        countryAbbr[name] ||
+        name ||
+        (iso && iso.slice(0, 2).toUpperCase()) ||
+        ""
+      );
+    });
 
     const computedImage = computed(() => props.image || defaultImage);
 
     const openImage = () => {
       window.open(props.image, "_blank");
     };
+
 
     const favoriteId = ref(props.favoriteId);
     const pendingId = ref(props.pendingId);
@@ -523,7 +563,8 @@ export default defineComponent({
       openPlatformLink,
       isSubmittingRating,
       disableSubmitButton,
-      countryAbbr
+      countryAbbr,
+      countryLabel,
     };
   },
 });

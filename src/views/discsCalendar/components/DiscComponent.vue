@@ -394,9 +394,8 @@ export default defineComponent({
       try {
         await updateArtist(props.disc.artist.id, { countryId: editedArtist.countryId });
         props.disc.artist.countryId = editedArtist.countryId as any;
-        Swal.fire("¡Éxito!", "El país del artista se ha actualizado.", "success");
       } catch {
-        Swal.fire("Error", "No se pudo actualizar el país.", "error");
+        console.error("No se pudo actualizar el país:", e);
       }
     };
 
