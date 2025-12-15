@@ -1,9 +1,14 @@
 <template>
   <!-- Contenedor principal con scroll si el contenido excede el 80% del alto de la pantalla -->
-  <div
+<div 
+  class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+  @click.self="$emit('close')"
+>
+  <!-- MODAL -->
+  <div 
     class="spotify-artist-details relative w-full max-w-2xl mx-auto my-3 sm:my-3 p-4 sm:p-4 
-  bg-gradient-to-b from-gray-50 to-gray-100 rounded-lg shadow-md max-h-[80vh] overflow-y-auto">
-
+    bg-gradient-to-b from-gray-50 to-gray-100 rounded-lg shadow-md max-h-[80vh] overflow-y-auto"
+  >
   <button 
   @click="$emit('close')" 
   class="absolute top-3 right-3 text-white hover:text-[#d9e021] bg-gray-700 hover:bg-gray-800 rounded-full w-10 h-10 flex items-center justify-center shadow-md transition-all"
@@ -92,6 +97,7 @@
             </span>
           </div>
         </div>
+                </div>
       </div>
 
       <!-- Galería de Top Tracks -->
