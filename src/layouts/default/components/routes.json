@@ -101,12 +101,27 @@
     "icon": "fa-solid fa-users"
   },
   {
-    "to": "/versions",
     "label": "Gestionar versiones",
     "activeClass": "bg-red-600",
     "type": "management",
     "requiredRole": "superUser",
-    "icon": "fa-solid fa-code-branch"
+    "icon": "fa-solid fa-code-branch",
+    "children": [
+      {
+        "to": "/versions",
+        "label": "Versiones",
+        "activeClass": "bg-red-500",
+        "type": "management",
+        "icon": "fa-solid fa-list"
+      },
+      {
+        "to": "/versions/kanban",
+        "label": "Versión Actual",
+        "activeClass": "bg-red-500",
+        "type": "management",
+        "icon": "fa-solid fa-clipboard-list"
+      }
+    ]
   },
   {
     "to": "/password",

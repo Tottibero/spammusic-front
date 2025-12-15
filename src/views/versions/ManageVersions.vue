@@ -10,9 +10,6 @@
       <button @click="reload" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
         Recargar
       </button>
-      <button @click="goToKanban" class="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600">
-        📋 Ver tablero Kanban
-      </button>
     </div>
 
     <!-- Tabla responsiva de versiones -->
@@ -257,7 +254,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue';
-import { useRouter } from 'vue-router';
 import SwalService from '@services/swal/SwalService';
 import type {
   Version,
@@ -276,10 +272,6 @@ import {
   removeVersionItem,
 } from '@services/versions/versions';
 
-const router = useRouter();
-function goToKanban() {
-  router.push({ name: 'versions-kanban' });
-}
 
 const versions = ref<Version[]>([]);
 const open = reactive<Record<string, boolean>>({});

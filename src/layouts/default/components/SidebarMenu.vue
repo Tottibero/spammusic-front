@@ -86,7 +86,39 @@
             </summary>
             <ul>
               <li v-for="route in filteredManagementRoutes" :key="route.to" class="mt-1">
+                <!-- Si tiene hijos, mostramos otro details/summary o lista anidada -->
+                <div v-if="route.children && route.children.length > 0">
+                  <details>
+                    <summary
+                      class="flex items-center justify-start py-2 pl-8 pr-4 text-sm font-medium transition-all duration-300 hover:bg-gray-700 hover:text-white cursor-pointer list-none"
+                    >
+                      <div class="flex items-center justify-between w-full">
+                        <div class="flex items-center">
+                          <i :class="[route.icon, 'text-base w-5 text-center mr-3']"></i>
+                          {{ route.label }}
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                      </div>
+                    </summary>
+                    <ul>
+                      <li v-for="child in route.children" :key="child.to" class="mt-1">
+                        <router-link
+                          :to="child.to"
+                          class="flex items-center justify-start py-2 pl-12 pr-4 text-sm font-medium transition-all duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
+                          :active-class="child.activeClass || 'bg-gray-600 text-white'"
+                          @click="closeMenu"
+                        >
+                          <i :class="[child.icon, 'text-base w-5 text-center mr-3']"></i>
+                          {{ child.label }}
+                        </router-link>
+                      </li>
+                    </ul>
+                  </details>
+                </div>
+
+                <!-- Si NO tiene hijos, render normal -->
                 <router-link
+                  v-else
                   :to="route.to"
                   class="flex items-center justify-start py-2 pl-8 pr-4 text-sm font-medium transition-all duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
                   :active-class="route.activeClass || 'bg-gray-600 text-white'"
@@ -117,12 +149,22 @@
       </ul>
     </div>
 
+    <div class="flex justify-end px-4 pb-1 shrink-0">
+      <router-link 
+        to="/patch-notes" 
+        class="text-xs text-gray-500 hover:text-gray-300 transition-colors cursor-pointer"
+        @click="closeMenu"
+      >
+        version 1.0.0
+      </router-link>
+    </div>
+
     <div class="p-2 border-t border-gray-700 bg-gray-900/50 shrink-0">
       <ul class="menu w-full">
         <li>
           <button
             @click="handleLogout"
-            class="flex items-center justify-start py-2 px-4 text-sm font-semibold text-red-400 hover:bg-red-600 hover:text-white transition-colors"
+            class="w-full flex items-center justify-start py-2 px-4 text-sm font-semibold text-red-400 hover:bg-red-600 hover:text-white transition-colors"
           >
             <i class="fa-solid fa-right-from-bracket text-base w-5 text-center mr-3"></i>
             {{ logoutLabel }}
@@ -146,6 +188,7 @@ type AppRoute = {
   activeClass?: string;
   requiredRole?: string;
   icon?: string;
+  children?: AppRoute[];
 };
 
 export default defineComponent({

@@ -81,7 +81,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: "/versions",
-  name: "versions-admin",   // 👈 cambia aquí
+    name: "versions-admin",   // 👈 cambia aquí
     component: () => import("/src/views/versions/ManageVersions.vue"),
     meta: { requiresAuth: true, requiresRole: "superUser" },
   },
@@ -89,6 +89,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/versions/kanban',
     name: 'versions-kanban',
     component: () => import("/src/views/versions/VersionKanban.vue"),
+    meta: { requiresAuth: true, requiresRole: "superUser" },
   },
 
   {
@@ -162,10 +163,16 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("/src/views/help/HowToUse.vue"),
     meta: { requiresAuth: true },
   },
-    {
+  {
     path: "/spotify",
     name: "Spotify",
     component: () => import("/src/views/spotify/ListSpotify.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/patch-notes",
+    name: "PatchNotes",
+    component: () => import("/src/views/patch-notes/PatchNotes.vue"),
     meta: { requiresAuth: true },
   },
 
