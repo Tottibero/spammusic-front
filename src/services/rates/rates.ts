@@ -103,7 +103,7 @@ export async function getRatesByUser(
     params: {
       limit,
       offset,
-      query, 
+      query,
       dateRange,
       genre,
       type,
@@ -170,4 +170,33 @@ export async function getUserHistoryService(
   };
 
   return normalized;
+}
+
+export interface RatesStatsResponse {
+  totalVotes: number;
+  mean: string;
+  median: number;
+  totalUsers: number;
+  rank: number;
+  votesByGenre: {
+    genre: string;
+    count: number;
+  }[];
+  votesByMonth: {
+    month: string;
+    count: number;
+    weeks: {
+      week: string;
+      count: number;
+    }[];
+  }[];
+  votesByScore: {
+    score: number;
+    count: number;
+  }[];
+}
+
+export async function getRatesStats(): Promise<RatesStatsResponse> {
+  const response = await api.get<RatesStatsResponse>("/rates/stats");
+  return response.data;
 }

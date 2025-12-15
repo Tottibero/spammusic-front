@@ -19,6 +19,12 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresAuth: true },
   },
   {
+    path: "/statistics",
+    name: "Statistics",
+    component: () => import("/src/views/statistics/Statistics.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
     path: "/calendar",
     name: "Calendar",
     component: () => import("/src/views/discsCalendar/DiscCalendar.vue"),
