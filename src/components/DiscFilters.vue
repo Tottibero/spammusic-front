@@ -12,15 +12,7 @@
 
     <!-- Fila 2: Año / Mes / Semana -->
     <div v-if="showWeekPicker" class="mt-4 mb-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-      <!-- MES -->
-<SimpleSelect
-  class="select-pill w-full"
-  :options="monthsOptions"
-  v-model="weeksMonth"
-  placeholder="Mes"
-/>
-
-  <!-- AÑO -->
+       <!-- AÑO -->
   <SimpleSelect
     class="select-pill w-full"
     :options="yearsOptions"
@@ -28,6 +20,14 @@
     :group-label="`Año – ${weeksYear}`"
     placeholder="Año"
   />
+     
+      <!-- MES -->
+<SimpleSelect
+  class="select-pill w-full"
+  :options="monthsOptions"
+  v-model="weeksMonth"
+  placeholder="Mes"
+/>
 
   <!-- SEMANAS -->
   <SimpleSelect

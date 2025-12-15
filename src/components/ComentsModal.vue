@@ -1,6 +1,7 @@
 <template>
   <transition name="fade" appear>
-    <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+    <div class="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-50 z-50"
+    @click.self="$emit('close')">
       <transition name="scale">
         <div ref="modal"
           class="bg-white rounded-lg shadow-lg relative w-full max-w-2xl sm:max-w-lg md:max-w-xl lg:max-w-2xl flex flex-col max-h-[90vh] sm:max-h-[90vh] h-auto">

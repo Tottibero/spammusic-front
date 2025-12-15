@@ -24,4 +24,8 @@ dist-ssr
 *.sw?
 
 .codegpt
+# Local Netlify folder
+.netlify
+
 .env
+.env.*.local

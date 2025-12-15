@@ -1,5 +1,9 @@
 <template>
-  <div v-if="showVotes" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div
+    v-if="showVotes"
+    class="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-50 z-50"
+    @click.self="$emit('close')"
+  >
     <div
       class="bg-white p-4 sm:p-6 rounded-lg shadow-xl w-[93%] sm:w-full sm:max-w-3xl relative max-h-[80vh] overflow-y-auto">
       <!-- Título -->

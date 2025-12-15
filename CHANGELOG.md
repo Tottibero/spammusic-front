@@ -1,3 +1,37 @@
+## <small>1.8.5 (2025-10-09)</small>
+
+* git commit -m "chore: ignore .env and remove from repo" ([b51688d](https://github.com/Tottibero/spammusic-front/commit/b51688d))
+* fix(env):  gitignore con env ([92f30c0](https://github.com/Tottibero/spammusic-front/commit/92f30c0))
+* fix(env): arreglado el env y el gitignore ([5bd5ebc](https://github.com/Tottibero/spammusic-front/commit/5bd5ebc))
+
+## <small>1.8.4 (2025-10-09)</small>
+
+* fix(gitignore): env ([71e47bb](https://github.com/Tottibero/spammusic-front/commit/71e47bb))
+
+## <small>1.8.3 (2025-10-09)</small>
+
+* Fix(avatar)  new avatars ([6fbe772](https://github.com/Tottibero/spammusic-front/commit/6fbe772))
+* UI/fix avatar ([6cbde5b](https://github.com/Tottibero/spammusic-front/commit/6cbde5b))
+* update 2.0.0-beta dev to main ([f1e8cf3](https://github.com/Tottibero/spammusic-front/commit/f1e8cf3))
+* fix(avatar): add new avatars ([b510fb8](https://github.com/Tottibero/spammusic-front/commit/b510fb8))
+* fix(UI): DiscList scoped to fix other sections ([299b9e7](https://github.com/Tottibero/spammusic-front/commit/299b9e7))
+* fix(UI): fix home, same properties like Discos ([dcfbc31](https://github.com/Tottibero/spammusic-front/commit/dcfbc31))
+* fix(UI): fix mt text Mejores discos in home ([f15d00c](https://github.com/Tottibero/spammusic-front/commit/f15d00c))
+* fix(UI): fix profile section + avatar categories ([97b7c64](https://github.com/Tottibero/spammusic-front/commit/97b7c64))
+* fix(UI): fix size Votos and Notas (now Chat) ([28ba389](https://github.com/Tottibero/spammusic-front/commit/28ba389))
+* fix(ui): fix temporal buttons ([2894152](https://github.com/Tottibero/spammusic-front/commit/2894152))
+* fix(ui): fix temporal buttons ([f6931cb](https://github.com/Tottibero/spammusic-front/commit/f6931cb))
+* fix(ui): improve order select ([5d1f0b3](https://github.com/Tottibero/spammusic-front/commit/5d1f0b3))
+* fix(ui): improve order select ([1b3d248](https://github.com/Tottibero/spammusic-front/commit/1b3d248))
+* fix(UI): improvements votes/coments/user modals ([6aed60a](https://github.com/Tottibero/spammusic-front/commit/6aed60a))
+* fix(UI): improvements votes/coments/user modals/home ([be65f1a](https://github.com/Tottibero/spammusic-front/commit/be65f1a))
+* fix(UI): last fix, add avatar to VotesModal.vue, sorry totti ([db66dae](https://github.com/Tottibero/spammusic-front/commit/db66dae))
+
+## <small>1.8.2 (2025-10-01)</small>
+
+* Merge branch 'main' of https://github.com/Tottibero/spammusic-front ([08c66fb](https://github.com/Tottibero/spammusic-front/commit/08c66fb))
+* fix(calendar): fix calendar and export ([404c496](https://github.com/Tottibero/spammusic-front/commit/404c496))
+
 ## <small>1.8.1 (2025-09-24)</small>
 
 * Merge branch 'main' of https://github.com/Tottibero/spammusic-front ([becc3dd](https://github.com/Tottibero/spammusic-front/commit/becc3dd))
