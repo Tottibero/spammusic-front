@@ -28,8 +28,9 @@ import { faBookmark, faHeart } from '@fortawesome/free-solid-svg-icons';
 // Agregar iconos a la librería de FontAwesome
 library.add(faBookmark, faHeart);
 
-import './style.css';
-import './index.css';
+import './index.css';      // Tailwind
+import './style.css';      // su CSS global
+import './assets/fonts.css'; // fuentes
 
 const app = createApp(App);
 
