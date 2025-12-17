@@ -1,10 +1,8 @@
 <template>
-  <aside
-    :class="[
-      'w-72 bg-gradient-to-l from-gray-900 to-gray-950 text-white fixed left-0 top-0 z-30 transform transition-transform duration-300 h-screen flex flex-col',
-      menuVisible ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-    ]"
-  >
+  <aside :class="[
+    'w-72 bg-gradient-to-l from-gray-900 to-gray-950 text-white fixed left-0 top-0 z-30 transform transition-transform duration-300 h-screen flex flex-col',
+    menuVisible ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+  ]">
     <div class="p-4 text-xl font-bold border-b border-gray-700 flex items-center justify-start space-x-3 shrink-0 pl-6">
       <img src="/LOGO-SPAM-MUSIC.svg" alt="Logo" class="w-8 h-8" />
       <span>Spam Music</span>
@@ -12,14 +10,12 @@
 
     <div class="flex-1 overflow-y-auto overscroll-contain py-4">
       <ul class="menu w-full px-2 space-y-1">
-        
+
         <li v-for="route in filteredDiscAppRoutes" :key="route.to">
-          <router-link
-            :to="route.to"
+          <router-link :to="route.to"
             class="flex items-center justify-start py-2 px-4 text-sm font-medium transition-all duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
             :active-class="route.activeClass || 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-[#211d1d]'"
-            @click="closeMenu"
-          >
+            @click="closeMenu">
             <i :class="[route.icon, 'text-base w-5 text-center mr-3']"></i>
             {{ route.label }}
           </router-link>
@@ -27,21 +23,20 @@
 
         <li v-if="filteredNewDiscsRoutes.length > 0" class="pt-2">
           <details>
-            <summary class="font-bold text-gray-400 uppercase text-xs tracking-wider hover:text-white flex justify-between items-center py-2 px-4">
+            <summary
+              class="font-bold text-gray-400 uppercase text-xs tracking-wider hover:text-white flex justify-between items-center py-2 px-4">
               <div class="flex items-center justify-start">
-                <i class="fa-solid fa-circle-plus text-base w-5 text-center mr-3"></i> 
+                <i class="fa-solid fa-circle-plus text-base w-5 text-center mr-3"></i>
                 Nuevos Discos
               </div>
               <i class="fa-solid fa-chevron-down text-[10px]"></i>
             </summary>
             <ul>
               <li v-for="route in filteredNewDiscsRoutes" :key="route.to" class="mt-1">
-                <router-link
-                  :to="route.to"
+                <router-link :to="route.to"
                   class="flex items-center justify-start py-2 pl-8 pr-4 text-sm font-medium transition-all duration-300 hover:bg-gradient-to-r hover:from-emerald-500 hover:to-teal-500 hover:text-white"
                   :active-class="route.activeClass || 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white'"
-                  @click="closeMenu"
-                >
+                  @click="closeMenu">
                   <i :class="[route.icon, 'text-base w-5 text-center mr-3']"></i>
                   {{ route.label }}
                 </router-link>
@@ -52,21 +47,20 @@
 
         <li v-if="filteredRiffValleyRoutes.length > 0" class="pt-2">
           <details>
-            <summary class="font-bold text-gray-400 uppercase text-xs tracking-wider hover:text-white flex justify-between items-center py-2 px-4">
+            <summary
+              class="font-bold text-gray-400 uppercase text-xs tracking-wider hover:text-white flex justify-between items-center py-2 px-4">
               <div class="flex items-center justify-start">
-                <i class="fa-solid fa-guitar text-base w-5 text-center mr-3"></i> 
+                <i class="fa-solid fa-guitar text-base w-5 text-center mr-3"></i>
                 Riff Valley
               </div>
               <i class="fa-solid fa-chevron-down text-[10px]"></i>
             </summary>
             <ul>
               <li v-for="route in filteredRiffValleyRoutes" :key="route.to" class="mt-1">
-                <router-link
-                  :to="route.to"
+                <router-link :to="route.to"
                   class="flex items-center justify-start py-2 pl-8 pr-4 text-sm font-medium transition-all duration-300 hover:bg-gradient-to-r hover:from-[#ee6f86]/60 hover:to-[#2759c1]/60 hover:text-white"
                   :active-class="route.activeClass || 'bg-gradient-to-r from-[#ee6f86] to-[#2759c1] text-white'"
-                  @click="closeMenu"
-                >
+                  @click="closeMenu">
                   <i :class="[route.icon, 'text-base w-5 text-center mr-3']"></i>
                   {{ route.label }}
                 </router-link>
@@ -77,9 +71,10 @@
 
         <li v-if="filteredManagementRoutes.length > 0" class="pt-2">
           <details>
-            <summary class="font-bold text-gray-400 uppercase text-xs tracking-wider hover:text-white flex justify-between items-center py-2 px-4">
+            <summary
+              class="font-bold text-gray-400 uppercase text-xs tracking-wider hover:text-white flex justify-between items-center py-2 px-4">
               <div class="flex items-center justify-start">
-                <i class="fa-solid fa-gears text-base w-5 text-center mr-3"></i> 
+                <i class="fa-solid fa-gears text-base w-5 text-center mr-3"></i>
                 Gestión
               </div>
               <i class="fa-solid fa-chevron-down text-[10px]"></i>
@@ -90,8 +85,7 @@
                 <div v-if="route.children && route.children.length > 0">
                   <details>
                     <summary
-                      class="flex items-center justify-start py-2 pl-8 pr-4 text-sm font-medium transition-all duration-300 hover:bg-gray-700 hover:text-white cursor-pointer list-none"
-                    >
+                      class="flex items-center justify-start py-2 pl-8 pr-4 text-sm font-medium transition-all duration-300 hover:bg-gray-700 hover:text-white cursor-pointer list-none">
                       <div class="flex items-center justify-between w-full">
                         <div class="flex items-center">
                           <i :class="[route.icon, 'text-base w-5 text-center mr-3']"></i>
@@ -102,12 +96,9 @@
                     </summary>
                     <ul>
                       <li v-for="child in route.children" :key="child.to" class="mt-1">
-                        <router-link
-                          :to="child.to"
+                        <router-link :to="child.to"
                           class="flex items-center justify-start py-2 pl-12 pr-4 text-sm font-medium transition-all duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
-                          :active-class="child.activeClass || 'bg-gray-600 text-white'"
-                          @click="closeMenu"
-                        >
+                          :active-class="child.activeClass || 'bg-gray-600 text-white'" @click="closeMenu">
                           <i :class="[child.icon, 'text-base w-5 text-center mr-3']"></i>
                           {{ child.label }}
                         </router-link>
@@ -117,13 +108,9 @@
                 </div>
 
                 <!-- Si NO tiene hijos, render normal -->
-                <router-link
-                  v-else
-                  :to="route.to"
+                <router-link v-else :to="route.to"
                   class="flex items-center justify-start py-2 pl-8 pr-4 text-sm font-medium transition-all duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
-                  :active-class="route.activeClass || 'bg-gray-600 text-white'"
-                  @click="closeMenu"
-                >
+                  :active-class="route.activeClass || 'bg-gray-600 text-white'" @click="closeMenu">
                   <i :class="[route.icon, 'text-base w-5 text-center mr-3']"></i>
                   {{ route.label }}
                 </router-link>
@@ -135,12 +122,9 @@
         <li v-if="filteredBottomRoutes.length > 0" class="my-2 border-t border-gray-700/50"></li>
 
         <li v-for="route in filteredBottomRoutes" :key="route.to">
-          <router-link
-            :to="route.to"
+          <router-link :to="route.to"
             class="flex items-center justify-start py-2 px-4 text-sm font-medium transition-all duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
-            :active-class="route.activeClass || 'bg-gray-600 text-white'"
-            @click="closeMenu"
-          >
+            :active-class="route.activeClass || 'bg-gray-600 text-white'" @click="closeMenu">
             <i :class="[route.icon, 'text-base w-5 text-center mr-3']"></i>
             {{ route.label }}
           </router-link>
@@ -150,22 +134,17 @@
     </div>
 
     <div class="flex justify-end px-4 pb-1 shrink-0">
-      <router-link 
-        to="/patch-notes" 
-        class="text-xs text-gray-500 hover:text-gray-300 transition-colors cursor-pointer"
-        @click="closeMenu"
-      >
-        version 1.0.0
+      <router-link to="/patch-notes" class="text-xs text-gray-500 hover:text-gray-300 transition-colors cursor-pointer"
+        @click="closeMenu">
+        {{ versionDisplay }}
       </router-link>
     </div>
 
     <div class="p-2 border-t border-gray-700 bg-gray-900/50 shrink-0">
       <ul class="menu w-full">
         <li>
-          <button
-            @click="handleLogout"
-            class="w-full flex items-center justify-start py-2 px-4 text-sm font-semibold text-red-400 hover:bg-red-600 hover:text-white transition-colors"
-          >
+          <button @click="handleLogout"
+            class="w-full flex items-center justify-start py-2 px-4 text-sm font-semibold text-red-400 hover:bg-red-600 hover:text-white transition-colors">
             <i class="fa-solid fa-right-from-bracket text-base w-5 text-center mr-3"></i>
             {{ logoutLabel }}
           </button>
@@ -176,8 +155,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, watch } from 'vue';
+import { defineComponent, computed, watch, ref, onMounted } from 'vue';
 import { useAuthStore } from '@stores/auth/auth.ts';
+import { getLatestProductionVersion } from '@services/versions/versions';
 import routesData from './routes.json';
 
 // Tipo actualizado con 'new-discs'
@@ -200,6 +180,7 @@ export default defineComponent({
   setup(props, { emit }) {
     const authStore = useAuthStore();
     const allRoutes = routesData as AppRoute[];
+    const latestVersion = ref<string | null>(null);
 
     const handleLogout = () => {
       authStore.logout();
@@ -251,6 +232,16 @@ export default defineComponent({
       filterByRole(allRoutes.filter((r) => r.type === 'bottom'))
     );
 
+    // Fetch latest production version
+    onMounted(async () => {
+      latestVersion.value = await getLatestProductionVersion();
+    });
+
+    // Computed version display with fallback
+    const versionDisplay = computed(() => {
+      return latestVersion.value ? `version ${latestVersion.value}` : 'version -';
+    });
+
     return {
       handleLogout,
       closeMenu,
@@ -260,6 +251,7 @@ export default defineComponent({
       filteredRiffValleyRoutes,
       filteredManagementRoutes,
       filteredBottomRoutes,
+      versionDisplay,
     };
   },
 });

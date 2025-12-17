@@ -29,6 +29,46 @@ export default {
   },
 
   /**
+   * Muestra un mensaje de error (toast en la esquina superior).
+   * @param message Texto a mostrar (opcional).
+   */
+  error(
+    message: string = "Ha ocurrido un error"
+  ): Promise<SweetAlertResult<any>> {
+    return Swal.fire({
+      title: "Error",
+      text: message,
+      icon: "error",
+      position: "top-end",
+      timer: 4000,
+      timerProgressBar: true,
+      showConfirmButton: false,
+      toast: true,
+    });
+  },
+
+  /**
+   * Muestra un diálogo de confirmación.
+   * @param title Título del diálogo.
+   * @param text Texto del diálogo.
+   * @param icon Icono a mostrar.
+   */
+  confirm(
+    title: string = "¿Estás seguro?",
+    text: string = "",
+    icon: "warning" | "info" | "question" = "warning"
+  ): Promise<SweetAlertResult<any>> {
+    return Swal.fire({
+      title,
+      text,
+      icon,
+      showCancelButton: true,
+      confirmButtonText: "Sí",
+      cancelButtonText: "Cancelar",
+    });
+  },
+
+  /**
    * Muestra un mensaje de éxito con una imagen aleatoria de la carpeta correspondiente.
    * @param category Número de carpeta en "assets/votaciones".
    */
@@ -67,7 +107,7 @@ export default {
    */
   async getRandomImagePath(category: number): Promise<string> {
     const basePath = `/votaciones/${category}/`; // Funciona en Vite y Netlify
-    console.log(import.meta.env.BASE_URL) 
+    console.log(import.meta.env.BASE_URL)
     const images = {
       1: ["brrrr.gif"],
       2: ["furiouskirby.gif"],
@@ -116,11 +156,11 @@ export default {
     // Selecciona un título y mensaje aleatorio de la categoría
     const randomTitle =
       categoryMessages.titles[
-        Math.floor(Math.random() * categoryMessages.titles.length)
+      Math.floor(Math.random() * categoryMessages.titles.length)
       ];
     const randomMessage =
       categoryMessages.messages[
-        Math.floor(Math.random() * categoryMessages.messages.length)
+      Math.floor(Math.random() * categoryMessages.messages.length)
       ];
 
     return { title: randomTitle, message: randomMessage };
