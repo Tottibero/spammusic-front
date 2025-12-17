@@ -81,11 +81,12 @@ export async function updateDisc(
     releaseDate?: any;
     verified?: boolean;
     ep?: boolean;
+    debut?: boolean;
     artistId?: string;
   }
 ): Promise<void> {
   console.log("entra", id);
-  console.log("Datos enviados al backend:", data); // Asegúrate de que 'image' esté presente aquí
+  console.log("Datos enviados al backend:", data);
 
   await api.patch(`/discs/${id}`, data);
 }
@@ -97,7 +98,7 @@ export async function deleteDisc(id: string): Promise<void> {
 
 export async function getTopRatedOrFeaturedAndStats(dateRange?: [string, string], genreId?: string): Promise<DiscsStatsResponse> {
   const response = await api.get<DiscsStatsResponse>("/discs/homeDiscs", {
-    params: { 
+    params: {
       ...(dateRange && { dateRange }),
       ...(genreId && { genreId })
     },
