@@ -123,6 +123,46 @@
                   <input v-else v-model="editCache[it.id].branch" class="p-0.5 border rounded text-xs font-mono flex-1"
                     placeholder="branch" />
                 </div>
+
+                <!-- User assignments - View mode (avatares debajo de la rama) -->
+                <div v-if="!editing[it.id] && (it.backUser || it.frontUser)" class="mt-2 flex items-center gap-2">
+                  <!-- Backend user -->
+                  <div v-if="it.backUser"
+                    class="flex items-center gap-1 bg-purple-50 border border-purple-200 rounded px-2 py-1">
+                    <img :src="it.backUser.image" :alt="it.backUser.username"
+                      class="w-5 h-5 rounded-full object-cover" />
+                    <span class="text-xs text-purple-800 font-medium">🔧 {{ it.backUser.username }}</span>
+                  </div>
+                  <!-- Frontend user -->
+                  <div v-if="it.frontUser"
+                    class="flex items-center gap-1 bg-cyan-50 border border-cyan-200 rounded px-2 py-1">
+                    <img :src="it.frontUser.image" :alt="it.frontUser.username"
+                      class="w-5 h-5 rounded-full object-cover" />
+                    <span class="text-xs text-cyan-800 font-medium">🎨 {{ it.frontUser.username }}</span>
+                  </div>
+                </div>
+
+                <!-- User assignments - Edit mode (selects) -->
+                <div v-if="editing[it.id]" class="mt-2 space-y-1">
+                  <div class="flex items-center gap-1">
+                    <span class="text-xs text-gray-600 w-16">🔧 Backend:</span>
+                    <select v-model="editCache[it.id].backUserId" class="flex-1 p-0.5 border rounded text-xs">
+                      <option :value="null">Sin asignar</option>
+                      <option v-for="user in superusers" :key="user.id" :value="user.id">
+                        {{ user.username }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <span class="text-xs text-gray-600 w-16">🎨 Frontend:</span>
+                    <select v-model="editCache[it.id].frontUserId" class="flex-1 p-0.5 border rounded text-xs">
+                      <option :value="null">Sin asignar</option>
+                      <option v-for="user in superusers" :key="user.id" :value="user.id">
+                        {{ user.username }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
               </div>
               <div class="flex flex-col gap-0.5">
                 <button v-if="!editing[it.id]" @click="startEdit(it)"
@@ -171,6 +211,7 @@ const props = defineProps<{
   items: VersionItem[];
   form: VersionForm;
   dragOverState: string | null;
+  superusers: Array<{ id: string; username: string; email: string; roles: string[]; image: string }>;
 }>();
 
 const emit = defineEmits<{
@@ -182,7 +223,7 @@ const emit = defineEmits<{
   (e: 'dragover', state: string): void;
   (e: 'dragleave', state: string): void;
   (e: 'drop', state: string): void;
-  (e: 'save-edit', item: VersionItem, data: { description: string; type: any; branch: string; priority: Priority }): void;
+  (e: 'save-edit', item: VersionItem, data: { description: string; type: any; branch: string; priority: Priority; backUserId: string | null; frontUserId: string | null }): void;
   (e: 'remove-item', item: VersionItem): void;
 }>();
 
@@ -310,7 +351,7 @@ function itemsByState(state: string) {
 
 // Edit logic
 const editing = reactive<Record<string, boolean>>({});
-const editCache = reactive<Record<string, { description: string; type: any; branch: string; priority: Priority }>>({});
+const editCache = reactive<Record<string, { description: string; type: any; branch: string; priority: Priority; backUserId: string | null; frontUserId: string | null }>>({});
 
 function startEdit(it: VersionItem) {
   editing[it.id] = true;
@@ -318,7 +359,9 @@ function startEdit(it: VersionItem) {
     description: it.description,
     type: it.type,
     branch: it.branch ?? '',
-    priority: it.priority ?? Priority.MEDIUM
+    priority: it.priority ?? Priority.MEDIUM,
+    backUserId: it.backUser?.id ?? null,
+    frontUserId: it.frontUser?.id ?? null,
   };
 }
 

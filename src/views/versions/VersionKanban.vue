@@ -31,9 +31,10 @@
         </div>
       </div>
       <KanbanBoard v-else ref="kanbanRef" :items="version.items" :form="form" :drag-over-state="dragOverState"
-        @update:form="form = $event" @save-version="saveVersion" @move-to-production="handleMoveToProduction"
-        @create-item="createItem" @dragstart="onDragStart" @dragover="onDragOver" @dragleave="onDragLeave"
-        @drop="onDrop" @save-edit="saveEdit" @remove-item="removeItem" />
+        :superusers="superusers" @update:form="form = $event" @save-version="saveVersion"
+        @move-to-production="handleMoveToProduction" @create-item="createItem" @dragstart="onDragStart"
+        @dragover="onDragOver" @dragleave="onDragLeave" @drop="onDrop" @save-edit="saveEdit"
+        @remove-item="removeItem" />
     </div>
 
     <!-- Loading / error -->
@@ -55,6 +56,7 @@ import {
   removeVersionItem,
   updateItem,
 } from '@services/versions/versions';
+import { getSuperusers, type Superuser } from '@services/auth/auth';
 import BacklogPanel from './components/BacklogPanel.vue';
 import KanbanBoard from './components/KanbanBoard.vue';
 
@@ -63,6 +65,7 @@ function goBack() { router.push({ name: 'versions-admin' }); }
 
 const version = ref<Version | null>(null);
 const backlog = ref<VersionItem[]>([]);
+const superusers = ref<Superuser[]>([]);
 const loading = ref(false);
 const error = ref<string | null>(null);
 const kanbanRef = ref<InstanceType<typeof KanbanBoard> | null>(null);
@@ -288,7 +291,7 @@ async function onDropToBacklog(priority: string) {
 }
 
 // ------- Editar / eliminar item -------
-async function saveEdit(it: VersionItem, dto: { description: string; type: any; branch: string; priority: any }) {
+async function saveEdit(it: VersionItem, dto: { description: string; type: any; branch: string; priority: any; backUserId: string | null; frontUserId: string | null }) {
   if (!version.value) return;
 
   // Validar formato de branch
@@ -300,6 +303,40 @@ async function saveEdit(it: VersionItem, dto: { description: string; type: any; 
 
   try {
     const updated = await updateVersionItem(version.value.id, it.id, dto as any);
+
+    console.log('Updated item from backend:', updated);
+
+    // El backend devuelve backUser/frontUser con solo el id, necesitamos enriquecerlos
+    const updatedWithIds = updated as any;
+
+    // Enriquecer backUser si existe
+    if (updatedWithIds.backUser && updatedWithIds.backUser.id) {
+      const backUser = superusers.value.find(u => u.id === updatedWithIds.backUser.id);
+      if (backUser) {
+        updatedWithIds.backUser = {
+          id: backUser.id,
+          username: backUser.username,
+          isActive: true,
+          image: backUser.image
+        };
+      }
+    }
+
+    // Enriquecer frontUser si existe
+    if (updatedWithIds.frontUser && updatedWithIds.frontUser.id) {
+      const frontUser = superusers.value.find(u => u.id === updatedWithIds.frontUser.id);
+      if (frontUser) {
+        updatedWithIds.frontUser = {
+          id: frontUser.id,
+          username: frontUser.username,
+          isActive: true,
+          image: frontUser.image
+        };
+      }
+    }
+
+    console.log('Final enriched item:', updatedWithIds);
+
     Object.assign(it, updated);
     kanbanRef.value!.editing[it.id] = false;
   } catch (e) {
@@ -396,5 +433,13 @@ async function loadDraft() {
   }
 }
 
-onMounted(loadDraft);
+onMounted(async () => {
+  await loadDraft();
+  // Cargar superusers
+  try {
+    superusers.value = await getSuperusers();
+  } catch (e) {
+    console.error('Error loading superusers:', e);
+  }
+});
 </script>

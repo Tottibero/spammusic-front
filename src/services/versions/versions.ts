@@ -25,6 +25,18 @@ export interface VersionItem {
   priority?: Priority;
   branch?: string;
   state: DevState;
+  backUser?: {
+    id: string;
+    username: string;
+    isActive: boolean;
+    image: string;
+  } | null;
+  frontUser?: {
+    id: string;
+    username: string;
+    isActive: boolean;
+    image: string;
+  } | null;
 }
 
 // Respuesta para versión en desarrollo (incluye backlog)
