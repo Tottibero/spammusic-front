@@ -94,9 +94,9 @@
 
         <li v-if="filteredManagementRoutes.length > 0" class="pt-2">
           <details class="group">
+            <!-- CABECERA SECCIÓN -->
             <summary class="font-bold uppercase text-xs tracking-wider flex justify-between items-center py-2 px-4
-         text-white group-open:text-gray-400
-         hover:text-white cursor-pointer">
+      text-white group-open:text-gray-400 hover:text-white cursor-pointer">
               <div class="flex items-center justify-start">
                 <i class="fa-solid fa-gears text-base w-5 text-center mr-3"></i>
                 Gestión
@@ -107,30 +107,34 @@
                group-open:rotate-180"></i>
             </summary>
 
+            <!-- ITEMS DE GESTIÓN -->
             <ul>
               <li v-for="route in filteredManagementRoutes" :key="route.to" class="mt-1">
-                <router-link :to="route.to" class="flex items-center justify-start py-2 pl-8 pr-4 text-sm font-medium rounded-primary
-                 transition-all duration-300
-                 hover:bg-gray-700 hover:text-white"
-                  :active-class="'bg-gradient-to-r from-[#b0669f] to-[#8a5bb4] text-white'" @click="closeMenu">
-                <!-- Si tiene hijos, mostramos otro details/summary o lista anidada -->
+
+                <!-- CON HIJOS (ej: Versiones) -->
                 <div v-if="route.children && route.children.length > 0">
-                  <details>
-                    <summary
-                      class="flex items-center justify-start py-2 pl-8 pr-4 text-sm font-medium transition-all duration-300 hover:bg-gray-700 hover:text-white cursor-pointer list-none">
+                  <details class="group/child">
+                    <summary class="flex items-center justify-start py-2 pl-8 pr-4 text-sm font-medium rounded-primary
+             transition-all duration-300
+             hover:bg-gray-700 hover:text-white cursor-pointer list-none">
                       <div class="flex items-center justify-between w-full">
                         <div class="flex items-center">
                           <i :class="[route.icon, 'text-base w-5 text-center mr-3']"></i>
                           {{ route.label }}
                         </div>
-                        <i class="fa-solid fa-chevron-down text-[10px]"></i>
+
+                        <i class="fa-solid fa-chevron-down text-[10px]
+                  transition-transform duration-200
+                  group-open/child:rotate-180"></i>
                       </div>
                     </summary>
+
                     <ul>
                       <li v-for="child in route.children" :key="child.to" class="mt-1">
-                        <router-link :to="child.to"
-                          class="flex items-center justify-start py-2 pl-12 pr-4 text-sm font-medium transition-all duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
-                          :active-class="child.activeClass || 'bg-gray-600 text-white'" @click="closeMenu">
+                        <router-link :to="child.to" class="flex items-center justify-start py-2 pl-12 pr-4 text-sm font-medium rounded-primary
+                 transition-all duration-300
+                 hover:bg-gray-700 hover:text-white"
+                          :active-class="'bg-gradient-to-r from-[#b0669f] to-[#8a5bb4] text-white'" @click="closeMenu">
                           <i :class="[child.icon, 'text-base w-5 text-center mr-3']"></i>
                           {{ child.label }}
                         </router-link>
@@ -139,18 +143,21 @@
                   </details>
                 </div>
 
-                <!-- Si NO tiene hijos, render normal -->
-                <router-link v-else :to="route.to"
-                  class="flex items-center justify-start py-2 pl-8 pr-4 text-sm font-medium transition-all duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
-                  :active-class="route.activeClass || 'bg-gray-600 text-white'" @click="closeMenu">
+                <!-- SIN HIJOS (ej: Usuarios) -->
+                <router-link v-else :to="route.to" class="flex items-center justify-start py-2 pl-8 pr-4 text-sm font-medium rounded-primary
+            transition-all duration-300
+            hover:bg-gray-700 hover:text-white"
+                  :active-class="'bg-gradient-to-r from-[#b0669f] to-[#8a5bb4] text-white'" @click="closeMenu">
                   <i :class="[route.icon, 'text-base w-5 text-center mr-3']"></i>
                   {{ route.label }}
                 </router-link>
+
               </li>
             </ul>
           </details>
         </li>
 
+        
 
         <li v-if="filteredBottomRoutes.length > 0" class="my-2 border-t border-gray-700/50"></li>
 
