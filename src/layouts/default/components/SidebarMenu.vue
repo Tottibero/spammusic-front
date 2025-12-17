@@ -113,6 +113,36 @@
                  transition-all duration-300
                  hover:bg-gray-700 hover:text-white"
                   :active-class="'bg-gradient-to-r from-[#b0669f] to-[#8a5bb4] text-white'" @click="closeMenu">
+                <!-- Si tiene hijos, mostramos otro details/summary o lista anidada -->
+                <div v-if="route.children && route.children.length > 0">
+                  <details>
+                    <summary
+                      class="flex items-center justify-start py-2 pl-8 pr-4 text-sm font-medium transition-all duration-300 hover:bg-gray-700 hover:text-white cursor-pointer list-none">
+                      <div class="flex items-center justify-between w-full">
+                        <div class="flex items-center">
+                          <i :class="[route.icon, 'text-base w-5 text-center mr-3']"></i>
+                          {{ route.label }}
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                      </div>
+                    </summary>
+                    <ul>
+                      <li v-for="child in route.children" :key="child.to" class="mt-1">
+                        <router-link :to="child.to"
+                          class="flex items-center justify-start py-2 pl-12 pr-4 text-sm font-medium transition-all duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
+                          :active-class="child.activeClass || 'bg-gray-600 text-white'" @click="closeMenu">
+                          <i :class="[child.icon, 'text-base w-5 text-center mr-3']"></i>
+                          {{ child.label }}
+                        </router-link>
+                      </li>
+                    </ul>
+                  </details>
+                </div>
+
+                <!-- Si NO tiene hijos, render normal -->
+                <router-link v-else :to="route.to"
+                  class="flex items-center justify-start py-2 pl-8 pr-4 text-sm font-medium transition-all duration-300 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]"
+                  :active-class="route.activeClass || 'bg-gray-600 text-white'" @click="closeMenu">
                   <i :class="[route.icon, 'text-base w-5 text-center mr-3']"></i>
                   {{ route.label }}
                 </router-link>
@@ -155,8 +185,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, watch } from 'vue';
+import { defineComponent, computed, watch, ref, onMounted } from 'vue';
 import { useAuthStore } from '@stores/auth/auth.ts';
+import { getLatestProductionVersion } from '@services/versions/versions';
 import routesData from './routes.json';
 
 // Tipo actualizado con 'new-discs'
@@ -167,6 +198,7 @@ type AppRoute = {
   activeClass?: string;
   requiredRole?: string;
   icon?: string;
+  children?: AppRoute[];
 };
 
 export default defineComponent({
@@ -178,6 +210,7 @@ export default defineComponent({
   setup(props, { emit }) {
     const authStore = useAuthStore();
     const allRoutes = routesData as AppRoute[];
+    const latestVersion = ref<string | null>(null);
 
     const handleLogout = () => {
       authStore.logout();
@@ -222,6 +255,16 @@ export default defineComponent({
       filterByRole(allRoutes.filter((r) => r.type === 'bottom'))
     );
 
+    // Fetch latest production version
+    onMounted(async () => {
+      latestVersion.value = await getLatestProductionVersion();
+    });
+
+    // Computed version display with fallback
+    const versionDisplay = computed(() => {
+      return latestVersion.value ? `version ${latestVersion.value}` : 'version -';
+    });
+
     return {
       handleLogout,
       closeMenu,
@@ -231,6 +274,7 @@ export default defineComponent({
       filteredRiffValleyRoutes,
       filteredManagementRoutes,
       filteredBottomRoutes,
+      versionDisplay,
     };
   },
 });

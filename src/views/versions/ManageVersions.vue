@@ -4,287 +4,331 @@
 
     <!-- Barra de acciones -->
     <div class="flex items-center gap-3">
-      <button @click="openCreateVersion" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+      <button v-if="!hasDevVersion" @click="openCreateModal"
+        class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
         ➕ Nueva versión
-      </button>
-      <button @click="reload" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-        Recargar
-      </button>
-      <button @click="goToKanban" class="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600">
-        📋 Ver tablero Kanban
       </button>
     </div>
 
-    <!-- Tabla responsiva de versiones -->
+    <!-- Tabla responsiva de versiones (SOLO LECTURA) -->
     <div class="overflow-x-auto w-full">
-      <table class="w-full border border-gray-300 min-w-[900px]">
-        <thead class="bg-gray-200 hidden md:table-header-group">
+      <table class="w-full border border-gray-300">
+        <thead class="bg-gray-200">
           <tr>
-            <th class="p-2 border">Versión</th>
-            <th class="p-2 border">Notas</th>
-            <th class="p-2 border">Publicada</th>
-            <th class="p-2 border">Activa</th>
-            <th class="p-2 border">Items</th>
-            <th class="p-2 border">Acciones</th>
+            <th class="p-3 border text-left">Versión</th>
+            <th class="p-3 border text-left">Notas</th>
+            <th class="p-3 border text-left">Release</th>
+            <th class="p-3 border text-left">Estado</th>
+            <th class="p-3 border text-left">Publicada</th>
+            <th class="p-3 border text-left">Items</th>
+            <th class="p-3 border text-left">Acciones</th>
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="v in versions"
-            :key="v.id"
-            class="border md:table-row flex flex-col md:flex-row"
-          >
+          <tr v-for="v in versions" :key="v.id" class="border hover:bg-gray-50">
             <!-- Versión -->
-            <td class="p-2 border font-bold md:font-normal">
-              <input v-model="v.version" class="w-full p-2 border rounded" />
-              <div class="text-xs text-gray-500 mt-1">
-                ID: {{ v.id }}
-              </div>
+            <td class="p-3 border">
+              <div class="font-semibold">{{ v.version }}</div>
+              <div class="text-xs text-gray-500">ID: {{ v.id }}</div>
             </td>
 
             <!-- Notas -->
-            <td class="p-2 border">
-              <textarea
-                v-model="v.notes"
-                class="w-full p-2 border rounded"
-                rows="2"
-              ></textarea>
-              <div class="grid grid-cols-2 gap-2 mt-2">
-                <label class="text-sm">
-                  Release:
-                  <input
-                    type="date"
-                    v-model="dates[v.id].releaseDate"
-                    class="w-full p-1 border rounded"
-                  />
-                </label>
-                <label class="text-sm">
-                  Published:
-                  <input
-                    type="datetime-local"
-                    v-model="dates[v.id].publishedAt"
-                    class="w-full p-1 border rounded"
-                  />
-                </label>
-              </div>
+            <td class="p-3 border">
+              <div class="text-sm">{{ v.notes || '—' }}</div>
+            </td>
+
+            <!-- Release Date -->
+            <td class="p-3 border">
+              <span class="text-sm">{{ v.releaseDate || '—' }}</span>
+            </td>
+
+            <!-- Estado -->
+            <td class="p-3 border">
+              <span class="inline-block px-3 py-1 rounded text-white text-sm font-semibold"
+                :class="v.status === 'en_desarrollo' ? 'bg-blue-500' : 'bg-green-600'">
+                {{ v.status === 'en_desarrollo' ? '🔧 Desarrollo' : '🚀 Producción' }}
+              </span>
             </td>
 
             <!-- Publicada -->
-            <td class="p-2 border">
+            <td class="p-3 border">
               <span class="text-sm text-gray-600">
                 {{ v.publishedAt ? new Date(v.publishedAt).toLocaleString() : '—' }}
               </span>
             </td>
 
-            <!-- Activa -->
-            <td class="p-2 border">
-              <span class="inline-flex items-center">
-                <span
-                  class="mr-2 px-2 py-1 rounded text-white"
-                  :class="v.isActive ? 'bg-green-500' : 'bg-gray-400'"
-                >
-                  {{ v.isActive ? 'Activa' : 'Inactiva' }}
-                </span>
-                <button
-                  @click="toggleActive(v)"
-                  class="px-3 py-1 bg-indigo-500 text-white rounded hover:bg-indigo-600"
-                >
-                  {{ v.isActive ? 'Desactivar' : 'Activar' }}
-                </button>
-              </span>
-            </td>
-
             <!-- Items -->
-            <td class="p-2 border">
-              <button
-                @click="toggleItems(v.id)"
-                class="px-3 py-1 bg-gray-700 text-white rounded hover:bg-gray-800"
-              >
-                {{ open[v.id] ? 'Ocultar' : 'Mostrar' }} ({{ v.items.length }})
+            <td class="p-3 border">
+              <button @click="openItemsModal(v)"
+                class="px-3 py-1 bg-gray-700 text-white rounded hover:bg-gray-800 text-sm">
+                Ver Items ({{ v.items.length }})
               </button>
-              <div v-if="open[v.id]" class="mt-3 space-y-3">
-                <!-- Form nuevo item -->
-                <div class="p-3 border rounded bg-gray-50">
-                  <h4 class="text-sm font-semibold mb-2">Nuevo item</h4>
-                  <div class="grid grid-cols-1 md:grid-cols-5 gap-2">
-                    <select v-model="newItem[v.id].type" class="p-2 border rounded">
-                      <option v-for="t in changeTypes" :key="t" :value="t">{{ t }}</option>
-                    </select>
-                    <input
-                      v-model="newItem[v.id].description"
-                      placeholder="Descripción"
-                      class="p-2 border rounded"
-                    />
-                    <select v-model="newItem[v.id].state" class="p-2 border rounded">
-                      <option v-for="s in devStates" :key="s" :value="s">{{ s }}</option>
-                    </select>
-                    <input
-                      v-model="newItem[v.id].branch"
-                      placeholder="<i class='fa-solid fa-code-branch'></i> Branch (obligatorio)"
-                      class="p-2 border rounded font-mono"
-                    />
-                    <label class="flex items-center gap-2 text-sm">
-                      <input type="checkbox" v-model="newItem[v.id].publicVisible" />
-                      Público
-                    </label>
-                  </div>
-                  <div class="flex gap-2 mt-2">
-                    <button
-                      @click="createItem(v.id)"
-                      class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-                    >
-                      Añadir
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Lista items -->
-                <div class="overflow-x-auto">
-                  <table class="w-full border border-gray-300 min-w-[800px]">
-                    <thead class="bg-gray-100">
-                      <tr>
-                        <th class="p-2 border text-left">Tipo</th>
-                        <th class="p-2 border text-left">Descripción</th>
-                        <th class="p-2 border text-left">Estado</th>
-                        <th class="p-2 border text-left"><i class='fa-solid fa-code-branch'></i> Branch</th>
-                        <th class="p-2 border text-left">Público</th>
-                        <th class="p-2 border text-left">Acciones</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="it in v.items" :key="it.id">
-                        <td class="p-2 border">
-                          <select v-model="it.type" class="p-2 border rounded w-full">
-                            <option v-for="t in changeTypes" :key="t" :value="t">{{ t }}</option>
-                          </select>
-                        </td>
-                        <td class="p-2 border">
-                          <input v-model="it.description" class="w-full p-2 border rounded" />
-                        </td>
-                        <td class="p-2 border">
-                          <select v-model="it.state" class="p-2 border rounded w-full">
-                            <option v-for="s in devStates" :key="s" :value="s">{{ s }}</option>
-                          </select>
-                        </td>
-                        <td class="p-2 border">
-                          <input v-model="(it as any).branch" class="w-full p-2 border rounded font-mono" />
-                        </td>
-                        <td class="p-2 border text-center">
-                          <input type="checkbox" v-model="it.publicVisible" />
-                        </td>
-                        <td class="p-2 border">
-                          <div class="flex gap-2">
-                            <button
-                              @click="saveItem(v.id, it)"
-                              class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                            >
-                              Guardar
-                            </button>
-                            <button
-                              @click="removeItem(v.id, it)"
-                              class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                            >
-                              Eliminar
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
             </td>
 
             <!-- Acciones versión -->
-            <td
-              class="p-2 border text-center flex flex-col space-y-2 md:space-y-0 md:flex-row md:space-x-2"
-            >
-              <button
-                @click="saveVersionInline(v)"
-                class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                Guardar
-              </button>
-              <button
-                @click="confirmDeleteVersion(v)"
-                class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-              >
-                Eliminar
-              </button>
+            <td class="p-3 border">
+              <div class="flex gap-2">
+                <!-- Versión en desarrollo -->
+                <template v-if="v.status === 'en_desarrollo'">
+                  <button @click="goToKanban"
+                    class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm">
+                    📋 Kanban
+                  </button>
+                  <button @click="confirmDeleteVersion(v)"
+                    class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm">
+                    Eliminar
+                  </button>
+                </template>
+                <!-- Versión en producción -->
+                <template v-else>
+                  <button @click="openEditNameModal(v)"
+                    class="px-3 py-1 bg-amber-500 text-white rounded hover:bg-amber-600 text-sm">
+                    ✏️ Editar Nombre
+                  </button>
+                  <button @click="openEditLinkModal(v)"
+                    class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm">
+                    🔗 Link Telegram
+                  </button>
+                </template>
+              </div>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <!-- Form crear/editar versión (simple, inline modal) -->
-    <div v-if="showForm" class="mb-4 p-4 border rounded bg-gray-100">
-      <h3 class="text-lg font-semibold mb-2">
-        {{ editingVersion ? 'Editar versión' : 'Nueva versión' }}
-      </h3>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <input v-model="form.version" placeholder="1.2.3" class="w-full p-2 border rounded" />
-        <input type="date" v-model="form.releaseDate" class="w-full p-2 border rounded" />
-        <input
-          type="datetime-local"
-          v-model="form.publishedAt"
-          class="w-full p-2 border rounded"
-        />
+    <!-- Modal crear versión -->
+    <div v-if="showCreateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      @click.self="closeCreateModal">
+      <div class="bg-white rounded-lg shadow-2xl max-w-md w-full p-6 transform transition-all">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-2xl font-bold text-gray-800">Nueva Versión</h3>
+          <button @click="closeCreateModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              Versión <span class="text-red-500">*</span>
+            </label>
+            <input v-model="createForm.version" placeholder="1.0.0"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              Fecha de Release <span class="text-red-500">*</span>
+            </label>
+            <input type="date" v-model="createForm.releaseDate"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              Notas <span class="text-gray-400 text-xs">(opcional)</span>
+            </label>
+            <textarea v-model="createForm.notes" placeholder="Describe los cambios de esta versión..." rows="4"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"></textarea>
+          </div>
+        </div>
+
+        <div class="flex gap-3 mt-6">
+          <button @click="createVersionFromModal"
+            class="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-md hover:shadow-lg">
+            ✓ Crear Versión
+          </button>
+          <button @click="closeCreateModal"
+            class="px-4 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-all">
+            Cancelar
+          </button>
+        </div>
       </div>
-      <textarea
-        v-model="form.notes"
-        placeholder="Notas"
-        rows="3"
-        class="w-full p-2 border rounded mt-2"
-      ></textarea>
-      <div class="flex gap-2 mt-3">
-        <button
-          @click="saveVersionForm"
-          class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Guardar
-        </button>
-        <button
-          @click="closeForm"
-          class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-        >
-          Cancelar
-        </button>
+    </div>
+
+    <!-- Modal items -->
+    <div v-if="showItemsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      @click.self="closeItemsModal">
+      <div class="bg-white rounded-lg shadow-2xl max-w-4xl w-full p-6 max-h-[90vh] flex flex-col">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-2xl font-bold text-gray-800">
+            Items de {{ selectedVersion?.version }}
+          </h3>
+          <button @click="closeItemsModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="overflow-auto flex-1">
+          <table class="w-full border border-gray-300">
+            <thead class="bg-gray-100 sticky top-0">
+              <tr>
+                <th class="p-2 border text-left text-sm">Tipo</th>
+                <th class="p-2 border text-left text-sm">Descripción</th>
+                <th class="p-2 border text-left text-sm">Estado</th>
+                <th class="p-2 border text-left text-sm">Branch</th>
+                <th class="p-2 border text-left text-sm">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="it in sortedItems" :key="it.id" class="hover:bg-gray-50">
+                <!-- Tipo -->
+                <td class="p-2 border">
+                  <select v-if="editingItem === it.id" v-model="editCache.type"
+                    class="w-full p-1 border rounded text-sm">
+                    <option v-for="t in changeTypes" :key="t" :value="t">{{ t }}</option>
+                  </select>
+                  <span v-else class="text-sm font-mono">{{ it.type }}</span>
+                </td>
+
+                <!-- Descripción -->
+                <td class="p-2 border">
+                  <input v-if="editingItem === it.id" v-model="editCache.description"
+                    class="w-full p-1 border rounded text-sm" />
+                  <span v-else class="text-sm cursor-pointer hover:text-blue-600" @click="startEditItem(it)">
+                    {{ it.description }}
+                  </span>
+                </td>
+
+                <!-- Estado (solo lectura) -->
+                <td class="p-2 border">
+                  <span class="text-sm text-gray-600">{{ it.state }}</span>
+                </td>
+
+                <!-- Branch (solo lectura) -->
+                <td class="p-2 border">
+                  <span class="text-sm font-mono text-gray-600">{{ (it as any).branch || '—' }}</span>
+                </td>
+
+                <!-- Acciones -->
+                <td class="p-2 border">
+                  <div class="flex gap-2">
+                    <button v-if="editingItem === it.id" @click="saveItemEdit(it)"
+                      class="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs">
+                      ✓
+                    </button>
+                    <button v-if="editingItem === it.id" @click="cancelEditItem"
+                      class="px-2 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 text-xs">
+                      ✖
+                    </button>
+                    <button @click="removeItem(it)"
+                      class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-xs">
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div v-if="!selectedVersion?.items.length" class="text-center py-8 text-gray-500">
+            No hay items en esta versión
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal editar nombre de versión -->
+    <div v-if="showEditNameModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      @click.self="closeEditNameModal">
+      <div class="bg-white rounded-lg shadow-2xl max-w-md w-full p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-2xl font-bold text-gray-800">Editar Nombre de Versión</h3>
+          <button @click="closeEditNameModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              Nombre de Versión <span class="text-red-500">*</span>
+            </label>
+            <input v-model="editNameForm.version" placeholder="1.0.0"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+          </div>
+        </div>
+
+        <div class="flex gap-3 mt-6">
+          <button @click="saveVersionName"
+            class="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg">
+            ✓ Guardar
+          </button>
+          <button @click="closeEditNameModal"
+            class="px-4 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-all">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal editar link de Telegram -->
+    <div v-if="showEditLinkModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      @click.self="closeEditLinkModal">
+      <div class="bg-white rounded-lg shadow-2xl max-w-md w-full p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-2xl font-bold text-gray-800">Link de Telegram</h3>
+          <button @click="closeEditLinkModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              URL de Telegram
+            </label>
+            <input v-model="editLinkForm.link" placeholder="https://t.me/..."
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+          </div>
+        </div>
+
+        <div class="flex gap-3 mt-6">
+          <button @click="saveVersionLink"
+            class="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg">
+            ✓ Guardar
+          </button>
+          <button @click="closeEditLinkModal"
+            class="px-4 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-all">
+            Cancelar
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import SwalService from '@services/swal/SwalService';
 import type {
   Version,
   VersionItem,
   CreateVersionDto,
-  CreateVersionItemDto,
 } from '@services/versions/versions';
 import {
   listVersions,
   createVersion,
   updateVersion,
   removeVersion,
-  setVersionActive,
-  createVersionItem,
   updateVersionItem,
   removeVersionItem,
 } from '@services/versions/versions';
 
 const router = useRouter();
-function goToKanban() {
-  router.push({ name: 'versions-kanban' });
-}
+
 
 const versions = ref<Version[]>([]);
-const open = reactive<Record<string, boolean>>({});
-const newItem = reactive<Record<string, Partial<CreateVersionItemDto> & { branch?: string }>>({});
-const dates = reactive<Record<string, { releaseDate: string; publishedAt: string }>>({});
 
 const changeTypes = [
   'feat',
@@ -299,176 +343,230 @@ const changeTypes = [
   'chore',
   'revert',
 ];
-const devStates = ['todo', 'in_progress', 'in_review', 'done'];
 
-// Form crear/editar versión
-const showForm = ref(false);
-const editingVersion = ref<Version | null>(null);
-const form = ref<Partial<CreateVersionDto>>({
+// Modal crear versión
+const showCreateModal = ref(false);
+const createForm = ref({
   version: '',
-  notes: '',
   releaseDate: '',
-  publishedAt: '',
+  notes: '',
 });
 
-function toLocalDT(iso?: string) {
-  if (!iso) return '';
-  const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(
-    d.getMinutes()
-  )}`;
-}
+// Modal items
+const showItemsModal = ref(false);
+const selectedVersion = ref<Version | null>(null);
+const editingItem = ref<string | null>(null);
+const editCache = ref({
+  type: '',
+  description: '',
+});
 
-function fromLocalDT(local: string | undefined) {
-  if (!local) return undefined;
-  const d = new Date(local);
-  return d.toISOString();
-}
+// Modal editar nombre
+const showEditNameModal = ref(false);
+const editNameForm = ref({
+  version: '',
+  versionId: '',
+});
+
+// Modal editar link
+const showEditLinkModal = ref(false);
+const editLinkForm = ref({
+  link: '',
+  versionId: '',
+});
+
+// Computed: verificar si existe versión en desarrollo
+const hasDevVersion = computed(() => {
+  return versions.value.some(v => v.status === 'en_desarrollo');
+});
+
+// Computed: ordenar items por tipo (feat, fix, resto alfabético)
+const sortedItems = computed(() => {
+  if (!selectedVersion.value?.items) return [];
+
+  return [...selectedVersion.value.items].sort((a, b) => {
+    // feat siempre primero
+    if (a.type === 'feat' && b.type !== 'feat') return -1;
+    if (a.type !== 'feat' && b.type === 'feat') return 1;
+
+    // fix segundo (después de feat)
+    if (a.type === 'fix' && b.type !== 'fix' && b.type !== 'feat') return -1;
+    if (a.type !== 'fix' && a.type !== 'feat' && b.type === 'fix') return 1;
+
+    // El resto alfabéticamente
+    return a.type.localeCompare(b.type);
+  });
+});
 
 async function load() {
   const data = await listVersions();
   versions.value = data;
+}
 
-  for (const v of versions.value) {
-    open[v.id] = false;
-    newItem[v.id] = { type: 'feat', description: '', state: 'todo', publicVisible: false, branch: '' };
-    dates[v.id] = {
-      releaseDate: v.releaseDate ?? '',
-      publishedAt: toLocalDT(v.publishedAt),
-    };
+function openCreateModal() {
+  createForm.value = { version: '', releaseDate: '', notes: '' };
+  showCreateModal.value = true;
+}
+
+function closeCreateModal() {
+  showCreateModal.value = false;
+}
+
+async function createVersionFromModal() {
+  if (!createForm.value.version || !createForm.value.releaseDate) {
+    SwalService.error('La versión y la fecha de release son obligatorias');
+    return;
   }
-}
 
-function openCreateVersion() {
-  editingVersion.value = null;
-  form.value = { version: '', notes: '', releaseDate: '', publishedAt: '' };
-  showForm.value = true;
-}
-function openEditVersion(v: Version) {
-  editingVersion.value = v;
-  form.value = {
-    version: v.version,
-    notes: v.notes,
-    releaseDate: v.releaseDate ?? '',
-    publishedAt: toLocalDT(v.publishedAt),
-  };
-  showForm.value = true;
-}
-function closeForm() {
-  showForm.value = false;
-}
+  // Validar que la fecha de release no sea anterior a la última versión
+  if (versions.value.length > 0) {
+    // Ordenar versiones por releaseDate descendente para obtener la más reciente
+    const sortedVersions = [...versions.value]
+      .filter(v => v.releaseDate) // Solo versiones con releaseDate
+      .sort((a, b) => new Date(b.releaseDate!).getTime() - new Date(a.releaseDate!).getTime());
 
-async function saveVersionForm() {
-  try {
-    if (editingVersion.value) {
-      const dto = {
-        ...form.value,
-        publishedAt: fromLocalDT(form.value.publishedAt as string),
-      };
-      const updated = await updateVersion(editingVersion.value.id, dto);
-      Object.assign(editingVersion.value, updated);
-      dates[editingVersion.value.id].releaseDate = updated.releaseDate ?? '';
-      dates[editingVersion.value.id].publishedAt = toLocalDT(updated.publishedAt);
-      SwalService.success('Versión actualizada');
-    } else {
-      const dto = {
-        ...form.value,
-        publishedAt: fromLocalDT(form.value.publishedAt as string),
-      } as CreateVersionDto;
-      const created = await createVersion(dto);
-      versions.value.push(created);
-      open[created.id] = false;
-      newItem[created.id] = { type: 'feat', description: '', state: 'todo', publicVisible: false, branch: '' };
-      dates[created.id] = {
-        releaseDate: created.releaseDate ?? '',
-        publishedAt: toLocalDT(created.publishedAt),
-      };
-      SwalService.success('Versión creada');
+    if (sortedVersions.length > 0) {
+      const latestVersion = sortedVersions[0];
+      const latestReleaseDate = new Date(latestVersion.releaseDate!);
+      const newReleaseDate = new Date(createForm.value.releaseDate);
+
+      if (newReleaseDate < latestReleaseDate) {
+        SwalService.error(
+          `La fecha de release no puede ser anterior a la última versión (${latestVersion.version}: ${latestVersion.releaseDate})`
+        );
+        return;
+      }
     }
+  }
+
+  try {
+    const dto: CreateVersionDto = {
+      version: createForm.value.version,
+      releaseDate: createForm.value.releaseDate,
+      notes: createForm.value.notes || undefined,
+    };
+
+    const created = await createVersion(dto);
+
+    // Asegurar que items existe
+    if (!created.items) {
+      created.items = [];
+    }
+
+    versions.value.push(created);
+    SwalService.success('Versión creada');
   } catch (e) {
     console.error(e);
-    SwalService.error('Error guardando versión');
+    SwalService.error('Error creando versión');
   } finally {
-    closeForm();
+    closeCreateModal();
   }
 }
 
-async function saveVersionInline(v: Version) {
+function goToKanban() {
+  router.push({ name: 'versions-kanban' });
+}
+
+function openEditNameModal(v: Version) {
+  editNameForm.value = {
+    version: v.version,
+    versionId: v.id,
+  };
+  showEditNameModal.value = true;
+}
+
+function closeEditNameModal() {
+  showEditNameModal.value = false;
+}
+
+async function saveVersionName() {
+  if (!editNameForm.value.version) {
+    SwalService.error('El nombre de versión es obligatorio');
+    return;
+  }
+
   try {
-    const dto = {
-      version: v.version,
-      notes: v.notes,
-      releaseDate: dates[v.id].releaseDate || null,
-      publishedAt: fromLocalDT(dates[v.id].publishedAt),
-    };
-    const updated = await updateVersion(v.id, dto);
-    Object.assign(v, updated);
-    dates[v.id].releaseDate = updated.releaseDate ?? '';
-    dates[v.id].publishedAt = toLocalDT(updated.publishedAt);
-    SwalService.success('Versión guardada');
+    const updated = await updateVersion(editNameForm.value.versionId, {
+      version: editNameForm.value.version,
+    });
+
+    const version = versions.value.find(v => v.id === editNameForm.value.versionId);
+    if (version) {
+      version.version = updated.version;
+    }
+
+    SwalService.success('Nombre actualizado');
+    closeEditNameModal();
   } catch (e) {
     console.error(e);
-    SwalService.error('No se pudo guardar la versión');
+    SwalService.error('No se pudo actualizar el nombre');
   }
 }
 
-async function toggleActive(v: Version) {
+function openEditLinkModal(v: Version) {
+  editLinkForm.value = {
+    link: v.link || '',
+    versionId: v.id,
+  };
+  showEditLinkModal.value = true;
+}
+
+function closeEditLinkModal() {
+  showEditLinkModal.value = false;
+}
+
+async function saveVersionLink() {
   try {
-    const updated = await setVersionActive(v.id, !v.isActive);
-    Object.assign(v, updated);
+    const updated = await updateVersion(editLinkForm.value.versionId, {
+      link: editLinkForm.value.link || null,
+    });
+
+    const version = versions.value.find(v => v.id === editLinkForm.value.versionId);
+    if (version) {
+      version.link = updated.link;
+    }
+
+    SwalService.success('Link actualizado');
+    closeEditLinkModal();
   } catch (e) {
     console.error(e);
-    SwalService.error('No se pudo cambiar el estado activo');
+    SwalService.error('No se pudo actualizar el link');
   }
 }
 
-function toggleItems(id: string) {
-  open[id] = !open[id];
+function openItemsModal(v: Version) {
+  selectedVersion.value = v;
+  showItemsModal.value = true;
 }
 
-async function createItem(versionId: string) {
-  try {
-    const payload = newItem[versionId];
-    if (!payload.description || !payload.type) {
-      SwalService.error('Falta tipo o descripción');
-      return;
-    }
-    if (!payload.branch || !payload.branch.trim()) {
-      SwalService.error('La branch es obligatoria');
-      return;
-    }
-    const created = await createVersionItem(versionId, {
-      type: payload.type!,
-      description: payload.description!,
-      state: payload.state!,
-      publicVisible: !!payload.publicVisible,
-      branch: payload.branch!.trim(),
-    } as CreateVersionItemDto & { branch: string });
-    const v = versions.value.find((x) => x.id === versionId);
-    if (v) v.items.push(created);
-    newItem[versionId] = { type: 'feat', description: '', state: 'todo', publicVisible: false, branch: '' };
-  } catch (e) {
-    console.error(e);
-    SwalService.error('No se pudo crear el item');
-  }
+function closeItemsModal() {
+  showItemsModal.value = false;
+  selectedVersion.value = null;
+  editingItem.value = null;
 }
 
-async function saveItem(versionId: string, it: VersionItem) {
+function startEditItem(it: VersionItem) {
+  editingItem.value = it.id;
+  editCache.value = {
+    type: it.type,
+    description: it.description,
+  };
+}
+
+function cancelEditItem() {
+  editingItem.value = null;
+}
+
+async function saveItemEdit(it: VersionItem) {
+  if (!selectedVersion.value) return;
+
   try {
-    const branch = (it as any).branch;
-    if (!branch || !String(branch).trim()) {
-      SwalService.error('La branch es obligatoria');
-      return;
-    }
-    const updated = await updateVersionItem(versionId, it.id, {
-      type: it.type,
-      description: it.description,
-      state: it.state,
-      publicVisible: it.publicVisible,
-      branch: String(branch).trim(),
-    } as any);
+    const updated = await updateVersionItem(selectedVersion.value.id, it.id, {
+      type: editCache.value.type as any,
+      description: editCache.value.description,
+    });
     Object.assign(it, updated);
+    editingItem.value = null;
     SwalService.success('Item actualizado');
   } catch (e) {
     console.error(e);
@@ -476,7 +574,9 @@ async function saveItem(versionId: string, it: VersionItem) {
   }
 }
 
-async function removeItem(versionId: string, it: VersionItem) {
+async function removeItem(it: VersionItem) {
+  if (!selectedVersion.value) return;
+
   const ok = await SwalService.confirm(
     '¿Eliminar item?',
     'Esta acción no se puede deshacer',
@@ -487,9 +587,15 @@ async function removeItem(versionId: string, it: VersionItem) {
   if (!ok) return;
 
   try {
-    await removeVersionItem(versionId, it.id);
-    const v = versions.value.find((x) => x.id === versionId);
-    if (v) v.items = v.items.filter((x) => x.id !== it.id);
+    await removeVersionItem(selectedVersion.value.id, it.id);
+    selectedVersion.value.items = selectedVersion.value.items.filter((x) => x.id !== it.id);
+
+    // Actualizar también en la lista principal
+    const mainVersion = versions.value.find(v => v.id === selectedVersion.value!.id);
+    if (mainVersion) {
+      mainVersion.items = mainVersion.items.filter((x) => x.id !== it.id);
+    }
+
     SwalService.success('Item eliminado');
   } catch (e) {
     console.error(e);

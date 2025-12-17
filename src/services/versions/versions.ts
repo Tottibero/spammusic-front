@@ -10,14 +10,39 @@ export type ChangeType =
 
 export type DevState = 'todo' | 'in_progress' | 'in_review' | 'done';
 
+export enum Priority {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+  SUGGESTION = 'suggestion'
+}
+
 export interface VersionItem {
   id: string;
   type: ChangeType;
   description: string;
-  scope?: string;
-  breaking?: boolean;
-  publicVisible: boolean;
+  scope?: string | null;
+  priority?: Priority;
+  branch?: string;
   state: DevState;
+  backUser?: {
+    id: string;
+    username: string;
+    isActive: boolean;
+    image: string;
+  } | null;
+  frontUser?: {
+    id: string;
+    username: string;
+    isActive: boolean;
+    image: string;
+  } | null;
+}
+
+// Respuesta para versión en desarrollo (incluye backlog)
+export interface DevVersionResponse {
+  version: Version;
+  backlog: VersionItem[];
 }
 
 export interface Version {
@@ -25,8 +50,10 @@ export interface Version {
   version: string;
   releaseDate?: string;   // ISO
   notes?: string;
+  link?: string | null;   // Telegram link
   isActive: boolean;
   publishedAt?: string;   // ISO
+  status?: 'en_desarrollo' | 'en_produccion';
   createdAt: string;      // ISO
   updatedAt: string;      // ISO
   items: VersionItem[];
@@ -38,28 +65,42 @@ export interface VersionsInfiniteResponse {
   nextCursor?: string;
 }
 
+// Respuesta paginada
+export interface PaginatedVersionsResponse {
+  data: Version[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 // Crear/Actualizar DTOs (frontend)
 export interface CreateVersionItemDto {
   type: ChangeType;
   description: string;
   scope?: string;
-  breaking?: boolean;
-  publicVisible?: boolean;
+  priority?: Priority;
   state?: DevState;
+  branch?: string;
 }
 
-export interface UpdateVersionItemDto extends Partial<CreateVersionItemDto> {}
+export interface UpdateVersionItemDto extends Partial<CreateVersionItemDto> {
+  version?: string | null; // ID de la versión o null para desasignar
+}
 
 export interface CreateVersionDto {
   version: string;
   releaseDate?: string; // 'YYYY-MM-DD'
   notes?: string;
+  link?: string | null; // Telegram link
   isActive?: boolean;
   publishedAt?: string; // ISO
   items?: CreateVersionItemDto[];
 }
 
-export interface UpdateVersionDto extends Partial<CreateVersionDto> {}
+export interface UpdateVersionDto extends Partial<CreateVersionDto> {
+  status?: 'en_desarrollo' | 'en_produccion';
+}
 
 // Utils
 export const toYMD = (d: Date) => {
@@ -96,6 +137,28 @@ export async function getPublicVersions(): Promise<Version[]> {
   return data;
 }
 
+// Versiones de producción paginadas
+export async function getProductionVersionsPaginated(
+  page: number,
+  limit = 9
+): Promise<PaginatedVersionsResponse> {
+  const { data } = await api.get<PaginatedVersionsResponse>('/versions/production/paginated', {
+    params: { page, limit },
+  });
+  return data;
+}
+
+// Última versión de producción
+export async function getLatestProductionVersion(): Promise<string | null> {
+  try {
+    const { data } = await api.get<{ version: string } | null>('/versions/production/latest');
+    return data?.version || null;
+  } catch (error) {
+    console.error('Error fetching latest production version:', error);
+    return null;
+  }
+}
+
 // =========================
 // CRUD de Version (admin)
 // =========================
@@ -106,9 +169,9 @@ export async function createVersion(dto: CreateVersionDto): Promise<Version> {
 }
 
 export interface ListVersionsParams {
-  limit?: number;    // si tu endpoint soporta offset/limit clásico
+  limit?: number;
   offset?: number;
-  query?: string;    // si añades búsqueda en el backend
+  query?: string;
   isActive?: boolean;
 }
 
@@ -139,10 +202,10 @@ export async function setVersionActive(id: string, active: boolean): Promise<Ver
 }
 
 // =========================
-// CRUD anidado de Items
+// CRUD anidado de Items (por versión)
 // =========================
 
-// Listar items de una versión (puedes añadir filtros como ?state=)
+// Listar items de una versión
 export async function listVersionItems(
   versionId: string,
   opts?: { state?: DevState }
@@ -153,7 +216,7 @@ export async function listVersionItems(
   return data;
 }
 
-// Crear item
+// Crear item en una versión
 export async function createVersionItem(
   versionId: string,
   dto: CreateVersionItemDto
@@ -162,7 +225,7 @@ export async function createVersionItem(
   return data;
 }
 
-// Actualizar item
+// Actualizar item de una versión
 export async function updateVersionItem(
   versionId: string,
   itemId: string,
@@ -172,7 +235,7 @@ export async function updateVersionItem(
   return data;
 }
 
-// Eliminar item
+// Eliminar item de una versión
 export async function removeVersionItem(
   versionId: string,
   itemId: string
@@ -181,8 +244,43 @@ export async function removeVersionItem(
   return data;
 }
 
-export async function getLatestDraftVersion(): Promise<Version | null> {
-  const { data } = await api.get<Version | null>('/versions/draft/latest');
+// =========================
+// CRUD directo de Items (sin versión)
+// =========================
+
+// Crear item (sin asociar a versión específica)
+export async function createItem(dto: CreateVersionItemDto): Promise<VersionItem> {
+  const { data } = await api.post<VersionItem>('/versions/items', dto);
+  return data;
+}
+
+// Obtener un item por ID
+export async function getItem(itemId: string): Promise<VersionItem> {
+  const { data } = await api.get<VersionItem>(`/versions/items/${itemId}`);
+  return data;
+}
+
+// Actualizar item directamente
+export async function updateItem(
+  itemId: string,
+  dto: UpdateVersionItemDto
+): Promise<VersionItem> {
+  const { data } = await api.patch<VersionItem>(`/versions/items/${itemId}`, dto);
+  return data;
+}
+
+// Eliminar item directamente
+export async function removeItem(itemId: string): Promise<{ message: string }> {
+  const { data } = await api.delete<{ message: string }>(`/versions/items/${itemId}`);
+  return data;
+}
+
+// =========================
+// Versión en desarrollo
+// =========================
+
+export async function getDevVersion(): Promise<DevVersionResponse | null> {
+  const { data } = await api.get<DevVersionResponse | null>('/versions/dev');
   return data;
 }
 

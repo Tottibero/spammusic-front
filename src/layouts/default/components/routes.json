@@ -106,7 +106,23 @@
     "activeClass": "bg-gray-700",
     "type": "management",
     "requiredRole": "superUser",
-    "icon": "fa-solid fa-code-branch"
+    "icon": "fa-solid fa-code-branch",
+    "children": [
+      {
+        "to": "/versions",
+        "label": "Versiones",
+        "activeClass": "bg-red-500",
+        "type": "management",
+        "icon": "fa-solid fa-list"
+      },
+      {
+        "to": "/versions/kanban",
+        "label": "Versión Actual",
+        "activeClass": "bg-red-500",
+        "type": "management",
+        "icon": "fa-solid fa-clipboard-list"
+      }
+    ]
   },
   {
     "to": "/password",
