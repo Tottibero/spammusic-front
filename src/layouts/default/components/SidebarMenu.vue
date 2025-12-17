@@ -41,7 +41,7 @@
           <details class="group">
             <summary class="font-bold uppercase text-xs tracking-wider flex justify-between items-center py-2 px-4
          text-white group-open:text-gray-400
-         hover:text-white">
+         hover:text-white cursor-pointer">
               <div class="flex items-center justify-start">
                 <i class="fa-solid fa-circle-plus text-base w-5 text-center mr-3"></i>
                 Nuevos Discos
@@ -67,7 +67,7 @@
           <details class="group">
             <summary class="font-bold uppercase text-xs tracking-wider flex justify-between items-center py-2 px-4
          text-white group-open:text-gray-400
-         hover:text-white">
+         hover:text-white cursor-pointer">
               <div class="flex items-center justify-start">
                 <i class="fa-solid fa-headphones text-base w-5 text-center mr-3"></i>
                 Riff Valley
@@ -96,7 +96,7 @@
           <details class="group">
             <summary class="font-bold uppercase text-xs tracking-wider flex justify-between items-center py-2 px-4
          text-white group-open:text-gray-400
-         hover:text-white">
+         hover:text-white cursor-pointer">
               <div class="flex items-center justify-start">
                 <i class="fa-solid fa-gears text-base w-5 text-center mr-3"></i>
                 Gestión

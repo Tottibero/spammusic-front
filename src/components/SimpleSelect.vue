@@ -4,12 +4,15 @@
 
     <button type="button" class="ss-trigger" @click="toggle" ref="trigger">
       <span class="ss-left">
-        <span class="ss-text" :class="{
-          'text-gray-400 font-normal': isPlaceholder,
-          'text-gray-600 font-medium': !isPlaceholder
-        }">
-          {{ currentLabel }}
-        </span>
+<span
+  class="ss-text"
+  :class="{
+    'text-gray-400 font-normal': isPlaceholder,
+    'text-rv-navy font-semibold': !isPlaceholder
+  }"
+>
+  {{ currentLabel }}
+</span>
 
 
         <span v-if="currentIcon" class="ss-inline-icon" aria-hidden="true">
@@ -145,11 +148,9 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  outline: none;
-}
 
-.ss-trigger:focus {
-  outline: 2px solid rgba(209, 213, 219, .8);
+  /* ✅ importantísimo: nada de outlines azules */
+  outline: none;
 }
 
 .ss-text {
@@ -160,10 +161,11 @@ onUnmounted(() => {
   text-align: left;
 }
 
+
 .ss-icon {
   margin-left: .5rem;
   margin-right: .25rem;
-  color: #000000;
+  color: var(--rv-navy, #11274a);
   font-size: .975rem;
   flex: 0 0 auto;
 }
@@ -183,6 +185,9 @@ onUnmounted(() => {
   color: #6b7280;
   border-bottom: 1px solid #e5e7eb;
   background: #f9fafb;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
 }
 
 .ss-list {
@@ -203,10 +208,9 @@ onUnmounted(() => {
   background: #f3f4f6;
 }
 
-
 .ss-item.active {
-  background-color: #d9e021 !important;
-  color: #1a202c !important;
+  background-color: var(--rv-navy, #11274a) !important;
+  color: #ffffff !important;
   font-weight: 700;
 }
 
