@@ -1,6 +1,8 @@
 <template>
   <div :class="{ 'menu-open': menuVisible }" class="max-w-[100rem] mx-auto mt-10 px-4">
-    <h1 class="text-4xl font-bold mb-8 text-center text-gray-900">Discos</h1>
+<h1 class="text-4xl font-bold mb-8 text-center text-rv-navy">
+  Discos
+</h1>
 
     <DiscFilters :searchQuery="searchQuery" :selectedGenre="selectedGenre" :selectedWeek="selectedWeek" :genres="genres"
       @update:searchQuery="searchQuery = $event" @update:selectedGenre="selectedGenre = $event"
@@ -10,8 +12,8 @@
     <div class="filters-wrap flex justify-start space-x-2 mb-6">
       <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-lg font-medium transition-all duration-200"
         :class="viewMode === 'all'
-          ? 'bg-gray-800 text-white'
-          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          ? 'bg-rv-navy text-white'
+          : 'bg-gray-200 text-rv-navy hover:bg-gray-300'
           ">
         <input type="radio" v-model="viewMode" value="all" class="hidden" />
         Todos los discos <span v-if="totalDisc !== ''">({{ totalDisc }})</span>
@@ -38,7 +40,7 @@
       <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-md font-medium transition-all duration-200"
         :class="viewMode === 'favorites'
           ? 'bg-red-500 text-white'
-          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          : 'bg-gray-200 text-rv-navy hover:bg-gray-300'
           ">
         <input type="radio" v-model="viewMode" value="favorites" class="hidden" />
         Favoritos
@@ -48,7 +50,7 @@
       <label class="px-4 py-2 rounded-full cursor-pointer text-sm shadow-md font-medium transition-all duration-200"
         :class="viewMode === 'pendientes'
           ? 'bg-yellow-500 text-white'
-          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          : 'bg-gray-200 text-rv-navy hover:bg-gray-300'
           ">
         <input type="radio" v-model="viewMode" value="pendientes" class="hidden" />
         Pendientes
@@ -75,7 +77,7 @@
 
     <!-- Elemento para disparar la carga adicional -->
     <div ref="loadMore" class="mt-10 text-center">
-      <span v-if="loading" class="text-gray-600">Cargando más discos...</span>
+      <span v-if="loading" class="text-rv-navy">Cargando más discos...</span>
     </div>
   </div>
 </template>

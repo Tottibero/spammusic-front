@@ -16,10 +16,10 @@
 
     <!-- Contenido principal -->
     <main
-      :class="[
-        'flex-1 bg-gray-100 p-6 transition-all duration-300',
-        menuVisible ? 'ml-64' : 'ml-0 md:ml-64',
-      ]"
+:class="[
+  'flex-1 bg-gray-100 p-6 transition-all duration-300',
+  menuVisible ? 'ml-72' : 'ml-0 md:ml-72',
+]"
     >
       <slot />
     </main>
@@ -32,7 +32,7 @@
     >
       <transition name="fade-slide" appear>
         <button
-          class="absolute top-4 left-[calc(16rem+1rem)] w-10 h-10 flex items-center justify-center rounded-lg bg-gray-900 bg-opacity-75 text-white transition-all duration-300 hover:bg-gray-700 z-20"
+          class="absolute top-4 left-[calc(18rem+1rem)] w-10 h-10 flex items-center justify-center rounded-lg bg-gray-900 bg-opacity-75 text-white transition-all duration-300 hover:bg-gray-700 z-20"
           @click.stop="closeMenu"
         >
           <i class="fa-solid fa-xmark text-lg"></i>

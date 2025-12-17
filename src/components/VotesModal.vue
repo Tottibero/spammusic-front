@@ -1,19 +1,17 @@
 <template>
-  <div
-    v-if="showVotes"
+  <div v-if="showVotes"
     class="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-50 z-50"
-    @click.self="$emit('close')"
-  >
+    @click.self="$emit('close')">
     <div
       class="bg-white p-4 sm:p-6 rounded-lg shadow-xl w-[93%] sm:w-full sm:max-w-3xl relative max-h-[80vh] overflow-y-auto">
       <!-- Título -->
       <div class="text-center mb-8">
         <h2 class="mb-4">
-          <span class="bg-gray-700 text-white px-4 py-1 rounded-full text-md font-bold">
+          <span class="bg-rv-navy text-white px-4 py-1 rounded-full text-md font-bold">
             VOTOS
           </span>
         </h2>
-        <p class="text-lg text-gray-800 mt-2">
+        <p class="text-lg text-rv-navy mt-2">
           {{ artistName }} – <span class="italic">{{ albumName }}</span>
         </p>
       </div>
@@ -23,7 +21,7 @@
         <!-- Table -->
         <div class="w-full md:w-1/2">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-100 text-gray-700 text-xs uppercase tracking-wider">
+            <thead class="bg-gray-100 text-rv-navy text-xs uppercase tracking-wider">
               <tr>
                 <th class="px-3 py-2 text-center font-semibold border-b border-gray-300">
                   Usuario
@@ -38,7 +36,7 @@
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
               <tr v-for="vote in votes" :key="vote.id">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-rv-navy">
                   <div class="flex items-center gap-2">
                     <!-- Avatar -->
                     <div class="relative overflow-hidden rounded-full bg-gray-200 w-10 h-10 shrink-0">
@@ -52,11 +50,18 @@
                     </div>
 
                     <!-- Nombre (abre el modal y le pasa el avatar) -->
-                    <button class="text-blue-600 hover:underline px-1 focus:outline-none" @click="openUserModal(
-                      vote.user.username,
-                      vote.user.id,
-                      vote.user.avatarUrl || vote.user.image || ''
-                    )">
+                    <button class="bg-gray-200 text-rv-navy px-1 rounded
+       transition-colors duration-150
+       hover:bg-gray-300 hover:underline
+       border border-transparent
+       outline-none focus:outline-none focus-visible:outline-none
+       ring-0 focus:ring-0 focus-visible:ring-0
+       focus:ring-offset-0 focus-visible:ring-offset-0"
+ @click="openUserModal(
+        vote.user.username,
+        vote.user.id,
+        vote.user.avatarUrl || vote.user.image || ''
+      )">
                       {{ vote.user.username }}
                     </button>
                   </div>
@@ -81,19 +86,24 @@
         <div class="w-full md:w-1/2 flex flex-col items-center">
           <!-- Switch Disco / Portada -->
           <div class="mb-4 flex items-center justify-center space-x-2 bg-gray-200 rounded-full p-1">
+            <!-- DISCO -->
             <button @click="isRateSelected = true" :class="[
-              'text-sm font-semibold px-4 py-1 rounded-full transition-all duration-200',
+              'text-sm font-semibold  px-4 py-1 rounded-full transition-all duration-200',
+              'outline-none focus:outline-none focus-visible:outline-none ring-0 focus:ring-0 focus-visible:ring-0',
               isRateSelected
-                ? 'bg-gray-700 text-white'
-                : 'text-gray-700 hover:text-black',
+                ? 'bg-rv-navy text-white'
+                : 'bg-gray-200 hover:bg-gray-300 text-rv-navy'
             ]">
               Disco
             </button>
+
+            <!-- PORTADA -->
             <button @click="isRateSelected = false" :class="[
               'text-sm font-semibold px-4 py-1 rounded-full transition-all duration-200',
+              'outline-none focus:outline-none focus-visible:outline-none ring-0 focus:ring-0 focus-visible:ring-0',
               !isRateSelected
-                ? 'bg-gray-700 text-white'
-                : 'text-gray-700 hover:text-black',
+                ? 'bg-rv-navy text-white'
+                : 'bg-gray-200 hover:bg-gray-300 text-rv-navy'
             ]">
               Portada
             </button>
@@ -103,7 +113,7 @@
           <div class="relative w-full h-56 top-1 flex flex-col items-center justify-center">
             <canvas ref="doughnut" class="w-full h-full"></canvas>
             <!-- Contenedor para leyenda personalizada -->
-            <div class="flex flex-wrap justify-center gap-x-1 gap-y-1 mt-4 text-xs text-gray-800">
+            <div class="flex flex-wrap justify-center gap-x-1 gap-y-1 mt-4 text-xs text-rv-navy">
               <div v-for="(label, i) in customLegend" :key="i" class="flex items-center space-x-1">
                 <div :style="{ backgroundColor: label.color }" class="w-2.5 h-2.5 rounded-full"></div>
                 <span>{{ label.text }}</span>
@@ -115,9 +125,11 @@
 
       <!-- Botón de cerrar al final -->
       <div class="mt-6 flex justify-center">
-        <button @click="$emit('close')"
-          class="absolute top-3 right-3 text-white hover:text-[#d9e021] bg-gray-700 hover:bg-gray-800 rounded-full w-10 h-10 flex items-center justify-center shadow-md transition-all">
-          ✖
+        <button @click="$emit('close')" class="absolute top-3 right-3 text-white bg-rv-navy hover:bg-[#e46e8a]
+         rounded-full w-10 h-10 flex items-center justify-center shadow-md transition-all
+         border-0 outline-none focus:outline-none focus-visible:outline-none
+         ring-0 focus:ring-0 focus-visible:ring-0" aria-label="Cerrar" title="Cerrar">
+          <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
     </div>

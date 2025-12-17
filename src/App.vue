@@ -1,5 +1,6 @@
 <template>
   <div id="app-container">
+
     <!-- FONDO OSCURO SOLO CUANDO EL MENÚ ESTÁ ABIERTO -->
     <div
       v-if="menuVisible && !isLoginPage"
@@ -54,30 +55,26 @@ export default defineComponent({
 let scrollY = 0;
 
 watch(menuVisible, (visible) => {
-  const html = document.documentElement;
   const body = document.body;
 
   if (visible) {
-    // 1. Guardar scroll actual
     scrollY = window.scrollY;
 
-    // 2. Fijar posición y bloquear scroll sin perder scroll actual
-    body.style.position = 'fixed';
+    body.style.position = "fixed";
     body.style.top = `-${scrollY}px`;
-    body.style.left = '0';
-    body.style.right = '0';
-    body.style.overflow = 'hidden';
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
   } else {
-    // 3. Restaurar scroll
-    body.style.position = '';
-    body.style.top = '';
-    body.style.left = '';
-    body.style.right = '';
-    body.style.overflow = '';
+    body.style.position = "";
+    body.style.top = "";
+    body.style.left = "";
+    body.style.right = "";
+    body.style.width = "";
+
     window.scrollTo(0, scrollY);
   }
 });
-
 
     return {
       menuVisible,

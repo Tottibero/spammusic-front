@@ -9,11 +9,16 @@
     class="spotify-artist-details relative w-full max-w-2xl mx-auto my-3 sm:my-3 p-4 sm:p-4 
     bg-gradient-to-b from-gray-50 to-gray-100 rounded-lg shadow-md max-h-[80vh] overflow-y-auto"
   >
-  <button 
-  @click="$emit('close')" 
-  class="absolute top-3 right-3 text-white hover:text-[#d9e021] bg-gray-700 hover:bg-gray-800 rounded-full w-10 h-10 flex items-center justify-center shadow-md transition-all"
+<button
+  @click="$emit('close')"
+  aria-label="Cerrar"
+  title="Cerrar"
+  class="absolute top-2 right-2 text-white bg-rv-navy hover:bg-[#e46e8a]
+         rounded-full w-10 h-10 flex items-center justify-center shadow-md transition-all
+         border-0 outline-none focus:outline-none focus-visible:outline-none
+         ring-0 focus:ring-0 focus-visible:ring-0"
 >
-  ✖
+  <i class="fas fa-times"></i>
 </button>
     <!-- Estado de carga -->
     <div v-if="loading" class="text-center py-4">
@@ -22,7 +27,7 @@
 
     <!-- Errores -->
     <div v-else-if="error" class="text-center py-4">
-      <h2 class="text-2xl font-bold mb-2 text-gray-800">
+      <h2 class="text-2xl font-bold mb-2 text-rv-navy">
         {{ artistNameProp }}
       </h2>
       <p class="text-red-600">{{ error }}</p>
@@ -44,17 +49,17 @@
 
         <!-- Metadatos del artista -->
         <div class="artist-meta">
-          <h2 class="text-2xl font-bold mb-2 text-gray-800">
+          <h2 class="text-2xl font-bold mb-2 text-rv-navy">
             {{ artist.name }}
           </h2>
-          <p class="mb-1 text-gray-700">
+          <p class="mb-1 text-rv-navy">
             <strong>Seguidores:</strong>
             {{ artist.followers.total.toLocaleString() }}
           </p>
-          <p class="mb-1 text-gray-700">
+          <p class="mb-1 text-rv-navy">
             <strong>Popularidad:</strong> {{ artist.popularity }}
           </p>
-          <p class="mb-1 text-gray-700">
+          <p class="mb-1 text-rv-navy">
             <strong>Géneros:</strong>
             {{
               artist.genres && artist.genres.length
@@ -78,31 +83,35 @@
       </div>
 
       <div v-if="lastFmData" class="lastfm-info mt-6">
-        <h3 class="text-xl font-semibold mb-3 text-gray-800">Biografía</h3>
+        <h3 class="text-xl font-semibold mb-3 text-rv-navy">Biografía</h3>
         <!-- La biografía de Last.fm suele venir en HTML, por eso usamos v-html -->
         <div
-          class="text-sm text-gray-700"
+          class="text-sm text-rv-n avy"
           v-html="lastFmData.bio.summary"
         ></div>
 
         <div v-if="lastFmData.tags && lastFmData.tags.tag" class="mt-4">
-          <h4 class="text-md font-semibold mb-2 text-gray-800">Etiquetas</h4>
-          <div class="flex flex-wrap gap-2">
-            <span
-              v-for="tag in lastFmData.tags.tag"
-              :key="tag.name"
-              class="px-2 py-1 bg-[#d9e021] rounded text-xs font-semibold"
-            >
-              {{ tag.name }}
-            </span>
-          </div>
+<h4 class="text-md font-semibold mb-2 text-rv-navy flex items-center justify-center gap-2">
+<i class="fab fa-lastfm text-rv-navy relative top-[1px]"></i>
+  Etiquetas de Last.fm
+</h4>
+<div class="flex flex-wrap justify-center gap-2">
+  <span
+    v-for="tag in lastFmData.tags.tag"
+    :key="tag.name"
+    class="px-2 py-1 bg-[#e46e8a] rounded-full text-white text-xs font-semibold"
+  >
+    {{ tag.name }}
+  </span>
+</div>
+
         </div>
                 </div>
       </div>
 
       <!-- Galería de Top Tracks -->
       <div class="top-tracks mt-6" v-if="artist">
-        <h3 class="text-xl font-semibold mb-3 text-gray-800">Top canciones</h3>
+        <h3 class="text-xl font-semibold mb-3 text-rv-navy">Top canciones</h3>
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <div
             v-for="track in topTracks"
