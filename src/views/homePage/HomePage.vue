@@ -4,16 +4,16 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
         <!-- Estadísticas de la App -->
         <div class="text-center md:border-r border-gray-200 pb-4 md:pb-0 md:pr-4 text-sm sm:text-base md:text-lg">
-          <h3 class="text-2xl md:text-3xl font-bold mb-4 text-gray-900">
+          <h3 class="text-2xl md:text-3xl font-bold mb-4 text-rv-navy">
             Estadísticas de discos
           </h3>
-          <p class="text-lg md:text-xl text-gray-900">
+          <p class="text-lg md:text-xl text-rv-navy">
             Total de discos:
-            <span class="font-semibold text-gray-900">{{ stats.totalDiscs }}</span>
+            <span class="font-semibold text-rv-navy">{{ stats.totalDiscs }}</span>
           </p>
           <p class="text-lg mt-2">
             Total de votos:
-            <span class="font-semibold text-gray-900">{{ stats.totalVotes }}</span>
+            <span class="font-semibold text-rv-navy">{{ stats.totalVotes }}</span>
           </p>
           <!-- Aquí insertamos el gráfico de barras -->
           <div class="mt-6 w-full max-w-[90%] sm:max-w-full mx-auto overflow-hidden">
@@ -22,9 +22,9 @@
         </div>
         <!-- Top Usuarios -->
         <div class="text-center">
-          <h3 class="text-2xl md:text-3xl font-bold mb-4 text-gray-900">Top usuarios</h3>
+          <h3 class="text-2xl md:text-3xl font-bold mb-4 text-rv-navy">Top usuarios</h3>
           <div class="mb-4">
-            <h4 class="text-lg md:text-2xl font-semibold mb-2 text-gray-900">
+            <h4 class="text-lg md:text-2xl font-semibold mb-2 text-rv-navy">
               Más discos votados
             </h4>
             <ul class="list-none">
@@ -32,12 +32,12 @@
                 class="flex items-center justify-center mb-2 text-sm md:text-base">
                 <span class="mr-2" v-html="getTrophyIcon(index)"></span>
                 <span class="font-medium">{{ user.user.username }}</span>
-                <span class="ml-2 text-gray-600">- {{ user.rateCount }} votos</span>
+                <span class="ml-2 text-rv-navy">- {{ user.rateCount }} votos</span>
               </li>
             </ul>
           </div>
           <div>
-            <h4 class="text-lg md:text-2xl font-semibold mb-2 text-gray-900">
+            <h4 class="text-lg md:text-2xl font-semibold mb-2 text-rv-navy">
               Más portadas votadas
             </h4>
             <ul class="list-none">
@@ -45,15 +45,26 @@
                 class="flex items-center justify-center mb-2">
                 <span class="mr-2" v-html="getTrophyIcon(index)"></span>
                 <span class="font-medium">{{ user.user.username }}</span>
-                <span class="ml-2 text-gray-600">- {{ user.totalCover }} votos</span>
+                <span class="ml-2 text-rv-navy">- {{ user.totalCover }} votos</span>
               </li>
             </ul>
           </div>
           <!-- Botón para abrir estadísticas detalladas -->
           <div class="mt-8">
-            <button @click="showDetailedStats = true" class="inline-flex items-center text-[#211d1d] font-semibold px-4 py-2 rounded-full shadow transition duration-100
-           bg-gray-100 hover:bg-gradient-to-r hover:from-[#fcee21] hover:to-[#d9e021] hover:text-[#211d1d]">
-              <i class="fa-solid fa-chart-bar text-md mr-2"></i>
+            <button @click="showDetailedStats = true" class="group inline-flex items-center
+         px-4 py-2 rounded-full shadow
+         font-semibold text-rv-navy
+         bg-gray-100
+         transition-all duration-200
+
+         hover:bg-rv-navy hover:text-white
+
+         active:bg-rv-navy active:text-white
+
+         border-0 outline-none
+         focus:outline-none focus-visible:outline-none
+         ring-0 focus:ring-0 focus-visible:ring-0">
+              <i class="fa-solid fa-chart-bar text-md mr-2 group-hover:text-white"></i>
               Estadísticas detalladas
             </button>
             <StatsModal v-if="showDetailedStats" @close="showDetailedStats = false" />
@@ -64,7 +75,7 @@
       </div>
     </div>
 
-    <h2 class="text-2xl md:text-3xl font-bold text-gray-900 text-center justify-center py-8">Mejores discos</h2>
+    <h2 class="text-2xl md:text-3xl font-bold text-rv-navy text-center justify-center py-8">Mejores discos</h2>
 
     <!-- Columna 1: Selector de género -->
 
@@ -73,55 +84,63 @@
         :showSearchQuery="false" selectClass="w-full" wrapperClass="w-full"
         @update:selectedGenre="selectedGenre = $event" @resetAndFetch="fetchDiscs" />
     </div>
-    
+
 
     <!-- Columna 2: Botones de periodo + selector de rango como pill -->
     <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 sm:gap-5 mt-6 mb-8">
 
-      <button @click="selectedPeriod = 'week'"
-        :class="selectedPeriod === 'week'
-          ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold'
-          : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'"
-        class="px-4 py-1.5 rounded-full shadow-md text-md">
+      <button @click="selectedPeriod = 'week'" :class="selectedPeriod === 'week'
+        ? 'bg-rv-navy text-white font-semibold'
+        : 'bg-gray-200 text-rv-navy hover:bg-rv-navy hover:text-white'"
+        class="px-4 py-1.5 rounded-full shadow-md text-md transition-all duration-200
+       border-0 outline-none focus:outline-none focus-visible:outline-none
+       ring-0 focus:ring-0 focus-visible:ring-0">
         Semana
       </button>
 
-      <button @click="selectedPeriod = 'month'"
-        :class="selectedPeriod === 'month'
-          ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold'
-          : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'"
-        class="px-4 py-1.5 rounded-full shadow-md text-md">
+      <button @click="selectedPeriod = 'month'" :class="selectedPeriod === 'month'
+        ? 'bg-rv-navy text-white font-semibold'
+        : 'bg-gray-200 text-rv-navy hover:bg-rv-navy hover:text-white'"
+        class="px-4 py-1.5 rounded-full shadow-md text-md transition-all duration-200
+       border-0 outline-none focus:outline-none focus-visible:outline-none
+       ring-0 focus:ring-0 focus-visible:ring-0">
         Mes
       </button>
 
-      <button @click="selectedPeriod = 'year'"
-        :class="selectedPeriod === 'year'
-          ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold'
-          : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'"
-        class="px-4 py-1.5 rounded-full shadow-md text-md">
+      <button @click="selectedPeriod = 'year'" :class="selectedPeriod === 'year'
+        ? 'bg-rv-navy text-white font-semibold'
+        : 'bg-gray-200 text-rv-navy hover:bg-rv-navy hover:text-white'"
+        class="px-4 py-1.5 rounded-full shadow-md text-md transition-all duration-200
+       border-0 outline-none focus:outline-none focus-visible:outline-none
+       ring-0 focus:ring-0 focus-visible:ring-0">
         Año
       </button>
 
-      <button @click="{ selectedPeriod = 'all'; fetchDiscs(); }"
-        :class="selectedPeriod === 'all'
-          ? 'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-gray-800 font-semibold'
-          : 'bg-gray-200 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-gray-800 hover:font-semibold'"
-        class="px-4 py-1.5 rounded-full shadow-md text-md">
+      <button @click="{ selectedPeriod = 'all'; fetchDiscs(); }" :class="selectedPeriod === 'all'
+        ? 'bg-rv-navy text-white font-semibold'
+        : 'bg-gray-200 text-rv-navy hover:bg-rv-navy hover:text-white'"
+        class="px-4 py-1.5 rounded-full shadow-md text-md transition-all duration-200
+       border-0 outline-none focus:outline-none focus-visible:outline-none
+       ring-0 focus:ring-0 focus-visible:ring-0">
         Todos
       </button>
 
+
       <div v-if="selectedPeriod !== 'all'" class="relative">
-        <select v-model="selectedOption" @change="fetchDiscs" class="min-w-[12rem] px-4 pr-9 py-1.5 rounded-full shadow-md text-md font-semibold
-           text-gray-800 appearance-none
-           bg-gradient-to-r from-[#d9e021] to-[#fcee21]
-           focus:outline-none focus:ring-2 focus:ring-[#d9e021]/50 cursor-pointer">
+        <select
+  v-model="selectedOption"
+  @change="fetchDiscs"
+  class="min-w-[12rem] px-4 pr-9 py-1.5 rounded-full shadow-md text-md font-semibold
+         bg-rv-navy text-white appearance-none cursor-pointer
+         focus:outline-none"
+>
           <option v-for="option in optionsForSelect" :key="option.label" :value="option">
             {{ option.label }}
           </option>
         </select>
 
-        <!-- caret -->
-        <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-800/80"
+        <!-- chevron -->
+        <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white"
           xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
         </svg>

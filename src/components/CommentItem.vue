@@ -5,10 +5,10 @@
       <input v-model="editText" type="text"
         class="border rounded w-full px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
       <div class="flex space-x-2 mt-2">
-        <button @click="submitEdit" class="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600">
+        <button @click="submitEdit" class="bg-rv-blue rounded-full text-white px-3 py-1 text-xs hover:bg-rv-blue/80">
           Guardar
         </button>
-        <button @click="cancelEdit" class="bg-gray-500 text-white px-3 py-1 rounded text-xs hover:bg-gray-600">
+        <button @click="cancelEdit" class="bg-gray-500 rounded-full text-white px-3 py-1 text-xs hover:bg-gray-600">
           Cancelar
         </button>
       </div>
@@ -32,46 +32,84 @@
 
         <!-- Autor y fecha -->
         <div v-if="!localComment.isDeleted" class="text-xs text-gray-500 mt-1">
-          De:
-<button
-  class="text-blue-600 hover:underline focus:outline-none"
-  @click="$emit('open-user', {
-    username: localComment.user.username,
-    id: localComment.user.id,
-    avatar: displayedAvatar || localComment.user.image || localComment.user.avatarUrl || ''
-  })"
->
-  {{ localComment.user.username }}
-</button>
+          <button
+            class="bg-gray-300 hover:bg-gray-300/75 text-rv-navy rounded-full shadow-sm hover:underline focus:outline-none"
+            @click="$emit('open-user', {
+              username: localComment.user.username,
+              id: localComment.user.id,
+              avatar: displayedAvatar || localComment.user.image || localComment.user.avatarUrl || ''
+            })">
+            {{ localComment.user.username }}
+          </button>
 
 
           – {{ formatDate(localComment.createdAt) }}
         </div>
 
         <!-- Botones: Responder, Editar, Borrar -->
-        <div class="mt-2 flex space-x-2">
-          <button @click="toggleReplyForm" class="text-blue-500 text-xs" v-if="!localComment.isDeleted">
-            Responder
-          </button>
-          <button @click="startEdit" class="text-green-500 text-xs"
-            v-if="!localComment.isDeleted && localComment.user.id === user.id">
-            Editar
-          </button>
-          <button @click="deleteComment" class="text-red-500 text-xs"
-            v-if="!localComment.isDeleted && localComment.user.id === user.id">
-            Borrar
-          </button>
-        </div>
+<div class="mt-2 flex space-x-2">
+  <!-- Responder -->
+  <button
+    type="button"
+    @click="toggleReplyForm"
+    v-if="!localComment.isDeleted"
+    class="bg-rv-navy hover:bg-rv-navy/80 text-white
+           rounded-full shadow-sm hover:underline
+           text-xs px-3 py-1
+           flex items-center gap-1
+           outline-none focus:outline-none focus-visible:outline-none
+           ring-0 focus:ring-0 focus-visible:ring-0"
+  >
+    <i class="fa-solid fa-reply text-[10px]"></i>
+    <span>Responder</span>
+  </button>
+
+  <!-- Editar -->
+  <button
+    type="button"
+    @click="startEdit"
+    v-if="!localComment.isDeleted && localComment.user.id === user.id"
+    class="bg-rv-blue hover:bg-rv-blue/80 text-white
+           rounded-full shadow-sm hover:underline
+           text-xs px-3 py-1
+           flex items-center gap-1
+           outline-none focus:outline-none focus-visible:outline-none
+           ring-0 focus:ring-0 focus-visible:ring-0"
+  >
+    <i class="fa-solid fa-pen-to-square text-[10px]"></i>
+    <span>Editar</span>
+  </button>
+
+  <!-- Borrar -->
+  <button
+    type="button"
+    @click="deleteComment"
+    v-if="!localComment.isDeleted && localComment.user.id === user.id"
+    class="bg-red-500 hover:bg-red-500/80 text-white
+           rounded-full shadow-sm hover:underline
+           text-xs px-3 py-1
+           flex items-center gap-1
+           outline-none focus:outline-none focus-visible:outline-none
+           ring-0 focus:ring-0 focus-visible:ring-0"
+  >
+    <i class="fa-solid fa-trash-can text-[10px]"></i>
+    <span>Borrar</span>
+  </button>
+</div>
+
       </div>
     </div>
 
     <!-- Formulario para responder, solo si el comentario no está eliminado -->
     <div v-if="showReplyForm && !localComment.isDeleted" class="ml-4 mt-2">
       <form @submit.prevent="submitReply" class="flex space-x-2">
-        <input v-model="replyText" type="text" placeholder="Escribe tu respuesta..."
-          class="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs" />
+        <input v-model="replyText" type="text" placeholder="Escribe tu respuesta..." class="flex-1 border rounded-lg px-3 py-2 text-xs
+         border-gray-300
+         outline-none focus:outline-none focus-visible:outline-none
+         ring-0 focus:ring-0 focus-visible:ring-0
+         focus:border-rv-navy" />
         <button type="submit"
-          class="bg-blue-500 text-white px-3 py-1 rounded-lg text-xs hover:bg-blue-600 transition-colors">
+          class="bg-rv-pink text-white px-3 py-1 rounded-full text-xs hover:bg-rv-pink/80 transition-colors">
           Enviar
         </button>
       </form>

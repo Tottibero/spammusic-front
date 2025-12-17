@@ -268,9 +268,8 @@ const periodOptions = computed(() => {
   border: var(--pill-border);
   background: var(--pill-bg);
   box-shadow: var(--pill-shadow);
+
   outline: none;
-  -webkit-appearance: none;
-  appearance: none;
 }
 
 .pill-control:focus {
@@ -305,16 +304,5 @@ const periodOptions = computed(() => {
 :deep(.select-pill .search_input_trigger svg) {
   right: .75rem;
 }
-
-/* Compactación rápida por si quieres apretar aún más:
-   En vez de tocar varias reglas, cambia solo estos tres valores: */
-/*
-.filters-pills {
-  --pill-h: 2.25rem;
-  --pill-lh: 2.25rem;
-  --pill-pl: .75rem;
-  --pill-pr: .75rem;
-}
-*/
 
 </style>

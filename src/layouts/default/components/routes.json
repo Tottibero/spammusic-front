@@ -47,7 +47,7 @@
   {
     "to": "/import",
     "label": "Añadir discos",
-    "activeClass": "bg-gradient-to-r from-emerald-500 to-teal-500 text-white",
+    "activeClass": "bg-gray-700",
     "type": "new-discs",
     "requiredRole": "user",
     "icon": "fa-solid fa-circle-plus"
@@ -55,7 +55,7 @@
   {
     "to": "/petitions",
     "label": "Peticiones",
-    "activeClass": "bg-gradient-to-r from-emerald-500 to-teal-500 text-white",
+    "activeClass": "bg-gray-700",
     "type": "new-discs",
     "requiredRole": "user",
     "icon": "fa-solid fa-inbox"
@@ -94,15 +94,16 @@
   },
   {
     "to": "/users",
-    "label": "Gestionar usuarios",
-    "activeClass": "bg-red-600",
+    "label": "Usuarios",
+    "activeClass": "bg-gray-700",
     "type": "management",
     "requiredRole": "superUser",
     "icon": "fa-solid fa-users"
   },
   {
-    "label": "Gestionar versiones",
-    "activeClass": "bg-red-600",
+    "to": "/versions",
+    "label": "Versiones",
+    "activeClass": "bg-gray-700",
     "type": "management",
     "requiredRole": "superUser",
     "icon": "fa-solid fa-code-branch",
@@ -126,7 +127,7 @@
   {
     "to": "/password",
     "label": "Perfil",
-    "activeClass": "bg-red-600",
+    "activeClass": "bg-gray-700",
     "type": "bottom",
     "icon": "fa-solid fa-user"
   },

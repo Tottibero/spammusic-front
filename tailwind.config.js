@@ -1,24 +1,32 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  purge: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
-  darkMode: false, // or 'media' or 'class'
+  darkMode: 'class', //
+  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
   theme: {
     extend: {
-      borderRadius: {
-        'primary': '0.5rem', // define el valor que necesites
+      fontFamily: {
+        brand: ['Skaters', 'system-ui', 'sans-serif'],
       },
-      colors: {
-        primary: {
-          200: '#bfdbfe', // Ajusta los colores según tus necesidades
-          300: '#93c5fd',
-          500: '#3b82f6',
-          600: '#2563eb',
-        },
+      borderRadius: {
+        primary: '0.5rem',
+      },
+colors: {
+  rv: {
+    pink: '#e46e8a',
+    purple: '#b0669f',
+    blue: '#0064d6',
+    blueDark: '#00309b',
+    navy: '#00021f', 
+    white: '#ffffff',
+  },
+},
+backgroundImage: {
+  'rv-gradient': 'linear-gradient(90deg, #e46e8a 0%, #b0669f 45%, #0064d6 100%)',
+},
+      boxShadow: {
+        rv: '0 10px 30px rgba(0,0,0,0.35)',
       },
     },
-  },
-  variants: {
-    extend: {},
   },
   plugins: [],
 }

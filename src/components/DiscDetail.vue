@@ -10,13 +10,17 @@
     bg-gradient-to-b from-gray-50 to-gray-100 rounded-lg shadow-md max-h-[80vh] overflow-y-auto"
   >
     <!-- Botón de cierre en la esquina superior derecha -->
-    <button 
-  @click="$emit('close')" 
-  class="absolute top-3 right-3 text-white hover:text-[#d9e021] bg-gray-700 hover:bg-gray-800 rounded-full w-10 h-10 flex items-center justify-center shadow-md transition-all"
+<button
+  @click="$emit('close')"
+  class="absolute top-2 right-2 text-white bg-rv-navy hover:bg-[#e46e8a]
+         rounded-full w-10 h-10 flex items-center justify-center shadow-md transition-all
+         border-0 outline-none focus:outline-none focus-visible:outline-none
+         ring-0 focus:ring-0 focus-visible:ring-0"
+  aria-label="Cerrar"
+  title="Cerrar"
 >
-  ✖
+  <i class="fas fa-times"></i>
 </button>
-
 
     <div v-if="loading" class="text-center py-4 text-gray-600">
       Cargando detalles del disco...
