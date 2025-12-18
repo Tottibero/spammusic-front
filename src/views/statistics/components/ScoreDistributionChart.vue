@@ -1,8 +1,8 @@
 <template>
-  <div class="w-full h-96 flex justify-center">
-    <Pie v-if="loaded" :data="chartData" :options="chartOptions" />
-    <p v-else class="text-center text-gray-500">Cargando gráfico...</p>
-  </div>
+<div class="w-full h-96 flex justify-center min-w-0">
+  <Pie v-if="loaded" :data="chartData" :options="chartOptions" />
+  <p v-else class="text-center text-gray-500">Cargando gráfico...</p>
+</div>
 </template>
 
 <script lang="ts">
@@ -65,19 +65,32 @@ export default defineComponent({
       ],
     });
 
-    const chartOptions = ref<ChartOptions<"pie">>({
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: true,
-          position: 'right',
-          labels: {
-            color: 'white'
-          }
-        },
+const isMobile = () => window.matchMedia("(max-width: 640px)").matches;
+
+const buildOptions = (): ChartOptions<"pie"> => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: true,
+      position: isMobile() ? "bottom" : "right",
+      labels: {
+        color: "white",
+        boxWidth: 10,
+        boxHeight: 10,
+        padding: 10,
+        font: { size: isMobile() ? 10 : 12 },
       },
-    });
+    },
+  },
+});
+
+const chartOptions = ref<ChartOptions<"pie">>(buildOptions());
+
+window.addEventListener("resize", () => {
+  chartOptions.value = buildOptions();
+});
+
 
     watch(
       () => props.scoreDistribution,
