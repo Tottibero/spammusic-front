@@ -1,7 +1,7 @@
 ```
 <template>
   <div
-    class="p-3 border rounded-md flex flex-col sm:flex-row items-center justify-between w-full sm:w-1/2 bg-white shadow-md"
+    class="p-3 border rounded-2xl flex flex-col sm:flex-row items-center justify-between w-full sm:w-1/2 bg-white shadow-md"
     :style="{ backgroundColor: getGenreColor(disc.genreId) }"
     :class="{ 'text-white': getGenreColor(disc.genreId) !== 'transparent' }">
     <!-- Columna izquierda: Imagen del disco -->
@@ -23,19 +23,11 @@
           </h3>
 
           <!-- Botón editar artista -->
-          <button @click="openArtistModal" class="p-1 text-xs hover:bg-gray-200 rounded" title="Editar artista">
+          <button @click="openArtistModal" class="bg-white p-1 text-sm text-rv-navy hover:bg-gray-200 rounded-full"
+            title="Editar artista">
             <i class="fa-solid fa-edit text-xs"></i>
           </button>
 
-          <!-- Botón de país con bandera -->
-          <button @click="updateCountryId" :class="[
-            disc.artist.countryId === COUNTRY_ID
-              ? 'bg-yellow-500 hover:bg-yellow-600'
-              : 'bg-gray-300 hover:bg-gray-400',
-            'text-white font-medium text-xs px-1.5 py-0.5 rounded shadow-sm',
-          ]" title="Alternar país">
-            🇪🇸
-          </button>
         </div>
 
         <!-- Nombre del disco -->
@@ -46,7 +38,8 @@
               {{ disc.name }}
             </span>
           </a>
-          <button @click="showNameModal = true" class="p-1 text-sm hover:bg-gray-200 rounded" title="Editar nombre">
+          <button @click="showNameModal = true" class="bg-white p-1 text-sm text-rv-navy hover:bg-gray-200 rounded-full"
+            title="Editar nombre">
             <i class="fa-solid fa-edit text-xs"></i>
           </button>
         </div>
@@ -55,7 +48,7 @@
           <a v-if="linkButtonData.visible" :href="disc.link" target="_blank" rel="noopener" :class="[
             linkButtonData.color,
             linkButtonData.hover,
-            'text-white px-2 py-1 rounded shadow-md inline-flex items-center space-x-1 text-sm',
+            'text-white px-2 py-1 rounded-full shadow-md inline-flex items-center space-x-1 text-sm',
           ]" @click.prevent="handleListenClick">
             <i :class="[linkButtonData.icon, 'text-base']"></i>
             <span>{{ linkButtonData.text }}</span>
@@ -66,7 +59,7 @@
           </span>
 
           <button @click="showLinkModal = true"
-            class="bg-gray-200 hover:bg-gray-300 text-gray-800 shadow-md text-xs px-2 py-2 h-full rounded flex items-center">
+            class="bg-white p-1 text-sm text-rv-navy hover:bg-gray-200 rounded-full">
             <i class="fa-solid fa-link"></i>
           </button>
         </p>
@@ -84,55 +77,57 @@
         <!-- Select de género -->
         <SearchableSelect v-model="editedData.genreId" :options="genres" title="name" trackby="id"
           placeholder="Buscar género..." trigger-placeholder="Selecciona un género" all-label="Todos los géneros"
-          :max="200" class="rounded shadow-md w-full px-2 py-1.5 bg-white text-black text-sm"
+          :max="200"
+          class="rounded-full text-rv-navy text-sm border-rv-navy/20 shadow-lg ring-0 focus:ring-0 focus:outline-none"
           @update:modelValue="() => saveChanges('genreId')" />
 
         <!-- País del artista -->
         <SearchableSelect v-model="editedArtist.countryId" :options="countries" title="name" trackby="id"
           placeholder="Buscar país..." trigger-placeholder="Selecciona un país" all-label="Todos los países" :max="300"
-          class="rounded shadow-md w-full px-2 py-1.5 bg-white text-black text-sm" @update:modelValue="saveCountry" />
+          class="rounded-full text-rv-navy text-sm border-rv-navy/20 shadow-lg ring-0 focus:ring-0 focus:outline-none"
+          @update:modelValue="saveCountry" />
       </div>
 
       <!-- Fila 2: Álbum, Debut y Verificado -->
       <div class="grid grid-cols-3 gap-2">
         <button @click="toggleEp()" :class="{
-          'bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg': disc.ep,
-          'bg-gradient-to-r from-gray-300 to-gray-400 hover:from-gray-400 hover:to-gray-500': !disc.ep
+          'bg-gradient-to-r from-gray-400 to-gray-400 shadow-lg hover:from-gray-500 hover:to-gray-500': disc.ep,
+          'bg-gradient-to-r from-rv-purple to-rv-purple shadow-lg hover:from-rv-purple/80 hover:to-rv-purple/80': !disc.ep
         }"
-          class="text-white font-semibold px-3 py-2 rounded-lg shadow-md transition-all duration-200 hover:shadow-xl transform hover:scale-105 text-sm">
-          {{ disc.ep ? "📀 EP" : "💿 Álbum" }}
+          class="text-white font-bold px-3 py-2 rounded-lg shadow-md transition-all duration-200 hover:shadow-md transform hover:scale-105 text-sm">
+          {{ disc.ep ? "EP" : "Álbum" }}
         </button>
 
         <button @click="toggleDebut()" :class="{
-          'bg-gradient-to-r from-purple-500 to-purple-600 shadow-lg': disc.debut,
-          'bg-gradient-to-r from-gray-300 to-gray-400 hover:from-gray-400 hover:to-gray-500': !disc.debut
+          'bg-gradient-to-r from-rv-purple to-rv-purple shadow-lg hover:from-rv-purple/80 hover:to-rv-purple/80': disc.debut,
+          'bg-gradient-to-r from-gray-400 to-gray-400 shadow-lg hover:from-gray-500 hover:to-gray-500': !disc.debut
         }"
-          class="text-white font-semibold px-3 py-2 rounded-lg shadow-md transition-all duration-200 hover:shadow-xl transform hover:scale-105 text-sm">
-          {{ disc.debut ? "🌟 Debut" : "🎵 No Debut" }}
+          class="text-white font-bold px-3 py-2 rounded-lg shadow-md transition-all duration-200 hover:shadow-md transform hover:scale-105 text-sm">
+          {{ disc.debut ? "Debut" : "No Debut" }}
         </button>
 
         <button @click="toggleVerified()" :class="{
-          'bg-gradient-to-r from-green-500 to-green-600 shadow-lg': disc.verified,
-          'bg-gradient-to-r from-gray-300 to-gray-400 hover:from-gray-400 hover:to-gray-500': !disc.verified
+          'bg-gradient-to-r from-green-500 to-green-500 shadow-lg hover:from-green-600 hover:to-green-600': disc.verified,
+          'bg-gradient-to-r from-gray-400 to-gray-400 shadow-lg hover:from-gray-500 hover:to-gray-500': !disc.verified
         }"
-          class="text-white font-semibold px-3 py-2 rounded-lg shadow-md transition-all duration-200 hover:shadow-xl transform hover:scale-105 text-sm">
-          {{ disc.verified ? "✓ Verificado" : "✗ No Verificado" }}
+          class="text-white font-semibold px-3 py-2 rounded-lg shadow-md transition-all duration-200 hover:shadow-md transform hover:scale-105 text-sm">
+          {{ disc.verified ? "✓ Verificado" : "✗ Verificado" }}
         </button>
       </div>
 
       <!-- Fila 3: Pendiente y Borrar -->
       <div class="grid grid-cols-2 gap-2">
         <button @click="toggleBookmark()" :class="{
-          'bg-gradient-to-r from-yellow-400 to-yellow-500 shadow-lg': pendingId,
-          'bg-gradient-to-r from-gray-300 to-gray-400 hover:from-gray-400 hover:to-gray-500': !pendingId
+          'bg-gradient-to-r from-yellow-500 to-yellow-500 shadow-lg hover:from-yellow-600 hover:to-yellow-600': pendingId,
+          'bg-gradient-to-r from-gray-400 to-gray-400 shadow-lg hover:from-gray-500 hover:to-gray-500': !pendingId
         }"
-          class="text-white font-semibold px-3 py-2 rounded-lg shadow-md transition-all duration-200 hover:shadow-xl transform hover:scale-105 text-sm">
-          {{ pendingId ? "⭐ Pendiente" : "💾 Guardar" }}
+          class="text-white font-semibold px-3 py-2 rounded-lg shadow-md transition-all duration-200 hover:shadow-md transform hover:scale-105 text-sm">
+          {{ pendingId ? "Guardado" : "Añadir a pendientes" }}
         </button>
 
         <button @click="confirmDelete(disc.id)"
           class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold px-3 py-2 rounded-lg shadow-md transition-all duration-200 hover:shadow-xl transform hover:scale-105 text-sm">
-          🗑️ Borrar
+          Borrar
         </button>
       </div>
     </div>
@@ -141,9 +136,9 @@
   <!-- Teleport para todos los modales -->
   <Teleport to="body">
     <!-- Modal para actualizar/crear artista -->
-    <div v-if="showArtistModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+    <div v-if="showArtistModal"   class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 bg-gray-900 bg-opacity-50">
       <div class="bg-white p-6 rounded-lg shadow-lg w-96">
-        <h2 class="text-lg font-semibold mb-4">Actualizar o Crear Artista</h2>
+        <h2 class="text-lg font-semibold mb-4">Actualizar o crear Artista</h2>
         <label class="flex items-center mb-4">
           <input type="checkbox" v-model="creatingNewArtist" class="mr-2" />
           Crear nuevo artista
@@ -151,23 +146,25 @@
         <input v-model="newArtistName" type="text" placeholder="Introduce el nombre del artista"
           class="border p-2 w-full rounded-md" />
         <div class="flex justify-end mt-4 space-x-2">
-          <button @click="closeArtistModal" class="bg-gray-400 text-white px-4 py-2 rounded-md">Cancelar</button>
-          <button @click="handleArtistUpdate" class="bg-blue-500 text-white px-4 py-2 rounded-md">Guardar</button>
+          <button @click="closeArtistModal"
+            class="bg-gray-400 text-white px-4 py-2 rounded-full transition-all duration-200 hover:shadow-md transform hover:scale-105">Cancelar</button>
+          <button @click="handleArtistUpdate"
+            class="bg-rv-pink text-white px-4 py-2 rounded-full transition-all duration-200 hover:shadow-md transform hover:scale-105">Guardar</button>
         </div>
       </div>
     </div>
 
     <!-- Modales de edición -->
-    <EditModal v-model:show="showNameModal" v-model="editedName" title="Editar Nombre del Disco"
+    <EditModal v-model:show="showNameModal" v-model="editedName" title="Editar título del álbum"
       placeholder="Introduce el nombre del disco" @save="updateDiscName" />
 
-    <EditModal v-model:show="showLinkModal" v-model="editedLink" title="Editar Link del Disco"
+    <EditModal v-model:show="showLinkModal" v-model="editedLink" title="Editar link del álbum"
       placeholder="Introduce el link del disco" @save="updateDiscLink" />
 
-    <EditModal v-model:show="showImageModal" v-model="newImageUrl" title="Cambiar Imagen del Disco"
+    <EditModal v-model:show="showImageModal" v-model="newImageUrl" title="Cambiar portada del álbum"
       placeholder="Introduce la URL de la imagen" @save="updateImageUrl" />
 
-    <EditModal v-model:show="showDateModal" v-model="editedReleaseDate" title="Cambiar Fecha del Disco"
+    <EditModal v-model:show="showDateModal" v-model="editedReleaseDate" title="Cambiar fecha del álbum"
       placeholder="Selecciona la fecha" inputType="date" @save="updateDiscReleaseDate" />
   </Teleport>
 
@@ -417,11 +414,11 @@ export default defineComponent({
         if (pendingId.value) {
           await deletePendingService(pendingId.value);
           pendingId.value = null;
-          Swal.fire("Pendiente borrado exitosamente");
+          Swal.fire("Pendiente eliminado");
         } else {
           const pending = await postPendingService({ discId: props.disc.id });
           pendingId.value = pending.id;
-          Swal.fire("Pendiente añadido exitosamente");
+          Swal.fire("Pendiente añadido");
         }
       } catch (error) {
         console.error("Error al cambiar el estado de pendiente:", error);
