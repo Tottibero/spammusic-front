@@ -80,13 +80,48 @@
 
             <ul>
               <li v-for="route in filteredRiffValleyRoutes" :key="route.to" class="mt-1">
-                <router-link :to="route.to" class="flex items-center justify-start py-2 pl-8 pr-4 text-sm font-medium rounded-primary
+                
+                <!-- CON HIJOS (ej: Discos) -->
+                <div v-if="route.children && route.children.length > 0">
+                  <details class="group/child">
+                    <summary class="flex items-center justify-start py-2 pl-8 pr-4 text-sm font-medium rounded-primary
+             transition-all duration-300
+             hover:bg-gray-700 hover:text-white cursor-pointer list-none">
+                      <div class="flex items-center justify-between w-full">
+                        <div class="flex items-center">
+                          <i :class="[route.icon, 'text-base w-5 text-center mr-3']"></i>
+                          {{ route.label }}
+                        </div>
+
+                        <i class="fa-solid fa-chevron-down text-[10px]
+                  transition-transform duration-200
+                  group-open/child:rotate-180"></i>
+                      </div>
+                    </summary>
+
+                    <ul>
+                      <li v-for="child in route.children" :key="child.to" class="mt-1">
+                        <router-link :to="child.to" class="flex items-center justify-start py-2 pl-12 pr-4 text-sm font-medium rounded-primary
+                 transition-all duration-300
+                 hover:bg-gray-700 hover:text-white"
+                          :active-class="'bg-gradient-to-r from-[#2f66c9] to-[#0064d6] text-white'" @click="closeMenu">
+                          <i :class="[child.icon, 'text-base w-5 text-center mr-3']"></i>
+                          {{ child.label }}
+                        </router-link>
+                      </li>
+                    </ul>
+                  </details>
+                </div>
+
+                <!-- SIN HIJOS (ej: Calendario, Reuniones) -->
+                <router-link v-else :to="route.to" class="flex items-center justify-start py-2 pl-8 pr-4 text-sm font-medium rounded-primary
                  transition-all duration-300
                  hover:bg-gray-700 hover:text-white"
                   :active-class="'bg-gradient-to-r from-[#2f66c9] to-[#0064d6] text-white'" @click="closeMenu">
                   <i :class="[route.icon, 'text-base w-5 text-center mr-3']"></i>
                   {{ route.label }}
                 </router-link>
+
               </li>
             </ul>
           </details>

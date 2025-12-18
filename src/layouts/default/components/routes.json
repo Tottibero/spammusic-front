@@ -61,12 +61,12 @@
     "icon": "fa-solid fa-inbox"
   },
   {
-    "to": "/recap",
-    "label": "Resumen semanal",
+    "to": "/content-calendar",
+    "label": "Calendario de Contenido",
     "activeClass": "bg-gray-700",
     "type": "riff-valley",
     "requiredRole": "riffValley",
-    "icon": "fa-solid fa-calendar-week"
+    "icon": "fa-solid fa-calendar-check"
   },
   {
     "to": "/reunions/list",
@@ -75,6 +75,26 @@
     "type": "riff-valley",
     "requiredRole": "riffValley",
     "icon": "fa-solid fa-comments"
+  },
+  {
+    "label": "Discos",
+    "type": "riff-valley",
+    "requiredRole": "riffValley",
+    "icon": "fa-solid fa-compact-disc",
+    "children": [
+      {
+        "to": "/discos/radar",
+        "label": "Nuevos Discos",
+        "activeClass": "bg-gray-700",
+        "icon": "fa-solid fa-certificate"
+      },
+      {
+        "to": "/discos/mejores",
+        "label": "Mejores Discos",
+        "activeClass": "bg-gray-700",
+        "icon": "fa-solid fa-star"
+      }
+    ]
   },
   {
     "to": "/list/lists",

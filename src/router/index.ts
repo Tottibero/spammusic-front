@@ -62,6 +62,12 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresAuth: true, requiresRole: "riffValley" },
   },
   {
+    path: "/content-calendar",
+    name: "ContentCalendar",
+    component: () => import("/src/views/contentCalendar/ContentCalendar.vue"),
+    meta: { requiresAuth: true, requiresRole: "riffValley" },
+  },
+  {
     path: "/articles",
     name: "Articles",
     component: () => import("/src/views/articles/ArticlesList.vue"),
@@ -175,6 +181,31 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("/src/views/patch-notes/PatchNotes.vue"),
     meta: { requiresAuth: true },
   },
+  {
+    path: "/discos/radar",
+    name: "RadarNovedades",
+    component: () => import("/src/views/discos/RadarNovedades.vue"),
+    meta: { requiresAuth: true, requiresRole: "riffValley" },
+  },
+  {
+    path: "/discos/radar/:id",
+    name: "RadarDetalle",
+    component: () => import("/src/views/discos/RadarDetalle.vue"),
+    meta: { requiresAuth: true, requiresRole: "riffValley" },
+  },
+  {
+    path: "/discos/mejores",
+    name: "MejoresDiscos",
+    component: () => import("/src/views/discos/MejoresDiscos.vue"),
+    meta: { requiresAuth: true, requiresRole: "riffValley" },
+  },
+  {
+    path: "/discos/mejores/:id",
+    name: "MejoresDetalle",
+    component: () => import("/src/views/discos/MejoresDetalle.vue"),
+    meta: { requiresAuth: true, requiresRole: "riffValley" },
+  },
+
 
 ];
 

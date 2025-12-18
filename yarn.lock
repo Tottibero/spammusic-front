@@ -508,6 +508,52 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fullcalendar/core@npm:^6.1.19":
+  version: 6.1.19
+  resolution: "@fullcalendar/core@npm:6.1.19"
+  dependencies:
+    preact: "npm:~10.12.1"
+  checksum: 10c0/0baf5df761fd59f2e4c274c08badef96f41229c0b2be587ed1067f163b4eda0d4c0dec7f90aa3549db11cd60c4c0d9f77d8aa7387aa7e5c7ab02d5d4fb7b048b
+  languageName: node
+  linkType: hard
+
+"@fullcalendar/daygrid@npm:^6.1.19":
+  version: 6.1.19
+  resolution: "@fullcalendar/daygrid@npm:6.1.19"
+  peerDependencies:
+    "@fullcalendar/core": ~6.1.19
+  checksum: 10c0/542a1e816013dce0744dd31c3f7765379144bd5d6f6777885528e31558dead0bb21f3a5f85d75e35c48fc6216901909c58bd20fdde44ced06685ec79e1d4ed1e
+  languageName: node
+  linkType: hard
+
+"@fullcalendar/interaction@npm:^6.1.19":
+  version: 6.1.19
+  resolution: "@fullcalendar/interaction@npm:6.1.19"
+  peerDependencies:
+    "@fullcalendar/core": ~6.1.19
+  checksum: 10c0/b5d5a2dfa54992e2f4506015c6822ff8d6f3493351396d1d2623324f59a211bc5cf87165cec368919099ebe304a0553381bf9fd4e53797f26ad5027ac597f743
+  languageName: node
+  linkType: hard
+
+"@fullcalendar/list@npm:^6.1.19":
+  version: 6.1.19
+  resolution: "@fullcalendar/list@npm:6.1.19"
+  peerDependencies:
+    "@fullcalendar/core": ~6.1.19
+  checksum: 10c0/d477f1f6aaf014933295b9aa6d0788fedb5a840889405bcdc49b03a915992d120b44a4b24e29242aaa38771c2cb2d8c9d303e7dd9010fd06ced488c8e7e299b6
+  languageName: node
+  linkType: hard
+
+"@fullcalendar/vue3@npm:^6.1.19":
+  version: 6.1.19
+  resolution: "@fullcalendar/vue3@npm:6.1.19"
+  peerDependencies:
+    "@fullcalendar/core": ~6.1.19
+    vue: ^3.0.11
+  checksum: 10c0/d0b2914806239bbd9747f1190a492838e826ea3f45c6392cc439e4ea678e79ebd735134196b281daf4ea97a343ef849e6e65769d989461c089a7625a2181622e
+  languageName: node
+  linkType: hard
+
 "@isaacs/cliui@npm:^8.0.2":
   version: 8.0.2
   resolution: "@isaacs/cliui@npm:8.0.2"
@@ -5167,6 +5213,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"preact@npm:~10.12.1":
+  version: 10.12.1
+  resolution: "preact@npm:10.12.1"
+  checksum: 10c0/c77a55e897dcf298b7aa13637fed29744d3cf6c083f2832856e8551dbf27303c8b6946569736de16b05cba15c0e44ad404beb236ad9e36583a6fc5e2efad7777
+  languageName: node
+  linkType: hard
+
 "pretty-ms@npm:^9.2.0":
   version: 9.3.0
   resolution: "pretty-ms@npm:9.3.0"
@@ -5936,6 +5989,11 @@ __metadata:
     "@fortawesome/fontawesome-svg-core": "npm:^6.7.2"
     "@fortawesome/free-solid-svg-icons": "npm:^6.7.2"
     "@fortawesome/vue-fontawesome": "npm:^3.0.8"
+    "@fullcalendar/core": "npm:^6.1.19"
+    "@fullcalendar/daygrid": "npm:^6.1.19"
+    "@fullcalendar/interaction": "npm:^6.1.19"
+    "@fullcalendar/list": "npm:^6.1.19"
+    "@fullcalendar/vue3": "npm:^6.1.19"
     "@semantic-release/changelog": "npm:^6.0.3"
     "@semantic-release/commit-analyzer": "npm:^13.0.1"
     "@semantic-release/git": "npm:^10.0.1"

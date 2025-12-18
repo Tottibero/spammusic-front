@@ -28,3 +28,15 @@ export async function getLists(
   });
   return response.data;
 }
+
+// Obtener listas semanales actuales
+export async function getCurrentWeeklyLists(): Promise<any> {
+  const response = await api.get<any>("/lists/weekly/current");
+  return response.data;
+}
+
+// Obtener listas semanales pasadas por año y mes
+export async function getPastWeeklyLists(year: number, month: number): Promise<any> {
+  const response = await api.get<any>(`/lists/weekly/past/${year}/${month}`);
+  return response.data;
+}

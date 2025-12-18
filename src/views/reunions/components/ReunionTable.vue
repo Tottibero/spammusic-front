@@ -2,56 +2,110 @@
 <template>
   <div>
     <h2 class="text-xl font-bold mb-4">{{ title }}</h2>
-    <ul class="space-y-4">
-      <li
-        v-for="reunion in reuniones"
-        :key="reunion.id"
-        class="border border-gray-300 rounded-lg p-4 bg-white shadow-md"
-      >
-        <div class="flex justify-between items-center">
-          <div>
-            <button
-              @click="$emit('edit', reunion.id)"
-              class="mr-5 px-3 py-1 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
-            >
-              <i class="fa-solid fa-pen-to-square"></i>
-            </button>
-            <strong class="text-lg">{{ reunion.titulo }}</strong>
-            <p class="text-sm text-gray-600">{{ formatDate(reunion.fecha) }}</p>
+    <div class="space-y-4">
+      <div v-for="reunion in reuniones" :key="reunion.id"
+        class="border border-gray-300 rounded-lg p-4 bg-white shadow-md">
+        <!-- Header de la tarjeta -->
+        <div class="flex justify-between items-center mb-3">
+          <div class="flex items-baseline gap-3">
+            <strong class="text-lg">{{ reunion.title }}</strong>
+            <p class="text-sm text-gray-600">{{ formatDate(reunion.date) }}</p>
           </div>
-          <button
-            @click="togglePoints(reunion.id)"
-            class="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-          >
-            {{ expandedReunion === reunion.id ? "Ocultar Puntos" : "Ver Puntos" }}
-          </button>
+          <div class="flex gap-2">
+            <button @click="openAddPointModal(reunion.id)"
+              class="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center gap-2"
+              title="Añadir punto">
+              <i class="fa-solid fa-plus"></i>
+              <span>Añadir</span>
+            </button>
+            <button @click="reloadReunion(reunion.id)"
+              class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm flex items-center gap-2"
+              title="Recargar">
+              <i class="fa-solid fa-rotate-right"></i>
+              <span>Recargar</span>
+            </button>
+          </div>
         </div>
-        <ul v-if="expandedReunion === reunion.id" class="mt-4 space-y-2 border-t border-gray-200 pt-4">
-          <li
-            v-for="point in reunion.points"
-            :key="point.id"
-            class="bg-gray-100 p-3 rounded-lg"
-          >
-            <div class="flex justify-between items-right">
-              <div>
-                <input class="mr-5" :checked="point.done" type="checkbox" disabled />
-                <strong>{{ point.titulo }}</strong>
+
+        <!-- Lista de puntos -->
+        <div class="space-y-2">
+          <div v-for="point in reunion.points" :key="point.id"
+            class="border border-gray-200 rounded-lg p-2 hover:bg-gray-50 transition-colors">
+            <div class="flex items-start gap-2">
+              <!-- Checkbox de completado -->
+              <input type="checkbox" :checked="point.done" @change="togglePointDone(reunion.id, point)"
+                class="mt-1 rounded cursor-pointer" title="Marcar como completado" />
+
+              <!-- Título (expandible) -->
+              <div class="flex-1 cursor-pointer" @click="togglePoint(point.id)">
+                <p class="text-sm font-medium text-gray-900">{{ point.titulo }}</p>
               </div>
-              <button @click="toggleContent(point.id)" class="px-3 py-1 bg-green-500 text-white rounded-lg hover:bg-green-600">
-                <i :class="expandedPoint === point.id ? 'fa-solid fa-minus' : 'fa-solid fa-chevron-down'"></i>
+
+              <!-- Botón editar -->
+              <button @click.stop="openEditPointModal(reunion.id, point)"
+                class="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600 flex items-center gap-1"
+                title="Editar punto">
+                <i class="fa-solid fa-edit"></i>
               </button>
+
+              <!-- Icono expandir/contraer -->
+              <i class="fa-solid text-gray-400 text-xs mt-1 cursor-pointer"
+                :class="expandedPoint === point.id ? 'fa-chevron-up' : 'fa-chevron-down'"
+                @click="togglePoint(point.id)"></i>
             </div>
-            <div v-if="expandedPoint === point.id" class="mt-2 p-2 bg-white border border-gray-300 rounded-lg">
-              <p v-html="formatContent(point.content)" class="text-gray-700"></p>
+
+            <!-- Contenido expandido -->
+            <div v-if="expandedPoint === point.id" class="mt-2 pt-2 border-t border-gray-200 ml-6">
+              <p v-html="formatContent(point.content)" class="text-xs text-gray-700"></p>
             </div>
-          </li>
-        </ul>
-      </li>
-    </ul>
+          </div>
+
+          <div v-if="!reunion.points || reunion.points.length === 0" class="text-center py-4 text-gray-400 text-sm">
+            No hay puntos
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para añadir/editar punto -->
+    <div v-if="showPointModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      @click.self="closePointModal">
+      <div class="bg-white rounded-lg p-6 w-full max-w-md">
+        <h3 class="text-lg font-semibold mb-4">{{ editingPoint ? 'Editar Punto' : 'Añadir Punto' }}</h3>
+        <form @submit.prevent="savePoint" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Título</label>
+            <input v-model="pointForm.titulo" type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2"
+              required />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Contenido</label>
+            <textarea v-model="pointForm.content" rows="4"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2"></textarea>
+          </div>
+          <div class="flex items-center gap-2">
+            <input v-model="pointForm.done" type="checkbox" id="pointDone" class="rounded" />
+            <label for="pointDone" class="text-sm font-medium">Completado</label>
+          </div>
+          <div class="flex justify-end gap-2">
+            <button type="button" @click="closePointModal"
+              class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
+              Cancelar
+            </button>
+            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+              {{ editingPoint ? 'Guardar' : 'Añadir' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+import { getReunionDetails, updatePoint, postPoint } from '@services/reunions/reunions';
+import SwalService from '@services/swal/SwalService';
+
 export default {
   props: {
     title: String,
@@ -59,24 +113,107 @@ export default {
   },
   data() {
     return {
-      expandedReunion: null,
       expandedPoint: null,
+      showPointModal: false,
+      editingPoint: null,
+      currentReunionId: null,
+      pointForm: {
+        titulo: '',
+        content: '',
+        done: false,
+      },
     };
   },
   methods: {
-    togglePoints(reunionId) {
-      this.expandedReunion = this.expandedReunion === reunionId ? null : reunionId;
-    },
-    toggleContent(pointId) {
+    togglePoint(pointId) {
       this.expandedPoint = this.expandedPoint === pointId ? null : pointId;
     },
+    async togglePointDone(reunionId, point) {
+      try {
+        await updatePoint(point.id, { done: !point.done });
+        // Actualizar localmente
+        point.done = !point.done;
+        SwalService.success('Estado actualizado');
+      } catch (error) {
+        console.error('Error al actualizar estado:', error);
+        SwalService.error('No se pudo actualizar el estado');
+      }
+    },
     formatDate(date) {
-      return new Date(date).toLocaleString();
+      return new Date(date).toLocaleString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
     },
     formatContent(text) {
-      return text.replace(/\n/g, "<br>");
+      return text ? text.replace(/\n/g, "<br>") : '';
+    },
+    async reloadReunion(reunionId) {
+      try {
+        const updatedReunion = await getReunionDetails(reunionId);
+        const index = this.reuniones.findIndex(r => r.id === reunionId);
+        if (index !== -1) {
+          this.reuniones[index] = updatedReunion;
+        }
+        SwalService.success('Reunión actualizada');
+      } catch (error) {
+        console.error('Error al recargar reunión:', error);
+        SwalService.error('No se pudo recargar la reunión');
+      }
+    },
+    openAddPointModal(reunionId) {
+      this.currentReunionId = reunionId;
+      this.editingPoint = null;
+      this.pointForm = {
+        titulo: '',
+        content: '',
+        done: false,
+      };
+      this.showPointModal = true;
+    },
+    openEditPointModal(reunionId, point) {
+      this.currentReunionId = reunionId;
+      this.editingPoint = point;
+      this.pointForm = {
+        titulo: point.titulo,
+        content: point.content,
+        done: point.done,
+      };
+      this.showPointModal = true;
+    },
+    closePointModal() {
+      this.showPointModal = false;
+      this.editingPoint = null;
+      this.currentReunionId = null;
+      this.pointForm = {
+        titulo: '',
+        content: '',
+        done: false,
+      };
+    },
+    async savePoint() {
+      try {
+        if (this.editingPoint) {
+          // Editar punto existente
+          await updatePoint(this.editingPoint.id, this.pointForm);
+          SwalService.success('Punto actualizado');
+        } else {
+          // Crear nuevo punto
+          await postPoint(this.currentReunionId, this.pointForm);
+          SwalService.success('Punto añadido');
+        }
+
+        // Recargar la reunión
+        await this.reloadReunion(this.currentReunionId);
+        this.closePointModal();
+      } catch (error) {
+        console.error('Error al guardar punto:', error);
+        SwalService.error('No se pudo guardar el punto');
+      }
     },
   },
 };
 </script>
-
