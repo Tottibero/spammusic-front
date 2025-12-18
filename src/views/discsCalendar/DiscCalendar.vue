@@ -1,76 +1,44 @@
 <template>
-  <div
-    :class="{ 'menu-open': menuVisible }"
-    class="max-w-7xl mx-auto mt-10 px-4 sm:px-6 lg:px-8"
-  >
+  <div :class="{ 'menu-open': menuVisible }" class="max-w-7xl mx-auto mt-10 px-4 sm:px-6 lg:px-8">
     <h1 class="text-4xl font-bold mb-8 text-center text-gray-900">
       Calendario
     </h1>
 
     <!-- Filtros -->
-    <DiscFilters
-      :searchQuery="searchQuery"
-      :selectedGenre="selectedGenre"
-      :genres="genreOptions"
-      :countries="countries"
-      :showWeekPicker="false"
-      @update:searchQuery="searchQuery = $event"
-      @update:selectedGenre="selectedGenre = $event"
-      selectClass="w-[280px] sm:w-[300px] w-full"
-      @reset-and-fetch="resetAndFetch"
-    />
+    <DiscFilters :searchQuery="searchQuery" :selectedGenre="selectedGenre" :genres="genreOptions" :countries="countries"
+      :showWeekPicker="false" @update:searchQuery="searchQuery = $event" @update:selectedGenre="selectedGenre = $event"
+      selectClass="w-[280px] sm:w-[300px] w-full" @reset-and-fetch="resetAndFetch" />
 
     <div>
-      <div
-        class="flex flex-wrap justify-center gap-2 mb-6 mt-6 overflow-x-auto"
-      >
-        <button
-          v-for="(month, index) in months"
-          :key="index"
-          @click="selectMonth(index)"
-          :class="{
-            'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-[#211d1d] font-semibold':
-              selectedMonth === index,
-            'bg-gray-200 text-gray-800 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]':
-              selectedMonth !== index,
-          }"
-          class="px-4 py-2 rounded-full transition-all duration-300 whitespace-nowrap shadow-md mb-1 font-semibold text-gray-900"
-        >
+      <div class="flex flex-wrap justify-center gap-2 mb-6 mt-6 overflow-x-auto">
+        <button v-for="(month, index) in months" :key="index" @click="selectMonth(index)" :class="{
+          'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-[#211d1d] font-semibold':
+            selectedMonth === index,
+          'bg-gray-200 text-gray-800 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]':
+            selectedMonth !== index,
+        }"
+          class="px-4 py-2 rounded-full transition-all duration-300 whitespace-nowrap shadow-md mb-1 font-semibold text-gray-900">
           {{ month }}
         </button>
       </div>
 
       <!-- Lista de discos agrupados (resto del template) -->
-      <div
-        v-for="(group, index) in filteredGroupedDiscs"
-        :key="group.releaseDate"
-        class="mb-8"
-      >
+      <div v-for="(group, index) in filteredGroupedDiscs" :key="group.releaseDate" class="mb-8">
         <!-- ... (resto del contenido del v-for, incluyendo el encabezado del grupo, el botón de toggle, etc.) ... -->
         <div
           class="flex justify-between items-center px-5 py-3 rounded-full cursor-pointer bg-gray-200 transition-all duration-300 shadow-md"
-          :class="
-            groupState[index]
+          :class="groupState[index]
               ? 'bg-gradient-to-r from-gray-900 to-gray-700'
               : 'hover:bg-gradient-to-r hover:from-gray-200 hover:to-gray-300 bg-gray-100'
-          "
-          @click="toggleGroup(index)"
-        >
-          <h3
-            class="text-xl sm:text-2xl font-semibold transition-colors duration-300"
-            :style="{ color: groupState[index] ? 'white' : '#1f2937' }"
-          >
+            " @click="toggleGroup(index)">
+          <h3 class="text-xl sm:text-2xl font-semibold transition-colors duration-300"
+            :style="{ color: groupState[index] ? 'white' : '#1f2937' }">
             {{ formatDate(group.releaseDate) }}
           </h3>
 
-          <button
-            class="transition-transform duration-300"
-            :class="{ 'rotate-180': groupState[index] }"
-          >
-            <i
-              class="fas fa-chevron-down transition-colors duration-300"
-              :style="{ color: groupState[index] ? 'white' : '#4b5563' }"
-            ></i>
+          <button class="transition-transform duration-300" :class="{ 'rotate-180': groupState[index] }">
+            <i class="fas fa-chevron-down transition-colors duration-300"
+              :style="{ color: groupState[index] ? 'white' : '#4b5563' }"></i>
           </button>
         </div>
 
@@ -78,41 +46,26 @@
         <transition name="fade-slide" mode="out-in">
           <div v-if="groupState[index]" class="mt-4 overflow-x-auto">
             <!-- Contenedor de botones centrado -->
-            <div
-              class="flex flex-col sm:flex-row sm:items-center justify-center gap-2 mt-4 w-full"
-            >
-              <button
-                v-if="new Date(group.releaseDate) < new Date()"
-                @click="buscarEnlacesSpotify(group.discs)"
-                class="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition-all duration-300 w-full max-w-[300px] sm:max-w-none sm:w-auto text-center self-center"
-              >
+            <div class="flex flex-col sm:flex-row sm:items-center justify-center gap-2 mt-4 w-full">
+              <button v-if="new Date(group.releaseDate) < new Date()" @click="buscarEnlacesSpotify(group.discs)"
+                class="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition-all duration-300 w-full max-w-[300px] sm:max-w-none sm:w-auto text-center self-center">
                 Buscar enlaces en Spotify
               </button>
 
               <span class="hidden sm:inline-block w-4"></span>
 
-              <button
-                @click="exportarHtml(group)"
-                class="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition-all duration-300 w-full max-w-[300px] sm:max-w-none sm:w-auto text-center self-center"
-              >
+              <button @click="exportarHtml(group)"
+                class="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition-all duration-300 w-full max-w-[300px] sm:max-w-none sm:w-auto text-center self-center">
                 Exportar HTML de esta semana
               </button>
             </div>
 
             <!-- Lista de discos -->
             <ul class="w-full">
-              <li
-                v-for="disc in group.discs"
-                :key="disc.id"
-                class="flex flex-col md:flex-row md:justify-between p-4 border-b w-full"
-              >
-                <DiscComponent
-                  :disc="disc"
-                  :genres="genres"
-                  :countries="countries"
-                  @disc-deleted="removeDisc"
-                  @date-changed="handleDateChange"
-                />
+              <li v-for="disc in group.discs" :key="disc.id"
+                class="flex flex-col md:flex-row md:justify-between p-4 border-b w-full">
+                <DiscComponent :disc="disc" :genres="genres" :countries="countries" @disc-deleted="removeDisc"
+                  @date-changed="handleDateChange" />
               </li>
             </ul>
           </div>
@@ -203,7 +156,7 @@ export default defineComponent({
     const fetchAllPagesForMonth = async () => {
       try {
         if (loadMore.value) observer.unobserve(loadMore.value);
-      } catch {}
+      } catch { }
 
       while (hasMore.value) {
         await fetchDiscs();
@@ -212,7 +165,7 @@ export default defineComponent({
 
       try {
         if (loadMore.value) observer.observe(loadMore.value);
-      } catch {}
+      } catch { }
     };
 
     const selectMonth = async (monthIndex: number) => {
@@ -377,7 +330,7 @@ export default defineComponent({
 
     const fetchCountries = async () => {
       try {
-        const countriesResponse = await getCountries(250, 0);
+        const countriesResponse = await getCountries(300, 0);
         countries.value = countriesResponse.data.sort((a, b) =>
           a.name.localeCompare(b.name)
         );
