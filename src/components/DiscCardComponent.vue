@@ -3,7 +3,14 @@
 
   <!-- Tarjeta individual -->
   <div class="card w-full max-w-[20rem] border rounded shadow-lg bg-white flex flex-col mx-auto p-2 relative">
-    <div class="flex items-center justify-between px-2">
+    <!-- Badge Debut -->
+    <div v-if="debut" class="absolute -top-3 -left-2 z-20
+         px-2 py-1 rounded-full text-[10px] font-bold
+         text-rv-purple shadow-sm
+         bg-white border-rv-purple border-2">
+      Álbum debut
+    </div>
+    <div class="flex items-center justify-between px-2 p-1">
       <p class="text-xs text-gray-500">{{ formattedDate }}</p>
       <div class="flex items-center space-x-2">
         <p v-if="isEP" class="px-2 py-1 rounded-full text-xs font-medium text-white bg-blue-500 text-center shadow-sm">
@@ -86,16 +93,15 @@
           <div class="flex space-x-2 items-center">
             <div class="relative group">
               <font-awesome-icon :icon="['fas', 'heart']"
-                class="h-7 w-5 cursor-pointer transition-all duration-300 ease-in-out"  :class="{
+                class="h-7 w-5 cursor-pointer transition-all duration-300 ease-in-out" :class="{
                   'text-red-500 scale-110': favoriteId,
                   'text-gray-500 hover:text-red-400': !favoriteId,
                 }" @click="toggleHeart" />
-<span
-  class="pointer-events-none hidden md:block absolute bottom-full left-1/2 transform -translate-x-1/2
+              <span class="pointer-events-none hidden md:block absolute bottom-full left-1/2 transform -translate-x-1/2
          px-2 py-1 text-[9px] font-semibold text-white bg-rv-navy rounded
          opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-  Favs
-</span>
+                Favs
+              </span>
 
             </div>
 
@@ -105,8 +111,7 @@
                   'text-yellow-400 scale-110': pendingId,
                   'text-gray-500 hover:text-yellow-300': !pendingId,
                 }" />
-              <span
-  class="pointer-events-none hidden md:block absolute bottom-full left-1/2 transform -translate-x-1/2
+              <span class="pointer-events-none hidden md:block absolute bottom-full left-1/2 transform -translate-x-1/2
          px-2 py-1 text-[9px] font-semibold text-white bg-rv-navy rounded
          opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 Guardar
@@ -153,7 +158,7 @@
           Chat
           <span v-if="commentCount > 0" class="ml-1 mt-1 text-[9px] text-[#ffbaca]">(<span class="inline">{{
             commentCount
-          }}</span>)</span>
+              }}</span>)</span>
         </span>
       </button>
 
@@ -211,8 +216,8 @@ import { defineComponent, ref, computed, watchEffect, type PropType } from "vue"
 import defaultImage from "/src/assets/disco.png";
 import DiscDetail from "./DiscDetail.vue";
 import ArtistDetail from "./ArtistDetail.vue";
-import VotesModal from "./VotesModal.vue"; 
-import ComentsModal from "./ComentsModal.vue"; 
+import VotesModal from "./VotesModal.vue";
+import ComentsModal from "./ComentsModal.vue";
 import {
   getDiscRates,
   postRateService,
@@ -267,6 +272,7 @@ export default defineComponent({
     pendingId: { type: String, required: false },
     commentCount: { type: Number, required: false, default: null },
     rateCount: { type: Number, required: false, default: null },
+    debut: { type: Boolean, required: false, default: false },
   },
   setup(props) {
     const localRating = ref({ rate: props.rate, cover: props.cover });
@@ -285,6 +291,8 @@ export default defineComponent({
         year: "numeric",
       });
     });
+
+    const debut = computed(() => props.debut);
 
     // Abreviaturas
     const countryAbbr: Record<string, string> = {
@@ -313,11 +321,11 @@ export default defineComponent({
 
     const computedImage = computed(() => props.image || defaultImage);
 
-const openImage = () => {
-  const url = computedImage.value;
-  if (!url) return;
-  window.open(url, "_blank", "noopener");
-};
+    const openImage = () => {
+      const url = computedImage.value;
+      if (!url) return;
+      window.open(url, "_blank", "noopener");
+    };
     const favoriteId = ref(props.favoriteId);
     const pendingId = ref(props.pendingId);
 
@@ -382,8 +390,8 @@ const openImage = () => {
       showVotes.value = !showVotes.value;
       console.log("After toggle:", showVotes.value); // ADD THIS
       try {
-if (!showVotes.value) return; // si se está cerrando, no pida nada
-votes.value = await getDiscRates(props.id);
+        if (!showVotes.value) return; // si se está cerrando, no pida nada
+        votes.value = await getDiscRates(props.id);
       } catch (error) {
         console.error("Error fetching votes:", error);
         Swal.fire({
@@ -562,6 +570,7 @@ votes.value = await getDiscRates(props.id);
       disableSubmitButton,
       countryAbbr,
       countryLabel,
+      debut,
     };
   },
 });

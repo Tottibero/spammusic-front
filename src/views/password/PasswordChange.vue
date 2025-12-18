@@ -25,14 +25,27 @@
             <!-- Panel -->
             <div v-show="openCategory === cat.key" class="p-4">
               <div v-if="(avatarsByCategory[cat.key] || []).length" class="grid grid-cols-4 gap-3 place-items-center">
-                <button v-for="avatar in avatarsByCategory[cat.key]" :key="avatar" type="button"
-                  @click="selectAvatar(avatar)"
-                  class="grid place-items-center w-20 h-20 rounded-full overflow-hidden border-4 transition-transform duration-200 hover:scale-105"
-                  :class="avatar === selectedAvatar ? 'border-[#d9e021] shadow-md' : 'border-gray-300'">
-                  <!-- Cargamos imágenes solo si el panel está abierto -->
-                  <img :src="avatar" alt="Avatar" class="block w-full h-full object-cover" width="80" height="80"
-                    loading="eager" decoding="async" />
-                </button>
+<button
+  v-for="avatar in avatarsByCategory[cat.key]"
+  :key="avatar"
+  type="button"
+  @click="selectAvatar(avatar)"
+  class="grid place-items-center w-20 h-20 p-0 leading-none rounded-full overflow-hidden border-4
+       transition-transform duration-200 hover:scale-105
+       focus:outline-none focus-visible:ring-4 focus-visible:ring-rv-pink/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+:class="avatar === selectedAvatar
+  ? 'border-rv-pink shadow-[0_0_0_3px_rgba(236,72,153,0.35),0_0_18px_rgba(236,72,153,0.55)]'
+  : 'border-gray-100'"
+>
+  <img
+    :src="avatar"
+    alt="Avatar"
+    class="block w-full h-full object-cover"
+    loading="eager"
+    decoding="async"
+  />
+</button>
+
               </div>
 
               <p v-else class="text-sm text-gray-500 italic">Próximamente añadiremos avatares en esta categoría.</p>
@@ -41,21 +54,21 @@
           </div>
         </div>
 
-        <button type="button" @click="saveAvatar" class="w-full mt-6 bg-gradient-to-r from-[#fcee21] to-[#d9e021] text-black font-bold py-2 rounded-full
-         hover:from-[#fbd900] hover:to-[#c5d600] focus:outline-none focus:ring-4 focus:ring-yellow-300
+        <button type="button" @click="saveAvatar" class="w-full mt-6 bg-gradient-to-r from-rv-pink to-rv-pink/90 text-white font-bold py-2 rounded-full
+         hover:from-rv-pink/90 hover:to-rv-pink/80 focus:outline-none 
          disabled:opacity-50 disabled:cursor-not-allowed">
-          Guardar Avatar
+          Guardar avatar
         </button>
 
       </section>
 
       <!-- DERECHA: Cambiar contraseña -->
       <section class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-xl font-semibold mb-4 text-center">Cambiar Contraseña</h2>
+        <h2 class="text-xl font-semibold mb-4 text-center">Cambiar contraseña</h2>
 
         <form @submit.prevent="changePassword" class="space-y-4">
           <div>
-            <label for="password" class="block font-medium mb-1">Nueva Contraseña</label>
+            <label for="password" class="block font-medium mb-1">Nueva contraseña</label>
             <input v-model="password" type="password" id="password" class="w-full p-2 border border-gray-300 rounded-lg"
               placeholder="Ingrese su nueva contraseña" required />
             <p v-if="passwordError" class="text-red-500 text-sm mt-1">
@@ -78,8 +91,8 @@
             {{ errorMessage }}
           </p>
 
-          <button type="submit" class="w-full mt-6 bg-gradient-to-r from-[#fcee21] to-[#d9e021] text-black font-bold py-2 rounded-full
-         hover:from-[#fbd900] hover:to-[#c5d600] focus:outline-none focus:ring-4 focus:ring-yellow-300
+          <button type="submit" class="w-full mt-6 bg-gradient-to-r from-rv-pink to-rv-pink/90 text-white font-bold py-2 rounded-full
+         hover:from-rv-pink/90 hover:to-rv-pink/80 focus:outline-none 
          disabled:opacity-50 disabled:cursor-not-allowed">
             Guardar Contraseña
           </button>
