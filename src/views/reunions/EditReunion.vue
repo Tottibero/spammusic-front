@@ -3,9 +3,9 @@
     <!-- Cabecera de la reunión -->
     <div class="flex justify-between items-center mb-4">
       <div>
-        <h1 class="text-2xl font-bold">{{ reunion.titulo }}</h1>
+        <h1 class="text-2xl font-bold">{{ reunion.title }}</h1>
         <!-- Fecha de la reunión formateada -->
-        <p class="text-sm text-gray-600">{{ formatDate(reunion.fecha) }}</p>
+        <p class="text-sm text-gray-600">{{ formatDate(reunion.date) }}</p>
       </div>
       <button
         @click="toggleEditReunionForm"
@@ -25,7 +25,7 @@
         <div>
           <label for="titulo-reunion" class="block font-medium">Título</label>
           <input
-            v-model="reunion.titulo"
+            v-model="reunion.title"
             type="text"
             id="titulo-reunion"
             class="w-full p-2 border border-gray-300 rounded-lg"
@@ -36,7 +36,7 @@
         <div>
           <label for="fecha-reunion" class="block font-medium">Fecha</label>
           <input
-            v-model="reunion.fecha"
+            v-model="reunion.date"
             type="datetime-local"
             id="fecha-reunion"
             class="w-full p-2 border border-gray-300 rounded-lg"
@@ -230,8 +230,8 @@ export default defineComponent({
   setup(props) {
     // Estado para la reunión
     const reunion = ref({
-      titulo: "",
-      fecha: "",
+      title: "",
+      date: "",
     });
 
     const showEditReunionForm = ref(false);
@@ -263,8 +263,8 @@ export default defineComponent({
       try {
         const response = await getReunionDetails(props.id);
         reunion.value = {
-          titulo: response.titulo,
-          fecha: new Date(response.fecha).toISOString().slice(0, 16),
+          title: response.title,
+          date: new Date(response.date).toISOString().slice(0, 16),
         };
         points.value = response.points.map((point) => ({
           ...point,
@@ -280,8 +280,8 @@ export default defineComponent({
     const updateReunionFunction = async () => {
       try {
         await updateReunion(props.id, {
-          titulo: reunion.value.titulo,
-          fecha: reunion.value.fecha,
+          title: reunion.value.title,
+          date: reunion.value.date,
         });
         SwalService.success('Reunión actualizada con éxito.');
         showEditReunionForm.value = false;
