@@ -32,6 +32,7 @@ export interface Spotify {
   fechaActualizacion: string; // ISO
   createdAt: string; // ISO
   updatedAt: string; // ISO
+  user?: { id: string; username: string; image?: string }; // Usuario asignado
 }
 
 // =========================
@@ -44,9 +45,10 @@ export interface CreateSpotifyDto {
   tipo: SpotifyTipo;
   /** ISO8601, ej "2025-09-22T10:00:00Z" */
   fechaActualizacion: string;
+  userId?: string;
 }
 
-export interface UpdateSpotifyDto extends Partial<CreateSpotifyDto> {}
+export interface UpdateSpotifyDto extends Partial<CreateSpotifyDto> { }
 
 // Utils
 export const toISO = (d: Date) => d.toISOString();
@@ -65,6 +67,16 @@ export interface ListSpotifyParams {
 
 export async function listSpotify(params: ListSpotifyParams = {}): Promise<Spotify[]> {
   const { data } = await api.get<Spotify[]>('/spotify', { params });
+  return data;
+}
+
+export async function getSpotifyFestivals(): Promise<Spotify[]> {
+  const { data } = await api.get<Spotify[]>('/spotify/festivals');
+  return data;
+}
+
+export async function getSpotifyGenres(): Promise<Spotify[]> {
+  const { data } = await api.get<Spotify[]>('/spotify/genres');
   return data;
 }
 

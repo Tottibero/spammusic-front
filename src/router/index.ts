@@ -176,6 +176,19 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresAuth: true },
   },
   {
+    path: "/spotify/festivales",
+    name: "SpotifyFestivales",
+    component: () => import("/src/views/spotify/SpotifyFestivalsKanban.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/spotify/generos",
+    name: "SpotifyGeneros",
+    component: () => import("/src/views/spotify/ListSpotify.vue"),
+    meta: { requiresAuth: true },
+    props: { fixedType: 'genero' }
+  },
+  {
     path: "/patch-notes",
     name: "PatchNotes",
     component: () => import("/src/views/patch-notes/PatchNotes.vue"),
