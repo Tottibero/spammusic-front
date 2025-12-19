@@ -77,15 +77,16 @@
       <!-- Fila 1: Selects de género y país -->
       <div class="grid gap-2" :class="{ 'grid-cols-2': !isNarrow, 'grid-cols-1': isNarrow }">
         <!-- Select de género -->
-        <SearchableSelect v-model="editedData.genreId" :options="genres" title="name" trackby="id"
-          placeholder="Buscar género..." trigger-placeholder="Selecciona un género" all-label="Todos los géneros"
-          :max="200"
+        <SearchableSelect :key="`genres-${genres.length}`" v-model="editedData.genreId" :options="genres" title="name"
+          trackby="id" placeholder="Buscar género..." trigger-placeholder="Selecciona un género"
+          all-label="Todos los géneros" :max="200"
           class="rounded-full text-rv-navy text-sm border-rv-navy/20 shadow-lg ring-0 focus:ring-0 focus:outline-none"
           @update:modelValue="() => saveChanges('genreId')" />
 
         <!-- País del artista -->
-        <SearchableSelect v-model="editedArtist.countryId" :options="countries" title="name" trackby="id"
-          placeholder="Buscar país..." trigger-placeholder="Selecciona un país" all-label="Todos los países" :max="300"
+        <SearchableSelect :key="`countries-${countries.length}`" v-model="editedArtist.countryId" :options="countries"
+          title="name" trackby="id" placeholder="Buscar país..." trigger-placeholder="Selecciona un país"
+          all-label="Todos los países" :max="300"
           class="rounded-full text-rv-navy text-sm border-rv-navy/20 shadow-lg ring-0 focus:ring-0 focus:outline-none"
           @update:modelValue="saveCountry" />
       </div>
@@ -228,35 +229,35 @@ export default defineComponent({
     DiscDetail,
     ArtistDetail,
   },
-props: {
-  disc: {
-    type: Object as PropType<{
-      id: string;
-      name: string;
-      artist: { id: string; name: string; countryId: string };
-      genreId: string;
-      link: string | null;
-      image: string | null;
-      ep: boolean;
-      debut: boolean;
-      verified: boolean;
-      releaseDate: Date;
-      pendingId: string | null;
-    }>,
-    required: true,
-  },
+  props: {
+    disc: {
+      type: Object as PropType<{
+        id: string;
+        name: string;
+        artist: { id: string; name: string; countryId: string };
+        genreId: string;
+        link: string | null;
+        image: string | null;
+        ep: boolean;
+        debut: boolean;
+        verified: boolean;
+        releaseDate: Date;
+        pendingId: string | null;
+      }>,
+      required: true,
+    },
 
-  focusDiscId: { type: String, default: "" }, // ✅ AQUÍ
+    focusDiscId: { type: String, default: "" }, // ✅ AQUÍ
 
-  genres: {
-    type: Array as PropType<{ id: string; name: string; color?: string }[]>,
-    required: true,
+    genres: {
+      type: Array as PropType<{ id: string; name: string; color?: string }[]>,
+      required: true,
+    },
+    countries: {
+      type: Array as PropType<{ id: string; name: string; isoCode?: string }[]>,
+      required: true,
+    },
   },
-  countries: {
-    type: Array as PropType<{ id: string; name: string; isoCode?: string }[]>,
-    required: true,
-  },
-},
   setup(props, { emit }) {
     // Estado local del select (solo genreId)
     const editedData = reactive({
