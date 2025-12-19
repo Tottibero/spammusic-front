@@ -10,6 +10,13 @@
          bg-white border-rv-purple border-2">
       Álbum debut
     </div>
+
+    <!-- Botón editar (solo Riff Valley) -->
+    <button v-if="canModerate" type="button" class="absolute bottom-30 translate-y-28 left-2 z-30 w-8 h-8 rounded-full bg-white shadow-md border border-gray-200
+         flex items-center justify-center hover:bg-gray-50" title="Editar en calendario" @click="openCalendarModal">
+      <i class="fa-solid fa-wrench text-rv-navy text-sm"></i>
+    </button>
+
     <div class="flex items-center justify-between px-2 p-1">
       <p class="text-xs text-gray-500">{{ formattedDate }}</p>
       <div class="flex items-center space-x-2">
@@ -209,6 +216,40 @@
     </div>
   </div>
 
+<Teleport to="body">
+  <div
+    v-if="showCalendarModal"
+    class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+  >
+    <div class="bg-white rounded-xl shadow-xl w-[95vw] max-w-6xl max-h-[90vh] relative overflow-hidden">
+      <!-- botón cerrar -->
+<button
+  type="button"
+  @click.stop="showCalendarModal = false"
+  aria-label="Cerrar"
+  title="Cerrar"
+  class="absolute top-2 right-2 z-50
+         text-white bg-rv-navy hover:bg-[#e46e8a]
+         rounded-full w-10 h-10 shadow-md transition-all
+         grid place-items-center
+         border-0 outline-none ring-0 focus:ring-0"
+>
+  <i class="fas fa-times -translate-x-[5px]"></i>
+</button>
+
+
+      <div class="max-h-[90vh] overflow-y-auto overflow-x-hidden">
+        <DiscCalendar
+          :embedded="true"
+          :initialDate="releaseDate"
+          :focusDiscId="id"
+          @close="showCalendarModal = false"
+        />
+      </div>
+    </div>
+  </div>
+</Teleport>
+
 </template>
 
 <script lang="ts">
@@ -218,6 +259,7 @@ import DiscDetail from "./DiscDetail.vue";
 import ArtistDetail from "./ArtistDetail.vue";
 import VotesModal from "./VotesModal.vue";
 import ComentsModal from "./ComentsModal.vue";
+import DiscCalendar from "@views/discsCalendar/DiscCalendar.vue"; // o la ruta real si no está en @views
 import {
   getDiscRates,
   postRateService,
@@ -245,7 +287,7 @@ interface Vote {
 }
 
 export default defineComponent({
-  components: { DiscDetail, ArtistDetail, ComentsModal, VotesModal }, // Add VotesModal
+  components: { DiscDetail, ArtistDetail, ComentsModal, VotesModal, DiscCalendar }, // Add VotesModal
   props: {
     id: { type: String, required: true },
     image: { type: String, required: true },
@@ -293,6 +335,24 @@ export default defineComponent({
     });
 
     const debut = computed(() => props.debut);
+
+    const showCalendarModal = ref(false);
+
+    const openCalendarModal = () => {
+      showCalendarModal.value = true;
+    };
+
+    const canModerate = computed(() => {
+      const raw = localStorage.getItem("roles");
+      if (!raw) return false;
+
+      let roles: any = raw;
+      try { roles = JSON.parse(raw); } catch { }
+
+      const arr = Array.isArray(roles) ? roles : [roles];
+      return arr.map(r => String(r).toLowerCase()).includes("riffvalley");
+    });
+
 
     // Abreviaturas
     const countryAbbr: Record<string, string> = {
@@ -571,6 +631,9 @@ export default defineComponent({
       countryAbbr,
       countryLabel,
       debut,
+      canModerate,
+      showCalendarModal,
+      openCalendarModal,
     };
   },
 });
