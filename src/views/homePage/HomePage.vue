@@ -288,15 +288,20 @@ export default defineComponent({
       return options;
     });
 
-    // Opciones para "Año": sólo el año actual
+    // Opciones para "Año" comienza en el 2025 y termina en el año actual + 1 si es diciembre
     const yearOptions = computed(() => {
       const options: Array<{ start: string; end: string; label: string }> = [];
       const currentYear = new Date().getFullYear();
-      const startDate = new Date(currentYear, 0, 1);
-      const endDate = new Date(currentYear, 11, 31);
-      const startStr = formatLocalDate(startDate);
-      const endStr = formatLocalDate(endDate);
-      options.push({ start: startStr, end: endStr, label: `${currentYear}` });
+      const currentMonth = new Date().getMonth();
+      const startYear = 2025;
+      const endYear = (currentMonth === 11 ? currentYear + 1 : currentYear);
+      for (let i = startYear; i <= endYear; i++) {
+        const startDate = new Date(i, 0, 1);
+        const endDate = new Date(i, 11, 31);
+        const startStr = formatLocalDate(startDate);
+        const endStr = formatLocalDate(endDate);
+        options.push({ start: startStr, end: endStr, label: `${i}` });
+      }
       return options;
     });
 
