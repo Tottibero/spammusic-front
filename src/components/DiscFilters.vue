@@ -74,8 +74,10 @@ export default defineComponent({
     const availableYears = computed(() => {
       const base = 2025;
       const current = new Date().getFullYear();
+      const currentMonth = new Date().getMonth();
+      const endYear = (currentMonth === 11 ? current + 1 : current);
       const arr: number[] = [];
-      for (let y = base; y <= current; y++) arr.push(y);
+      for (let y = base; y <= endYear; y++) arr.push(y);
       return arr;
     });
 
