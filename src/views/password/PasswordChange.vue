@@ -3,7 +3,11 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <!-- IZQUIERDA: Avatares por temática -->
       <section class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-xl font-semibold mb-4 text-center">Avatares</h2>
+        <div class="text-center mb-5">
+        <span class="bg-rv-navy text-white px-4 py-1 rounded-full text-md font-bold">
+            Avatar
+          </span>
+          </div>
 
         <div class="space-y-3">
           <!-- Acordeón de categorías -->
@@ -25,26 +29,16 @@
             <!-- Panel -->
             <div v-show="openCategory === cat.key" class="p-4">
               <div v-if="(avatarsByCategory[cat.key] || []).length" class="grid grid-cols-4 gap-3 place-items-center">
-<button
-  v-for="avatar in avatarsByCategory[cat.key]"
-  :key="avatar"
-  type="button"
-  @click="selectAvatar(avatar)"
-  class="grid place-items-center w-20 h-20 p-0 leading-none rounded-full overflow-hidden border-4
+                <button v-for="avatar in avatarsByCategory[cat.key]" :key="avatar" type="button"
+                  @click="selectAvatar(avatar)"
+                  class="grid place-items-center w-20 h-20 p-0 leading-none rounded-full overflow-hidden border-4
        transition-transform duration-200 hover:scale-105
-       focus:outline-none focus-visible:ring-4 focus-visible:ring-rv-pink/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
-:class="avatar === selectedAvatar
-  ? 'border-rv-pink shadow-[0_0_0_3px_rgba(236,72,153,0.35),0_0_18px_rgba(236,72,153,0.55)]'
-  : 'border-gray-100'"
->
-  <img
-    :src="avatar"
-    alt="Avatar"
-    class="block w-full h-full object-cover"
-    loading="eager"
-    decoding="async"
-  />
-</button>
+       focus:outline-none focus-visible:ring-4 focus-visible:ring-rv-pink/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white" :class="avatar === selectedAvatar
+        ? 'border-rv-pink shadow-[0_0_0_3px_rgba(236,72,153,0.35),0_0_18px_rgba(236,72,153,0.55)]'
+        : 'border-gray-100'">
+                  <img :src="avatar" alt="Avatar" class="block w-full h-full object-cover" loading="eager"
+                    decoding="async" />
+                </button>
 
               </div>
 
@@ -64,13 +58,17 @@
 
       <!-- DERECHA: Cambiar contraseña -->
       <section class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-xl font-semibold mb-4 text-center">Cambiar contraseña</h2>
+        <div class="text-center mb-5">
+        <span class="bg-rv-navy text-white px-4 py-1 rounded-full text-md font-bold">
+            Cambiar contraseña
+          </span>
+          </div>
 
         <form @submit.prevent="changePassword" class="space-y-4">
           <div>
             <label for="password" class="block font-medium mb-1">Nueva contraseña</label>
             <input v-model="password" type="password" id="password" class="w-full p-2 border border-gray-300 rounded-lg"
-              placeholder="Ingrese su nueva contraseña" required />
+              placeholder="Crea tu nueva contraseña" required />
             <p v-if="passwordError" class="text-red-500 text-sm mt-1">
               {{ passwordError }}
             </p>
@@ -79,7 +77,7 @@
           <div>
             <label for="confirmPassword" class="block font-medium mb-1">Confirmar Contraseña</label>
             <input v-model="confirmPassword" type="password" id="confirmPassword"
-              class="w-full p-2 border border-gray-300 rounded-lg" placeholder="Confirme su nueva contraseña"
+              class="w-full p-2 border border-gray-300 rounded-lg" placeholder="Confirma tu nueva contraseña"
               required />
           </div>
 
@@ -129,6 +127,7 @@ export default {
     const categories = ref([
       { key: "music", label: "Música", icon: "fa-solid fa-music" },
       { key: "animals", label: "Animales", icon: "fa-solid fa-paw" },
+      { key: "marvel", label: "Marvel", icon: "fa-solid fa-mask" },
       { key: "misc", label: "Miscelánea", icon: "fa-solid fa-shapes" },
     ]);
 
@@ -141,11 +140,15 @@ export default {
       animals: [
         "/avatar/avatar21.png", "/avatar/avatar22.png", "/avatar/avatar23.png", "/avatar/avatar24.png",
         "/avatar/avatar25.png", "/avatar/avatar26.png", "/avatar/avatar27.png", "/avatar/avatar28.png", "/avatar/avatar29.png", "/avatar/avatar30.png", "/avatar/avatar31.png", "/avatar/avatar32.png", "/avatar/avatar33.png", "/avatar/avatar34.png",
-        "/avatar/avatar35.png", "/avatar/avatar36.png", "/avatar/avatar37.png", "/avatar/avatar38.png", 
+        "/avatar/avatar35.png", "/avatar/avatar36.png", "/avatar/avatar37.png", "/avatar/avatar38.png",
+      ],
+      marvel: [
+        "/avatar/avatar39.png", "/avatar/avatar40.png", "/avatar/avatar41.png", "/avatar/avatar42.png", "/avatar/avatar43.png", "/avatar/avatar44.png", "/avatar/avatar45.png", "/avatar/avatar46.png", "/avatar/avatar47.png", "/avatar/avatar48.png", "/avatar/avatar49.png", "/avatar/avatar50.png",
       ],
       misc: [
         "/avatar/avatar20.png",
       ],
+
     });
 
     // Derivar un array "todos"
@@ -183,7 +186,7 @@ export default {
       try {
         await userStore.updateUserStore({ image: selectedAvatar.value });
         authStore.setImage(selectedAvatar.value);
-        SwalService.success("Avatar actualizado correctamente");
+        SwalService.success("Avatar actualizado");
         errorMessage.value = "";
       } catch (error) {
         errorMessage.value = error?.response?.data?.message || "Ocurrió un error inesperado";
@@ -195,7 +198,7 @@ export default {
       if (passwordMismatch.value || passwordError.value) return;
       try {
         await userStore.updateUserStore({ password: password.value });
-        SwalService.success("Contraseña cambiada con éxito");
+        SwalService.success("Contraseña cambiada");
         password.value = "";
         confirmPassword.value = "";
         errorMessage.value = "";

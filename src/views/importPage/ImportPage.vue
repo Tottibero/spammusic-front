@@ -32,7 +32,8 @@ Decrepid – Suffered Existence" rows="6"
     <!-- Botón para enviar -->
     <div class="mb-6 md:mb-8 flex justify-center">
       <button @click="processData" :disabled="!selectedDate || !albumText.trim()"
-        class="px-5 py-2 md:px-6 md:py-3 bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-black font-semibold rounded-full hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto">
+        class="px-5 py-2 md:px-6 md:py-3 bg-gradient-to-r from-rv-pink to-rv-pink/90 text-white font-bold py-2 rounded-full
+         hover:from-rv-pink/90 hover:to-rv-pink/80 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto">
         Enviar
       </button>
     </div>
