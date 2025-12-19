@@ -67,25 +67,19 @@
             </div>
 
             <div v-if="optionsReady">
-              <!-- aquí su lista de discos -->
+              <ul class="w-full mt-4">
+                <li v-for="disc in group.discs" :key="disc.id"
+                  class="flex flex-col md:flex-row md:justify-between p-4 border-b w-full">
+                  <div :id="`disc-${disc.id}`" class="w-full">
+                    <DiscComponent :disc="disc" :genres="genres" :countries="countries" :focusDiscId="focusDiscId"
+                      @disc-deleted="removeDisc" @date-changed="handleDateChange" />
+                  </div>
+                </li>
+              </ul>
             </div>
-
             <div v-else class="text-center text-gray-500 py-6">
               Cargando géneros y países…
             </div>
-
-
-            <!-- Lista de discos -->
-            <ul class="w-full mt-4">
-              <li v-for="disc in group.discs" :key="disc.id"
-                class="flex flex-col md:flex-row md:justify-between p-4 border-b w-full">
-                <div :id="`disc-${disc.id}`" class="w-full">
-                  <DiscComponent :disc="disc" :genres="genres" :countries="countries" :focusDiscId="focusDiscId"
-                    @disc-deleted="removeDisc" @date-changed="handleDateChange" />
-                </div>
-              </li>
-            </ul>
-
           </div>
         </transition>
       </div>
@@ -589,6 +583,9 @@ export default defineComponent({
       yearOptions,
       closing,
       focusDiscId,
+      optionsReady,
+      genresLoaded,
+      countriesLoaded,
     };
   },
 });
