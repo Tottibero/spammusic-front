@@ -12,32 +12,18 @@
 
     <!-- Fila 2: Año / Mes / Semana -->
     <div v-if="showWeekPicker" class="mt-4 mb-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-       <!-- AÑO -->
-  <SimpleSelect
-    class="select-pill w-full"
-    :options="yearsOptions"
-    v-model="weeksYear"
-    :group-label="`Año – ${weeksYear}`"
-    placeholder="Año"
-  />
-     
-      <!-- MES -->
-<SimpleSelect
-  class="select-pill w-full"
-  :options="monthsOptions"
-  v-model="weeksMonth"
-  placeholder="Mes"
-/>
+      <!-- AÑO -->
+      <SimpleSelect class="select-pill w-full" :options="yearsOptions" v-model="weeksYear"
+        :group-label="weeksYear === 0 ? 'Año – Todos' : `Año – ${weeksYear}`" placeholder="Año" />
 
-  <!-- SEMANAS -->
-  <SimpleSelect
-    v-if="weeksMonth && weeksYear"
-    class="select-pill w-full"
-    :options="periodOptions"
-    v-model="selectedPeriodKey"
-    :group-label="`Semanas – ${monthNames[weeksMonth - 1]} ${weeksYear}`"
-    placeholder="Semana"
-  />
+      <!-- MES -->
+      <SimpleSelect v-if="weeksYear !== 0" class="select-pill w-full" :options="monthsOptions" v-model="weeksMonth"
+        placeholder="Mes" />
+
+      <!-- SEMANAS -->
+      <SimpleSelect v-if="weeksYear !== 0 && weeksMonth" class="select-pill w-full" :options="periodOptions"
+        v-model="selectedPeriodKey" :group-label="`Semanas – ${monthNames[weeksMonth - 1]} ${weeksYear}`"
+        placeholder="Semana" />
     </div>
 
   </div>
@@ -78,7 +64,7 @@ export default defineComponent({
     const today = new Date();
     // Por defecto: AÑO COMPLETO (weeksMonth = 0)
     const weeksMonth = ref<number>(0);
-    const weeksYear = ref<number>(Math.max(2025, today.getUTCFullYear()));
+    const weeksYear = ref<number>(new Date().getFullYear()); // 2025 ahora
 
     const monthNames = [
       "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
@@ -116,23 +102,24 @@ export default defineComponent({
       };
     });
 
-const monthsOptions = computed(() => [
-  { value: 0, label: 'Año completo' },
-  ...monthNames.map((label, i) => ({ value: i + 1, label }))
-]);
+    const monthsOptions = computed(() => [
+      { value: 0, label: 'Año completo' },
+      ...monthNames.map((label, i) => ({ value: i + 1, label }))
+    ]);
 
-const yearsOptions = computed(() =>
-  availableYears.value.map(y => ({ value: y, label: String(y) }))
-);
+    const yearsOptions = computed(() => [
+      { value: 0, label: "Todos los años" },
+      ...availableYears.value.map(y => ({ value: y, label: String(y) })),
+    ]);
 
-const periodOptions = computed(() => {
-  if (!weeksMonth.value || !weeksYear.value) return [];
-  // Primero “Mes completo”
-  const base = [{ value: monthOption.value.key, label: 'Mes completo' }];
-  // Luego semanas
-  const weeks = weekOptions.value.map(w => ({ value: w.key, label: w.label }));
-  return [...base, ...weeks];
-});
+    const periodOptions = computed(() => {
+      if (!weeksMonth.value || !weeksYear.value) return [];
+      // Primero “Mes completo”
+      const base = [{ value: monthOption.value.key, label: 'Mes completo' }];
+      // Luego semanas
+      const weeks = weekOptions.value.map(w => ({ value: w.key, label: w.label }));
+      return [...base, ...weeks];
+    });
 
 
     // Mes completo
@@ -182,15 +169,24 @@ const periodOptions = computed(() => {
 
     // Si cambia mes/año:
     watch([weeksMonth, weeksYear], () => {
-      if (!weeksYear.value) return;
-      if (weeksMonth.value === 0) {
-        // Año completo -> ocultamos Periodo y emitimos rango anual
+      // 1) TODOS LOS AÑOS
+      if (weeksYear.value === 0) {
+        // cerrar/resetear mes y semana
+        weeksMonth.value = 0;
         selectedPeriodKey.value = null;
-        emitYear();
+
+        // 2) emitir "sin filtro"
+        emit("update:selectedWeek", null);
+        return;
+      }
+
+      // 2) Año concreto (comportamiento normal)
+      if (weeksMonth.value === 0) {
+        selectedPeriodKey.value = null;
+        emitYear();     // rango año completo de ese año
       } else {
-        // Mes seleccionado -> por defecto "Mes completo"
         selectedPeriodKey.value = monthOption.value.key;
-        emitMonth();
+        emitMonth();    // rango mes completo
       }
     }, { immediate: true });
 
@@ -304,5 +300,4 @@ const periodOptions = computed(() => {
 :deep(.select-pill .search_input_trigger svg) {
   right: .75rem;
 }
-
 </style>
