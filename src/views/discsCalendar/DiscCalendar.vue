@@ -1,6 +1,6 @@
 <template>
   <div :class="{ 'menu-open': menuVisible }" class="max-w-7xl mx-auto mt-10 px-4 sm:px-6 lg:px-8">
-    <h1 class="text-4xl font-bold mb-8 text-center text-gray-900">
+    <h1 v-if="!embedded" class="text-4xl font-bold mb-8 text-center text-gray-900">
       Calendario
     </h1>
 
@@ -11,12 +11,7 @@
 
     <div>
       <div class="flex justify-center mb-4">
-        <SimpleSelect
-          v-model="selectedYear"
-          :options="yearOptions"
-          placeholder="Selecciona un año"
-          class="w-40"
-        />
+        <SimpleSelect v-model="selectedYear" :options="yearOptions" placeholder="Selecciona un año" class="w-40" />
       </div>
       <div class="flex flex-wrap justify-center gap-2 mb-6 mt-6 overflow-x-auto">
         <button v-for="(month, index) in months" :key="index" @click="selectMonth(index)" class="px-4 py-2 rounded-full transition-all duration-200 whitespace-nowrap shadow-sm mb-1 font-semibold
@@ -34,7 +29,8 @@
         <div class="group flex justify-between items-center px-5 py-3 rounded-full cursor-pointer transition-all duration-200 shadow-sm
          border border-rv-navy/10" :class="(groupState[index] || closing[index])
           ? 'bg-gradient-to-r from-rv-navy to-rv-navy/80 shadow-md'
-          : 'bg-white hover:bg-gradient-to-r from-rv-navy to-rv-navy/80 hover:text-white hover:shadow-md'" @click="toggleGroup(index)">
+          : 'bg-white hover:bg-gradient-to-r from-rv-navy to-rv-navy/80 hover:text-white hover:shadow-md'"
+          @click="toggleGroup(index)">
           <h3 class="text-xl sm:text-2xl font-semibold transition-colors duration-200" :class="(groupState[index] || closing[index])
             ? 'text-white'
             : 'text-rv-navy group-hover:text-white'">
@@ -74,20 +70,23 @@
             <ul class="w-full mt-4">
               <li v-for="disc in group.discs" :key="disc.id"
                 class="flex flex-col md:flex-row md:justify-between p-4 border-b w-full">
-                <DiscComponent :disc="disc" :genres="genres" :countries="countries" @disc-deleted="removeDisc"
-                  @date-changed="handleDateChange" />
+                <div :id="`disc-${disc.id}`" class="w-full">
+                  <DiscComponent :disc="disc" :genres="genres" :countries="countries" :focusDiscId="focusDiscId"
+                    @disc-deleted="removeDisc" @date-changed="handleDateChange" />
+                </div>
               </li>
             </ul>
+
           </div>
         </transition>
       </div>
     </div>
-    </div>
+  </div>
 
-    <!-- Cargar más -->
-    <div ref="loadMore" class="text-center py-6">
-      <span v-if="loading" class="text-gray-600">Cargando discos...</span>
-    </div>
+  <!-- Cargar más -->
+  <div ref="loadMore" class="text-center py-6">
+    <span v-if="loading" class="text-gray-600">Cargando discos...</span>
+  </div>
 </template>
 
 <script lang="ts">
@@ -99,6 +98,7 @@ import {
   computed,
   nextTick,
   watch,
+  toRef,
 } from "vue";
 import axios from "axios";
 import { updateDisc, deleteDisc, getDiscsDated } from "@services/discs/discs";
@@ -112,7 +112,15 @@ import SimpleSelect from "@components/SimpleSelect.vue";
 export default defineComponent({
   components: { DiscComponent, DiscFilters, SimpleSelect },
   name: "DiscsList",
-  setup() {
+
+  props: {
+    embedded: { type: Boolean, default: false },
+    initialDate: { type: String, default: "" },
+    focusDiscId: { type: String, default: "" },
+  },
+  emits: ["close"],
+
+  setup(props) {
     const groupedDiscs = ref<any[]>([]);
     const groupState = reactive({});
 
@@ -135,16 +143,18 @@ export default defineComponent({
     const selectedYear = ref(new Date().getFullYear());
 
     const yearOptions = computed(() => {
-        const currentYear = new Date().getFullYear();
-        const currentMonth = new Date().getMonth();
-        const startYear = 2025;
-        const endYear = (currentMonth === 11 ? currentYear + 1 : currentYear);
-        const years = [];
-        for (let i = startYear; i <= endYear; i++) {
-            years.push({ value: i, label: String(i) });
-        }
-        return years;
+      const currentYear = new Date().getFullYear();
+      const currentMonth = new Date().getMonth();
+      const startYear = 2025;
+      const endYear = (currentMonth === 11 ? currentYear + 1 : currentYear);
+      const years = [];
+      for (let i = startYear; i <= endYear; i++) {
+        years.push({ value: i, label: String(i) });
+      }
+      return years;
     });
+
+    const focusDiscId = toRef(props, "focusDiscId"); 
 
     // --- Filtros ---
     const searchQuery = ref("");
@@ -195,6 +205,16 @@ export default defineComponent({
       } catch { }
     };
 
+    const initial = computed(() =>
+      props.initialDate ? new Date(props.initialDate) : null
+    );
+
+    // Si abrimos desde modal con una fecha concreta, forzamos mes y año
+    if (props.embedded && initial.value) {
+      selectedMonth.value = initial.value.getMonth();
+      selectedYear.value = initial.value.getFullYear();
+    }
+
     const selectMonth = async (monthIndex: number) => {
       selectedMonth.value = monthIndex;
       const year = selectedYear.value;
@@ -238,6 +258,31 @@ export default defineComponent({
         totalItems.value = response.totalItems;
         offset.value = limit.value;
         hasMore.value = offset.value < totalItems.value;
+        await nextTick();
+
+        if (props.embedded && initial.value) {
+          const target = new Date(initial.value);
+
+          const sameDay = (dateString: string) => {
+            const d = new Date(dateString);
+            return (
+              d.getFullYear() === target.getFullYear() &&
+              d.getMonth() === target.getMonth() &&
+              d.getDate() === target.getDate()
+            );
+          };
+
+          const idx = groupedDiscs.value.findIndex((g: any) => sameDay(g.releaseDate));
+          if (idx >= 0) groupState[idx] = true;
+
+          await nextTick();
+
+          if (props.focusDiscId) {
+            const el = document.getElementById(`disc-${props.focusDiscId}`);
+            el?.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }
+
       } catch (error) {
         console.error("Error fetching discs by date range:", error);
       } finally {
@@ -469,11 +514,11 @@ export default defineComponent({
     });
 
     onMounted(() => {
-      if (loadMore.value) {
-        observer.observe(loadMore.value);
-      }
+      if (loadMore.value) observer.observe(loadMore.value);
 
-      selectMonth(new Date().getMonth());
+      const d = initial.value;
+      selectMonth(d ? d.getMonth() : new Date().getMonth());
+
       fetchCountries();
       fetchGenres();
     });
@@ -508,6 +553,7 @@ export default defineComponent({
       selectedYear,
       yearOptions,
       closing,
+      focusDiscId, 
     };
   },
 });
