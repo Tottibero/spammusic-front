@@ -40,3 +40,37 @@ export async function getPastWeeklyLists(year: number, month: number): Promise<a
   const response = await api.get<any>(`/lists/weekly/past/${year}/${month}`);
   return response.data;
 }
+
+// Obtener listas mensuales actuales
+export async function getCurrentMonthlyLists(): Promise<any> {
+  const response = await api.get<any>("/lists/month/current");
+  return response.data;
+}
+
+// Obtener listas mensuales pasadas por año
+export async function getPastMonthlyLists(year: number): Promise<any> {
+  const response = await api.get<any>(`/lists/month/past/${year}`);
+  return response.data;
+}
+
+// Obtener listas especiales
+export async function getSpecialLists(): Promise<any> {
+  const response = await api.get<any>("/lists/special");
+  return response.data;
+}
+
+export async function deleteList(id: string): Promise<void> {
+  await api.delete(`/lists/${id}`);
+}
+
+// Obtener listas de video actuales
+export async function getCurrentVideoLists(): Promise<any> {
+  const response = await api.get<any>("/lists/video/current");
+  return response.data;
+}
+
+// Obtener listas de video pasadas por año
+export async function getPastVideoLists(year: number): Promise<any> {
+  const response = await api.get<any>(`/lists/video/past/${year}`);
+  return response.data;
+}

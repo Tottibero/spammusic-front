@@ -13,13 +13,11 @@
             <div class="flex-1 overflow-y-auto p-4 space-y-3" ref="backlogContainerRef">
                 <div v-for="content in backlogItems" :key="content.id"
                     :data-event='JSON.stringify({ title: content.name, id: content.id, extendedProps: { author: content.author } })'
-                    class="fc-event p-4 bg-white border-2 rounded-lg cursor-move hover:shadow-lg transition-all"
-                    :class="[
+                    class="fc-event p-4 bg-white border-2 rounded-lg cursor-move hover:shadow-lg transition-all" :class="[
                         getContentTypeClass(content.type),
                         showOnlyMyEvents && content.author?.id === authStore.userId ? 'ring-2 ring-red-500 ring-offset-2' : '',
                         showOnlyMyEvents && content.author?.id !== authStore.userId ? 'opacity-30 grayscale' : ''
-                    ]"
-                    @click="openEditModal(content)">
+                    ]" @click="openEditModal(content)">
                     <div class="flex items-start justify-between gap-3">
                         <div class="flex-1">
                             <div class="flex items-center gap-2 mb-2">
@@ -60,11 +58,10 @@
                         :class="showOnlyMyEvents ? '' : 'opacity-60 grayscale'"
                         :title="showOnlyMyEvents ? 'Mostrar todos los eventos' : 'Mostrar solo mis eventos'">
                         <div class="relative">
-                            <img v-if="authStore.image" :src="authStore.image" 
-                                :alt="authStore.username || 'Usuario'" 
+                            <img v-if="authStore.image" :src="authStore.image" :alt="authStore.username || 'Usuario'"
                                 class="w-10 h-10 rounded-full object-cover transition-all"
                                 :class="showOnlyMyEvents ? 'ring-4 ring-indigo-600 ring-offset-2' : ''" />
-                            <div v-else 
+                            <div v-else
                                 class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-lg"
                                 :class="showOnlyMyEvents ? 'ring-4 ring-indigo-600 ring-offset-2' : ''">
                                 {{ authStore.username?.charAt(0).toUpperCase() }}
@@ -285,7 +282,8 @@
                         <p class="text-sm text-gray-600">Esta acción no se puede deshacer</p>
                     </div>
                 </div>
-                <p class="text-gray-700 mb-6">¿Estás seguro de que deseas eliminar el evento "<strong>{{ contentToDelete?.name }}</strong>"?</p>
+                <p class="text-gray-700 mb-6">¿Estás seguro de que deseas eliminar el evento "<strong>{{
+                    contentToDelete?.name }}</strong>"?</p>
                 <div class="flex justify-end gap-3">
                     <button @click="cancelDeleteContent"
                         class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
@@ -357,7 +355,7 @@ import type { ContentType, Content } from '@services/contents/contents';
 import { getContents, createContent as createContentAPI, updateContent, deleteContent, getContentsByMonth } from '@services/contents/contents';
 import { useAuthStore } from '@stores/auth/auth';
 import { getRvUsers } from '@services/users/users';
-import { postReunion } from '@services/reunions/reunions';
+
 import { useRouter } from 'vue-router';
 
 const authStore = useAuthStore();
@@ -465,10 +463,10 @@ const calendarOptions = ref({
         const isMyEvent = authStore.userId && author?.id === authStore.userId;
         const shouldDim = showOnlyMyEvents.value && !isMyEvent;
         const shouldHighlight = showOnlyMyEvents.value && isMyEvent;
-        
+
         const container = document.createElement('div');
         container.className = `flex items-center gap-1.5 p-1 overflow-hidden transition-all ${shouldDim ? 'opacity-30' : 'opacity-100'}`;
-        
+
         // Add red border to my events when filter is active
         if (shouldHighlight) {
             container.style.border = '2px solid #ef4444';
@@ -667,31 +665,12 @@ async function handleCreateContent() {
     }
 
     try {
-        let reunionId: string | undefined = undefined;
-
-        // If it's a meeting, create the reunion FIRST and get its ID
-        if (newContent.value.type === 'meeting' && newContent.value.publicationDate) {
-            try {
-                const createdReunion = await postReunion({
-                    title: newContent.value.name,
-                    description: newContent.value.notes || '',
-                    date: newContent.value.publicationDate
-                });
-                reunionId = createdReunion.id;
-            } catch (reunionError) {
-                console.error('Error creating reunion:', reunionError);
-                alert('Error al crear la reunión. Por favor, intenta de nuevo.');
-                return; // Stop content creation if reunion fails
-            }
-        }
-
-        // Now create the content with the reunionId if it's a meeting
+        // Create the content directly without creating a separate reunion entity first
         await createContentAPI({
             type: newContent.value.type,
             name: newContent.value.name,
             notes: newContent.value.notes || undefined,
             publicationDate: newContent.value.publicationDate || undefined,
-            reunionId: reunionId,
             authorId: newContent.value.authorId
         });
 
@@ -756,7 +735,7 @@ function cancelDeleteContent() {
 
 async function executeDeleteContent() {
     if (!contentToDelete.value) return;
-    
+
     try {
         await deleteContent(contentToDelete.value.id);
         // Remove from local state

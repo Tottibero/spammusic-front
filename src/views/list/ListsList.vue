@@ -1,206 +1,202 @@
 <template>
-  <div class="p-6 bg-gray-100 min-h-screen flex flex-col items-center">
-    <div class="bg-white p-6 rounded-2xl shadow-md w-full max-w-5xl mb-6">
-      <div class="flex justify-between items-center mb-4">
-        <h4 class="text-xl font-bold">Listas Actuales</h4>
-        <button
-          @click="goToCreate"
-          class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
-        >
+  <div class="p-6 bg-gray-50 min-h-screen flex flex-col items-center">
+    <!-- Main Container -->
+    <div class="max-w-7xl w-full">
+
+      <!-- Header -->
+      <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Listas</h1>
+        </div>
+        <button @click="showCreateModal = true"
+          class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-all duration-200 flex items-center gap-2 transform hover:scale-105">
           <i class="fa-solid fa-plus"></i>
+          Nueva Lista
         </button>
       </div>
-      <div class="overflow-x-auto">
-        <table class="w-full table-auto border-collapse">
-          <thead class="bg-gray-200">
-            <tr>
-              <th class="px-4 py-2 text-left text-gray-600 font-medium">Nombre</th>
-              <th class="px-4 py-2 text-left text-gray-600 font-medium">Tipo</th>
-              <th class="px-4 py-2 text-left text-gray-600 font-medium">Estado</th>
-              <th class="px-4 py-2 text-left text-gray-600 font-medium">Fecha de Lista</th>
-              <th class="px-4 py-2 text-left text-gray-600 font-medium">Fecha de Lanzamiento</th>
-              <th class="px-4 py-2 text-left text-gray-600 font-medium">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="item in lists" :key="item.id" class="odd:bg-white even:bg-gray-50">
-              <td class="px-4 py-2 border-t border-gray-200 text-gray-700">{{ item.name }}</td>
-              <td class="px-4 py-2 border-t border-gray-200 text-gray-700">{{ item.type }}</td>
-              <td class="px-4 py-2 border-t border-gray-200 text-gray-700">
-                <span :class="statusClass(item.status)" class="px-2 py-1 rounded-full text-xs font-bold">
-                  {{ readableStatus(item.status) }}
-                </span>
-              </td>
-              <td class="px-4 py-2 border-t border-gray-200 text-gray-700">{{ item.listDate }}</td>
-              <td class="px-4 py-2 border-t border-gray-200 text-gray-700">{{ item.releaseDate }}</td>
-              <td class="px-4 py-2 border-t border-gray-200 text-gray-700">
-                <button @click="goToEdit(item.id)" class="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                  <i class="fa-solid fa-pen-to-square"></i>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
 
-        <!-- Diseño responsive para móviles -->
-        <div v-for="item in lists" :key="item.id" class="sm:hidden bg-white p-4 rounded-lg shadow-md mb-4 w-full">
-          <h5 class="text-lg font-semibold">{{ item.name }}</h5>
-          <p><strong>Tipo:</strong> {{ item.type }}</p>
-          <p><strong>Estado:</strong> <span :class="statusClass(item.status)" class="px-2 py-1 rounded-full text-xs font-bold">{{ readableStatus(item.status) }}</span></p>
-          <p><strong>Fecha de Lista:</strong> {{ item.listDate }}</p>
-          <p><strong>Fecha de Lanzamiento:</strong> {{ item.releaseDate }}</p>
-          <div class="mt-2 flex justify-end">
-            <button @click="goToEdit(item.id)" class="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-              <i class="fa-solid fa-pen-to-square"></i>
+      <!-- Loading State -->
+      <div v-if="loading" class="text-center py-20">
+        <i class="fa-solid fa-spinner fa-spin text-4xl text-indigo-500 mb-4"></i>
+        <p class="text-gray-500 text-lg">Cargando listas...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div v-else-if="lists.length === 0"
+        class="bg-white rounded-2xl shadow-sm p-12 text-center border border-gray-100">
+        <div class="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fa-solid fa-list-check text-2xl text-indigo-400"></i>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">No hay listas creadas</h3>
+        <button @click="showCreateModal = true"
+          class="text-indigo-600 font-semibold hover:text-indigo-800 transition-colors">
+          Crear lista ahora
+        </button>
+      </div>
+
+      <!-- Grid Layout Compacto -->
+      <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div v-for="list in lists" :key="list.id"
+          class="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 overflow-hidden flex flex-col justify-between h-full">
+
+          <div class="p-4 flex items-center gap-3">
+            <div
+              class="flex-shrink-0 w-8 h-8 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-500">
+              <i class="fa-solid fa-list-ul text-sm"></i>
+            </div>
+            <h3 class="font-bold text-gray-800 text-base leading-tight line-clamp-2 mr-2">{{ list.name }}</h3>
+          </div>
+
+          <div class="px-4 pb-4 flex gap-2 mt-auto">
+            <button @click="goToEdit(list.id)"
+              class="flex-1 bg-gray-50 hover:bg-indigo-50 text-gray-600 hover:text-indigo-600 border border-gray-200 hover:border-indigo-200 rounded text-sm font-medium py-1.5 transition-colors flex items-center justify-center gap-2">
+              <i class="fa-solid fa-pen text-xs"></i>
+              <span>Editar</span>
+            </button>
+            <button @click="deleteItem(list.id)"
+              class="w-8 flex items-center justify-center bg-gray-50 hover:bg-red-50 text-gray-400 hover:text-red-500 border border-gray-200 hover:border-red-200 rounded transition-colors"
+              title="Eliminar">
+              <i class="fa-solid fa-trash text-xs"></i>
             </button>
           </div>
         </div>
-
       </div>
     </div>
-    <div class="bg-white p-6 rounded-2xl shadow-md w-full max-w-5xl">
-      <div class="mb-4 cursor-pointer" @click="togglePastLists">
-        <h4 class="text-xl font-bold">Listas Pasadas</h4>
-      </div>
-      <div v-if="showPastLists" class="overflow-y-auto max-h-96">
-        <ul>
-          <li
-            v-for="item in pastLists"
-            :key="item.id"
-            class="flex justify-between items-center py-2 border-b border-gray-200"          
-            >
-            <span class="text-gray-700">{{ item.name }}</span>
-            <div class="flex space-x-2">
-              {{ item.type }}
-            </div>
-            <div class="flex space-x-2">
-              {{ item.listDate }}
-            </div>
-            <div class="flex space-x-2">
-              {{ item.releaseDate }}
-            </div>
 
-            <div class="flex space-x-2">
-              <a
-                v-if="item.link"
-                :href="item.link"
-                target="_blank"
-                class="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 flex items-center space-x-1"
-              >
-                <i class="fa-solid fa-link"></i>
-                <span>Ir al enlace</span>
-              </a>
-              <button
-                @click="goToEdit(item.id)"
-                class="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center space-x-1"
-              >
-                <i class="fa-solid fa-pen-to-square"></i>
-                <span>Editar</span>
-              </button>
-            </div>
-          </li>
-        </ul>
+    <!-- Create Modal -->
+    <div v-if="showCreateModal"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+          <h3 class="text-xl font-bold text-gray-900">Nueva Lista Especial</h3>
+          <button @click="closeModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+            <i class="fa-solid fa-xmark text-xl"></i>
+          </button>
+        </div>
+
+        <div class="p-6">
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Nombre de la Lista</label>
+            <input v-model="newListName" type="text"
+              class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+              placeholder="Ej: Lo mejor del Indie 2024" @keyup.enter="createList" autofocus />
+          </div>
+        </div>
+
+        <div class="p-6 border-t border-gray-100 bg-gray-50 flex gap-3 justify-end">
+          <button @click="closeModal"
+            class="px-5 py-2.5 rounded-lg text-gray-700 font-medium hover:bg-gray-200 transition-colors">
+            Cancelar
+          </button>
+          <button @click="createList" :disabled="!newListName || creating"
+            class="px-5 py-2.5 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2">
+            <i v-if="creating" class="fa-solid fa-circle-notch fa-spin"></i>
+            <span v-else>Crear Lista</span>
+          </button>
+        </div>
       </div>
     </div>
+
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from "vue";
-import { getLists } from "@services/list/list";
+import { getSpecialLists, postList, deleteList } from "@services/list/list";
 import { useRouter } from "vue-router";
-
-const statusMap: Record<string, string> = {
-  new: "New",
-  assigned: "Assigned",
-  completed: "Completed",
-  revised: "Revised",
-  withimage: "With Image",
-  scheduled: "Scheduled",
-  webpublished: "Web Published",
-  smpublished: "Social Media Published",
-};
+import SwalService from "@services/swal/SwalService";
 
 export default defineComponent({
-  name: "PaginatedTable",
+  name: "SpecialLists",
   setup() {
     const lists = ref<any[]>([]);
-    const pastLists = ref<any[]>([]);
-    const showPastLists = ref(false);
+    const loading = ref(true);
     const router = useRouter();
+    const showCreateModal = ref(false);
+    const newListName = ref("");
+    const creating = ref(false);
 
     const fetchLists = async () => {
+      loading.value = true;
       try {
-        const response = await getLists(20, 0, ["smpublished"]);
-        lists.value = response.data;
+        const response = await getSpecialLists();
+        // Assuming response is an array based on previous getLists format which returned { data: [] } but getSpecialLists returns response.data directly
+        // Let's safe check based on getLists implementation in service
+        lists.value = Array.isArray(response) ? response : (response.data || []);
       } catch (error) {
-        console.error("Error fetching lists:", error);
+        console.error("Error fetching special lists:", error);
+        SwalService.error("Error al cargar las listas");
+      } finally {
+        loading.value = false;
       }
-    };
-
-    const fetchPastLists = async () => {
-      try {
-        const exclusions = Object.keys(statusMap).filter(
-          (status) => status !== "smpublished"
-        );
-        const response = await getLists(20, 0, exclusions);
-        pastLists.value = response.data;
-      } catch (error) {
-        console.error("Error fetching past lists:", error);
-      }
-    };
-
-    const readableStatus = (status: string) => statusMap[status] || "Unknown";
-
-    const statusClass = (status: string) => {
-      const statusColors: Record<string, string> = {
-        new: "bg-red-100 text-red-800",
-        assigned: "bg-orange-100 text-orange-800",
-        completed: "bg-yellow-100 text-yellow-800",
-        revised: "bg-green-100 text-green-800",
-        withimage: "bg-teal-100 text-teal-800",
-        scheduled: "bg-blue-100 text-blue-800",
-        webpublished: "bg-indigo-100 text-indigo-800",
-        smpublished: "bg-purple-100 text-purple-800",
-      };
-      return statusColors[status] || "bg-gray-100 text-gray-800";
     };
 
     const goToEdit = (id: string) => {
       router.push({ name: "EditList", params: { id } });
     };
 
-    const goToCreate = () => {
-      router.push({ name: "CreateList" });
+    const deleteItem = async (id: string) => {
+      const confirmed = await SwalService.confirm(
+        "¿Estás seguro?",
+        "Esta acción no se puede deshacer. Se eliminará la lista y sus asignaciones."
+      );
+
+      if (confirmed.isConfirmed) {
+        try {
+          await deleteList(id);
+          SwalService.success("Lista eliminada");
+          fetchLists();
+        } catch (error) {
+          console.error("Error deleting list:", error);
+          SwalService.error("No se pudo eliminar la lista");
+        }
+      }
     };
 
-    const togglePastLists = () => {
-      showPastLists.value = !showPastLists.value;
+    const closeModal = () => {
+      showCreateModal.value = false;
+      newListName.value = "";
+    };
+
+    const createList = async () => {
+      if (!newListName.value) return;
+
+      creating.value = true;
+      try {
+        await postList({
+          name: newListName.value,
+          type: 'special'
+        });
+        SwalService.success("Lista creada correctamente");
+        closeModal();
+        fetchLists();
+      } catch (error) {
+        console.error("Error creating list:", error);
+        SwalService.error("No se pudo crear la lista");
+      } finally {
+        creating.value = false;
+      }
     };
 
     onMounted(() => {
       fetchLists();
-      fetchPastLists();
     });
 
     return {
       lists,
-      pastLists,
-      showPastLists,
+      loading,
       goToEdit,
-      goToCreate,
-      togglePastLists,
-      readableStatus,
-      statusClass,
+      deleteItem,
+      showCreateModal,
+      newListName,
+      creating,
+      closeModal,
+      createList
     };
   },
 });
 </script>
 
 <style scoped>
-@media (max-width: 640px) {
-  .table-auto {
-    display: none;
-  }
-}
+/* Scoped styles if needed */
 </style>

@@ -1,154 +1,129 @@
 <template>
-  <div class="p-4 bg-white rounded-md shadow">
-    <h2 class="text-lg font-bold mb-4">Lista</h2>
-
-    <!-- Botón para mostrar formulario -->
-    <div class="mb-6">
-      <button
-        @click="showCreateForm = !showCreateForm"
-        class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-      >
-        {{ showCreateForm ? "Cancelar" : "➕ Nueva Asignación" }}
+  <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-xl font-bold text-gray-800">Checklist</h2>
+      <button @click="openCreateModal"
+        class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-200 flex items-center gap-2">
+        <i class="fa-solid fa-plus"></i>
+        Nueva Asignación
       </button>
     </div>
 
-    <!-- Formulario de creación -->
-    <form
-      v-if="showCreateForm"
-      @submit.prevent="createAsignation"
-      class="space-y-4 mb-6"
-    >
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1"
-          >Usuario</label
-        >
-        <select
-          v-model="form.userId"
-          class="w-full border border-gray-300 rounded p-2"
-        >
-          <option value="">-- Sin asignar usuario --</option>
-          <option v-for="user in users" :key="user.id" :value="user.id">
-            {{ user.username }}
-          </option>
-        </select>
-      </div>
+    <!-- Lista de asignaciones (Grid de Tarjetas) -->
+    <div v-if="asignations.length === 0"
+      class="text-center py-10 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+      <i class="fa-regular fa-clipboard text-4xl text-gray-300 mb-2"></i>
+      <p class="text-gray-500">No hay tareas creadas todavía.</p>
+    </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1"
-          >Descripción</label
-        >
-        <textarea
-          v-model="form.description"
-          rows="3"
-          class="w-full border border-gray-300 rounded p-2"
-          placeholder="Describe la asignación"
-        ></textarea>
-      </div>
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div v-for="asignation in asignations" :key="asignation.id"
+        class="bg-white border text-left border-gray-200 rounded-xl p-3 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col h-full"
+        :class="{ 'bg-green-50 border-green-200': asignation.done }">
 
+        <div class="flex justify-between items-center mb-2">
+          <!-- Status -->
+          <label class="flex items-center cursor-pointer min-w-0 mr-2">
+            <input type="checkbox" :checked="asignation.done" @change="toggleDone(asignation)"
+              class="form-checkbox h-4 w-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 transition-all" />
+            <span class="ml-2 text-xs font-semibold text-gray-700 truncate"
+              :class="{ 'line-through text-gray-400': asignation.done }">
+              {{ asignation.done ? 'Completado' : 'Pendiente' }}
+            </span>
+          </label>
 
-      <div class="flex space-x-2">
-        <button
-          type="submit"
-          class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-        >
-          Crear Asignación
-        </button>
-        <button
-          type="button"
-          @click="showCreateForm = false"
-          class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
-        >
-          Cancelar
-        </button>
-      </div>
-    </form>
+          <!-- User Info & Actions -->
+          <div class="flex items-center gap-2 flex-shrink-0">
 
-    <!-- Lista de asignaciones -->
-    <div>
-      <h3 class="text-md font-semibold mb-2">Asignaciones Creadas</h3>
-      <div v-if="asignations.length === 0" class="text-gray-500">
-        No hay asignaciones creadas todavía.
-      </div>
-      <ul class="space-y-2">
-        <li
-          v-for="(asignation, index) in asignations"
-          :key="index"
-          class="p-2 bg-gray-50 rounded-md flex flex-col space-y-2"
-        >
-          <div class="flex items-center justify-between">
-            <input
-              type="checkbox"
-              :checked="asignation.done"
-              @change="toggleDone(asignation)"
-              class="form-checkbox h-5 w-5 text-indigo-600"
-            />
+            <!-- User Info (Compact) -->
+            <div class="flex items-center gap-1.5" v-if="asignation.user" title="Usuario asignado">
+              <img v-if="asignation.user.image" :src="asignation.user.image" alt="Avatar"
+                class="w-5 h-5 rounded-full object-cover shadow-sm border border-gray-100" />
+              <div v-else
+                class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-sm"
+                :style="{ backgroundColor: getAvatarColor(asignation.user.username) }">
+                {{ asignation.user.username?.charAt(0).toUpperCase() || '?' }}
+              </div>
+              <span class="text-[10px] text-gray-500 font-medium max-w-[60px] truncate hidden sm:inline">{{
+                asignation.user.username }}</span>
+            </div>
 
-            <div class="flex space-x-2">
-              <button
-                v-if="editingId !== asignation.id"
-                @click="startEditing(asignation)"
-                class="bg-indigo-500 text-white text-sm px-3 py-1 rounded hover:bg-indigo-600"
-              >
-                Editar
+            <!-- Separator -->
+            <div class="h-4 w-px bg-gray-200 mx-1"></div>
+
+            <!-- Actions -->
+            <div class="flex gap-1">
+              <button @click="startEditing(asignation)"
+                class="text-gray-400 hover:text-indigo-600 p-0.5 rounded-md transition-colors" title="Editar">
+                <i class="fa-solid fa-pen-to-square text-xs"></i>
               </button>
-
-              <button
-                @click="deleteAsignation(asignation.id)"
-                class="bg-red-500 text-white text-sm px-3 py-1 rounded hover:bg-red-600"
-              >
-                Eliminar
+              <button @click="deleteAsignation(asignation.id)"
+                class="text-gray-400 hover:text-red-500 p-0.5 rounded-md transition-colors" title="Eliminar">
+                <i class="fa-solid fa-trash text-xs"></i>
               </button>
             </div>
           </div>
+        </div>
 
-          <div
-            v-if="editingId === asignation.id"
-            class="flex flex-col space-y-2 mt-2"
-          >
-            <select v-model="editForm.userId" class="border p-2 rounded">
-              <option value="">-- Sin asignar usuario --</option>
+        <!-- Description -->
+        <div class="flex-grow">
+          <p class="text-gray-800 text-sm leading-snug whitespace-pre-line"
+            :class="{ 'text-gray-500': asignation.done }" v-html="formatTextWithLineBreaks(asignation.description)"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Creación/Edición -->
+    <div v-if="showModal"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+          <h3 class="text-xl font-bold text-gray-900">
+            {{ editingId ? 'Editar Asignación' : 'Nueva Asignación' }}
+          </h3>
+          <button @click="closeModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+            <i class="fa-solid fa-xmark text-xl"></i>
+          </button>
+        </div>
+
+        <form @submit.prevent="handleSubmit" class="p-6 space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+            <textarea v-model="modalForm.description" rows="4"
+              class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+              placeholder="¿Qué hay que hacer?" required></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Asignar a Usuario</label>
+            <select v-model="modalForm.userId"
+              class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none">
+              <option value="">-- Sin asignar --</option>
               <option v-for="user in users" :key="user.id" :value="user.id">
                 {{ user.username }}
               </option>
             </select>
-
-            <textarea
-              v-model="editForm.description"
-              rows="2"
-              class="border p-2 rounded"
-              placeholder="Descripción"
-            ></textarea>
-
-            <div class="flex space-x-2">
-              <button
-                @click="saveEdit(asignation.id)"
-                class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
-              >
-                Guardar
-              </button>
-              <button
-                @click="cancelEditing"
-                class="bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500"
-              >
-                Cancelar
-              </button>
-            </div>
           </div>
 
-          <div v-else class="mt-2">
-            <span class="font-semibold">Usuario:</span>
-            {{ asignation.user?.username || "N/A" }} <br />
-            <span class="font-semibold">Descripción:</span>
-<p v-html="formatTextWithLineBreaks(asignation.description)"></p>
+          <div class="pt-2 flex gap-3 justify-end">
+            <button type="button" @click="closeModal"
+              class="px-5 py-2.5 rounded-lg text-gray-700 font-medium hover:bg-gray-100 transition-colors">
+              Cancelar
+            </button>
+            <button type="submit"
+              class="px-5 py-2.5 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 shadow-md hover:shadow-lg transition-all">
+              {{ editingId ? 'Guardar Cambios' : 'Crear Asignación' }}
+            </button>
           </div>
-        </li>
-      </ul>
+        </form>
+      </div>
     </div>
+
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, watch } from "vue";
+import { defineComponent, ref, onMounted, watch, reactive } from "vue";
 import { getRvUsers } from "@services/users/users";
 import SwalService from "@services/swal/SwalService";
 import {
@@ -173,22 +148,33 @@ export default defineComponent({
     const users = ref<any[]>([]);
     const asignations = ref<any[]>([]);
     const editingId = ref<string | null>(null);
-    const editForm = ref({
-      userId: "",
-      description: "",
-    });
+    const showModal = ref(false);
 
-    const showCreateForm = ref(false); // <<<<<<<<<<< AÑADIR ESTO
-
-    const form = ref({
+    const modalForm = reactive({
       userId: "",
       description: "",
       done: false,
     });
 
+    // Colores para avatares
+    const avatarColors = [
+      "#EF4444", "#F59E0B", "#10B981", "#3B82F6",
+      "#6366F1", "#8B5CF6", "#EC4899", "#F43F5E"
+    ];
+
+    const getAvatarColor = (username?: string) => {
+      if (!username) return "#9CA3AF"; // Gray for unknown
+      let hash = 0;
+      for (let i = 0; i < username.length; i++) {
+        hash = username.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      const index = Math.abs(hash) % avatarColors.length;
+      return avatarColors[index];
+    };
+
     const formatTextWithLineBreaks = (text: string): string => {
-  return text.replace(/\n/g, "<br>");
-};
+      return text ? text.replace(/\n/g, "<br>") : "";
+    };
 
     const fetchUsers = async () => {
       try {
@@ -199,75 +185,87 @@ export default defineComponent({
       }
     };
 
+    const openCreateModal = () => {
+      editingId.value = null;
+      modalForm.userId = "";
+      modalForm.description = "";
+      modalForm.done = false;
+      showModal.value = true;
+    };
+
+    const closeModal = () => {
+      showModal.value = false;
+      editingId.value = null;
+      modalForm.userId = "";
+      modalForm.description = "";
+      modalForm.done = false;
+    };
+
+    const startEditing = (asignation: any) => {
+      editingId.value = asignation.id;
+      modalForm.userId = asignation.user?.id || "";
+      modalForm.description = asignation.description;
+      modalForm.done = asignation.done;
+      showModal.value = true;
+    };
+
+    const handleSubmit = async () => {
+      if (editingId.value) {
+        await updateAsignation();
+      } else {
+        await createAsignation();
+      }
+    };
+
     const createAsignation = async () => {
       try {
         const newAsignationData = {
-          userId: form.value.userId || null,
-          description: form.value.description || "",
-          done: form.value.done,
+          userId: modalForm.userId || undefined,
+          description: modalForm.description || "",
+          done: modalForm.done,
           listId: props.listId,
         };
         const response = await postAsignationService(newAsignationData);
         asignations.value.push(response);
 
-        // Limpiar formulario
-        form.value.userId = "";
-        form.value.description = "";
-        form.value.done = false;
-
-        // Ocultar el formulario después de crear
-        showCreateForm.value = false;
-
+        closeModal();
         SwalService.success("Asignación creada con éxito!");
       } catch (error) {
         console.error("Error creating asignation:", error);
+        SwalService.error("Error al crear la asignación");
       }
     };
 
-    const startEditing = (asignation: any) => {
-      editingId.value = asignation.id;
-      editForm.value = {
-        userId: asignation.user?.id || "",
-        description: asignation.description,
-      };
-    };
+    const updateAsignation = async () => {
+      if (!editingId.value) return;
 
-    const cancelEditing = () => {
-      editingId.value = null;
-      editForm.value = {
-        userId: "",
-        description: "",
-      };
-    };
-
-    const saveEdit = async (id: string) => {
       try {
         const updatedAsignationData = {
-          userId: editForm.value.userId || null,
-          description: editForm.value.description,
+          userId: modalForm.userId || undefined,
+          description: modalForm.description,
         };
 
-        await updateAsignationService(id, updatedAsignationData);
+        const response: any = await updateAsignationService(
+          editingId.value,
+          updatedAsignationData
+        );
 
-        // Una vez actualizado en backend, ahora actualizamos en frontend
-        const index = asignations.value.findIndex((a) => a.id === id);
-
+        // Actualizamos en local
+        const index = asignations.value.findIndex((a) => a.id === editingId.value);
         if (index !== -1) {
-          const updatedUser = users.value.find(
-            (u) => u.id === editForm.value.userId
-          );
-
-          // Actualizamos directamente en el array local
+          const updatedUser = users.value.find((u) => u.id === modalForm.userId);
+          // Si el backend devuelve el objeto actualizado completo, úsalo, si no, mezcla
           asignations.value[index] = {
             ...asignations.value[index],
-            userId: editForm.value.userId,
-            description: editForm.value.description,
-            user: updatedUser ?? asignations.value[index].user, // si no encuentra usuario, deja el que tenía
+            ...response, // mezcla lo que devuelva el back
+            userId: modalForm.userId,
+            description: modalForm.description,
+            user: updatedUser ?? asignations.value[index].user,
           };
         }
 
+        closeModal();
         SwalService.success("Asignación actualizada con éxito!");
-        cancelEditing();
       } catch (error) {
         console.error("Error updating asignation:", error);
         SwalService.error("Error actualizando asignación");
@@ -276,18 +274,14 @@ export default defineComponent({
 
     const toggleDone = async (asignation: any) => {
       try {
-        const newDone = !asignation.done; // inverso del actual
-
+        const newDone = !asignation.done;
         await updateAsignationService(asignation.id, { done: newDone });
 
-        const index = asignations.value.findIndex(
-          (a) => a.id === asignation.id
-        );
+        const index = asignations.value.findIndex((a) => a.id === asignation.id);
         if (index !== -1) {
           asignations.value[index].done = newDone;
         }
-
-        SwalService.success("Estado actualizado");
+        // Feedback visual sutil, no un alert invasivo para un check
       } catch (error) {
         console.error("Error toggling done:", error);
         SwalService.error("Error actualizando estado");
@@ -295,20 +289,20 @@ export default defineComponent({
     };
 
     const deleteAsignation = async (id: string) => {
-      try {
-        const confirm = window.confirm(
-          "¿Seguro que quieres borrar esta asignación?"
-        );
-        if (!confirm) return;
+      const confirmed = await SwalService.confirm(
+        "¿Eliminar tarea?",
+        "Esta acción no se puede deshacer."
+      );
 
-        await deleteAsignationService(id);
-
-        asignations.value = asignations.value.filter((a) => a.id !== id);
-
-        SwalService.success("Asignación eliminada con éxito!");
-      } catch (error) {
-        console.error("Error deleting asignation:", error);
-        SwalService.error("Error eliminando asignación");
+      if (confirmed.isConfirmed) {
+        try {
+          await deleteAsignationService(id);
+          asignations.value = asignations.value.filter((a) => a.id !== id);
+          SwalService.success("Eliminado correctamente");
+        } catch (error) {
+          console.error("Error deleting asignation:", error);
+          SwalService.error("Error eliminando asignación");
+        }
       }
     };
 
@@ -328,18 +322,18 @@ export default defineComponent({
 
     return {
       users,
-      form,
       asignations,
-      createAsignation,
       editingId,
-      editForm,
+      showModal,
+      modalForm,
+      openCreateModal,
+      closeModal,
       startEditing,
-      cancelEditing,
-      saveEdit,
+      handleSubmit,
       toggleDone,
-      showCreateForm,
       deleteAsignation,
-      formatTextWithLineBreaks
+      formatTextWithLineBreaks,
+      getAvatarColor,
     };
   },
 });

@@ -1,75 +1,169 @@
 <template>
-  <div class="p-6">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold">Mejores Discos</h1>
-      <button @click="showCreateModal = true"
-        class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 flex items-center gap-2">
-        <i class="fa-solid fa-plus"></i>
-        Añadir Disco
-      </button>
-    </div>
+  <div class="p-4 min-h-screen bg-gray-50/50">
+    <div class="max-w-7xl mx-auto">
+      <h1 class="text-2xl font-bold mb-4 text-gray-800">Mejores Discos</h1>
 
-    <!-- Lista de discos -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      <div v-for="disco in discos" :key="disco.id"
-        class="border border-gray-300 rounded-lg p-4 bg-white hover:shadow-lg cursor-pointer transition-all"
-        @click="goToDetail(disco.id)">
-        <div class="aspect-square bg-gray-200 rounded-lg mb-3 flex items-center justify-center relative">
-          <img v-if="disco.cover" :src="disco.cover" :alt="disco.title" class="w-full h-full object-cover rounded-lg" />
-          <i v-else class="fa-solid fa-compact-disc text-gray-400 text-6xl"></i>
-          <div v-if="disco.rating" class="absolute top-2 right-2 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-            ⭐ {{ disco.rating }}/10
+      <!-- Listas Actuales -->
+      <section class="mb-6">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="p-1.5 bg-indigo-100 rounded-lg">
+            <i class="fa-solid fa-star text-indigo-600 text-lg"></i>
+          </div>
+          <h2 class="text-xl font-bold text-gray-800">Actuales</h2>
+        </div>
+
+        <div v-if="currentLists.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          <div v-for="list in currentLists" :key="list.id"
+            class="group bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden cursor-pointer flex flex-col h-full"
+            @click="goToListDetail(list.id)">
+
+            <div class="p-3 flex-1 flex flex-col">
+              <!-- Header con Status -->
+              <div class="flex justify-between items-start mb-2">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide"
+                  :class="getStatusClass(list.status)">
+                  {{ getStatusLabel(list.status) }}
+                </span>
+                <i
+                  class="fa-solid fa-chevron-right text-gray-300 group-hover:text-indigo-500 transition-colors text-xs"></i>
+              </div>
+
+              <!-- Título -->
+              <h3
+                class="font-bold text-base text-gray-900 mb-2 line-clamp-2 leading-tight group-hover:text-indigo-600 transition-colors">
+                {{ list.name }}
+              </h3>
+
+              <div class="mt-auto space-y-2">
+                <!-- Fechas -->
+                <div class="space-y-1 py-2 border-t border-gray-100">
+                  <div class="flex items-center text-xs text-gray-600">
+                    <i class="fa-regular fa-calendar w-4 text-gray-400"></i>
+                    <span>{{ formatDate(list.listDate) }}</span>
+                  </div>
+                  <div v-if="list.closeDate" class="flex items-center text-xs text-red-600 font-medium">
+                    <i class="fa-regular fa-clock w-4 text-red-400"></i>
+                    <span>Cierre: {{ formatDate(list.closeDate) }}</span>
+                  </div>
+                </div>
+
+                <!-- Avatares de asignaciones -->
+                <div v-if="list.asignations && list.asignations.length > 0"
+                  class="pt-1 flex items-center justify-between">
+                  <div class="flex items-center">
+                    <div class="flex -space-x-2">
+                      <img v-for="(user, index) in getUniqueAssignees(list.asignations).slice(0, 5)" :key="user.id"
+                        :src="user.image || '/avatar/avatar37.png'" :alt="user.username" :title="user.username"
+                        class="w-6 h-6 rounded-full border-2 border-white ring-1 ring-gray-100 object-cover bg-gray-50"
+                        :style="{ zIndex: 5 - index }" />
+                    </div>
+                    <span v-if="getUniqueAssignees(list.asignations).length > 5"
+                      class="ml-2 text-[10px] font-medium text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full">
+                      +{{ getUniqueAssignees(list.asignations).length - 5 }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Barra decorativa inferior -->
+            <div
+              class="h-0.5 w-0 group-hover:w-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-500">
+            </div>
           </div>
         </div>
-        <h3 class="font-bold text-lg truncate">{{ disco.title }}</h3>
-        <p class="text-sm text-gray-600 truncate">{{ disco.artist }}</p>
-        <p class="text-xs text-gray-500 mt-2">{{ formatDate(disco.releaseDate) }}</p>
-      </div>
-    </div>
 
-    <div v-if="discos.length === 0" class="text-center py-12 text-gray-400">
-      <i class="fa-solid fa-star text-6xl mb-4"></i>
-      <p>No hay discos destacados</p>
-    </div>
+        <div v-else class="bg-white rounded-lg p-6 text-center border-2 border-dashed border-gray-200">
+          <div class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-2">
+            <i class="fa-solid fa-list text-gray-400 text-lg"></i>
+          </div>
+          <h3 class="text-base font-medium text-gray-900">No hay listas actuales</h3>
+          <p class="text-sm text-gray-500">Las nuevas listas de mejores discos aparecerán aquí.</p>
+        </div>
+      </section>
 
-    <!-- Modal de creación -->
-    <div v-if="showCreateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-      @click.self="showCreateModal = false">
-      <div class="bg-white rounded-lg p-6 w-full max-w-md">
-        <h2 class="text-lg font-semibold mb-4">Añadir Mejor Disco</h2>
-        <form @submit.prevent="createDisco" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium mb-1">Título</label>
-            <input v-model="newDisco.title" type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2" required />
+      <!-- Listas Anteriores -->
+      <section>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div class="flex items-center gap-2">
+            <div class="p-1.5 bg-gray-100 rounded-lg">
+              <i class="fa-solid fa-history text-gray-600 text-lg"></i>
+            </div>
+            <h2 class="text-xl font-bold text-gray-800">Anteriores</h2>
           </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Artista</label>
-            <input v-model="newDisco.artist" type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2" required />
+
+          <div class="flex gap-1 p-1 bg-white rounded-lg border border-gray-200 shadow-sm text-sm">
+            <select v-model="selectedYear" @change="loadPastLists"
+              class="border-none bg-transparent py-1 pl-2 pr-6 text-gray-700 font-medium focus:ring-0 cursor-pointer hover:bg-gray-50 rounded text-xs">
+              <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
+            </select>
           </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Fecha de Lanzamiento</label>
-            <input v-model="newDisco.releaseDate" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2" required />
+        </div>
+
+        <div v-if="pastLists.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          <div v-for="list in pastLists" :key="list.id"
+            class="group bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden cursor-pointer flex flex-col h-full opacity-90 hover:opacity-100"
+            @click="goToListDetail(list.id)">
+
+            <div class="p-3 flex-1 flex flex-col">
+              <!-- Header con Status -->
+              <div class="flex justify-between items-start mb-2">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide"
+                  :class="getStatusClass(list.status)">
+                  {{ getStatusLabel(list.status) }}
+                </span>
+                <i
+                  class="fa-solid fa-chevron-right text-gray-300 group-hover:text-indigo-500 transition-colors text-xs"></i>
+              </div>
+
+              <!-- Título -->
+              <h3
+                class="font-bold text-base text-gray-900 mb-2 line-clamp-2 leading-tight group-hover:text-indigo-600 transition-colors">
+                {{ list.name }}
+              </h3>
+
+              <div class="mt-auto space-y-2">
+                <!-- Fechas -->
+                <div class="space-y-1 py-3 border-t border-gray-100">
+                  <div class="flex items-center text-xs text-gray-600">
+                    <i class="fa-regular fa-calendar w-4 text-gray-400"></i>
+                    <span>{{ formatDate(list.listDate) }}</span>
+                  </div>
+                  <div v-if="list.closeDate" class="flex items-center text-xs text-gray-500">
+                    <i class="fa-regular fa-clock w-4 text-gray-400"></i>
+                    <span>Cerrada: {{ formatDate(list.closeDate) }}</span>
+                  </div>
+                </div>
+
+                <!-- Avatares de asignaciones -->
+                <div v-if="list.asignations && list.asignations.length > 0"
+                  class="pt-1 flex items-center justify-between">
+                  <div class="flex items-center">
+                    <div class="flex -space-x-2">
+                      <img v-for="(user, index) in getUniqueAssignees(list.asignations).slice(0, 5)" :key="user.id"
+                        :src="user.image || '/avatar/avatar37.png'" :alt="user.username" :title="user.username"
+                        class="w-6 h-6 rounded-full border-2 border-white ring-1 ring-gray-100 object-cover bg-gray-50"
+                        :style="{ zIndex: 5 - index }" />
+                    </div>
+                    <span v-if="getUniqueAssignees(list.asignations).length > 5"
+                      class="ml-2 text-[10px] font-medium text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full">
+                      +{{ getUniqueAssignees(list.asignations).length - 5 }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Valoración (1-10)</label>
-            <input v-model.number="newDisco.rating" type="number" min="1" max="10" class="w-full border border-gray-300 rounded-lg px-3 py-2" required />
+        </div>
+
+        <div v-else class="bg-white rounded-lg p-6 text-center border-2 border-dashed border-gray-200">
+          <div class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-2">
+            <i class="fa-regular fa-folder-open text-gray-400 text-lg"></i>
           </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">URL de Portada (opcional)</label>
-            <input v-model="newDisco.cover" type="url" class="w-full border border-gray-300 rounded-lg px-3 py-2" />
-          </div>
-          <div class="flex justify-end gap-2">
-            <button type="button" @click="showCreateModal = false"
-              class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
-              Cancelar
-            </button>
-            <button type="submit"
-              class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700">
-              Añadir
-            </button>
-          </div>
-        </form>
-      </div>
+          <h3 class="text-base font-medium text-gray-900">No hay listas anteriores</h3>
+          <p class="text-sm text-gray-500">No se encontraron listas para el año {{ selectedYear }}.</p>
+        </div>
+      </section>
     </div>
   </div>
 </template>
@@ -77,44 +171,82 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { getCurrentMonthlyLists, getPastMonthlyLists } from '@services/list/list';
 
 const router = useRouter();
-const discos = ref<any[]>([]);
-const showCreateModal = ref(false);
-const newDisco = ref({
-  title: '',
-  artist: '',
-  releaseDate: '',
-  cover: '',
-  rating: 5,
-  type: 'best'
-});
+const currentLists = ref<any[]>([]);
+const pastLists = ref<any[]>([]);
+
+const currentDate = new Date();
+const selectedYear = ref(currentDate.getFullYear());
+
+// Generar años disponibles (últimos 5 años)
+const availableYears = ref<number[]>([]);
+for (let i = 0; i < 5; i++) {
+  availableYears.value.push(currentDate.getFullYear() - i);
+}
 
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleDateString('es-ES', {
-    year: 'numeric',
+    day: 'numeric',
     month: 'long',
-    day: 'numeric'
+    year: 'numeric'
   });
 }
 
-function goToDetail(id: string) {
+function getStatusClass(status: string) {
+  const classes: Record<string, string> = {
+    'new': 'bg-blue-100 text-blue-700',
+    'assigned': 'bg-amber-100 text-amber-700',
+    'published': 'bg-purple-100 text-purple-700',
+  };
+  return classes[status] || 'bg-gray-100 text-gray-700';
+}
+
+function getStatusLabel(status: string) {
+  const labels: Record<string, string> = {
+    'new': 'Nueva',
+    'assigned': 'Asignada',
+    'published': 'Publicada',
+  };
+  return labels[status] || status;
+}
+
+function getUniqueAssignees(asignations: any[]) {
+  if (!asignations) return [];
+  const uniqueUsers = new Map();
+  asignations.forEach(a => {
+    if (a.user && !uniqueUsers.has(a.user.id)) {
+      uniqueUsers.set(a.user.id, a.user);
+    }
+  });
+  return Array.from(uniqueUsers.values());
+}
+
+function goToListDetail(id: string) {
   router.push(`/discos/mejores/${id}`);
 }
 
-async function createDisco() {
-  // TODO: Implementar llamada a API
-  console.log('Crear disco:', newDisco.value);
-  showCreateModal.value = false;
-  newDisco.value = { title: '', artist: '', releaseDate: '', cover: '', rating: 5, type: 'best' };
+async function loadCurrentLists() {
+  try {
+    currentLists.value = await getCurrentMonthlyLists();
+  } catch (error) {
+    console.error('Error loading current lists:', error);
+    currentLists.value = [];
+  }
 }
 
-async function loadDiscos() {
-  // TODO: Implementar llamada a API
-  discos.value = [];
+async function loadPastLists() {
+  try {
+    pastLists.value = await getPastMonthlyLists(selectedYear.value);
+  } catch (error) {
+    console.error('Error loading past lists:', error);
+    pastLists.value = [];
+  }
 }
 
 onMounted(() => {
-  loadDiscos();
+  loadCurrentLists();
+  loadPastLists();
 });
 </script>

@@ -97,6 +97,14 @@
     ]
   },
   {
+    "to": "/videos",
+    "label": "Videos",
+    "activeClass": "bg-gray-700",
+    "type": "riff-valley",
+    "requiredRole": "riffValley",
+    "icon": "fa-solid fa-video"
+  },
+  {
     "to": "/list/lists",
     "label": "Listas",
     "activeClass": "bg-gray-700",

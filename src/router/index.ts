@@ -205,6 +205,18 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("/src/views/discos/MejoresDetalle.vue"),
     meta: { requiresAuth: true, requiresRole: "riffValley" },
   },
+  {
+    path: "/videos",
+    name: "VideoLists",
+    component: () => import("/src/views/videos/VideoLists.vue"),
+    meta: { requiresAuth: true, requiresRole: "riffValley" },
+  },
+  {
+    path: "/videos/:id",
+    name: "VideoDetalle",
+    component: () => import("/src/views/videos/VideoDetalle.vue"),
+    meta: { requiresAuth: true, requiresRole: "riffValley" },
+  },
 
 
 ];

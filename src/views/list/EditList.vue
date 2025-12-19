@@ -1,173 +1,112 @@
 <template>
-  <div
-    class="p-6 bg-gray-100 min-h-screen grid grid-cols-1 gap-6 items-start"
-    v-if="!loading"
-  >
+  <div class="p-6 bg-gray-100 min-h-screen grid grid-cols-1 gap-6 items-start" v-if="!loading">
     <!-- Formulario de edición -->
     <div class="bg-white p-4 rounded-2xl shadow-md">
       <h3 class="text-lg font-bold mb-4">Info de la Lista</h3>
-      <form
-        @submit.prevent="submitForm"
-        class="grid grid-cols-2 items-center gap-4"
-      >
+      <form @submit.prevent="submitForm" class="grid grid-cols-2 items-center gap-4">
         <!-- Compact Name -->
-        <div class="flex items-center space-x-2">
-          <label for="name" class="text-sm font-medium text-gray-700 w-20"
-            >Name:</label
-          >
-          <input
-            id="name"
-            v-model="form.name"
-            type="text"
-            class="mt-1 flex-grow rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-            placeholder="Enter list name"
-            required
-          />
-        </div>
-
-        <!-- Compact Type -->
-        <div class="flex items-center space-x-2">
-          <label for="type" class="text-sm font-medium text-gray-700 w-20"
-            >Type:</label
-          >
-          <select
-            id="type"
-            v-model="form.type"
-            class="mt-1 flex-grow rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-            required
-          >
-            <option disabled value="">Select a type</option>
-            <option :value="ListType.MONTH">Month</option>
-            <option :value="ListType.WEEK">Week</option>
-            <option :value="ListType.SPECIAL">Special</option>
-          </select>
-        </div>
-
-        <!-- Dates -->
-        <div class="flex items-center space-x-2">
-          <label for="listDate" class="text-sm font-medium text-gray-700 w-20"
-            >List Date:</label
-          >
-          <input
-            id="listDate"
-            v-model="form.listDate"
-            type="date"
-            class="mt-1 flex-grow rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-          />
-        </div>
-
-        <div class="flex items-center space-x-2">
-          <label
-            for="releaseDate"
-            class="text-sm font-medium text-gray-700 w-20"
-            >Release Date:</label
-          >
-          <input
-            id="releaseDate"
-            v-model="form.releaseDate"
-            type="date"
-            class="mt-1 flex-grow rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-          />
-        </div>
-
-        <!-- Status Section con botón de info -->
-        <div class="col-span-2">
-          <div
-            class="mt-2 py-2 px-4 rounded-md text-sm font-bold flex items-center justify-between"
-            :class="statusClass"
-          >
-            <span>Status: {{ readableStatus }}</span>
-            <!-- Botón de Información -->
-            <button
-              @click="showStatusInfo = true"
-              type="button"
-              class="ml-2 text-gray-700 hover:text-gray-900 focus:outline-none"
-              title="Ver información de los estados"
-            >
-              <i class="fas fa-info-circle"></i>
+        <div class="flex items-center space-x-2" :class="{ 'col-span-2': form.type === ListType.SPECIAL }">
+          <label for="name" class="text-sm font-medium text-gray-700 w-20">Name:</label>
+          <div class="flex flex-grow gap-2">
+            <input id="name" v-model="form.name" type="text"
+              class="flex-grow rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Enter list name" required />
+            <button v-if="form.type === ListType.SPECIAL" type="submit"
+              class="bg-indigo-600 text-white text-sm px-4 rounded-md hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500">
+              Guardar Nombre
             </button>
           </div>
         </div>
 
-        <!-- Control Buttons -->
-        <div class="col-span-2 flex justify-end space-x-2">
-          <button
-            type="submit"
-            class="bg-indigo-600 text-white text-sm px-4 py-1 rounded-md hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500"
-          >
-            Update List
-          </button>
-          <button
-            v-if="canAdvanceStatus()"
-            type="button"
-            @click="nextStatus"
-            class="bg-green-500 text-white text-sm px-4 py-1 rounded-md hover:bg-green-600 focus:ring-2 focus:ring-green-500"
-          >
-            Next Status
-          </button>
-          <button
-            v-if="canRevertStatus()"
-            type="button"
-            @click="prevStatus"
-            class="bg-red-500 text-white text-sm px-4 py-1 rounded-md hover:bg-red-600 focus:ring-2 focus:ring-red-500"
-          >
-            Revert Status
-          </button>
-        </div>
+        <template v-if="form.type !== ListType.SPECIAL">
+          <!-- Compact Type -->
+          <div class="flex items-center space-x-2">
+            <label for="type" class="text-sm font-medium text-gray-700 w-20">Type:</label>
+            <select id="type" v-model="form.type"
+              class="mt-1 flex-grow rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              required>
+              <option disabled value="">Select a type</option>
+              <option :value="ListType.MONTH">Month</option>
+              <option :value="ListType.WEEK">Week</option>
+              <option :value="ListType.SPECIAL">Special</option>
+            </select>
+          </div>
+
+          <!-- Dates -->
+          <div class="flex items-center space-x-2">
+            <label for="listDate" class="text-sm font-medium text-gray-700 w-20">List Date:</label>
+            <input id="listDate" v-model="form.listDate" type="date"
+              class="mt-1 flex-grow rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500" />
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <label for="releaseDate" class="text-sm font-medium text-gray-700 w-20">Release Date:</label>
+            <input id="releaseDate" v-model="form.releaseDate" type="date"
+              class="mt-1 flex-grow rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500" />
+          </div>
+
+          <!-- Status Section con botón de info -->
+          <div class="col-span-2">
+            <div class="mt-2 py-2 px-4 rounded-md text-sm font-bold flex items-center justify-between"
+              :class="statusClass">
+              <span>Status: {{ readableStatus }}</span>
+              <!-- Botón de Información -->
+              <button @click="showStatusInfo = true" type="button"
+                class="ml-2 text-gray-700 hover:text-gray-900 focus:outline-none"
+                title="Ver información de los estados">
+                <i class="fas fa-info-circle"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Control Buttons -->
+          <div class="col-span-2 flex justify-end space-x-2">
+            <button type="submit"
+              class="bg-indigo-600 text-white text-sm px-4 py-1 rounded-md hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500">
+              Update List
+            </button>
+            <button v-if="canAdvanceStatus()" type="button" @click="nextStatus"
+              class="bg-green-500 text-white text-sm px-4 py-1 rounded-md hover:bg-green-600 focus:ring-2 focus:ring-green-500">
+              Next Status
+            </button>
+            <button v-if="canRevertStatus()" type="button" @click="prevStatus"
+              class="bg-red-500 text-white text-sm px-4 py-1 rounded-md hover:bg-red-600 focus:ring-2 focus:ring-red-500">
+              Revert Status
+            </button>
+          </div>
+        </template>
       </form>
     </div>
 
     <!-- Tabla de discos -->
-    <AsignationList
-    v-if="form.type !== ListType.SPECIAL"  
-    :type="form.type" 
-    />
+    <AsignationList v-if="form.type !== ListType.SPECIAL" :type="form.type" />
 
-    <SpecialAsignationList
-    v-if="form.type == ListType.SPECIAL"  
-    :list-id="id" 
-    :asignations="asignations"
-    />
+    <SpecialAsignationList v-if="form.type == ListType.SPECIAL" :list-id="id" :asignations="asignations" />
 
 
     <!-- Listado de Discos por Fecha -->
-    <div class="bg-white p-6 rounded-2xl shadow-md"  v-if="form.type !== ListType.SPECIAL">
+    <div class="bg-white p-6 rounded-2xl shadow-md" v-if="form.type !== ListType.SPECIAL">
       <h3 class="text-lg font-bold mb-4">Listado de Discos por Fecha</h3>
-      <DiscsByDate  :date="form.listDate" :type="form.type" :list-id="id" />
+      <DiscsByDate :date="form.listDate" :type="form.type" :list-id="id" />
     </div>
 
     <!-- Modal de Información de Estados -->
     <transition name="fade">
-      <div
-        v-if="showStatusInfo"
-        class="fixed inset-0 flex items-center justify-center z-50"
-      >
+      <div v-if="showStatusInfo" class="fixed inset-0 flex items-center justify-center z-50">
         <!-- Fondo semi-transparente -->
-        <div
-          class="fixed inset-0 bg-black opacity-50"
-          @click="showStatusInfo = false"
-        ></div>
+        <div class="fixed inset-0 bg-black opacity-50" @click="showStatusInfo = false"></div>
         <!-- Contenedor del Modal -->
-        <div
-          class="bg-white rounded-lg shadow-lg z-10 p-6 w-11/12 md:w-1/2"
-        >
+        <div class="bg-white rounded-lg shadow-lg z-10 p-6 w-11/12 md:w-1/2">
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-xl font-bold">Estados</h3>
-            <button
-              @click="showStatusInfo = false"
-              type="button"
-              class="text-gray-600 hover:text-gray-800 focus:outline-none"
-            >
+            <button @click="showStatusInfo = false" type="button"
+              class="text-gray-600 hover:text-gray-800 focus:outline-none">
               <i class="fas fa-times"></i>
             </button>
           </div>
           <div>
             <ul class="space-y-2">
-              <li
-                v-for="status in statusList"
-                :key="status.value"
-                class="border-b pb-1"
-              >
+              <li v-for="status in statusList" :key="status.value" class="border-b pb-1">
                 <strong>{{ status.label }}:</strong> {{ status.legend }}
               </li>
             </ul>
@@ -236,6 +175,7 @@ export default defineComponent({
       listDate: "",
       status: ListStatus.NEW,
       releaseDate: "",
+      link: "", // Añadido para evitar error TS
     });
 
     const loading = ref(true);
@@ -246,7 +186,7 @@ export default defineComponent({
 
     const loadListDetails = async () => {
       try {
-        const details = await getListDetails(props.id);
+        const details: any = await getListDetails(props.id); // Tipado temporal como any para evitar error void
         console.log("List details fetched:", details);
         asignations.value = details.asignations || [];
         Object.assign(form, details); // Pre-fill form with list details
@@ -378,6 +318,7 @@ export default defineComponent({
 .fade-leave-active {
   transition: opacity 0.2s ease;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
