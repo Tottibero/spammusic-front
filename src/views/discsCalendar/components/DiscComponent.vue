@@ -1,9 +1,11 @@
 ```
 <template>
   <div
-    class="p-3 border rounded-2xl flex flex-col sm:flex-row items-center justify-between w-full sm:w-1/2 bg-white shadow-md"
-    :style="{ backgroundColor: getGenreColor(disc.genreId) }"
-    :class="{ 'text-white': getGenreColor(disc.genreId) !== 'transparent' }">
+    class="p-3 border rounded-2xl flex flex-col sm:flex-row items-center justify-between w-full bg-white shadow-md transition"
+    :class="[
+      { 'text-white': getGenreColor(disc.genreId) !== 'transparent' },
+      isFocused ? 'ring-4 ring-rv-pink/70 shadow-xl scale-[1.01]' : ''
+    ]" :style="{ backgroundColor: getGenreColor(disc.genreId) }">
     <!-- Columna izquierda: Imagen del disco -->
     <div class="flex items-center w-full sm:w-1/3 p-4 min-w-0">
       <button v-if="!disc.image" @click="openImageModal"
@@ -75,15 +77,16 @@
       <!-- Fila 1: Selects de género y país -->
       <div class="grid gap-2" :class="{ 'grid-cols-2': !isNarrow, 'grid-cols-1': isNarrow }">
         <!-- Select de género -->
-        <SearchableSelect v-model="editedData.genreId" :options="genres" title="name" trackby="id"
-          placeholder="Buscar género..." trigger-placeholder="Selecciona un género" all-label="Todos los géneros"
-          :max="200"
+        <SearchableSelect :key="`genres-${genres.length}`" v-model="editedData.genreId" :options="genres" title="name"
+          trackby="id" placeholder="Buscar género..." trigger-placeholder="Selecciona un género"
+          all-label="Todos los géneros" :max="200"
           class="rounded-full text-rv-navy text-sm border-rv-navy/20 shadow-lg ring-0 focus:ring-0 focus:outline-none"
           @update:modelValue="() => saveChanges('genreId')" />
 
         <!-- País del artista -->
-        <SearchableSelect v-model="editedArtist.countryId" :options="countries" title="name" trackby="id"
-          placeholder="Buscar país..." trigger-placeholder="Selecciona un país" all-label="Todos los países" :max="300"
+        <SearchableSelect :key="`countries-${countries.length}`" v-model="editedArtist.countryId" :options="countries"
+          title="name" trackby="id" placeholder="Buscar país..." trigger-placeholder="Selecciona un país"
+          all-label="Todos los países" :max="300"
           class="rounded-full text-rv-navy text-sm border-rv-navy/20 shadow-lg ring-0 focus:ring-0 focus:outline-none"
           @update:modelValue="saveCountry" />
       </div>
@@ -136,7 +139,8 @@
   <!-- Teleport para todos los modales -->
   <Teleport to="body">
     <!-- Modal para actualizar/crear artista -->
-    <div v-if="showArtistModal"   class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 bg-gray-900 bg-opacity-50">
+    <div v-if="showArtistModal"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 bg-gray-900 bg-opacity-50">
       <div class="bg-white p-6 rounded-lg shadow-lg w-96">
         <h2 class="text-lg font-semibold mb-4">Actualizar o crear Artista</h2>
         <label class="flex items-center mb-4">
@@ -242,6 +246,9 @@ export default defineComponent({
       }>,
       required: true,
     },
+
+    focusDiscId: { type: String, default: "" }, // ✅ AQUÍ
+
     genres: {
       type: Array as PropType<{ id: string; name: string; color?: string }[]>,
       required: true,
@@ -322,6 +329,8 @@ export default defineComponent({
       }
     };
 
+    const isFocused = computed(() => props.focusDiscId && props.focusDiscId === props.disc.id);
+
     const handleListenClick = () => {
       const link = props.disc.link || "";
       if (!link) return;
@@ -333,7 +342,7 @@ export default defineComponent({
       try {
         await updateArtist(props.disc.artist.id, { countryId: editedArtist.countryId });
         props.disc.artist.countryId = editedArtist.countryId as any;
-      } catch {
+      } catch (e) {
         console.error("No se pudo actualizar el país:", e);
       }
     };
@@ -803,6 +812,7 @@ export default defineComponent({
       editedArtist,
       creatingNewArtist,
       toggleDebut,
+      isFocused,
     };
   },
 });
