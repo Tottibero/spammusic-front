@@ -4,15 +4,20 @@
       Calendario
     </h1>
 
-    <!-- Filtros -->
-    <DiscFilters :searchQuery="searchQuery" :selectedGenre="selectedGenre" :genres="genreOptions" :countries="countries"
-      :showWeekPicker="false" @update:searchQuery="searchQuery = $event" @update:selectedGenre="selectedGenre = $event"
-      selectClass="w-[280px] sm:w-[300px] w-full" @reset-and-fetch="resetAndFetch" />
+    <!-- FILTROS SUPERIORES -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-start mb-6">
+
+      <!-- Search + género (DiscFilters) -->
+      <DiscFilters class="sm:col-span-2" :searchQuery="searchQuery" :selectedGenre="selectedGenre"
+        :genres="genreOptions" :countries="countries" :showWeekPicker="false" @update:searchQuery="searchQuery = $event"
+        @update:selectedGenre="selectedGenre = $event" selectClass="w-full" @reset-and-fetch="resetAndFetch" />
+
+      <!-- Año -->
+      <SimpleSelect v-model="selectedYear" :options="yearOptions" placeholder="Año" class="w-full" />
+
+    </div>
 
     <div>
-      <div class="flex justify-center mb-4">
-        <SimpleSelect v-model="selectedYear" :options="yearOptions" placeholder="Selecciona un año" class="w-40" />
-      </div>
       <div class="flex flex-wrap justify-center gap-2 mb-6 mt-6 overflow-x-auto">
         <button v-for="(month, index) in months" :key="index" @click="selectMonth(index)" class="px-4 py-2 rounded-full transition-all duration-200 whitespace-nowrap shadow-sm mb-1 font-semibold
          border-rv-navy/15
@@ -25,7 +30,6 @@
 
       <!-- Lista de discos agrupados (resto del template) -->
       <div v-for="(group, index) in filteredGroupedDiscs" :key="group.releaseDate" class="mb-8">
-        <!-- ... (resto del contenido del v-for, incluyendo el encabezado del grupo, el botón de toggle, etc.) ... -->
         <div class="group flex justify-between items-center px-5 py-3 rounded-full cursor-pointer transition-all duration-200 shadow-sm
          border border-rv-navy/10" :class="(groupState[index] || closing[index])
           ? 'bg-gradient-to-r from-rv-navy to-rv-navy/80 shadow-md'
