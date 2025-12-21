@@ -80,9 +80,10 @@
     <!-- Columna 1: Selector de género -->
 
     <div>
-      <DiscFilters :selectedGenre="selectedGenre" :selectedWeek="null" :genres="genres" :showWeekPicker="false"
-        :showSearchQuery="false" selectClass="w-full" wrapperClass="w-full"
-        @update:selectedGenre="selectedGenre = $event" @resetAndFetch="fetchDiscs" />
+      <DiscFilters :selectedGenre="selectedGenre" :selectedCountry="selectedCountry" :selectedWeek="null"
+        :genres="genres" :countries="countries" :showWeekPicker="false" :showSearchQuery="false" selectClass="w-full"
+        wrapperClass="w-full" @update:selectedGenre="selectedGenre = $event"
+        @update:selectedCountry="selectedCountry = $event" @resetAndFetch="fetchDiscs" />
     </div>
 
 
@@ -171,6 +172,7 @@ import DiscCard from "@components/DiscCardComponent.vue";
 import RatingBarChart from "./components/RatingBarChar.vue";
 import StatsModal from "@components/StatsModal.vue";
 import DiscFilters from "@components/DiscFilters.vue";
+import { getCountries } from "@services/countries/countries";
 
 export default defineComponent({
   components: {
@@ -199,6 +201,8 @@ export default defineComponent({
     const searchQuery = ref("");
     const selectedGenre = ref("");
     const genres = ref<any[]>([]);
+    const countries = ref<any[]>([]);
+    const selectedCountry = ref("");
 
     // Función para obtener los géneros
     const fetchGenres = async () => {
@@ -208,6 +212,11 @@ export default defineComponent({
       } catch (error) {
         console.error("Error fetching genres:", error);
       }
+    };
+
+    const fetchCountries = async () => {
+      const countriesResponse = await getCountries(250, 0);
+      countries.value = countriesResponse.data.sort((a, b) => a.name.localeCompare(b.name));
     };
 
     // Función auxiliar para formatear la fecha en formato local (YYYY-MM-DD)
@@ -329,7 +338,8 @@ export default defineComponent({
         console.log('Fetching discs with genre:', selectedGenre.value);
         const response: DiscsStatsResponse = await getTopRatedOrFeaturedAndStats(
           dateRange,
-          selectedGenre.value ? selectedGenre.value : undefined
+          selectedGenre.value ? selectedGenre.value : undefined,
+          selectedCountry.value ? selectedCountry.value : undefined
         );
         discs.value = response.discs.map((disc) => ({
           ...disc,
@@ -351,8 +361,8 @@ export default defineComponent({
     // ---------------------------------
     // Actualiza la opción seleccionada cuando cambia el período
     // ---------------------------------
-    watch([selectedPeriod, selectedGenre], () => {
-      console.log('Period or Genre changed:', { period: selectedPeriod.value, genre: selectedGenre.value });
+    watch([selectedPeriod, selectedGenre, selectedCountry], () => {
+      console.log('Period, Genre or Country changed:', { period: selectedPeriod.value, genre: selectedGenre.value, country: selectedCountry.value });
       if (selectedPeriod.value === "week") {
         selectedOption.value = weekOptions.value[weekOptions.value.length - 1];
       } else if (selectedPeriod.value === "month") {
@@ -381,6 +391,7 @@ export default defineComponent({
     onMounted(async () => {
       console.log('HomePage mounting...');
       await fetchGenres();
+      await fetchCountries();
 
       if (selectedPeriod.value === "week" && weekOptions.value.length) {
         selectedOption.value = weekOptions.value[weekOptions.value.length - 1];
@@ -404,7 +415,9 @@ export default defineComponent({
       // Filter related
       searchQuery,
       selectedGenre,
-      genres
+      selectedCountry,
+      genres,
+      countries
     };
   },
 });
