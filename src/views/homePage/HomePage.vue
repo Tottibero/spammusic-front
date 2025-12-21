@@ -168,7 +168,6 @@ import { defineComponent, ref, onMounted, computed, watch } from "vue";
 import { getTopRatedOrFeaturedAndStats } from "@services/discs/discs";
 import type { Disc, DiscsStatsResponse } from "@services/discs/disc";
 import { getGenres } from "@services/genres/genres";
-import { getAllCountries } from "@services/countries/countries";
 import DiscCard from "@components/DiscCardComponent.vue";
 import RatingBarChart from "./components/RatingBarChar.vue";
 import StatsModal from "@components/StatsModal.vue";

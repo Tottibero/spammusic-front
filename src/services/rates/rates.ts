@@ -198,7 +198,9 @@ export interface RatesStatsResponse {
   }[];
 }
 
-export async function getRatesStats(): Promise<RatesStatsResponse> {
-  const response = await api.get<RatesStatsResponse>("/rates/stats");
+export async function getRatesStats(year?: number): Promise<RatesStatsResponse> {
+  const response = await api.get<RatesStatsResponse>("/rates/stats", {
+    params: year ? { year } : undefined,
+  });
   return response.data;
 }
