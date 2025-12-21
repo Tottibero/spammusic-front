@@ -2,9 +2,13 @@
   <!-- wrapper del componente -->
   <div class="mb-4 flex flex-col gap-0 filters-pills" :class="wrapperClass">
     <!-- Fila 1: Buscar + Género -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
       <input v-if="showSearchQuery" v-model="searchQuery" type="text" placeholder="Buscar álbum o artista..."
         class="pill-control" />
+
+      <SearchableSelect v-if="showCountryFilter" v-model="selectedCountry" :options="countries" placeholder="Buscar país..."
+        triggerPlaceholder="Selecciona un país" allLabel="Todos los países" title="name" trackby="id" :max="150"
+        class="select-pill w-full" :class="selectClass" />
 
       <SearchableSelect v-model="selectedGenre" :options="genres" placeholder="Selecciona un género" title="name"
         trackby="id" :max="150" class="select-pill w-full" :class="selectClass" />
@@ -43,8 +47,10 @@ export default defineComponent({
   props: {
     searchQuery: { type: String, default: "" },
     selectedGenre: { type: String, default: "" },
+    selectedCountry: { type: String, default: "" },
     selectedWeek: { type: Array, default: null },
     genres: { type: Array, default: () => [] },
+    countries: { type: Array, default: () => [] },
 
     selectClass: { type: String, default: "" },
     triggerHeight: { type: [Number, String], default: 36 },
@@ -52,13 +58,16 @@ export default defineComponent({
 
     showWeekPicker: { type: Boolean, default: true },
     showSearchQuery: { type: Boolean, default: true },
+    showCountryFilter: { type: Boolean, default: true },
   },
-  emits: ["update:searchQuery", "update:selectedGenre", "update:selectedWeek", "resetAndFetch"],
+  emits: ["update:searchQuery", "update:selectedGenre", "update:selectedCountry", "update:selectedWeek", "resetAndFetch"],
   setup(props, { emit }) {
     const searchQuery = ref(props.searchQuery);
     const selectedGenre = ref(props.selectedGenre);
+    const selectedCountry = ref(props.selectedCountry);
     watch(searchQuery, (v) => emit("update:searchQuery", v));
     watch(selectedGenre, (v) => emit("update:selectedGenre", v));
+    watch(selectedCountry, (v) => emit("update:selectedCountry", v));
 
     // Estado base
     const today = new Date();
@@ -204,6 +213,7 @@ export default defineComponent({
     return {
       searchQuery,
       selectedGenre,
+      selectedCountry,
       weeksMonth,
       weeksYear,
       monthNames,

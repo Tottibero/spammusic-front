@@ -96,6 +96,7 @@ export async function getRatesByUser(
   query?: string,
   dateRange?: any,
   genre?: string,
+  country?: string,
   type?: string,
   orderBy?: string,
 ): Promise<DiscRate[]> {
@@ -106,6 +107,7 @@ export async function getRatesByUser(
       query,
       dateRange,
       genre,
+      country,
       type,
       orderBy,
     },

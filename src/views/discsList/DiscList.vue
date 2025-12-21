@@ -5,8 +5,9 @@
 </h1>
 
     <DiscFilters :searchQuery="searchQuery" :selectedGenre="selectedGenre" :selectedWeek="selectedWeek" :genres="genres"
-      @update:searchQuery="searchQuery = $event" @update:selectedGenre="selectedGenre = $event"
-      @update:selectedWeek="selectedWeek = $event" selectClass="w-full" wrapperClass=""
+      :selectedCountry="selectedCountry" :countries="countries" @update:searchQuery="searchQuery = $event"
+      @update:selectedGenre="selectedGenre = $event" @update:selectedWeek="selectedWeek = $event"
+      @update:selectedCountry="selectedCountry = $event" selectClass="w-full" wrapperClass=""
       @resetAndFetch="resetAndFetch" />
 
     <div class="filters-wrap flex justify-start space-x-2 mb-6">
@@ -88,6 +89,7 @@ import { getDiscs } from "@services/discs/discs";
 import DiscCard from "@components/DiscCardComponent.vue";
 import Datepicker from "@vuepic/vue-datepicker";
 import { getGenres } from "@services/genres/genres";
+import { getCountries } from "@services/countries/countries";
 import { getRatesByUser } from "@services/rates/rates";
 import { getFavoritesByUser } from "@services/favorites/favorites";
 import { getPendingsByUser } from "@services/pendings/pendings";
@@ -123,6 +125,10 @@ export default defineComponent({
     const selectedWeek = ref(null);
     const genres = ref<any[]>([]);
     const selectedGenre = ref("");
+    const countries = ref<any[]>([]);
+    const selectedCountry = ref("");
+    const countriesLoaded = ref(false);
+    const menuVisible = ref(false);
 
     const orderBy = ref<string>("disc.releaseDate:DESC,artist.name:ASC");
     const orderOptions = [
@@ -155,6 +161,11 @@ export default defineComponent({
       }
     };
 
+    const fetchCountries = async () => {
+      const countriesResponse = await getCountries(250, 0);
+      countries.value = countriesResponse.data.sort((a, b) => a.name.localeCompare(b.name));
+    };
+
     const fetchData = async (reset = false) => {
       let type;
       if (loading.value) return;
@@ -181,6 +192,7 @@ export default defineComponent({
             searchQuery.value,
             selectedWeek.value,
             selectedGenre.value,
+            selectedCountry.value,
             type,
             orderBy.value
           );
@@ -209,6 +221,7 @@ export default defineComponent({
             searchQuery.value,
             selectedWeek.value,
             selectedGenre.value,
+            selectedCountry.value,
             type,
             orderBy.value
           );
@@ -236,6 +249,7 @@ export default defineComponent({
             searchQuery.value,
             selectedWeek.value,
             selectedGenre.value,
+            selectedCountry.value,
             type,
             orderBy.value
           );
@@ -269,7 +283,8 @@ export default defineComponent({
             offset.value,
             searchQuery.value,
             selectedWeek.value,
-            selectedGenre.value
+            selectedGenre.value,
+            selectedCountry.value
           );
           totalPendings.value = response.totalItems;
           discs.value.push(
@@ -297,7 +312,8 @@ export default defineComponent({
             offset.value,
             searchQuery.value,
             selectedWeek.value,
-            selectedGenre.value
+            selectedGenre.value,
+            selectedCountry.value
           );
           totalDisc.value = response.totalItems;
           discs.value.push(...response.data);
@@ -359,12 +375,13 @@ export default defineComponent({
       orderBy.value = defaultOrderByForTab.value;
     });
 
-    watch([viewMode, searchQuery, selectedWeek, selectedGenre, orderBy], () => {
+    watch([viewMode, searchQuery, selectedWeek, selectedGenre, selectedCountry, orderBy], () => {
       resetAndFetch();
     });
 
     onMounted(() => {
       fetchGenres();
+      fetchCountries();
       fetchData();
       setupObserver();
     });
@@ -380,8 +397,12 @@ export default defineComponent({
       searchQuery,
       selectedWeek,
       selectedGenre,
+      selectedCountry,
       genres,
+      countries,
       viewMode,
+      menuVisible,
+      countriesLoaded,
       loadMore,
       totalDisc,
       totalRates,

@@ -9,8 +9,9 @@
 
       <!-- Search + género (DiscFilters) -->
       <DiscFilters class="sm:col-span-2" :searchQuery="searchQuery" :selectedGenre="selectedGenre"
-        :genres="genreOptions" :countries="countries" :showWeekPicker="false" @update:searchQuery="searchQuery = $event"
-        @update:selectedGenre="selectedGenre = $event" selectClass="w-full" @reset-and-fetch="resetAndFetch" />
+        :selectedCountry="selectedCountry" :genres="genreOptions" :countries="countries" :showWeekPicker="false"
+        :showCountryFilter="false" @update:searchQuery="searchQuery = $event" @update:selectedGenre="selectedGenre = $event"
+        @update:selectedCountry="selectedCountry = $event" selectClass="w-full" @reset-and-fetch="resetAndFetch" />
 
       <!-- Año -->
       <SimpleSelect v-model="selectedYear" :options="yearOptions" placeholder="Año" class="w-full" />
@@ -166,6 +167,7 @@ export default defineComponent({
     // --- Filtros ---
     const searchQuery = ref("");
     const selectedGenre = ref("");
+    const selectedCountry = ref("");
     const selectedWeek = ref<Date | null>(null);
 
     const norm = (s: string) =>
@@ -578,6 +580,7 @@ export default defineComponent({
       formatDate,
       searchQuery,
       selectedGenre,
+      selectedCountry,
       selectedWeek,
       resetAndFetch,
       filteredGroupedDiscs,
