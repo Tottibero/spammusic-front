@@ -59,7 +59,7 @@
       </label>
     </div>
     <!-- donde hoy tienes el select de orden -->
-    <div v-if="viewMode === 'rates' || viewMode === 'covers' || viewMode === 'favorites'"
+    <div v-if="viewMode === 'all' || viewMode === 'rates' || viewMode === 'covers' || viewMode === 'favorites'"
       class="mb-6 flex justify-start">
       <SimpleSelect class="select-pill w-full md:w-64" v-model="orderBy" :options="orderOptionsForTab"
         :placeholder="'Ordenar por'" />
@@ -106,7 +106,7 @@ export default defineComponent({
     SimpleSelect,
   },
   setup() {
-    const discs = ref([]);
+    const discs = ref<any[]>([]);
     const limit = ref(20);
     const offset = ref(0);
     const totalItems = ref(0);
@@ -307,13 +307,26 @@ export default defineComponent({
             }))
           );
         } else {
+          let voted;
+          let votedType;
+          let actualOrderBy = orderBy.value;
+
+          if (orderBy.value.startsWith("UNVOTED:")) {
+            voted = false;
+            votedType = orderBy.value.split(":")[1];
+            actualOrderBy = "disc.releaseDate:DESC,artist.name:ASC";
+          }
+
           response = await getDiscs(
             limit.value,
             offset.value,
             searchQuery.value,
             selectedWeek.value,
             selectedGenre.value,
-            selectedCountry.value
+            selectedCountry.value,
+            actualOrderBy,
+            voted,
+            votedType
           );
           totalDisc.value = response.totalItems;
           discs.value.push(...response.data);
@@ -336,6 +349,8 @@ export default defineComponent({
       RATE_ASC: { label: "Nota", value: "rate.rate:ASC,disc.releaseDate:DESC", icon: "down" },
       COVER_DESC: { label: "Portada", value: "rate.cover:DESC,artist.name:ASC", icon: "up" },
       COVER_ASC: { label: "Portada", value: "rate.cover:ASC,artist.name:ASC", icon: "down" },
+      UNVOTED_RATE: { label: "Discos sin votar", value: "UNVOTED:rate" },
+      UNVOTED_COVER: { label: "Portadas sin votar", value: "UNVOTED:cover" },
     };
 
     const defaultOrderByForTab = computed(() => {
@@ -356,7 +371,7 @@ export default defineComponent({
         case "favorites":
           return [ORDER.NEWS_DESC, ORDER.DATE_ASC, ORDER.RATE_DESC, ORDER.RATE_ASC, ORDER.COVER_DESC, ORDER.COVER_ASC];
         default:
-          return [];
+          return [ORDER.NEWS_DESC, ORDER.DATE_ASC, ORDER.UNVOTED_RATE, ORDER.UNVOTED_COVER];
       }
     });
 
