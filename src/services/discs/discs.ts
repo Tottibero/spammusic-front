@@ -64,7 +64,10 @@ export async function getDiscs(
   query?: string,
   dateRange?: any,
   genre?: string,
-  country?: string
+  country?: string,
+  orderBy?: string,
+  voted?: boolean,
+  votedType?: string
 ): Promise<DiscsResponse> {
   const response = await api.get<DiscsResponse>("/discs", {
     params: {
@@ -74,6 +77,9 @@ export async function getDiscs(
       dateRange,
       genre,
       country,
+      orderBy,
+      voted,
+      votedType,
       ...(country && { countryId: country })
     },
   });
