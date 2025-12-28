@@ -1,3 +1,8 @@
+## <small>1.8.6 (2025-12-19)</small>
+
+* fix: reuniones campos en ingles ([ddcc14c](https://github.com/Tottibero/spammusic-front/commit/ddcc14c))
+* countries ([c53f382](https://github.com/Tottibero/spammusic-front/commit/c53f382))
+
 ## <small>1.8.5 (2025-10-09)</small>
 
 * git commit -m "chore: ignore .env and remove from repo" ([b51688d](https://github.com/Tottibero/spammusic-front/commit/b51688d))

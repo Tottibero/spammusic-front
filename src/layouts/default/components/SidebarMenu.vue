@@ -121,7 +121,6 @@
                   <i :class="[route.icon, 'text-base w-5 text-center mr-3']"></i>
                   {{ route.label }}
                 </router-link>
-
               </li>
             </ul>
           </details>
@@ -192,7 +191,7 @@
           </details>
         </li>
 
-
+        
 
         <li v-if="filteredBottomRoutes.length > 0" class="my-2 border-t border-gray-700/50"></li>
 
@@ -221,7 +220,6 @@
     <div class="h-[1px] w-full bg-rv-gradient"></div>
 
     <div class="p-2 shrink-0">
-
       <button @click="handleLogout" class="w-full bg-transparent flex items-center justify-start py-2 px-4 text-sm font-medium rounded-primary
          transition-all duration-300
          border-0 outline-none focus:outline-none focus-visible:outline-none
