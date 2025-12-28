@@ -18,7 +18,8 @@
                 Estamos realizando mejoras en <span class="font-bold text-primary">Riff Valley</span> para brindarte una
                 mejor experiencia.
                 <br>
-                Por favor, vuelve a intentarlo en unos minutos.
+                Se informará por el canal <a href="https://t.me/spammusicapp" target="_blank"
+                    class="text-blue-500 hover:underline">Telegram</a>.
             </p>
 
             <!-- Botón Recargar -->
