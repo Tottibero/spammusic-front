@@ -1,25 +1,50 @@
 import api from "@services/api/api";
+import type { Spotify } from "@services/spotify/spotify";
+import type { Article } from "@services/articles/articles";
 
 // Interfaces
-export type ContentType = "article" | "photos" | "list" | "radar" | "best" | "video" | "meeting";
+export type ContentType = "article" | "photos" | "spotify" | "radar" | "best" | "video" | "reunion";
+
+export interface Author {
+    id: string;
+    username: string;
+    isActive: boolean;
+    image?: string | null;
+}
+
+export interface ContentListAsignation {
+    id: string;
+    done: boolean;
+    position: number;
+    description: string | null;
+}
+
+export interface ContentList {
+    id: string;
+    name: string;
+    type: string;
+    status: string;
+    listDate: string;
+    releaseDate: string | null;
+    closeDate: string | null;
+    free: boolean;
+    asignations: ContentListAsignation[];
+}
 
 export interface Content {
     id: string;
     type: ContentType;
     name: string;
-    notes?: string;
-    publicationDate?: string; // ISO date string
-    reunionId?: string;
-    authorId: string;
-    author?: {
-        id: string;
-        username: string;
-        email: string;
-        image?: string;
-        isActive?: boolean;
-    };
-    createdAt: string;
-    updatedAt: string;
+    notes?: string | null;
+    publicationDate: string; // ISO date string
+    closeDate: string | null;
+    reunionId?: string | null;
+    author: Author;
+
+    // Relations based on type
+    list: ContentList | null;
+    spotify: Spotify | null;
+    article: Article | null;
 }
 
 export interface CreateContentDto {
@@ -27,6 +52,7 @@ export interface CreateContentDto {
     name: string;
     notes?: string;
     publicationDate?: string;
+    closeDate?: string;
     reunionId?: string;
     authorId: string;
 }
@@ -40,11 +66,7 @@ export interface UpdateContentDto {
     authorId?: string;
 }
 
-export interface ContentsByMonthResponse {
-    year: number;
-    month: number;
-    contents: Content[];
-}
+export interface ContentsByMonthResponse extends Array<Content> { }
 
 // Services
 export async function getContents(): Promise<Content[]> {

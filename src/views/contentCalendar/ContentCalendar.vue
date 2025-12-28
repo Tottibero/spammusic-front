@@ -95,22 +95,29 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
                         <select v-model="editingContent.type"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 disabled:bg-gray-100 disabled:text-gray-500"
+                            :disabled="editingContent.type === 'spotify'">
                             <option value="article">Artículo</option>
                             <option value="photos">Fotos</option>
-                            <option value="list">Spotify</option>
                             <option value="radar">Radar</option>
                             <option value="best">Mejores Discos</option>
                             <option value="video">Video</option>
-                            <option value="meeting">Reunión</option>
+                            <option value="reunion">Reunión</option>
+                            <option value="spotify" v-if="editingContent.type === 'spotify'">Spotify</option>
                         </select>
+                        <p v-if="editingContent.type === 'spotify'" class="text-xs text-gray-500 mt-1">
+                            El tipo de contenido no se puede cambiar para listas de Spotify.
+                        </p>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
                         <input v-model="editingContent.name" type="text"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2"
-                            placeholder="Título del contenido" />
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 disabled:bg-gray-100 disabled:text-gray-500"
+                            :disabled="editingContent.type === 'spotify'" placeholder="Título del contenido" />
+                        <p v-if="editingContent.type === 'spotify'" class="text-xs text-gray-500 mt-1">
+                            El nombre no se puede editar para listas de Spotify.
+                        </p>
                     </div>
 
                     <div>
@@ -124,13 +131,13 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Publicación</label>
                         <input v-model="editingContent.publicationDate" type="date"
                             class="w-full border border-gray-300 rounded-lg px-3 py-2" />
-                        <button v-if="editingContent.publicationDate && editingContent.type !== 'meeting'"
+                        <button v-if="editingContent.publicationDate && !['reunion', 'radar', 'best'].includes(editingContent.type)"
                             @click="editingContent.publicationDate = ''"
                             class="text-xs text-gray-500 hover:text-gray-700 mt-1">
                             Quitar fecha (mover a backlog)
                         </button>
-                        <p v-if="editingContent.type === 'meeting'" class="text-xs text-amber-600 mt-1">
-                            ⚠️ Las reuniones requieren fecha obligatoria
+                        <p v-if="['reunion', 'radar', 'best'].includes(editingContent.type)" class="text-xs text-amber-600 mt-1">
+                            ⚠️ Este tipo de contenido requiere fecha obligatoria
                         </p>
                     </div>
 
@@ -177,11 +184,10 @@
                         <select v-model="newContent.type" class="w-full border border-gray-300 rounded-lg px-3 py-2">
                             <option value="article">Artículo</option>
                             <option value="photos">Fotos</option>
-                            <option value="list">Spotify</option>
                             <option value="radar">Radar</option>
                             <option value="best">Mejores Discos</option>
                             <option value="video">Video</option>
-                            <option value="meeting">Reunión</option>
+                            <option value="reunion">Reunión</option>
                         </select>
                     </div>
 
@@ -209,16 +215,39 @@
                         </select>
                     </div>
 
-                    <div>
+                    <div v-if="newContent.type === 'radar'" class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Fecha Lista <span class="text-red-600">*</span>
+                            </label>
+                            <input v-model="newContent.publicationDate" type="date"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                :min="minListDate" :max="maxListDate"
+                                :class="{ 'border-red-500': !newContent.publicationDate }" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Fecha Cierre
+                            </label>
+                            <input v-model="newContent.closeDate" type="date"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                :min="minCloseDate" :max="maxCloseDate" />
+                        </div>
+                        <p class="col-span-2 text-xs text-gray-500">
+                            La fecha de lista debe ser esta semana (Lunes-Domingo). Cierre máximo el miércoles siguiente.
+                        </p>
+                    </div>
+
+                    <div v-else>
                         <label class="block text-sm font-medium text-gray-700 mb-1">
                             Fecha de Publicación
-                            <span v-if="newContent.type === 'meeting'" class="text-red-600">*</span>
+                            <span v-if="['reunion', 'best'].includes(newContent.type)" class="text-red-600">*</span>
                         </label>
                         <input v-model="newContent.publicationDate" type="date"
                             class="w-full border border-gray-300 rounded-lg px-3 py-2"
-                            :class="{ 'border-red-500': newContent.type === 'meeting' && !newContent.publicationDate }" />
-                        <p v-if="newContent.type === 'meeting'" class="text-xs text-gray-500 mt-1">
-                            Las reuniones requieren una fecha obligatoria
+                            :class="{ 'border-red-500': ['reunion', 'best'].includes(newContent.type) && !newContent.publicationDate }" />
+                        <p v-if="['reunion', 'best'].includes(newContent.type)" class="text-xs text-gray-500 mt-1">
+                            Este tipo de contenido requiere una fecha obligatoria
                         </p>
                     </div>
                 </div>
@@ -237,13 +266,260 @@
         </div>
 
         <!-- Event Actions Modal -->
-        <div v-if="showActionsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        <div v-if="showActionsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity"
             @click.self="showActionsModal = false">
-            <div class="bg-white rounded-lg p-6 w-full max-w-sm">
+            
+            <!-- Modal Ampliado para Radar -->
+            <div v-if="selectedContent?.type === 'radar'" class="bg-white rounded-xl shadow-2xl w-full max-w-4xl p-6 flex flex-col max-h-[90vh]">
+                <div class="flex justify-between items-center mb-6 border-b pb-4">
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-800">{{ selectedContent?.name }}</h3>
+                        <p class="text-gray-500 text-sm mt-1">Gestión de asignaciones y detalles</p>
+                    </div>
+                    
+                    <div class="flex items-center gap-4">
+                        <div v-if="radarDetails" class="flex items-center gap-2 bg-indigo-900/10 p-1 rounded-lg border border-indigo-500/20 mr-2">
+                            <div class="flex items-center gap-2 px-3 py-1.5 bg-indigo-900/80 rounded-md text-white border border-indigo-500/30 shadow-sm" title="Fecha Lista">
+                              <i class="fa-regular fa-calendar text-indigo-300 text-xs"></i>
+                              <input 
+                                type="date" 
+                                :value="formatRadarDate(radarDetails.listDate)"
+                                :min="radarMinListDate"
+                                :max="radarMaxListDate"
+                                @change="(e) => updateRadarField('listDate', (e.target as HTMLInputElement).value)"
+                                class="bg-transparent border-none p-0 text-white text-xs font-bold focus:ring-0 cursor-pointer w-[80px]"
+                              />
+                            </div>
+                            <div class="flex items-center gap-2 px-3 py-1.5 bg-indigo-900/80 rounded-md text-white border border-indigo-500/30 shadow-sm" title="Fecha Cierre">
+                               <i class="fa-regular fa-clock text-indigo-300 text-xs"></i>
+                               <input 
+                                type="date" 
+                                :value="formatRadarDate(radarDetails.closeDate)"
+                                 :min="radarMinCloseDate"
+                                :max="radarMaxCloseDate"
+                                 @change="(e) => updateRadarField('closeDate', (e.target as HTMLInputElement).value)"
+                                class="bg-transparent border-none p-0 text-white text-xs font-bold focus:ring-0 cursor-pointer w-[80px]"
+                              />
+                            </div>
+                         </div>
+
+                        <div v-if="radarDetails" class="relative">
+                            <select 
+                                v-model="radarDetails.status" 
+                                @change="updateListStatus(radarDetails)"
+                                :class="getStatusClass(radarDetails.status)"
+                                class="appearance-none pl-4 pr-8 py-2 border rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer transition-colors focus:ring-1 focus:ring-indigo-200 shadow-sm"
+                            >
+                                <option value="new" class="text-gray-900">Nueva</option>
+                                <option value="assigned" class="text-gray-900">Asignada</option>
+                                <option value="published" class="text-gray-900">Publicada</option>
+                            </select>
+                             <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[10px] pointer-events-none" :class="radarDetails.status === 'new' ? 'text-red-100' : (radarDetails.status === 'assigned' ? 'text-orange-100' : 'text-green-100')"></i>
+                        </div>
+
+                        <button @click="showActionsModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
+                            <i class="fa-solid fa-xmark text-2xl"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto mb-6 custom-scrollbar">
+                    <div v-if="loadingRadarDetails" class="flex justify-center py-10">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                    </div>
+                    
+                    <div v-else-if="radarDetails && radarDetails.asignations && radarDetails.asignations.length > 0">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th class="py-3 px-4 text-sm font-semibold text-gray-600">Álbum / Artista</th>
+                                    <th class="py-3 px-4 text-sm font-semibold text-gray-600 text-center">Acciones</th>
+                                    <th class="py-3 px-4 text-sm font-semibold text-gray-600">Usuario</th>
+                                    <th class="py-3 px-4 text-sm font-semibold text-gray-600 text-center">#</th>
+                                    <th class="py-3 px-4 text-sm font-semibold text-gray-600 text-center">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="asig in radarDetails.asignations" :key="asig.id" class="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
+                                    <td class="py-3 px-4">
+                                        <div class="flex flex-col">
+                                            <span class="font-medium text-gray-800">{{ asig.disc?.name || 'Desconocido' }}</span>
+                                            <span class="text-xs text-gray-500">{{ asig.disc?.artist?.name || 'Artista desconocido' }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4 text-center">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <a v-if="asig.disc?.link" :href="asig.disc.link" target="_blank" 
+                                               class="w-8 h-8 flex items-center justify-center bg-gray-50 text-green-600 rounded-full hover:bg-green-100 transition-colors"
+                                               title="Spotify">
+                                                <i class="fa-brands fa-spotify text-sm"></i>
+                                            </a>
+                                            <button @click="copyArtistAndDisc(asig.disc?.artist?.name || '', asig.disc?.name || '')" 
+                                                class="w-8 h-8 flex items-center justify-center bg-gray-50 text-purple-600 rounded-full hover:bg-purple-100 transition-colors"
+                                                title="Copiar Info">
+                                                <i class="fa-solid fa-clipboard text-sm"></i>
+                                            </button>
+                                            <button @click="copyToClipboard(asig.disc?.image || '')"
+                                                class="w-8 h-8 flex items-center justify-center bg-gray-50 text-blue-600 rounded-full hover:bg-blue-100 transition-colors"
+                                                title="Copiar Imagen">
+                                                <i class="fa-solid fa-image text-sm"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <div class="flex items-center gap-2">
+                                            <img v-if="asig.user?.image" :src="asig.user.image" class="w-6 h-6 rounded-full object-cover" />
+                                            <div v-else class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500">
+                                                {{ asig.user?.username?.charAt(0).toUpperCase() || '?' }}
+                                            </div>
+                                            <span class="text-sm text-gray-700">{{ asig.user?.username || 'Sin asignar' }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4 text-center">
+                                         <span v-if="asig.position > 0" class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">
+                                            {{ asig.position }}
+                                        </span>
+                                        <span v-else class="text-gray-400">-</span>
+                                    </td>
+                                    <td class="py-3 px-4 text-center">
+                                       <label class="inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" :checked="asig.done" 
+                                                @change="toggleAsignation(asig)"
+                                                class="form-checkbox h-5 w-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                                       </label>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div v-else class="text-center py-10 text-gray-500 bg-gray-50 rounded-lg">
+                        No hay asignaciones en esta lista.
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                    <button @click="deleteRadarList" 
+                        class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 flex items-center gap-2 transition-colors">
+                        <i class="fa-solid fa-trash"></i>
+                        Borrar Lista
+                    </button>
+                    <button @click="router.push(`/discos/radar/${selectedContent.list?.id}`)" 
+                        class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 flex items-center gap-2 transition-colors">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        Ir al Detalle
+                    </button>
+                     <button @click="showActionsModal = false"
+                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Diseño Sutil para Fotos -->
+            <div v-else-if="selectedContent?.type === 'photos'" class="bg-white rounded-2xl p-8 w-full max-w-2xl shadow-2xl relative overflow-hidden">
+                <!-- Decorative background blob -->
+                <div class="absolute top-0 right-0 w-64 h-64 bg-pink-50 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+
+                 <div class="relative z-10">
+                    <!-- Header Actions -->
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-2">
+                             <span class="px-2 py-1 bg-pink-100 text-pink-700 text-xs font-bold uppercase tracking-wider rounded-md">
+                                Fotos
+                             </span>
+                        </div>
+                        <button @click="showActionsModal = false" class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100">
+                            <i class="fa-solid fa-xmark text-xl"></i>
+                        </button>
+                    </div>
+
+                    <!-- Main Content -->
+                    <div class="space-y-6">
+                        <!-- Title Input (Massive & Clean) -->
+                        <div>
+                            <input v-model="editingContent.name" type="text"
+                                class="w-full text-3xl font-bold text-gray-900 placeholder-gray-300 border-none focus:ring-0 p-0 bg-transparent"
+                                placeholder="Título del álbum..." />
+                        </div>
+
+                        <!-- Grid for Meta Info -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Left Column: Notes -->
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Notas</label>
+                                    <textarea v-model="editingContent.notes"
+                                        class="w-full border-0 bg-gray-50 rounded-xl px-4 py-3 text-gray-700 focus:ring-2 focus:ring-pink-100 focus:bg-white transition-all resize-none text-sm leading-relaxed" 
+                                        rows="6"
+                                        placeholder="Añade detalles sobre las fotos (ubicación, banda, fotógrafo...)"></textarea>
+                                </div>
+                            </div>
+                            
+                            <!-- Right Column: Date & Author -->
+                            <div class="space-y-6">
+                                <div class="bg-gray-50 rounded-xl p-5 space-y-5">
+                                    <!-- Date -->
+                                    <div>
+                                        <label class="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                                            <i class="fa-regular fa-calendar"></i> Fecha de Publicación
+                                        </label>
+                                        <input v-model="editingContent.publicationDate" type="date"
+                                            class="w-full border-gray-200 rounded-lg text-sm focus:border-pink-300 focus:ring focus:ring-pink-200 focus:ring-opacity-50" />
+                                         <button v-if="editingContent.publicationDate"
+                                            @click="editingContent.publicationDate = ''"
+                                            class="text-xs text-gray-400 hover:text-pink-600 mt-2 flex items-center gap-1 transition-colors">
+                                            <i class="fa-solid fa-arrow-rotate-left"></i> Mover a backlog
+                                        </button>
+                                    </div>
+
+                                    <!-- Author -->
+                                    <div>
+                                        <label class="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                                            <i class="fa-regular fa-user"></i> Autor
+                                        </label>
+                                        <select v-model="editingContent.authorId"
+                                            class="w-full border-gray-200 rounded-lg text-sm focus:border-pink-300 focus:ring focus:ring-pink-200 focus:ring-opacity-50">
+                                            <option value="">Seleccionar autor...</option>
+                                            <option v-for="user in rvUsers" :key="user.id" :value="user.id">
+                                                {{ user.username }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Actions -->
+                    <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-100">
+                        <button @click="confirmDeleteContent"
+                            class="group flex items-center gap-2 text-gray-400 hover:text-red-600 transition-colors px-4 py-2 rounded-lg hover:bg-red-50"
+                            title="Eliminar permanentemente">
+                            <i class="fa-regular fa-trash-can text-lg group-hover:scale-110 transition-transform"></i>
+                            <span class="text-sm font-medium">Eliminar</span>
+                        </button>
+                        
+                        <div class="flex gap-3">
+                            <button @click="showActionsModal = false"
+                                class="px-6 py-2.5 text-gray-600 hover:bg-gray-100 font-medium rounded-xl transition-colors">
+                                Cancelar
+                            </button>
+                            <button @click="handleUpdateContent"
+                                class="px-6 py-2.5 bg-gray-900 text-white font-medium rounded-xl hover:bg-gray-800 shadow-lg shadow-gray-200 hover:shadow-xl transition-all transform hover:-translate-y-0.5">
+                                Guardar Cambios
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Normal para otros tipos -->
+            <div v-else class="bg-white rounded-lg p-6 w-full max-w-sm shadow-xl">
                 <h3 class="text-lg font-bold mb-4">{{ selectedContent?.name }}</h3>
 
                 <div class="space-y-3">
-                    <button v-if="selectedContent?.type === 'meeting'" @click="goToReunions"
+                    <button v-if="selectedContent?.type === 'reunion'" @click="goToReunions"
                         class="w-full px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 flex items-center justify-center gap-2">
                         <span>📅</span>
                         <span>Ir a Reuniones</span>
@@ -355,6 +631,9 @@ import type { ContentType, Content } from '@services/contents/contents';
 import { getContents, createContent as createContentAPI, updateContent, deleteContent, getContentsByMonth } from '@services/contents/contents';
 import { useAuthStore } from '@stores/auth/auth';
 import { getRvUsers } from '@services/users/users';
+import SwalService from '@services/swal/SwalService';
+import { updateAsignationService } from '@services/asignation/asignation';
+import { deleteList, getListDetails, updateList } from '@services/list/list';
 
 import { useRouter } from 'vue-router';
 
@@ -379,12 +658,60 @@ const currentYear = ref(new Date().getFullYear());
 const currentMonth = ref(new Date().getMonth() + 1); // 1-12
 const backlogContainerRef = ref<HTMLElement | null>(null);
 
+const radarDetails = ref<any>(null);
+const loadingRadarDetails = ref(false);
+
 const newContent = ref({
     type: 'article' as ContentType,
     name: '',
     notes: '',
     publicationDate: '',
+    closeDate: '',
     authorId: ''
+});
+
+const minListDate = computed(() => {
+  if (!newContent.value.publicationDate) return undefined;
+  // Lunes de la semana actual
+  const d = new Date(newContent.value.publicationDate);
+  d.setHours(0, 0, 0, 0);
+  const day = d.getDay(); 
+  // day: 0 (Sun) to 6 (Sat)
+  // Monday is 1
+  const diff = day === 0 ? -6 : 1 - day; 
+  d.setDate(d.getDate() + diff);
+  return d.toISOString().split('T')[0];
+});
+
+const maxListDate = computed(() => {
+  if (!newContent.value.publicationDate) return undefined;
+  // Próximo domingo
+  const d = new Date(newContent.value.publicationDate);
+  const day = d.getDay();
+  const diff = day === 0 ? 0 : 7 - day; 
+  d.setDate(d.getDate() + diff);
+  return d.toISOString().split('T')[0];
+});
+
+const minCloseDate = computed(() => {
+  if (!newContent.value.publicationDate) return undefined;
+  // Close date can be the same as list date
+  const d = new Date(newContent.value.publicationDate);
+  d.setHours(0, 0, 0, 0);
+  return d.toISOString().split('T')[0];
+});
+
+const maxCloseDate = computed(() => {
+   if (!newContent.value.publicationDate) return undefined;
+   // Miércoles siguiente
+   const d = new Date(newContent.value.publicationDate);
+   const day = d.getDay();
+   const diffToSunday = day === 0 ? 0 : 7 - day;
+   d.setDate(d.getDate() + diffToSunday);
+   
+   // Ahora sumamos 3 días para llegar al miércoles
+   d.setDate(d.getDate() + 3);
+   return d.toISOString().split('T')[0];
 });
 
 const editingContent = ref({
@@ -419,13 +746,15 @@ const calendarEvents = computed(() => {
         .map(c => ({
             id: c.id,
             title: c.name,
-            date: c.publicationDate,
+            start: c.publicationDate,
+            end: c.closeDate ? new Date(new Date(c.closeDate).setDate(new Date(c.closeDate).getDate() + 1)).toISOString().split('T')[0] : undefined,
             backgroundColor: getContentTypeColor(c.type).bg,
             borderColor: getContentTypeColor(c.type).border,
             extendedProps: {
                 contentType: c.type,
                 notes: c.notes,
-                author: c.author
+                author: c.author,
+                list: c.list
             }
         }));
 });
@@ -460,12 +789,17 @@ const calendarOptions = ref({
     },
     eventContent: (arg: any) => {
         const author = arg.event.extendedProps.author;
+        const notes = arg.event.extendedProps.notes || '';
         const isMyEvent = authStore.userId && author?.id === authStore.userId;
         const shouldDim = showOnlyMyEvents.value && !isMyEvent;
         const shouldHighlight = showOnlyMyEvents.value && isMyEvent;
 
         const container = document.createElement('div');
         container.className = `flex items-center gap-1.5 p-1 overflow-hidden transition-all ${shouldDim ? 'opacity-30' : 'opacity-100'}`;
+        // Add native tooltip with notes
+        if (notes) {
+            container.title = notes;
+        }
 
         // Add red border to my events when filter is active
         if (shouldHighlight) {
@@ -501,12 +835,42 @@ const calendarOptions = ref({
 
         return { domNodes: [container] };
     },
-    eventClick: (info: any) => {
+    eventClick: async (info: any) => {
         const contentId = info.event.id;
         const content = allContents.value.find(c => c.id === contentId);
         if (content) {
             selectedContent.value = content;
             showActionsModal.value = true;
+
+            // Pre-fill editing content for photos for the direct modal
+            if (content.type === 'photos') {
+                editingContentId.value = content.id;
+                editingContent.value = {
+                    type: content.type,
+                    name: content.name,
+                    notes: content.notes || '',
+                    publicationDate: content.publicationDate || '',
+                    authorId: content.author?.id || ''
+                };
+            }
+
+            if (content.type === 'radar' && content.list?.id) {
+                loadingRadarDetails.value = true;
+                try {
+                    const details = await getListDetails(content.list.id);
+                    if (details && details.asignations) {
+                        details.asignations.sort((a: any, b: any) => (a.position || 0) - (b.position || 0));
+                    }
+                    radarDetails.value = details;
+                } catch (e) {
+                    console.error('Error loading radar details', e);
+                    SwalService.error('Error cargando detalles de la lista');
+                } finally {
+                    loadingRadarDetails.value = false;
+                }
+            } else {
+                radarDetails.value = null;
+            }
         }
     },
     drop: async (info: any) => {
@@ -540,14 +904,24 @@ const calendarOptions = ref({
     eventDrop: async (info: any) => {
         const contentId = info.event.id;
         const newDate = info.event.startStr;
+
+        // Check for Radar lock: if radar has asignations, prevent move
+        const extendedProps = info.event.extendedProps;
+        if (extendedProps.contentType === 'radar' && extendedProps.list?.asignations?.length > 0) {
+            info.revert();
+            SwalService.error('No se puede mover un Radar que ya tiene asignaciones.');
+            return;
+        }
+
         await handleDropToCalendar(contentId, newDate);
     },
     eventDragStop: async (info: any) => {
         const jsEvent = info.jsEvent;
         const content = allContents.value.find(c => c.id === info.event.id);
 
-        // Prevent meetings from being moved to backlog
-        if (content?.type === 'meeting') {
+        // Prevent mandatory date types from being moved to backlog
+        const mandatoryDateTypes = ['reunion', 'radar', 'best'];
+        if (content && mandatoryDateTypes.includes(content.type)) {
             // Check if dropped on backlog
             if (backlogContainerRef.value) {
                 const backlogRect = backlogContainerRef.value.getBoundingClientRect();
@@ -557,9 +931,9 @@ const calendarOptions = ref({
                     jsEvent.clientY >= backlogRect.top &&
                     jsEvent.clientY <= backlogRect.bottom
                 ) {
-                    // Revert the drag - meetings cannot go to backlog
+                    // Revert the drag - these types cannot go to backlog
                     info.revert();
-                    alert('Las reuniones no pueden moverse al backlog. La fecha es obligatoria.');
+                    SwalService.error(`El contenido tipo "${getContentTypeLabel(content.type)}" requiere fecha obligatoria y no puede volver al backlog.`);
                     return;
                 }
             }
@@ -588,11 +962,11 @@ function getContentTypeLabel(type: ContentType): string {
     const labels: Record<ContentType, string> = {
         article: 'Artículo',
         photos: 'Fotos',
-        list: 'Spotify',
+        spotify: 'Spotify',
         radar: 'Radar',
         best: 'Mejores Discos',
         video: 'Video',
-        meeting: 'Reunión'
+        reunion: 'Reunión'
     };
     return labels[type];
 }
@@ -601,11 +975,11 @@ function getContentTypeBadge(type: ContentType): string {
     const badges: Record<ContentType, string> = {
         article: 'bg-blue-100 text-blue-800',
         photos: 'bg-pink-100 text-pink-800',
-        list: 'bg-lime-100 text-lime-800',
+        spotify: 'bg-lime-100 text-lime-800',
         radar: 'bg-yellow-100 text-yellow-800',
         best: 'bg-red-100 text-red-800',
         video: 'bg-violet-100 text-violet-800',
-        meeting: 'bg-orange-100 text-orange-800'
+        reunion: 'bg-orange-100 text-orange-800'
     };
     return badges[type];
 }
@@ -614,11 +988,11 @@ function getContentTypeClass(type: ContentType): string {
     const classes: Record<ContentType, string> = {
         article: 'border-blue-200 hover:border-blue-400',
         photos: 'border-pink-200 hover:border-pink-400',
-        list: 'border-lime-200 hover:border-lime-400',
+        spotify: 'border-lime-200 hover:border-lime-400',
         radar: 'border-yellow-200 hover:border-yellow-400',
         best: 'border-red-200 hover:border-red-400',
         video: 'border-violet-200 hover:border-violet-400',
-        meeting: 'border-orange-200 hover:border-orange-400'
+        reunion: 'border-orange-200 hover:border-orange-400'
     };
     return classes[type];
 }
@@ -627,11 +1001,11 @@ function getContentTypeColor(type: ContentType) {
     const colors: Record<ContentType, { bg: string; border: string }> = {
         article: { bg: '#3b82f6', border: '#2563eb' },     // Azul
         photos: { bg: '#ec4899', border: '#db2777' },      // Rosa/Magenta
-        list: { bg: '#22c55e', border: '#16a34a' },        // Verde Lima
+        spotify: { bg: '#22c55e', border: '#16a34a' },        // Verde Lima
         radar: { bg: '#f59e0b', border: '#d97706' },       // Amarillo/Ámbar
         best: { bg: '#ef4444', border: '#dc2626' },        // Rojo
         video: { bg: '#8b5cf6', border: '#7c3aed' },       // Violeta
-        meeting: { bg: '#f97316', border: '#ea580c' }      // Naranja
+        reunion: { bg: '#f97316', border: '#ea580c' }      // Naranja
     };
     return colors[type];
 }
@@ -658,9 +1032,10 @@ async function handleDropToCalendar(contentId: string, dateStr: string | null) {
 async function handleCreateContent() {
     if (!newContent.value.name || !newContent.value.authorId) return;
 
-    // Validate that meetings have a publication date
-    if (newContent.value.type === 'meeting' && !newContent.value.publicationDate) {
-        alert('Las reuniones requieren una fecha de publicación obligatoria');
+    // Validate mandatory date types
+    const mandatoryDateTypes = ['reunion', 'radar', 'best'];
+    if (mandatoryDateTypes.includes(newContent.value.type) && !newContent.value.publicationDate) {
+        alert(`El contenido tipo "${getContentTypeLabel(newContent.value.type)}" requiere una fecha de publicación obligatoria`);
         return;
     }
 
@@ -671,6 +1046,7 @@ async function handleCreateContent() {
             name: newContent.value.name,
             notes: newContent.value.notes || undefined,
             publicationDate: newContent.value.publicationDate || undefined,
+            closeDate: newContent.value.closeDate || undefined,
             authorId: newContent.value.authorId
         });
 
@@ -679,6 +1055,7 @@ async function handleCreateContent() {
             name: '',
             notes: '',
             publicationDate: '',
+            closeDate: '',
             authorId: ''
         };
         showCreateModal.value = false;
@@ -699,9 +1076,15 @@ function openEditModal(content: Content) {
         name: content.name,
         notes: content.notes || '',
         publicationDate: content.publicationDate || '',
-        authorId: content.author?.id || content.authorId || ''
+        authorId: content.author?.id || ''
     };
-    showEditModal.value = true;
+
+    if (content.type === 'photos') {
+        selectedContent.value = content;
+        showActionsModal.value = true;
+    } else {
+        showEditModal.value = true;
+    }
 }
 
 function toggleMyEventsFilter() {
@@ -751,12 +1134,50 @@ async function executeDeleteContent() {
     }
 }
 
+async function toggleAsignation(asig: any) {
+    const newState = !asig.done;
+    // Optimistic UI update
+    asig.done = newState;
+    
+    try {
+        await updateAsignationService(asig.id, { done: newState });
+    } catch (e) {
+        console.error('Error updating asignation', e);
+        asig.done = !newState; // Revert
+        SwalService.error('Error actualizando el estado de la asignación');
+    }
+}
+
+async function deleteRadarList() {
+    if (!selectedContent.value?.list?.id) return;
+    
+    const result = await SwalService.confirm(
+        '¿Eliminar Lista?', 
+        'Estás a punto de eliminar la lista asociada a este radar. Esta acción no se puede deshacer.',
+        'warning'
+    );
+    
+    if (result.isConfirmed) {
+        try {
+            await deleteList(selectedContent.value.list.id);
+            SwalService.success('Lista eliminada correctamente');
+            showActionsModal.value = false;
+            // Reload calendar
+            await loadContentsByMonth(currentYear.value, currentMonth.value);
+        } catch (e) {
+            console.error(e);
+            SwalService.error('Error eliminando la lista');
+        }
+    }
+}
+
 async function handleUpdateContent() {
     if (!editingContentId.value || !editingContent.value.name || !editingContent.value.authorId) return;
 
-    // Validate that meetings always have a date
-    if (editingContent.value.type === 'meeting' && !editingContent.value.publicationDate) {
-        alert('Las reuniones requieren una fecha de publicación obligatoria');
+    // Validate mandatory date types
+    const mandatoryDateTypes = ['reunion', 'radar', 'best'];
+    if (mandatoryDateTypes.includes(editingContent.value.type) && !editingContent.value.publicationDate) {
+        alert(`El contenido tipo "${getContentTypeLabel(editingContent.value.type)}" requiere una fecha de publicación obligatoria`);
         return;
     }
 
@@ -770,6 +1191,7 @@ async function handleUpdateContent() {
         });
 
         showEditModal.value = false;
+        showActionsModal.value = false;
         editingContentId.value = null;
         // Reload both backlog and current month
         await loadBacklogContents();
@@ -794,6 +1216,95 @@ async function handleDeleteContent() {
         await loadContentsByMonth(currentYear.value, currentMonth.value);
     } catch (error) {
         console.error('Error deleting content:', error);
+    }
+}
+
+function copyToClipboard(text: string) {
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+        SwalService.success("Copiado al portapapeles");
+    });
+}
+
+
+function copyArtistAndDisc(artist: string, disc: string) {
+    const formattedText = `**${artist}** - *${disc}*`;
+    navigator.clipboard.writeText(formattedText).then(() => {
+        SwalService.success("Info copiada");
+    });
+}
+
+function getStatusClass(status: string) {
+    const classes = {
+        'new': 'bg-red-500 hover:bg-red-600 border-red-400 text-white',
+        'assigned': 'bg-orange-500 hover:bg-orange-600 border-orange-400 text-white',
+        'published': 'bg-green-500 hover:bg-green-600 border-green-400 text-white'
+    };
+    return classes[status as keyof typeof classes] || 'bg-indigo-900/50 hover:bg-indigo-900 border-indigo-500/30 text-white';
+}
+
+async function updateListStatus(list: any) {
+    if (!list || !list.id) return;
+    try {
+        await updateList(list.id, { status: list.status });
+        // Optionally show success toast
+        // SwalService.success('Estado actualizado');
+    } catch (error) {
+        console.error('Error updating status:', error);
+        SwalService.error('Error al actualizar estado');
+    }
+}
+
+const radarMaxListDate = computed(() => {
+  if (!radarDetails.value?.listDate) return undefined;
+  const d = new Date(radarDetails.value.listDate);
+  const day = d.getDay();
+  const diff = day === 0 ? 0 : 7 - day; 
+  d.setDate(d.getDate() + diff);
+  return d.toISOString().split('T')[0];
+});
+
+const radarMaxCloseDate = computed(() => {
+   if (!radarDetails.value?.listDate) return undefined;
+   const d = new Date(radarDetails.value.listDate);
+   const day = d.getDay();
+   const diffToSunday = day === 0 ? 0 : 7 - day;
+   d.setDate(d.getDate() + diffToSunday);
+   d.setDate(d.getDate() + 3);
+   return d.toISOString().split('T')[0];
+});
+
+const radarMinListDate = computed(() => {
+  if (!radarDetails.value?.listDate) return undefined;
+  const d = new Date(radarDetails.value.listDate);
+  d.setHours(0, 0, 0, 0);
+  const day = d.getDay(); 
+  const diff = day === 0 ? -6 : 1 - day; 
+  d.setDate(d.getDate() + diff);
+  return d.toISOString().split('T')[0];
+});
+
+const radarMinCloseDate = computed(() => {
+  if (!radarDetails.value?.listDate) return undefined;
+  const d = new Date(radarDetails.value.listDate);
+  d.setHours(0, 0, 0, 0); 
+  return d.toISOString().split('T')[0];
+});
+
+function formatRadarDate(dateString: string) {
+  if (!dateString) return '';
+  return new Date(dateString).toISOString().split('T')[0];
+}
+
+async function updateRadarField(field: string, value: any) {
+    if (!radarDetails.value || !radarDetails.value.id) return;
+    try {
+        await updateList(radarDetails.value.id, { [field]: value });
+        radarDetails.value = { ...radarDetails.value, [field]: value };
+        await loadContentsByMonth(currentYear.value, currentMonth.value);
+    } catch (error) {
+        console.error(`Error updating ${field}:`, error);
+        SwalService.error('Error al actualizar fecha');
     }
 }
 

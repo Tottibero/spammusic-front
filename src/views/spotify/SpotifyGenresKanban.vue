@@ -1,7 +1,7 @@
 <template>
     <div class="p-6 h-full flex flex-col">
         <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-semibold">Tablero de Festivales</h1>
+            <h1 class="text-2xl font-semibold">Tablero de Géneros</h1>
             <div class="flex gap-2">
                 <button class="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800" @click="openCreate">
                     Nueva lista
@@ -13,7 +13,7 @@
         </div>
 
         <!-- Loading / Error -->
-        <div v-if="loading" class="text-center py-10">Cargando festivales...</div>
+        <div v-if="loading" class="text-center py-10">Cargando géneros...</div>
         <div v-else-if="error" class="text-red-500 text-center py-10">{{ error }}</div>
 
         <!-- Kanban Board -->
@@ -44,7 +44,6 @@
 
                         <!-- User Selector & Actions -->
                         <div class="mt-3 space-y-3">
-                            <!-- User Select -->
                             <!-- User Selector (Click to Edit) -->
                             <div class="relative group mt-3">
                                 <!-- Visual Display (Click to edit) -->
@@ -79,7 +78,6 @@
                                 </select>
                             </div>
 
-                            <!-- Action Buttons -->
                             <!-- Action Buttons and Date -->
                             <div class="flex items-center justify-between pt-2 border-t border-gray-100 mt-2">
                                 <!-- Date -->
@@ -119,7 +117,7 @@
         <div v-if="showModal" class="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
             @click.self="closeModal">
             <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 space-y-4">
-                <h3 class="text-lg font-bold">{{ isEditing ? 'Editar Festival' : 'Nuevo Festival' }}</h3>
+                <h3 class="text-lg font-bold">{{ isEditing ? 'Editar Género' : 'Nuevo Género' }}</h3>
 
                 <div>
                     <label class="block text-sm font-medium mb-1">Nombre</label>
@@ -147,7 +145,7 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive, nextTick } from 'vue';
 import {
-    getSpotifyFestivals,
+    getSpotifyGenres,
     createSpotify,
     updateSpotify,
     removeSpotify,
@@ -242,7 +240,7 @@ async function reload() {
     error.value = null;
     try {
         const [fetchedItems, fetchedUsers] = await Promise.all([
-            getSpotifyFestivals(),
+            getSpotifyGenres(),
             getUsersRv()
         ]);
         items.value = fetchedItems;
@@ -303,7 +301,6 @@ async function onDrop(targetState: ColumnId) {
     }
 }
 
-// --- User Assignment ---
 // --- User Assignment ---
 async function startEditingUser(itemId: string) {
     editingUserItemId.value = itemId;
@@ -393,30 +390,30 @@ async function save() {
             // Update local
             const idx = items.value.findIndex(x => x.id === editingId.value);
             if (idx !== -1) items.value[idx] = updated;
-            SwalService.success('Festival actualizado');
+            SwalService.success('Género actualizado');
         } else {
             // Create new
             const created = await createSpotify({
                 name: form.name,
                 link: form.link,
                 status: 'por_actualizar', // Default state
-                type: 'festival',         // Fixed type
+                type: 'genero',         // Fixed type
                 updateDate: toISO(new Date())
             });
             items.value.push(created);
-            SwalService.success('Festival creado');
+            SwalService.success('Género creado');
         }
         closeModal();
     } catch (e) {
         console.error(e);
-        SwalService.error('Error guardando festival');
+        SwalService.error('Error guardando género');
     }
 }
 
 // --- Delete Item ---
 async function confirmDelete(item: Spotify) {
     const result = await SwalService.confirm(
-        '¿Eliminar festival?',
+        '¿Eliminar género?',
         `Vas a eliminar "${item.name}". Esta acción no se puede deshacer.`,
         'warning'
     );
@@ -425,10 +422,10 @@ async function confirmDelete(item: Spotify) {
         try {
             await removeSpotify(item.id);
             items.value = items.value.filter(i => i.id !== item.id);
-            SwalService.success('Festival eliminado');
+            SwalService.success('Género eliminado');
         } catch (e) {
             console.error(e);
-            SwalService.error('Error eliminando festival');
+            SwalService.error('Error eliminando género');
         }
     }
 }

@@ -116,7 +116,7 @@
     "label": "Spotify",
     "type": "riff-valley",
     "requiredRole": "riffValley",
-    "icon": "fa-brands fa-spotify text-[#1DB954]",
+    "icon": "fa-brands fa-spotify text-white",
     "children": [
       {
         "to": "/spotify/festivales",
@@ -131,6 +131,14 @@
         "icon": "fa-solid fa-guitar"
       }
     ]
+  },
+  {
+    "to": "/articles",
+    "label": "Artículos",
+    "activeClass": "bg-gray-700",
+    "type": "riff-valley",
+    "requiredRole": "riffValley",
+    "icon": "fa-solid fa-newspaper"
   },
   {
     "to": "/users",
