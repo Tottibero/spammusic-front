@@ -217,6 +217,12 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("/src/views/videos/VideoDetalle.vue"),
     meta: { requiresAuth: true, requiresRole: "riffValley" },
   },
+  {
+    path: "/maintenance",
+    name: "Maintenance",
+    component: () => import("/src/views/maintenance/MaintenancePage.vue"),
+    meta: { requiresAuth: false },
+  },
 
 
 ];
@@ -228,6 +234,24 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   const authStore = useAuthStore();
+
+  // 1. Lógica de Mantenimiento
+  // Puedes activar esto con la variable de entorno VITE_MAINTENANCE_MODE=true
+  // O descomentar la verificación por hostname si prefieres esa lógica específica
+  // const isProdUrl = window.location.hostname === 'spammusic.netlify.app';
+  const isMaintenance = import.meta.env.VITE_MAINTENANCE_MODE === 'true'; // || isProdUrl;
+
+  if (isMaintenance) {
+    // Si estamos en mantenimiento, permitir solo acceso a la página de mantenimiento
+    if (to.name !== 'Maintenance') {
+      return { name: "Maintenance" };
+    }
+  } else {
+    // Si NO estamos en mantenimiento, redirigir fuera de la página de mantenimiento si intentan acceder
+    if (to.name === 'Maintenance') {
+      return { name: "Home" };
+    }
+  }
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     return { name: "Login" };
