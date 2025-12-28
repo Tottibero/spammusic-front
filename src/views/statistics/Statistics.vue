@@ -4,6 +4,16 @@
       Estadísticas
     </h1>
 
+    <!-- Year Filter -->
+    <div class="flex justify-center mb-6">
+      <SimpleSelect
+        v-model="selectedYear"
+        :options="yearOptions"
+        placeholder="Selecciona un año"
+        class="w-40"
+      />
+    </div>
+
     <div class="grid grid-cols-1 gap-6 text-white">
       <!--  -->
       <div
@@ -71,11 +81,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
+import { defineComponent, ref, onMounted, computed, watch } from 'vue';
 import { getRatesStats } from '@services/rates/rates';
 import GenreBarChart from './components/GenreBarChart.vue';
 import ScoreDistributionChart from './components/ScoreDistributionChart.vue';
 import MonthlyVotesChart from './components/MonthlyVotesChart.vue';
+import SimpleSelect from '@components/SimpleSelect.vue';
 
 export default defineComponent({
   name: 'Statistics',
@@ -83,6 +94,7 @@ export default defineComponent({
     GenreBarChart,
     ScoreDistributionChart,
     MonthlyVotesChart,
+    SimpleSelect,
   },
   setup() {
     const totalVotes = ref(0);
@@ -97,11 +109,26 @@ export default defineComponent({
     const loading = ref(true);
     const errorMsg = ref("");
 
+    // Year filter
+    const selectedYear = ref<number | null>(null);
+
+    const yearOptions = computed(() => {
+      const currentYear = new Date().getFullYear();
+      const currentMonth = new Date().getMonth();
+      const startYear = 2025;
+      const endYear = currentMonth === 11 ? currentYear + 1 : currentYear;
+      const years = [];
+      for (let i = startYear; i <= endYear; i++) {
+        years.push({ value: i, label: String(i) });
+      }
+      return years;
+    });
+
     const fetchData = async () => {
       loading.value = true;
       errorMsg.value = "";
       try {
-        const data = await getRatesStats();
+        const data = await getRatesStats(selectedYear.value || undefined);
         totalVotes.value = data.totalVotes;
         mean.value = data.mean;
         median.value = data.median;
@@ -118,6 +145,10 @@ export default defineComponent({
       }
     };
 
+    // Watch for year changes
+    watch(selectedYear, () => {
+      fetchData();
+    });
 
     onMounted(() => {
       fetchData();
@@ -132,7 +163,12 @@ export default defineComponent({
       votesByScore,
       rank,
       totalUsers,
+      loading,
+      errorMsg,
+      selectedYear,
+      yearOptions,
     };
   },
 });
 </script>
+

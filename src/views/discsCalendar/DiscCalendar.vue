@@ -1,13 +1,22 @@
 <template>
   <div :class="{ 'menu-open': menuVisible }" class="max-w-7xl mx-auto mt-10 px-4 sm:px-6 lg:px-8">
-    <h1 class="text-4xl font-bold mb-8 text-center text-gray-900">
+    <h1 v-if="!embedded" class="text-4xl font-bold mb-8 text-center text-gray-900">
       Calendario
     </h1>
 
-    <!-- Filtros -->
-    <DiscFilters :searchQuery="searchQuery" :selectedGenre="selectedGenre" :genres="genreOptions" :countries="countries"
-      :showWeekPicker="false" @update:searchQuery="searchQuery = $event" @update:selectedGenre="selectedGenre = $event"
-      selectClass="w-[280px] sm:w-[300px] w-full" @reset-and-fetch="resetAndFetch" />
+    <!-- FILTROS SUPERIORES -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-start mb-6">
+
+      <!-- Search + género (DiscFilters) -->
+      <DiscFilters class="sm:col-span-2" :searchQuery="searchQuery" :selectedGenre="selectedGenre"
+        :selectedCountry="selectedCountry" :genres="genreOptions" :countries="countries" :showWeekPicker="false"
+        :showCountryFilter="false" @update:searchQuery="searchQuery = $event" @update:selectedGenre="selectedGenre = $event"
+        @update:selectedCountry="selectedCountry = $event" selectClass="w-full" @reset-and-fetch="resetAndFetch" />
+
+      <!-- Año -->
+      <SimpleSelect v-model="selectedYear" :options="yearOptions" placeholder="Año" class="w-full" />
+
+    </div>
 
     <div>
       <div class="flex flex-wrap justify-center gap-2 mb-6 mt-6 overflow-x-auto">
@@ -22,11 +31,11 @@
 
       <!-- Lista de discos agrupados (resto del template) -->
       <div v-for="(group, index) in filteredGroupedDiscs" :key="group.releaseDate" class="mb-8">
-        <!-- ... (resto del contenido del v-for, incluyendo el encabezado del grupo, el botón de toggle, etc.) ... -->
         <div class="group flex justify-between items-center px-5 py-3 rounded-full cursor-pointer transition-all duration-200 shadow-sm
          border border-rv-navy/10" :class="(groupState[index] || closing[index])
           ? 'bg-gradient-to-r from-rv-navy to-rv-navy/80 shadow-md'
-          : 'bg-white hover:bg-gradient-to-r from-rv-navy to-rv-navy/80 hover:text-white hover:shadow-md'" @click="toggleGroup(index)">
+          : 'bg-white hover:bg-gradient-to-r from-rv-navy to-rv-navy/80 hover:text-white hover:shadow-md'"
+          @click="toggleGroup(index)">
           <h3 class="text-xl sm:text-2xl font-semibold transition-colors duration-200" :class="(groupState[index] || closing[index])
             ? 'text-white'
             : 'text-rv-navy group-hover:text-white'">
@@ -62,24 +71,30 @@
               </button>
             </div>
 
-            <!-- Lista de discos -->
-            <ul class="w-full mt-4">
-              <li v-for="disc in group.discs" :key="disc.id"
-                class="flex flex-col md:flex-row md:justify-between p-4 border-b w-full">
-                <DiscComponent :disc="disc" :genres="genres" :countries="countries" @disc-deleted="removeDisc"
-                  @date-changed="handleDateChange" />
-              </li>
-            </ul>
+            <div v-if="optionsReady">
+              <ul class="w-full mt-4">
+                <li v-for="disc in group.discs" :key="disc.id"
+                  class="flex flex-col md:flex-row md:justify-between p-4 border-b w-full">
+                  <div :id="`disc-${disc.id}`" class="w-full">
+                    <DiscComponent :disc="disc" :genres="genres" :countries="countries" :focusDiscId="focusDiscId"
+                      @disc-deleted="removeDisc" @date-changed="handleDateChange" />
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div v-else class="text-center text-gray-500 py-6">
+              Cargando géneros y países…
+            </div>
           </div>
         </transition>
       </div>
     </div>
-    </div>
+  </div>
 
-    <!-- Cargar más -->
-    <div ref="loadMore" class="text-center py-6">
-      <span v-if="loading" class="text-gray-600">Cargando discos...</span>
-    </div>
+  <!-- Cargar más -->
+  <div ref="loadMore" class="text-center py-6">
+    <span v-if="loading" class="text-gray-600">Cargando discos...</span>
+  </div>
 </template>
 
 <script lang="ts">
@@ -90,6 +105,8 @@ import {
   reactive,
   computed,
   nextTick,
+  watch,
+  toRef,
 } from "vue";
 import axios from "axios";
 import { updateDisc, deleteDisc, getDiscsDated } from "@services/discs/discs";
@@ -98,11 +115,20 @@ import { getCountries } from "@services/countries/countries";
 import DiscComponent from "./components/DiscComponent.vue";
 import { obtenerTokenSpotify } from "@helpers/SpotifyFunctions.ts";
 import DiscFilters from "@components/DiscFilters.vue";
+import SimpleSelect from "@components/SimpleSelect.vue";
 
 export default defineComponent({
-  components: { DiscComponent, DiscFilters },
+  components: { DiscComponent, DiscFilters, SimpleSelect },
   name: "DiscsList",
-  setup() {
+
+  props: {
+    embedded: { type: Boolean, default: false },
+    initialDate: { type: String, default: "" },
+    focusDiscId: { type: String, default: "" },
+  },
+  emits: ["close"],
+
+  setup(props) {
     const groupedDiscs = ref<any[]>([]);
     const groupState = reactive({});
 
@@ -122,10 +148,26 @@ export default defineComponent({
     ];
 
     const selectedMonth = ref(new Date().getMonth());
+    const selectedYear = ref(new Date().getFullYear());
+
+    const yearOptions = computed(() => {
+      const currentYear = new Date().getFullYear();
+      const currentMonth = new Date().getMonth();
+      const startYear = 2025;
+      const endYear = (currentMonth === 11 ? currentYear + 1 : currentYear);
+      const years = [];
+      for (let i = startYear; i <= endYear; i++) {
+        years.push({ value: i, label: String(i) });
+      }
+      return years;
+    });
+
+    const focusDiscId = toRef(props, "focusDiscId");
 
     // --- Filtros ---
     const searchQuery = ref("");
     const selectedGenre = ref("");
+    const selectedCountry = ref("");
     const selectedWeek = ref<Date | null>(null);
 
     const norm = (s: string) =>
@@ -172,9 +214,19 @@ export default defineComponent({
       } catch { }
     };
 
+    const initial = computed(() =>
+      props.initialDate ? new Date(props.initialDate) : null
+    );
+
+    // Si abrimos desde modal con una fecha concreta, forzamos mes y año
+    if (props.embedded && initial.value) {
+      selectedMonth.value = initial.value.getMonth();
+      selectedYear.value = initial.value.getFullYear();
+    }
+
     const selectMonth = async (monthIndex: number) => {
       selectedMonth.value = monthIndex;
-      const year = new Date().getFullYear();
+      const year = selectedYear.value;
       const startDate = new Date(Date.UTC(year, monthIndex, 1)).toISOString();
       const endDate = new Date(
         year,
@@ -191,6 +243,8 @@ export default defineComponent({
 
       await fetchDiscsByDateRange(startDate, endDate);
       await fetchAllPagesForMonth();
+      await focusAndScrollToDisc();
+
     };
 
     const fetchDiscsByDateRange = async (
@@ -215,12 +269,66 @@ export default defineComponent({
         totalItems.value = response.totalItems;
         offset.value = limit.value;
         hasMore.value = offset.value < totalItems.value;
+        await nextTick();
+
+        if (props.embedded && initial.value) {
+          const target = new Date(initial.value);
+
+          const sameDay = (dateString: string) => {
+            const d = new Date(dateString);
+            return (
+              d.getFullYear() === target.getFullYear() &&
+              d.getMonth() === target.getMonth() &&
+              d.getDate() === target.getDate()
+            );
+          };
+
+          const idx = groupedDiscs.value.findIndex((g: any) => sameDay(g.releaseDate));
+          if (idx >= 0) groupState[idx] = true;
+
+          await nextTick();
+
+          if (props.focusDiscId) {
+            const el = document.getElementById(`disc-${props.focusDiscId}`);
+            el?.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }
+
       } catch (error) {
         console.error("Error fetching discs by date range:", error);
       } finally {
         loading.value = false;
       }
     };
+
+    const focusAndScrollToDisc = async () => {
+      if (!props.embedded || !initial.value || !props.focusDiscId) return;
+
+      // 1) Abrir el grupo correcto (por fecha)
+      const target = new Date(initial.value);
+
+      const sameDay = (dateString: string) => {
+        const d = new Date(dateString);
+        return (
+          d.getFullYear() === target.getFullYear() &&
+          d.getMonth() === target.getMonth() &&
+          d.getDate() === target.getDate()
+        );
+      };
+
+      const idx = groupedDiscs.value.findIndex((g: any) => sameDay(g.releaseDate));
+      if (idx >= 0) groupState[idx] = true;
+
+      await nextTick();
+
+      // 2) Esperar a que el transition termine (su fade-slide dura 0.35s)
+      await new Promise((r) => setTimeout(r, 380));
+
+      // 3) Scroll al disco ya renderizado
+      const el = document.getElementById(`disc-${props.focusDiscId}`);
+      el?.scrollIntoView({ behavior: "smooth", block: "center" });
+    };
+
 
     const toggleGroup = (index) => {
       groupState[index] = !groupState[index];
@@ -259,7 +367,7 @@ export default defineComponent({
       loading.value = true;
 
       try {
-        const year = new Date().getFullYear();
+        const year = selectedYear.value;
         const startDate = new Date(
           Date.UTC(year, selectedMonth.value, 1)
         ).toISOString();
@@ -321,27 +429,22 @@ export default defineComponent({
       return `${formattedDate}, ${formattedWeekday}`;
     };
 
+    const genresLoaded = ref(false);
+    const countriesLoaded = ref(false);
+
     const fetchGenres = async () => {
-      try {
-        const genresResponse = await getGenres(150, 0);
-        genres.value = genresResponse.data.sort((a, b) =>
-          a.name.localeCompare(b.name)
-        );
-      } catch (error) {
-        console.error("Error fetching genres:", error);
-      }
+      const genresResponse = await getGenres(150, 0);
+      genres.value = genresResponse.data.sort((a, b) => a.name.localeCompare(b.name));
+      genresLoaded.value = true;
     };
 
     const fetchCountries = async () => {
-      try {
-        const countriesResponse = await getCountries(250, 0);
-        countries.value = countriesResponse.data.sort((a, b) =>
-          a.name.localeCompare(b.name)
-        );
-      } catch (error) {
-        console.error("Error fetching countries:", error);
-      }
+      const countriesResponse = await getCountries(250, 0);
+      countries.value = countriesResponse.data.sort((a, b) => a.name.localeCompare(b.name));
+      countriesLoaded.value = true;
     };
+
+    const optionsReady = computed(() => genresLoaded.value && countriesLoaded.value);
 
     const buscarEnlacesSpotify = async (discs: any[]) => {
       const token = await obtenerTokenSpotify();
@@ -441,12 +544,16 @@ export default defineComponent({
       fetchDiscs();
     };
 
-    onMounted(() => {
-      if (loadMore.value) {
-        observer.observe(loadMore.value);
-      }
+    watch(selectedYear, () => {
+      selectMonth(selectedMonth.value);
+    });
 
-      selectMonth(new Date().getMonth());
+    onMounted(() => {
+      if (loadMore.value) observer.observe(loadMore.value);
+
+      const d = initial.value;
+      selectMonth(d ? d.getMonth() : new Date().getMonth());
+
       fetchCountries();
       fetchGenres();
     });
@@ -473,12 +580,19 @@ export default defineComponent({
       formatDate,
       searchQuery,
       selectedGenre,
+      selectedCountry,
       selectedWeek,
       resetAndFetch,
       filteredGroupedDiscs,
       countries,
       genreOptions,
+      selectedYear,
+      yearOptions,
       closing,
+      focusDiscId,
+      optionsReady,
+      genresLoaded,
+      countriesLoaded,
     };
   },
 });

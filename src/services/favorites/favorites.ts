@@ -7,30 +7,31 @@ export async function postFavoriteService(payload: any): Promise<void> {
 
 
 export async function deleteFavoriteService(id: string): Promise<void> {
-    console.log(`Deleting disc with id: ${id}`);
-    await api.delete(`/favorites/${id}`);
-  }
-  
-  export async function getFavoritesByUser(
-    limit: number,
-    offset: number,
-    query?: string,
-    dateRange?: any,
-    genre?: string,
-    type?: string,
-    orderBy?: string,
-  ): Promise<any[]> {
-    const response = await api.get<any[]>("/favorites", {
-      params: {
-        limit,
-        offset,
-        query, 
-        dateRange,
-        genre,
-        type,
-        orderBy,
-      },
-    });
-    return response.data;
-  }
-  
+  console.log(`Deleting disc with id: ${id}`);
+  await api.delete(`/favorites/${id}`);
+}
+
+export async function getFavoritesByUser(
+  limit: number,
+  offset: number,
+  query?: string,
+  dateRange?: any,
+  genre?: string,
+  country?: string,
+  type?: string,
+  orderBy?: string,
+): Promise<any[]> {
+  const response = await api.get<any[]>("/favorites", {
+    params: {
+      limit,
+      offset,
+      query,
+      dateRange,
+      genre,
+      country,
+      type,
+      orderBy,
+    },
+  });
+  return response.data;
+}

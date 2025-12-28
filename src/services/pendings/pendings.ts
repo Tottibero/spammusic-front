@@ -16,6 +16,7 @@ export async function getPendingsByUser(
   query?: string,
   dateRange?: any,
   genre?: string,
+  country?: string,
 ): Promise<any[]> {
   const response = await api.get<any[]>("/pendings", {
     params: {
@@ -24,6 +25,7 @@ export async function getPendingsByUser(
       query,
       dateRange,
       genre,
+      country,
     },
   });
   return response.data;
