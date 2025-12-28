@@ -70,7 +70,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/articles",
     name: "Articles",
-    component: () => import("/src/views/articles/ArticlesList.vue"),
+    component: () => import("/src/views/articles/ArticlesKanban.vue"),
     meta: { requiresAuth: true, requiresRole: "riffValley" },
   },
   {
@@ -173,6 +173,18 @@ const routes: Array<RouteRecordRaw> = [
     path: "/spotify",
     name: "Spotify",
     component: () => import("/src/views/spotify/ListSpotify.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/spotify/festivales",
+    name: "SpotifyFestivales",
+    component: () => import("/src/views/spotify/SpotifyFestivalsKanban.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/spotify/generos",
+    name: "SpotifyGeneros",
+    component: () => import("/src/views/spotify/SpotifyGenresKanban.vue"),
     meta: { requiresAuth: true },
   },
   {

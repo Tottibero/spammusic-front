@@ -4,10 +4,7 @@
     <!-- Header -->
     <div class="flex items-center justify-between gap-4">
       <h1 class="text-2xl font-semibold">Listas de Spotify</h1>
-      <button
-        class="rounded-xl px-4 py-2 bg-black text-white hover:bg-black/90 transition"
-        @click="openCreate()"
-      >
+      <button class="rounded-xl px-4 py-2 bg-black text-white hover:bg-black/90 transition" @click="openCreate()">
         Nueva lista
       </button>
     </div>
@@ -16,38 +13,27 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
       <div class="col-span-1">
         <label class="block text-sm font-medium mb-1">Buscar</label>
-        <input
-          v-model="filters.q"
-          type="text"
-          placeholder="Nombre..."
-          class="w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-black/40"
-        />
+        <input v-model="filters.q" type="text" placeholder="Nombre..."
+          class="w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-black/40" />
       </div>
       <div>
         <label class="block text-sm font-medium mb-1">Estado</label>
-        <select
-          v-model="filters.estado"
-          class="w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-black/40"
-        >
+        <select v-model="filters.estado"
+          class="w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-black/40">
           <option value="">Todos</option>
           <option v-for="e in ESTADOS" :key="e" :value="e">{{ e }}</option>
         </select>
       </div>
-      <div>
+      <div v-if="!fixedType">
         <label class="block text-sm font-medium mb-1">Tipo</label>
-        <select
-          v-model="filters.tipo"
-          class="w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-black/40"
-        >
+        <select v-model="filters.tipo"
+          class="w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-black/40">
           <option value="">Todos</option>
           <option v-for="t in TIPOS" :key="t" :value="t">{{ t }}</option>
         </select>
       </div>
       <div class="flex items-end">
-        <button
-          class="w-full rounded-xl px-4 py-2 border hover:bg-black/5 transition"
-          @click="resetFilters()"
-        >
+        <button class="w-full rounded-xl px-4 py-2 border hover:bg-black/5 transition" @click="resetFilters()">
           Limpiar
         </button>
       </div>
@@ -60,7 +46,7 @@
           <tr class="text-left">
             <th class="px-4 py-3">Nombre</th>
             <th class="px-4 py-3">Estado</th>
-            <th class="px-4 py-3">Tipo</th>
+            <th v-if="!fixedType" class="px-4 py-3">Tipo</th>
             <th class="px-4 py-3">Enlace</th>
             <th class="px-4 py-3">Actualizada</th>
             <th class="px-4 py-3 w-40 text-right">Acciones</th>
@@ -76,37 +62,25 @@
           <tr v-for="r in rows" :key="r.id" class="border-t hover:bg-gray-50/50">
             <td class="px-4 py-3 font-medium">{{ r.nombre }}</td>
             <td class="px-4 py-3">
-              <span
-                class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1"
-                :class="pillClass(r.estado)"
-              >
+              <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1"
+                :class="pillClass(r.estado)">
                 {{ displayEstado(r.estado) }}
               </span>
             </td>
-            <td class="px-4 py-3">{{ r.tipo }}</td>
+            <td v-if="!fixedType" class="px-4 py-3">{{ r.tipo }}</td>
             <td class="px-4 py-3">
-              <a
-                :href="r.enlace"
-                target="_blank"
-                rel="noopener"
-                class="underline underline-offset-2 text-blue-600 hover:text-blue-700"
-              >Abrir</a>
+              <a :href="r.enlace" target="_blank" rel="noopener"
+                class="underline underline-offset-2 text-blue-600 hover:text-blue-700">Abrir</a>
             </td>
             <td class="px-4 py-3">
               {{ fmtDate(r.fechaActualizacion) }}
             </td>
             <td class="px-4 py-3">
               <div class="flex items-center justify-end gap-2">
-                <button
-                  class="rounded-lg px-3 py-1 border hover:bg-gray-100"
-                  @click="openEdit(r)"
-                >
+                <button class="rounded-lg px-3 py-1 border hover:bg-gray-100" @click="openEdit(r)">
                   Editar
                 </button>
-                <button
-                  class="rounded-lg px-3 py-1 bg-red-600 text-white hover:bg-red-700"
-                  @click="openDelete(r)"
-                >
+                <button class="rounded-lg px-3 py-1 bg-red-600 text-white hover:bg-red-700" @click="openDelete(r)">
                   Borrar
                 </button>
               </div>
@@ -122,29 +96,20 @@
         {{ rows.length ? `Mostrando ${rows.length} resultados` : '' }}
       </div>
       <div class="flex items-center gap-2">
-        <button
-          class="rounded-xl px-3 py-2 border disabled:opacity-40"
-          :disabled="page === 0 || loading"
-          @click="prevPage()"
-        >
+        <button class="rounded-xl px-3 py-2 border disabled:opacity-40" :disabled="page === 0 || loading"
+          @click="prevPage()">
           Anterior
         </button>
-        <button
-          class="rounded-xl px-3 py-2 border disabled:opacity-40"
-          :disabled="!canNext || loading"
-          @click="nextPage()"
-        >
+        <button class="rounded-xl px-3 py-2 border disabled:opacity-40" :disabled="!canNext || loading"
+          @click="nextPage()">
           Siguiente
         </button>
       </div>
     </div>
 
     <!-- Modal Create/Edit -->
-    <div
-      v-if="showForm"
-      class="fixed inset-0 z-40 bg-black/40 flex items-center justify-center p-4"
-      @click.self="closeForm()"
-    >
+    <div v-if="showForm" class="fixed inset-0 z-40 bg-black/40 flex items-center justify-center p-4"
+      @click.self="closeForm()">
       <div class="w-full max-w-xl rounded-2xl bg-white p-6 shadow-xl space-y-5">
         <div class="flex items-center justify-between">
           <h2 class="text-lg font-semibold">
@@ -156,33 +121,23 @@
         <form class="space-y-4" @submit.prevent="submitForm()">
           <div>
             <label class="block text-sm font-medium mb-1">Nombre</label>
-            <input
-              v-model="form.nombre"
-              type="text"
-              class="w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-black/40"
-              required
-            />
+            <input v-model="form.nombre" type="text"
+              class="w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-black/40" required />
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label class="block text-sm font-medium mb-1">Estado</label>
-              <select
-                v-model="form.estado"
-                class="w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-black/40"
-                required
-              >
+              <select v-model="form.estado"
+                class="w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-black/40" required>
                 <option disabled value="">Selecciona…</option>
                 <option v-for="e in ESTADOS" :key="e" :value="e">{{ e }}</option>
               </select>
             </div>
-            <div>
+            <div v-if="!fixedType">
               <label class="block text-sm font-medium mb-1">Tipo</label>
-              <select
-                v-model="form.tipo"
-                class="w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-black/40"
-                required
-              >
+              <select v-model="form.tipo"
+                class="w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-black/40" required>
                 <option disabled value="">Selecciona…</option>
                 <option v-for="t in TIPOS" :key="t" :value="t">{{ t }}</option>
               </select>
@@ -191,31 +146,24 @@
 
           <div>
             <label class="block text-sm font-medium mb-1">Enlace</label>
-            <input
-              v-model="form.enlace"
-              type="url"
-              placeholder="https://open.spotify.com/playlist/..."
-              class="w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-black/40"
-              required
-            />
+            <input v-model="form.enlace" type="url" placeholder="https://open.spotify.com/playlist/..."
+              class="w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-black/40" required />
           </div>
 
           <div>
             <label class="block text-sm font-medium mb-1">Fecha de actualización</label>
-            <input
-              v-model="form.fechaActualizacionLocal"
-              type="datetime-local"
-              class="w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-black/40"
-              required
-            />
+            <input v-model="form.fechaActualizacionLocal" type="datetime-local"
+              class="w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-black/40" required />
             <p class="text-xs text-gray-500 mt-1">
               Se enviará como ISO (UTC): {{ toISOFromLocal(form.fechaActualizacionLocal) || '—' }}
             </p>
           </div>
 
           <div class="flex items-center justify-end gap-2 pt-2">
-            <button type="button" class="rounded-xl px-4 py-2 border hover:bg-gray-100" @click="closeForm()">Cancelar</button>
-            <button type="submit" class="rounded-xl px-4 py-2 bg-black text-white hover:bg-black/90" :disabled="submitting">
+            <button type="button" class="rounded-xl px-4 py-2 border hover:bg-gray-100"
+              @click="closeForm()">Cancelar</button>
+            <button type="submit" class="rounded-xl px-4 py-2 bg-black text-white hover:bg-black/90"
+              :disabled="submitting">
               {{ submitting ? 'Guardando…' : (editing ? 'Guardar cambios' : 'Crear') }}
             </button>
           </div>
@@ -224,19 +172,18 @@
     </div>
 
     <!-- Modal Delete -->
-    <div
-      v-if="showDelete"
-      class="fixed inset-0 z-40 bg-black/40 flex items-center justify-center p-4"
-      @click.self="closeDelete()"
-    >
+    <div v-if="showDelete" class="fixed inset-0 z-40 bg-black/40 flex items-center justify-center p-4"
+      @click.self="closeDelete()">
       <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl space-y-4">
         <h3 class="text-lg font-semibold">Eliminar lista</h3>
         <p class="text-sm text-gray-600">
-          ¿Seguro que quieres borrar <span class="font-semibold">{{ toDelete?.nombre }}</span>? Esta acción no se puede deshacer.
+          ¿Seguro que quieres borrar <span class="font-semibold">{{ toDelete?.nombre }}</span>? Esta acción no se puede
+          deshacer.
         </p>
         <div class="flex items-center justify-end gap-2">
           <button class="rounded-xl px-4 py-2 border hover:bg-gray-100" @click="closeDelete()">Cancelar</button>
-          <button class="rounded-xl px-4 py-2 bg-red-600 text-white hover:bg-red-700" :disabled="deleting" @click="confirmDelete()">
+          <button class="rounded-xl px-4 py-2 bg-red-600 text-white hover:bg-red-700" :disabled="deleting"
+            @click="confirmDelete()">
             {{ deleting ? 'Eliminando…' : 'Eliminar' }}
           </button>
         </div>
@@ -256,6 +203,8 @@
 import { ref, reactive, onMounted, watch } from 'vue';
 import {
   listSpotify,
+  getSpotifyFestivals,
+  getSpotifyGenres,
   createSpotify,
   updateSpotify,
   removeSpotify,
@@ -272,6 +221,10 @@ const rows = ref<Spotify[]>([]);
 const limit = ref(10);
 const page = ref(0);
 const canNext = ref(false);
+
+const props = defineProps<{
+  fixedType?: 'festival' | 'genero' | string;
+}>();
 
 // filtros
 const filters = reactive<{
@@ -296,7 +249,7 @@ type FormShape = {
 const initialForm = (): FormShape => ({
   nombre: '',
   estado: '',
-  tipo: '',
+  tipo: (props.fixedType as SpotifyTipo) || '',
   enlace: '',
   fechaActualizacionLocal: nowLocalInput(),
 });
@@ -362,13 +315,20 @@ const debouncedReload = debounce(() => {
 async function reload() {
   loading.value = true;
   try {
-    const data = await listSpotify({
-      limit: limit.value,
-      offset: page.value * limit.value,
-      q: filters.q || undefined,
-      estado: (filters.estado as SpotifyEstado) || undefined,
-      tipo: (filters.tipo as SpotifyTipo) || undefined,
-    } as any);
+    let data;
+    if (props.fixedType === 'festival') {
+      data = await getSpotifyFestivals();
+    } else if (props.fixedType === 'genero') {
+      data = await getSpotifyGenres();
+    } else {
+      data = await listSpotify({
+        limit: limit.value,
+        offset: page.value * limit.value,
+        q: filters.q || undefined,
+        estado: (filters.estado as SpotifyEstado) || undefined,
+        tipo: (filters.tipo as SpotifyTipo) || undefined,
+      } as any);
+    }
     rows.value = data;
     canNext.value = data.length === limit.value;
   } catch (e: any) {
@@ -509,6 +469,12 @@ watch([() => filters.estado, () => filters.tipo], () => {
   page.value = 0;
   reload();
 });
+watch(() => props.fixedType, () => {
+  page.value = 0;
+  // Si cambia el tipo fijo, reseteamos el filtro de tipo (interno) y recargamos
+  filters.tipo = '';
+  reload();
+});
 </script>
 
 <style scoped>
@@ -516,6 +482,7 @@ watch([() => filters.estado, () => filters.tipo], () => {
 .fade-leave-active {
   transition: opacity 200ms ease;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;

@@ -14,80 +14,71 @@
       </div>
 
       <div v-else-if="list" class="space-y-8">
-        <!-- Tarjeta Principal (Edición Inline) -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div class="p-6 md:p-8">
-            <div class="flex flex-col gap-4 mb-6">
-              <!-- Nombre Editable -->
-              <input 
-                v-model="list.name" 
-                @change="updateField('name', list.name)"
-                class="text-3xl font-bold text-gray-900 bg-transparent border-b-2 border-transparent hover:border-gray-200 focus:border-indigo-500 focus:outline-none transition-colors w-full p-1"
-                placeholder="Nombre de la lista"
-              />
-              <!-- Descripción Editable -->
-              <input 
-                v-model="list.description" 
-                @change="updateField('description', list.description)"
-                class="text-gray-600 bg-transparent border-b border-transparent hover:border-gray-200 focus:border-indigo-500 focus:outline-none transition-colors w-full p-1"
-                placeholder="Añade una descripción..."
-              />
-            </div>
+        <!-- Header Estilo "Blue Bar" -->
+        <div class="bg-indigo-800 rounded-2xl shadow-lg p-6 flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden relative">
+          <!-- Background Decoration -->
+          <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
 
-            <!-- Stats Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <!-- ESTADO (Editable) -->
-              <div class="p-4 bg-gray-50 rounded-lg border border-gray-100 group hover:border-indigo-200 transition-colors">
-                <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 flex items-center gap-2">
-                   Estado
-                   <i class="fa-solid fa-pen text-[10px] opacity-0 group-hover:opacity-50"></i>
-                </p>
+          <!-- Left: Title & Description -->
+          <div class="flex-1 w-full z-10">
+            <input 
+              v-model="list.name" 
+              @change="updateField('name', list.name)"
+              class="text-3xl font-bold text-white bg-transparent border-none placeholder-indigo-300 focus:ring-0 w-full p-0 leading-tight mb-1"
+              placeholder="Nombre de la lista"
+            />
+            <input 
+              v-model="list.description" 
+              @change="updateField('description', list.description)"
+              class="text-indigo-200 text-sm font-medium bg-transparent border-none placeholder-indigo-400 focus:ring-0 w-full p-0"
+              placeholder="Añade una descripción..."
+            />
+          </div>
+
+          <!-- Right: Controls Compact Group -->
+          <div class="flex flex-wrap items-center gap-3 z-10 w-full md:w-auto justify-end">
+             <!-- Status Badge -->
+             <div class="relative">
                 <select 
                   v-model="list.status" 
                   @change="updateField('status', list.status)"
-                  class="bg-transparent font-medium text-sm border-none focus:ring-0 cursor-pointer w-full p-0 text-gray-800"
-                  :class="getStatusColor(list.status)"
+                  :class="getStatusClass(list.status)"
+                  class="appearance-none pl-4 pr-8 py-2 border rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer transition-colors focus:ring-1 focus:ring-white/20 shadow-sm"
                 >
-                    <option value="new">Nueva</option>
-                    <option value="assigned">Asignada</option>
-                    <option value="published">Publicada</option>
+                    <option value="new" class="text-gray-900">Nueva</option>
+                    <option value="assigned" class="text-gray-900">Asignada</option>
+                    <option value="published" class="text-gray-900">Publicada</option>
                 </select>
-              </div>
+                <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-indigo-300 pointer-events-none"></i>
+             </div>
 
-              <!-- FECHA LISTA (Editable) -->
-              <div class="p-4 bg-gray-50 rounded-lg border border-gray-100 group hover:border-indigo-200 transition-colors">
-                <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 flex items-center gap-2">
-                  Fecha Lista
-                  <i class="fa-solid fa-pen text-[10px] opacity-0 group-hover:opacity-50"></i>
-                </p>
-                <div class="flex items-center gap-2">
-                  <i class="fa-regular fa-calendar text-gray-400"></i>
+             <!-- Date Badges Group -->
+             <div class="flex items-center gap-2 bg-indigo-900/30 p-1 rounded-lg border border-indigo-500/20">
+                <!-- List Date -->
+                <div class="flex items-center gap-2 px-3 py-1.5 bg-indigo-900/80 rounded-md text-white border border-indigo-500/30 shadow-sm" title="Fecha Lista">
+                  <i class="fa-regular fa-calendar text-indigo-300 text-xs"></i>
                   <input 
                     type="date" 
                     :value="formatDateForInput(list.listDate)"
+                    :min="minListDate"
+                    :max="maxListDate"
                     @change="(e) => updateField('listDate', (e.target as HTMLInputElement).value)"
-                    class="bg-transparent border-none p-0 text-gray-800 font-semibold focus:ring-0 cursor-pointer w-full"
+                    class="bg-transparent border-none p-0 text-white text-xs font-bold focus:ring-0 cursor-pointer w-[80px]"
                   />
                 </div>
-              </div>
-
-              <!-- FECHA CIERRE (Editable) -->
-              <div class="p-4 bg-gray-50 rounded-lg border border-gray-100 group hover:border-indigo-200 transition-colors">
-                <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 flex items-center gap-2">
-                  Fecha Cierre
-                  <i class="fa-solid fa-pen text-[10px] opacity-0 group-hover:opacity-50"></i>
-                </p>
-                <div class="flex items-center gap-2">
-                  <i class="fa-regular fa-clock text-gray-400"></i>
-                  <input 
+                <!-- Close Date -->
+                <div class="flex items-center gap-2 px-3 py-1.5 bg-indigo-900/80 rounded-md text-white border border-indigo-500/30 shadow-sm" title="Fecha Cierre">
+                   <i class="fa-regular fa-clock text-indigo-300 text-xs"></i>
+                   <input 
                     type="date" 
                     :value="formatDateForInput(list.closeDate)"
+                     :min="minCloseDate"
+                    :max="maxCloseDate"
                      @change="(e) => updateField('closeDate', (e.target as HTMLInputElement).value)"
-                    class="bg-transparent border-none p-0 text-gray-800 font-semibold focus:ring-0 cursor-pointer w-full"
+                    class="bg-transparent border-none p-0 text-white text-xs font-bold focus:ring-0 cursor-pointer w-[80px]"
                   />
                 </div>
-              </div>
-            </div>
+             </div>
           </div>
         </div>
 
@@ -122,7 +113,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getListDetails, updateList } from '@services/list/list';
 import SwalService from '@services/swal/SwalService';
@@ -144,14 +135,65 @@ function formatDateForInput(dateString: string) {
   return new Date(dateString).toISOString().split('T')[0];
 }
 
-function getStatusColor(status: string) {
-  // Solo devolvemos color de texto para el select
-  const colors: Record<string, string> = {
-    'new': 'text-blue-700',
-    'assigned': 'text-amber-700',
-    'published': 'text-purple-700',
+const maxListDate = computed(() => {
+  if (!list.value?.listDate) return undefined;
+  // Próximo domingo desde la fecha actual de la lista
+  const d = new Date(list.value.listDate);
+  const day = d.getDay();
+  // day: 0 (Sun) to 6 (Sat)
+  // Distance to next Sunday (which is day 0, represented as 7 for logic)
+  // Actually usually weeks start Monday (1) and end Sunday (7 aka 0)
+  // If we want "Sunday of that week"
+  const diff = day === 0 ? 0 : 7 - day; 
+  d.setDate(d.getDate() + diff);
+  return d.toISOString().split('T')[0];
+});
+
+const maxCloseDate = computed(() => {
+   if (!list.value?.listDate) return undefined;
+   // Miércoles siguiente a la fecha de la lista
+   const d = new Date(list.value.listDate);
+   // Primero vamos al domingo de esa semana
+   const day = d.getDay();
+   const diffToSunday = day === 0 ? 0 : 7 - day;
+   d.setDate(d.getDate() + diffToSunday);
+   
+   // Ahora sumamos 3 días para llegar al miércoles
+   d.setDate(d.getDate() + 3);
+   return d.toISOString().split('T')[0];
+});
+
+const minListDate = computed(() => {
+  if (!list.value?.listDate) return undefined;
+  // Lunes de la semana actual
+  const d = new Date(list.value.listDate);
+  d.setHours(0, 0, 0, 0);
+  const day = d.getDay(); 
+  // day: 0 (Sun) to 6 (Sat)
+  // Monday is 1
+  const diff = day === 0 ? -6 : 1 - day; // If day is 0 (Sun), go back 6 days to Mon. If 1 (Mon), 0 days.
+  d.setDate(d.getDate() + diff);
+  return d.toISOString().split('T')[0];
+});
+
+const minCloseDate = computed(() => {
+  if (!list.value?.listDate) return undefined;
+  // Close date can be the same as list date
+  const d = new Date(list.value.listDate);
+  d.setHours(0, 0, 0, 0); // Normalize time to avoid timezone shifts
+  return d.toISOString().split('T')[0];
+});
+
+
+
+
+function getStatusClass(status: string) {
+  const classes = {
+    'new': 'bg-red-500 hover:bg-red-600 border-red-400 text-white',
+    'assigned': 'bg-orange-500 hover:bg-orange-600 border-orange-400 text-white',
+    'published': 'bg-green-500 hover:bg-green-600 border-green-400 text-white'
   };
-  return colors[status] || 'text-gray-700';
+  return classes[status as keyof typeof classes] || 'bg-indigo-900/50 hover:bg-indigo-900 border-indigo-500/30 text-white';
 }
 
 function goBack() {
