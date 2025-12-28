@@ -27,7 +27,7 @@
         <div v-if="artistCountry?.isoCode" class="relative group">
           <!-- Caso especial: International (isoCode = 'int') -->
           <template v-if="artistCountry.isoCode === 'int'">
-            <img src="/int.svg" alt="International" class="rounded-full cursor-help object-cover"
+            <img src="/int.svg" alt="Internacional" class="rounded-full cursor-help object-cover"
               style="width: 25px; height: 25px;" />
           </template>
 
@@ -91,10 +91,16 @@
 
         <!-- Botón de Escuchar -->
         <div class="flex items-center space-x-2 mt-1">
-          <a v-if="link" @click="openPlatformLink(link)"
-            class="px-2 py-1 rounded-full cursor-pointer text-xs font-medium text-white text-center shadow-sm bg-green-500 hover:bg-green-600 hover:text-white transition-all w-1/2 text-left">
-            Escuchar
-          </a>
+<a
+  v-if="link"
+  @click="openPlatformLink(link)"
+  class="px-2 py-1 rounded-full cursor-pointer font-medium text-white
+         text-center shadow-sm bg-green-500 hover:bg-green-600
+         transition-all w-1/2
+         text-[10px] overflow-hidden text-ellipsis whitespace-nowrap"
+>
+  Escuchar
+</a>
 
           <!-- Íconos: corazón y bookmark -->
           <div class="flex space-x-2 items-center">
@@ -165,7 +171,7 @@
           Chat
           <span v-if="commentCount > 0" class="ml-1 mt-1 text-[9px] text-[#ffbaca]">(<span class="inline">{{
             commentCount
-              }}</span>)</span>
+          }}</span>)</span>
         </span>
       </button>
 
@@ -216,39 +222,27 @@
     </div>
   </div>
 
-<Teleport to="body">
-  <div
-    v-if="showCalendarModal"
-    class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
-  >
-    <div class="bg-white rounded-xl shadow-xl w-[95vw] max-w-6xl max-h-[90vh] relative overflow-hidden">
-      <!-- botón cerrar -->
-<button
-  type="button"
-  @click.stop="showCalendarModal = false"
-  aria-label="Cerrar"
-  title="Cerrar"
-  class="absolute top-2 right-2 z-50
+  <Teleport to="body">
+    <div v-if="showCalendarModal"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+      <div class="bg-white rounded-xl shadow-xl w-[95vw] max-w-6xl max-h-[90vh] relative overflow-hidden">
+        <!-- botón cerrar -->
+        <button type="button" @click.stop="showCalendarModal = false" aria-label="Cerrar" title="Cerrar" class="absolute top-2 right-2 z-50
          text-white bg-rv-navy hover:bg-[#e46e8a]
          rounded-full w-10 h-10 shadow-md transition-all
          grid place-items-center
-         border-0 outline-none ring-0 focus:ring-0"
->
-  <i class="fas fa-times -translate-x-[5px]"></i>
-</button>
+         border-0 outline-none ring-0 focus:ring-0">
+          <i class="fas fa-times -translate-x-[5px]"></i>
+        </button>
 
 
-      <div class="max-h-[90vh] overflow-y-auto overflow-x-hidden">
-        <DiscCalendar
-          :embedded="true"
-          :initialDate="releaseDate"
-          :focusDiscId="id"
-          @close="showCalendarModal = false"
-        />
+        <div class="max-h-[90vh] overflow-y-auto overflow-x-hidden">
+          <DiscCalendar :embedded="true" :initialDate="releaseDate" :focusDiscId="id"
+            @close="showCalendarModal = false" />
+        </div>
       </div>
     </div>
-  </div>
-</Teleport>
+  </Teleport>
 
 </template>
 

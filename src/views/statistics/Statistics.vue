@@ -5,14 +5,14 @@
     </h1>
 
     <!-- Year Filter -->
-    <div class="flex justify-center mb-6">
-      <SimpleSelect
-        v-model="selectedYear"
-        :options="yearOptions"
-        placeholder="Selecciona un año"
-        class="w-40"
-      />
-    </div>
+<div class="flex justify-center mb-6">
+  <SimpleSelect
+    v-model="selectedYear"
+    :options="yearOptions"
+    placeholder="Selecciona un año"
+    class="w-full max-w-[320px] sm:max-w-[380px]"
+  />
+</div>
 
     <div class="grid grid-cols-1 gap-6 text-white">
       <!--  -->
