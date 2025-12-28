@@ -1,3 +1,12 @@
+## <small>1.9.1 (2025-12-28)</small>
+
+* fix (UI): improve banner ([6e1db61](https://github.com/Tottibero/spammusic-front/commit/6e1db61))
+* Fix/manteniance layout (#46) ([bbbc83e](https://github.com/Tottibero/spammusic-front/commit/bbbc83e)), closes [#46](https://github.com/Tottibero/spammusic-front/issues/46)
+* Merge branch 'main' into dev ([a40dd8e](https://github.com/Tottibero/spammusic-front/commit/a40dd8e))
+* Merge pull request #47 from Tottibero/final-december ([5274baf](https://github.com/Tottibero/spammusic-front/commit/5274baf)), closes [#47](https://github.com/Tottibero/spammusic-front/issues/47)
+* Merge pull request #48 from Tottibero/dev ([ef3fc24](https://github.com/Tottibero/spammusic-front/commit/ef3fc24)), closes [#48](https://github.com/Tottibero/spammusic-front/issues/48)
+* fix(UI): fix buttons-filters position and more ([7c969ad](https://github.com/Tottibero/spammusic-front/commit/7c969ad))
+
 ## 1.9.0 (2025-12-28)
 
 * assign users kanba ([ed69491](https://github.com/Tottibero/spammusic-front/commit/ed69491))
