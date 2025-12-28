@@ -14,21 +14,21 @@
       <h2 class="text-lg font-semibold mb-4">Crear Reunión</h2>
       <form @submit.prevent="createReunion" class="space-y-4">
         <div>
-          <label for="titulo" class="block font-medium">Título</label>
+          <label for="title" class="block font-medium">Título</label>
           <input
-            v-model="formData.titulo"
+            v-model="formData.title"
             type="text"
-            id="titulo"
+            id="title"
             class="w-full p-2 border border-gray-300 rounded-lg"
             required
           />
         </div>
         <div>
-          <label for="fecha" class="block font-medium">Fecha</label>
+          <label for="date" class="block font-medium">Fecha</label>
           <input
-            v-model="formData.fecha"
+            v-model="formData.date"
             type="datetime-local"
-            id="fecha"
+            id="date"
             class="w-full p-2 border border-gray-300 rounded-lg"
             required
           />
@@ -86,7 +86,7 @@ export default {
     return {
       showForm: false,
       showPast: false,
-      formData: { titulo: "", fecha: "" },
+      formData: { title: "", date: "" },
       reuniones: [],
     };
   },
@@ -96,7 +96,7 @@ export default {
       hoy.setHours(0, 0, 0, 0); // Establecer a la medianoche para comparar solo la fecha
 
       return this.reuniones.filter((r) => {
-        const fechaReunion = new Date(r.fecha);
+        const fechaReunion = new Date(r.date);
         fechaReunion.setHours(0, 0, 0, 0);
         return fechaReunion >= hoy;
       });
@@ -107,7 +107,7 @@ export default {
       hoy.setHours(0, 0, 0, 0); // Establecer a la medianoche para comparar solo la fecha
 
       return this.reuniones.filter((r) => {
-        const fechaReunion = new Date(r.fecha);
+        const fechaReunion = new Date(r.date);
         fechaReunion.setHours(0, 0, 0, 0);
         return fechaReunion < hoy;
       });
@@ -127,11 +127,11 @@ export default {
       try {
         const response = await postReunion({
           ...this.formData,
-          fecha: new Date(this.formData.fecha),
+          date: new Date(this.formData.date),
         });
         await this.reuniones.push(response.data);
-        this.formData.titulo = "";
-        this.formData.fecha = "";
+        this.formData.title = "";
+        this.formData.date = "";
         this.toggleForm();
         SwalService.success("Reunión creada con éxito.");
         this.fetchReuniones();

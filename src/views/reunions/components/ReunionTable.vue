@@ -16,8 +16,8 @@
             >
               <i class="fa-solid fa-pen-to-square"></i>
             </button>
-            <strong class="text-lg">{{ reunion.titulo }}</strong>
-            <p class="text-sm text-gray-600">{{ formatDate(reunion.fecha) }}</p>
+            <strong class="text-lg">{{ reunion.title }}</strong>
+            <p class="text-sm text-gray-600">{{ formatDate(reunion.date) }}</p>
           </div>
           <button
             @click="togglePoints(reunion.id)"
