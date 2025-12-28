@@ -7,18 +7,15 @@
     <!-- Filtros -->
     <DiscFilters :searchQuery="searchQuery" :selectedGenre="selectedGenre" :genres="genres" :showWeekPicker="false"
       @update:searchQuery="searchQuery = $event" @update:selectedGenre="selectedGenre = $event"
-    selectClass="w-[280px] sm:w-[300px] w-full" 
-      @reset-and-fetch="resetAndFetch" />
+      selectClass="w-[280px] sm:w-[300px] w-full" @reset-and-fetch="resetAndFetch" />
 
     <div>
       <div class="flex flex-wrap justify-center gap-2 mb-6 mt-6 overflow-x-auto">
-        <button v-for="(month, index) in months" :key="index" @click="selectMonth(index)" :class="{
-          'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-[#211d1d] font-semibold':
-            selectedMonth === index,
-          'bg-gray-200 text-gray-800 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]':
-            selectedMonth !== index,
-        }"
-          class="px-4 py-2 rounded-full transition-all duration-300 whitespace-nowrap shadow-md mb-1 font-semibold text-gray-900">
+        <button v-for="(month, index) in months" :key="index" @click="selectMonth(index)" class="px-4 py-2 rounded-full transition-all duration-200 whitespace-nowrap shadow-sm mb-1 font-semibold
+           border-rv-navy/15
+           focus:outline-none focus:ring-0 focus:ring-offset-0" :class="selectedMonth === index
+            ? 'bg-gradient-to-tr from-rv-blue to-rv-blueDark text-white shadow-md border-transparent'
+            : 'bg-white text-rv-navy hover:border-rv-blue border-2 hover:shadow-md'">
           {{ month }}
         </button>
       </div>
@@ -26,22 +23,34 @@
       <!-- Lista de discos agrupados (resto del template) -->
       <div v-for="(group, index) in filteredGroupedDiscs" :key="group.releaseDate" class="mb-8">
         <!-- ... (resto del contenido del v-for, incluyendo el encabezado del grupo, el botón de toggle, etc.) ... -->
-        <div
-          class="flex justify-between items-center px-5 py-3 rounded-full cursor-pointer bg-gray-200 transition-all duration-300 shadow-md"
-          :class="groupState[index]
-              ? 'bg-gradient-to-r from-gray-900 to-gray-700'
-              : 'hover:bg-gradient-to-r hover:from-gray-200 hover:to-gray-300 bg-gray-100'
-            " @click="toggleGroup(index)">
-          <h3 class="text-xl sm:text-2xl font-semibold transition-colors duration-300"
-            :style="{ color: groupState[index] ? 'white' : '#1f2937' }">
-            {{ formatDate(group.releaseDate) }}
-          </h3>
+<div
+  class="group flex justify-between items-center px-5 py-3 rounded-full cursor-pointer transition-all duration-200 shadow-sm
+         border border-rv-navy/10"
+  :class="groupState[index]
+    ? 'bg-gradient-to-r from-rv-navy to-rv-navy/80 shadow-md'
+    : 'bg-white hover:bg-gradient-to-r from-rv-navy to-rv-navy/80 hover:text-white hover:shadow-md'"
+  @click="toggleGroup(index)"
+>
+  <h3
+    class="text-xl sm:text-2xl font-semibold transition-colors duration-200"
+    :class="groupState[index] ? 'text-white' : 'text-rv-navy group-hover:text-white'"
+  >
+    {{ formatDate(group.releaseDate) }}
+  </h3>
 
-          <button class="transition-transform duration-300" :class="{ 'rotate-180': groupState[index] }">
-            <i class="fas fa-chevron-down transition-colors duration-300"
-              :style="{ color: groupState[index] ? 'white' : '#4b5563' }"></i>
-          </button>
-        </div>
+  <button
+    class="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200
+           focus:outline-none focus:ring-0 focus:ring-offset-0"
+    :class="groupState[index]
+      ? 'bg-rv-pink text-white text-xl'
+      : 'bg-rv-pink text-white hover:bg-rv-pink text-xl hover:text-white'"
+  >
+    <i
+      class="fas fa-chevron-down transition-transform duration-200"
+      :class="groupState[index] ? 'rotate-180' : ''"
+    ></i>
+  </button>
+</div>
 
         <!-- Contenido del grupo desplegable -->
         <transition name="fade-slide" mode="out-in">
@@ -74,7 +83,7 @@ import { updateDisc, deleteDisc, getDiscsDated } from "@services/discs/discs";
 import { getGenres } from "@services/genres/genres";
 import DiscComponentBaby from "./components/DiscComponentBaby.vue";
 import { obtenerTokenSpotify } from "@helpers/SpotifyFunctions.ts";
-import DiscFilters from "@components/DiscFilters.vue"; 
+import DiscFilters from "@components/DiscFilters.vue";
 
 export default defineComponent({
   components: { DiscComponent: DiscComponentBaby, DiscFilters },
@@ -98,12 +107,12 @@ export default defineComponent({
       "Diciembre",
     ];
 
-    const selectedMonth = ref(new Date().getMonth()); 
+    const selectedMonth = ref(new Date().getMonth());
 
     // --- Filtros ---
     const searchQuery = ref("");
     const selectedGenre = ref("");
-    const selectedWeek = ref<Date | null>(null); 
+    const selectedWeek = ref<Date | null>(null);
 
     const filteredGroupedDiscs = computed(() => {
       return groupedDiscs.value
@@ -123,9 +132,9 @@ export default defineComponent({
 
             if (selectedWeek.value) {
               const discDate = new Date(disc.releaseDate);
-              const weekStart = new Date(selectedWeek.value); 
+              const weekStart = new Date(selectedWeek.value);
               const weekEnd = new Date(weekStart);
-              weekEnd.setDate(weekStart.getDate() + 6); 
+              weekEnd.setDate(weekStart.getDate() + 6);
 
               return (
                 matchesSearch &&
@@ -135,10 +144,10 @@ export default defineComponent({
               );
             }
 
-            return matchesSearch && matchesGenre; 
+            return matchesSearch && matchesGenre;
           }),
         }))
-        .filter((group) => group.discs.length > 0); 
+        .filter((group) => group.discs.length > 0);
     });
 
     const fetchAllPagesForMonth = async () => {
@@ -146,8 +155,8 @@ export default defineComponent({
       try { if (loadMore.value) observer.unobserve(loadMore.value); } catch { }
 
       while (hasMore.value) {
-        await fetchDiscs();  
-        await nextTick();    
+        await fetchDiscs();
+        await nextTick();
       }
 
       try { if (loadMore.value) observer.observe(loadMore.value); } catch { }
@@ -162,8 +171,8 @@ export default defineComponent({
       offset.value = 0;
       groupedDiscs.value = [];
 
-      await fetchDiscsByDateRange(startDate, endDate); 
-      await fetchAllPagesForMonth();                  
+      await fetchDiscsByDateRange(startDate, endDate);
+      await fetchAllPagesForMonth();
     };
 
     const fetchDiscsByDateRange = async (
@@ -182,7 +191,7 @@ export default defineComponent({
           groupState[index] = false;
         });
 
-        groupedDiscs.value = response.data; 
+        groupedDiscs.value = response.data;
         totalItems.value = response.totalItems;
         offset.value = limit.value;
         hasMore.value = offset.value < totalItems.value;
@@ -381,7 +390,7 @@ export default defineComponent({
     const resetAndFetch = () => {
       offset.value = 0;
 
-      fetchDiscs(); 
+      fetchDiscs();
     };
 
     onMounted(() => {
@@ -417,17 +426,13 @@ export default defineComponent({
       selectedGenre,
       selectedWeek,
       resetAndFetch,
-      filteredGroupedDiscs, 
+      filteredGroupedDiscs,
     };
   },
 });
 </script>
 
 <style scoped>
-h3 {
-  color: #4a5568;
-}
-
 li {
   border-bottom: 1px solid #e2e8f0;
 }
@@ -439,16 +444,18 @@ img {
 
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: all 0.6s ease;
+  transition: opacity 0.35s ease, transform 0.35s ease;
 }
 
-.fade-slide-enter-from {
-  opacity: 0;
-  transform: translateY(-15px);
-}
-
+.fade-slide-enter-from,
 .fade-slide-leave-to {
   opacity: 0;
   transform: translateY(-15px);
+}
+
+.fade-slide-enter-to,
+.fade-slide-leave-from {
+  opacity: 1;
+  transform: translateY(0);
 }
 </style>

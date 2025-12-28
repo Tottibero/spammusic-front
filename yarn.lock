@@ -2444,6 +2444,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"daisyui@npm:^5.5.8":
+  version: 5.5.8
+  resolution: "daisyui@npm:5.5.8"
+  checksum: 10c0/9243f0c8e9c45242e82074ecec46f19cf661579d9b3d73ddf56e8a0bf461564f844842ecfdf019320060a5c68ff2d1a0db2dd0335543146165299d7f4ce7a113
+  languageName: node
+  linkType: hard
+
 "dargs@npm:^8.0.0":
   version: 8.1.0
   resolution: "dargs@npm:8.1.0"
@@ -5942,6 +5949,7 @@ __metadata:
     autoprefixer: "npm:^10.4.20"
     axios: "npm:^1.7.9"
     chart.js: "npm:^4.4.7"
+    daisyui: "npm:^5.5.8"
     husky: "npm:^9.1.7"
     pinia: "npm:^2.3.0"
     postcss: "npm:^8.4.49"

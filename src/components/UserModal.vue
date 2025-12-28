@@ -1,11 +1,13 @@
 <template>
   <div class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
-    <div class="bg-white rounded-lg shadow-xl w-[95%] sm:max-w-2xl p-6 relative max-h-[80vh] overflow-y-auto">
-      <button @click="$emit('close')"
-        class="absolute top-3 right-3 text-white hover:text-[#d9e021] bg-gray-700 hover:bg-gray-800 rounded-full w-9 h-9 flex items-center justify-center shadow-md transition-all"
-        aria-label="Cerrar" title="Cerrar">
-        ✖
+    <div class="bg-white rounded-3xl shadow-xl w-[95%] sm:max-w-2xl p-6 relative max-h-[80vh] overflow-y-auto">
+      <button @click="$emit('close')" class="absolute top-3 right-3 text-white bg-rv-navy hover:bg-[#e46e8a]
+         rounded-full w-10 h-10 flex items-center justify-center shadow-md transition-all
+         border-0 outline-none focus:outline-none focus-visible:outline-none
+         ring-0 focus:ring-0 focus-visible:ring-0" aria-label="Cerrar" title="Cerrar">
+        <i class="fa-solid fa-xmark text-lg"></i>
       </button>
+
 
       <div class="relative overflow-hidden rounded-full shadow-md bg-gray-200 shrink-0 mx-auto"
         :style="{ width: avatarSize + 'px', height: avatarSize + 'px' }">
@@ -14,26 +16,28 @@
       </div>
 
 
-      <h3 class="text-lg font-semibold text-gray-800 text-center mb-1 mt-2">
+      <h3 class="text-lg font-semibold text-rv-navy text-center mb-1 mt-2">
         {{ username }}
       </h3>
 
 
-      <div v-if="loading" class="py-8 text-center text-gray-600">
+      <div v-if="loading" class="py-8 text-center text-rv-navy">
         Cargando historial...
       </div>
 
       <div v-else-if="error" class="py-6 text-center">
         <p class="text-red-600">Error: {{ error }}</p>
-        <button @click="fetchHistory()"
-          class="mt-3 px-3 py-1.5 rounded bg-gray-700 text-white hover:bg-gray-800 text-sm">
+        <button @click="fetchHistory()" class="mt-3 px-3 py-1.5 rounded-full bg-rv-navy text-white hover:bg-[#e46e8a] text-sm transition-all
+         border-0 outline-none focus:outline-none focus-visible:outline-none
+         ring-0 focus:ring-0 focus-visible:ring-0">
           Reintentar
         </button>
+
       </div>
 
       <div v-else>
         <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div class="text-sm text-gray-700">
+          <div class="text-sm text-rv-navy">
             <span class="font-medium">Discos en página:</span> {{ visibleEvents.length }}
           </div>
           <div class="text-xs text-gray-500">
@@ -45,7 +49,7 @@
           <li v-for="ev in visibleEvents" :key="ev.rateId + '|' + ev.timestamp" class="py-2 text-sm">
             <div class="flex items-center justify-between">
               <div class="flex-1">
-                <p class="text-gray-800">
+                <p class="text-rv-navy">
                   <span class="px-1.5 py-0.5 rounded text-white text-xs mr-2"
                     :class="ev.action === 'created' ? 'bg-emerald-600' : 'bg-amber-500'">
                     {{ actionLabel(ev.action) }}
@@ -54,7 +58,7 @@
                   <span class="font-medium">{{ ev.disc?.name }}</span>
                   <span class="text-gray-500"> — {{ ev.disc?.artist?.name }}</span>
                 </p>
-                <p class="text-gray-600 text-xs mt-0.5">
+                <p class="text-rv-navy text-xs mt-0.5">
                   Disco: {{ ev.rate ?? '—' }} · Portada: {{ ev.cover ?? '—' }}
                 </p>
               </div>
@@ -67,16 +71,24 @@
 
         <!-- Controles de paginación -->
         <div class="mt-4 flex items-center justify-between">
-          <button
-            class="px-3 py-1.5 full-rounded bg-gray-200 hover:bg-gray-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            :disabled="offset === 0 || loading" @click="prevPage">
+          <!-- Anterior -->
+          <button class="px-3 py-1.5 rounded-full
+           bg-gray-200 text-rv-navy
+           hover:bg-rv-navy hover:text-white
+           text-sm transition-all duration-200
+           disabled:opacity-50 disabled:cursor-not-allowed
+           flex items-center gap-2" :disabled="offset === 0 || loading" @click="prevPage">
             <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
             <span>Anterior</span>
           </button>
 
-          <button
-            class="px-3 py-1.5 full-rounded bg-gray-700 text-white hover:bg-gray-800 text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            :disabled="!canNext || loading" @click="nextPage">
+          <!-- Siguiente -->
+          <button class="px-3 py-1.5 rounded-full
+           bg-gray-200 text-rv-navy
+           hover:bg-rv-navy hover:text-white
+           text-sm transition-all duration-200
+           disabled:opacity-50 disabled:cursor-not-allowed
+           flex items-center gap-2" :disabled="!canNext || loading" @click="nextPage">
             <span>Siguiente</span>
             <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
           </button>

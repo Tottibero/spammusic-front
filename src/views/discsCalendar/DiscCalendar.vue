@@ -11,13 +11,11 @@
 
     <div>
       <div class="flex flex-wrap justify-center gap-2 mb-6 mt-6 overflow-x-auto">
-        <button v-for="(month, index) in months" :key="index" @click="selectMonth(index)" :class="{
-          'bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-[#211d1d] font-semibold':
-            selectedMonth === index,
-          'bg-gray-200 text-gray-800 hover:bg-gradient-to-r hover:from-[#d9e021] hover:to-[#fcee21] hover:text-[#211d1d]':
-            selectedMonth !== index,
-        }"
-          class="px-4 py-2 rounded-full transition-all duration-300 whitespace-nowrap shadow-md mb-1 font-semibold text-gray-900">
+        <button v-for="(month, index) in months" :key="index" @click="selectMonth(index)" class="px-4 py-2 rounded-full transition-all duration-200 whitespace-nowrap shadow-sm mb-1 font-semibold
+         border-rv-navy/15
+         focus:outline-none focus:ring-0 focus:ring-offset-0" :class="selectedMonth === index
+          ? 'bg-gradient-to-tr from-rv-blue to-rv-blueDark text-white shadow-md border-transparent'
+          : 'bg-white text-rv-navy hover:border-rv-blue border-2 hover:shadow-md'">
           {{ month }}
         </button>
       </div>
@@ -25,43 +23,47 @@
       <!-- Lista de discos agrupados (resto del template) -->
       <div v-for="(group, index) in filteredGroupedDiscs" :key="group.releaseDate" class="mb-8">
         <!-- ... (resto del contenido del v-for, incluyendo el encabezado del grupo, el botón de toggle, etc.) ... -->
-        <div
-          class="flex justify-between items-center px-5 py-3 rounded-full cursor-pointer bg-gray-200 transition-all duration-300 shadow-md"
-          :class="groupState[index]
-              ? 'bg-gradient-to-r from-gray-900 to-gray-700'
-              : 'hover:bg-gradient-to-r hover:from-gray-200 hover:to-gray-300 bg-gray-100'
-            " @click="toggleGroup(index)">
-          <h3 class="text-xl sm:text-2xl font-semibold transition-colors duration-300"
-            :style="{ color: groupState[index] ? 'white' : '#1f2937' }">
+        <div class="group flex justify-between items-center px-5 py-3 rounded-full cursor-pointer transition-all duration-200 shadow-sm
+         border border-rv-navy/10" :class="(groupState[index] || closing[index])
+          ? 'bg-gradient-to-r from-rv-navy to-rv-navy/80 shadow-md'
+          : 'bg-white hover:bg-gradient-to-r from-rv-navy to-rv-navy/80 hover:text-white hover:shadow-md'" @click="toggleGroup(index)">
+          <h3 class="text-xl sm:text-2xl font-semibold transition-colors duration-200" :class="(groupState[index] || closing[index])
+            ? 'text-white'
+            : 'text-rv-navy group-hover:text-white'">
             {{ formatDate(group.releaseDate) }}
           </h3>
 
-          <button class="transition-transform duration-300" :class="{ 'rotate-180': groupState[index] }">
-            <i class="fas fa-chevron-down transition-colors duration-300"
-              :style="{ color: groupState[index] ? 'white' : '#4b5563' }"></i>
+          <button class="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200
+           focus:outline-none focus:ring-0 focus:ring-offset-0" :class="(groupState[index] || closing[index])
+            ? 'bg-rv-pink text-white text-xl'
+            : 'bg-rv-pink text-white hover:bg-rv-pink text-xl hover:text-white'">
+            <i class="fas fa-chevron-down transition-transform duration-200"
+              :class="(groupState[index] || closing[index]) ? 'rotate-180' : ''"></i>
           </button>
         </div>
 
         <!-- Contenido del grupo desplegable -->
-        <transition name="fade-slide" mode="out-in">
-          <div v-if="groupState[index]" class="mt-4 overflow-x-auto">
+        <transition name="fade-slide" @before-leave="() => (closing[index] = true)"
+          @after-leave="() => (closing[index] = false)">
+          <!-- ÚNICO hijo raíz del transition -->
+          <div v-show="groupState[index]" class="mt-4 overflow-x-auto">
             <!-- Contenedor de botones centrado -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-center gap-2 mt-4 w-full">
               <button v-if="new Date(group.releaseDate) < new Date()" @click="buscarEnlacesSpotify(group.discs)"
-                class="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition-all duration-300 w-full max-w-[300px] sm:max-w-none sm:w-auto text-center self-center">
+                class="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition-all duration-200 hover:shadow-md transform hover:scale-105 w-full max-w-[300px] sm:max-w-none sm:w-auto text-center self-center">
                 Buscar enlaces en Spotify
               </button>
 
               <span class="hidden sm:inline-block w-4"></span>
 
               <button @click="exportarHtml(group)"
-                class="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition-all duration-300 w-full max-w-[300px] sm:max-w-none sm:w-auto text-center self-center">
+                class="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition-all duration-200 hover:shadow-md transform hover:scale-105 w-full max-w-[300px] sm:max-w-none sm:w-auto text-center self-center">
                 Exportar HTML de esta semana
               </button>
             </div>
 
             <!-- Lista de discos -->
-            <ul class="w-full">
+            <ul class="w-full mt-4">
               <li v-for="disc in group.discs" :key="disc.id"
                 class="flex flex-col md:flex-row md:justify-between p-4 border-b w-full">
                 <DiscComponent :disc="disc" :genres="genres" :countries="countries" @disc-deleted="removeDisc"
@@ -72,12 +74,12 @@
         </transition>
       </div>
     </div>
+    </div>
 
     <!-- Cargar más -->
     <div ref="loadMore" class="text-center py-6">
       <span v-if="loading" class="text-gray-600">Cargando discos...</span>
     </div>
-  </div>
 </template>
 
 <script lang="ts">
@@ -152,6 +154,8 @@ export default defineComponent({
         }))
         .filter((g) => g.discs.length > 0);
     });
+
+    const closing = reactive<Record<number, boolean>>({});
 
     const fetchAllPagesForMonth = async () => {
       try {
@@ -474,16 +478,13 @@ export default defineComponent({
       filteredGroupedDiscs,
       countries,
       genreOptions,
+      closing,
     };
   },
 });
 </script>
 
 <style scoped>
-h3 {
-  color: #4a5568;
-}
-
 li {
   border-bottom: 1px solid #e2e8f0;
 }
@@ -495,16 +496,18 @@ img {
 
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: all 0.6s ease;
+  transition: opacity 0.35s ease, transform 0.35s ease;
 }
 
-.fade-slide-enter-from {
-  opacity: 0;
-  transform: translateY(-15px);
-}
-
+.fade-slide-enter-from,
 .fade-slide-leave-to {
   opacity: 0;
   transform: translateY(-15px);
+}
+
+.fade-slide-enter-to,
+.fade-slide-leave-from {
+  opacity: 1;
+  transform: translateY(0);
 }
 </style>

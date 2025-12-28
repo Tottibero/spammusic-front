@@ -2,12 +2,12 @@
   <div class="main_wrapper" ref="wrapperEl">
     <!-- Trigger -->
     <div @click="toggleSearchbox" class="search_input_trigger" ref="triggerEl">
-      <p
-        :class="{
-          'text-gray-400 font-normal': !selectedText,
-          'text-gray-600 font-medium': !!selectedText
-        }"
-      >
+<p
+  :class="{
+    'text-gray-400 font-normal': !selectedText,
+    'text-rv-navy font-semibold': !!selectedText
+  }"
+>
         {{ selectedText || triggerPlaceholder }}
       </p>
       <i class="fas fa-chevron-down"></i>
@@ -371,39 +371,68 @@ export default {
   position: relative;
 }
 
-/* Trigger */
 .search_input_trigger {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-radius: 0.375rem;
-  padding: 0.3rem 0.75rem;
-  height: 28px;
+
   width: 100%;
-  font-size: 1rem;
-  background-color: #ffffff;
-  color: #000000;
+  height: 2.25rem;
+  line-height: 2.5rem;
+
+  padding: 0 1rem;
+  padding-right: .75rem;
+
+  border-radius: 9999px;
+  border: 1px solid rgb(229 231 235); 
+  background: #ffffff;
+
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .08),
+              0 1px 2px rgba(0, 0, 0, .06);
+
   cursor: pointer;
+  outline: none;
 }
 
-/* Panel del menú (se posiciona via inline style) */
+.search_input_trigger:hover {
+  border-color: var(--rv-navy, #11274a);
+}
+
+.search_input_trigger:focus,
+.search_input_trigger:focus-visible {
+  outline: none;
+  border-color: var(--rv-navy, #11274a);
+  box-shadow:
+    0 0 0 2px rgba(17, 39, 74, .35),
+    0 1px 3px rgba(0, 0, 0, .08);
+}
+
+.search_input_trigger i {
+  color: var(--rv-navy, #11274a);
+  font-size: .9rem;
+}
+
 .searchable__select {
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 0.25rem;
-  margin-top: 0.25rem;
-  /* Cuando va SIN teleport, es absolute relativo al wrapper */
-  position: absolute;
-  width: 100%;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: .5rem;
+  box-shadow: 0 10px 15px rgba(0,0,0,.1),
+              0 4px 6px rgba(0,0,0,.08);
+
+  overflow: hidden;
 }
 
-/* Input */
 .search__input {
   width: 100%;
-  padding: 0.5rem;
+  padding: .5rem .75rem;
   border: 0;
   outline: none;
-  box-sizing: border-box;
+  font-size: .875rem;
+  color: var(--rv-navy, #11274a);
+}
+
+.search__input::placeholder {
+  color: #9ca3af;
 }
 
 /* Lista */
@@ -416,23 +445,25 @@ export default {
 }
 
 .search__results li {
-  padding: 0.5rem 0.75rem;
+  padding: .5rem .75rem;
   cursor: pointer;
   text-align: left;
+  color: #111827;
 }
 
 .search__results li:hover {
-  background-color: #f0f0f0;
+  background-color: #f3f4f6;
 }
 
 .search__results li.active {
-  background-color: #d9e021 !important;
-  color: #1a202c !important;
-  font-weight: bold;
+  background-color: var(--rv-navy, #11274a) !important;
+  color: #ffffff !important;
+  font-weight: 700;
 }
 
 .search__results li.text-gray-900 {
-  color: white;
-  background-color: #374151 !important;
+  background-color: #e46e8a !important;
+  color: #ffffff !important;
+  font-weight: 600;
 }
 </style>
