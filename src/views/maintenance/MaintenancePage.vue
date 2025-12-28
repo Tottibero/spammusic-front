@@ -22,8 +22,7 @@
                 Estamos realizando mejoras en <span class="font-bold text-primary">Riff Valley</span> para brindarte una
                 mejor experiencia.
                 <br>
-                Se informará por el canal <a href="https://t.me/spammusicapp" target="_blank"
-                    class="text-blue-500 hover:underline">Telegram</a>.
+                Por favor, vuelve a intentarlo en unos minutos.
             </p>
 
             <!-- Botón Recargar -->
@@ -38,6 +37,13 @@
             </button>
 
             <!-- Footer info -->
+            <div class="mt-8 pt-6 border-t border-gray-100">
+                <p class="text-sm text-gray-400">
+                    ¿Necesitas ayuda urgente? Contáctanos en
+                    <a href="https://t.me/+82736120501" target="_blank"
+                        class="text-blue-500 hover:underline">Telegram</a>
+                </p>
+            </div>
         </div>
     </div>
 </template>
