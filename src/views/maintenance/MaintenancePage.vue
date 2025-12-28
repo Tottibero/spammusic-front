@@ -14,7 +14,7 @@
             </h1>
 
             <!-- Mensaje -->
-            <p class="text-gray-300 mb-8 text-lg leading-relaxed">
+            <p class="text-gray-800 mb-8 text-lg leading-relaxed">
                 Estamos realizando mejoras en <span class="font-bold text-primary">Riff Valley</span> para brindarte una
                 mejor experiencia.
                 <br>
@@ -24,7 +24,7 @@
 
             <!-- Botón Recargar -->
             <button @click="reloadPage"
-                class="btn btn-primary btn-lg w-full sm:w-auto min-w-[200px] shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
+                class="bg-gray-200 btn btn-primary btn-lg w-full sm:w-auto min-w-[200px] shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
