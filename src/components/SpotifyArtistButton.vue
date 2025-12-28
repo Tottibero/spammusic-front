@@ -1,7 +1,7 @@
 <template>
   <button
     @click="openArtistLink"
-    class="bg-green-500 text-white px-2 py rounded ml-2"
+    class="bg-green-500 text-white px-2 py-1.5 rounded flex items-center justify-center transition-colors hover:bg-green-600"
   >
     <i class="fa-brands fa-spotify"></i>
   </button>
@@ -40,11 +40,4 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
-button {
-  transition: background-color 0.3s ease;
-}
-button:hover {
-  background-color: #1db954;
-}
-</style>
+

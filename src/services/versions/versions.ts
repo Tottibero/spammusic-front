@@ -116,7 +116,7 @@ export const toYMD = (d: Date) => {
 
 // Última versión activa (para footer)
 export async function getLatestPublicVersion(): Promise<Version | null> {
-  const { data } = await api.get<Version | null>('/versions/public/latest');
+  const { data } = await api.get<Version | null>('/versions/production/latest');
   return data;
 }
 

@@ -5,11 +5,21 @@
     </h1>
 
     <!-- Filtros -->
-    <DiscFilters :searchQuery="searchQuery" :selectedGenre="selectedGenre" :genres="genres" :showWeekPicker="false"
+    <DiscFilters :searchQuery="searchQuery" :selectedGenre="selectedGenre" :selectedCountry="selectedCountry"
+      :genres="genres" :countries="countries" :showWeekPicker="false" :showCountryFilter="false"
       @update:searchQuery="searchQuery = $event" @update:selectedGenre="selectedGenre = $event"
-      selectClass="w-[280px] sm:w-[300px] w-full" @reset-and-fetch="resetAndFetch" />
-
+      @update:selectedCountry="selectedCountry = $event" selectClass="w-[280px] sm:w-[300px] w-full"
+      @reset-and-fetch="resetAndFetch" />
+    
     <div>
+      <div class="flex justify-center mb-4">
+        <SimpleSelect
+          v-model="selectedYear"
+          :options="yearOptions"
+          placeholder="Selecciona un año"
+          class="w-40"
+        />
+      </div>
       <div class="flex flex-wrap justify-center gap-2 mb-6 mt-6 overflow-x-auto">
         <button v-for="(month, index) in months" :key="index" @click="selectMonth(index)" class="px-4 py-2 rounded-full transition-all duration-200 whitespace-nowrap shadow-sm mb-1 font-semibold
            border-rv-navy/15
@@ -77,16 +87,18 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, reactive, computed, nextTick } from "vue";
+import { defineComponent, ref, onMounted, reactive, computed, nextTick, watch } from "vue";
 import axios from "axios";
 import { updateDisc, deleteDisc, getDiscsDated } from "@services/discs/discs";
 import { getGenres } from "@services/genres/genres";
+import { getCountries } from "@services/countries/countries";
 import DiscComponentBaby from "./components/DiscComponentBaby.vue";
 import { obtenerTokenSpotify } from "@helpers/SpotifyFunctions.ts";
 import DiscFilters from "@components/DiscFilters.vue";
+import SimpleSelect from "@components/SimpleSelect.vue";
 
 export default defineComponent({
-  components: { DiscComponent: DiscComponentBaby, DiscFilters },
+  components: { DiscComponent: DiscComponentBaby, DiscFilters, SimpleSelect },
   name: "DiscsList",
   setup() {
     const groupedDiscs = ref<any[]>([]);
@@ -108,10 +120,24 @@ export default defineComponent({
     ];
 
     const selectedMonth = ref(new Date().getMonth());
+    const selectedYear = ref(new Date().getFullYear());
+
+    const yearOptions = computed(() => {
+        const currentYear = new Date().getFullYear();
+        const currentMonth = new Date().getMonth();
+        const startYear = 2025;
+        const endYear = (currentMonth === 11 ? currentYear + 1 : currentYear);
+        const years = [];
+        for (let i = startYear; i <= endYear; i++) {
+            years.push({ value: i, label: String(i) });
+        }
+        return years;
+    });
 
     // --- Filtros ---
     const searchQuery = ref("");
     const selectedGenre = ref("");
+    const selectedCountry = ref("");
     const selectedWeek = ref<Date | null>(null);
 
     const filteredGroupedDiscs = computed(() => {
@@ -164,7 +190,7 @@ export default defineComponent({
 
     const selectMonth = async (monthIndex: number) => {
       selectedMonth.value = monthIndex;
-      const year = new Date().getFullYear();
+      const year = selectedYear.value;
       const startDate = new Date(Date.UTC(year, monthIndex, 1)).toISOString();
       const endDate = new Date(year, monthIndex + 1, 0, 23, 59, 59, 999).toISOString();
 
@@ -218,6 +244,7 @@ export default defineComponent({
     const loadMore = ref<HTMLDivElement | null>(null);
 
     const genres = ref<any[]>([]);
+    const countries = ref<any[]>([]);
     const genres2 = ref<any[]>([]);
     genres2.value = ["list", "of", "options"];
 
@@ -228,7 +255,7 @@ export default defineComponent({
 
       try {
 
-        const year = new Date().getFullYear();
+        const year = selectedYear.value;
         const startDate = new Date(
           Date.UTC(year, selectedMonth.value, 1)
         ).toISOString();
@@ -299,6 +326,17 @@ export default defineComponent({
         );
       } catch (error) {
         console.error("Error fetching genres:", error);
+      }
+    };
+
+    const fetchCountries = async () => {
+      try {
+        const countriesResponse = await getCountries(250, 0);
+        countries.value = countriesResponse.data.sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
+      } catch (error) {
+        console.error("Error fetching countries:", error);
       }
     };
 
@@ -392,6 +430,10 @@ export default defineComponent({
 
       fetchDiscs();
     };
+    
+    watch(selectedYear, () => {
+        selectMonth(selectedMonth.value);
+    });
 
     onMounted(() => {
       if (loadMore.value) {
@@ -400,6 +442,7 @@ export default defineComponent({
 
       selectMonth(new Date().getMonth());
       fetchGenres();
+      fetchCountries();
     });
 
     const observer = new IntersectionObserver((entries) => {
@@ -424,9 +467,13 @@ export default defineComponent({
       formatDate,
       searchQuery,
       selectedGenre,
+      selectedCountry,
       selectedWeek,
       resetAndFetch,
       filteredGroupedDiscs,
+      yearOptions,
+      selectedYear,
+      countries,
     };
   },
 });

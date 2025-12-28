@@ -96,6 +96,7 @@ export async function getRatesByUser(
   query?: string,
   dateRange?: any,
   genre?: string,
+  country?: string,
   type?: string,
   orderBy?: string,
 ): Promise<DiscRate[]> {
@@ -106,6 +107,7 @@ export async function getRatesByUser(
       query,
       dateRange,
       genre,
+      country,
       type,
       orderBy,
     },
@@ -196,7 +198,9 @@ export interface RatesStatsResponse {
   }[];
 }
 
-export async function getRatesStats(): Promise<RatesStatsResponse> {
-  const response = await api.get<RatesStatsResponse>("/rates/stats");
+export async function getRatesStats(year?: number): Promise<RatesStatsResponse> {
+  const response = await api.get<RatesStatsResponse>("/rates/stats", {
+    params: year ? { year } : undefined,
+  });
   return response.data;
 }

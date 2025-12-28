@@ -7,54 +7,33 @@
         <!-- Fecha de la reunión formateada -->
         <p class="text-sm text-gray-600">{{ formatDate(reunion.date) }}</p>
       </div>
-      <button
-        @click="toggleEditReunionForm"
-        class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 flex items-center"
-      >
+      <button @click="toggleEditReunionForm"
+        class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 flex items-center">
         <i class="fa-solid fa-pen-to-square"></i>
       </button>
     </div>
 
     <!-- Formulario para editar reunión -->
-    <div
-      v-if="showEditReunionForm"
-      class="bg-gray-100 p-4 rounded-lg shadow-md mb-6"
-    >
+    <div v-if="showEditReunionForm" class="bg-gray-100 p-4 rounded-lg shadow-md mb-6">
       <h3 class="text-lg font-semibold mb-4">Editar Reunión</h3>
       <form @submit.prevent="updateReunionFunction" class="space-y-4">
         <div>
-          <label for="titulo-reunion" class="block font-medium">Título</label>
-          <input
-            v-model="reunion.title"
-            type="text"
-            id="titulo-reunion"
-            class="w-full p-2 border border-gray-300 rounded-lg"
-            placeholder="Ingresa el título de la reunión"
-            required
-          />
+          <label for="title-reunion" class="block font-medium">Título</label>
+          <input v-model="reunion.title" type="text" id="title-reunion"
+            class="w-full p-2 border border-gray-300 rounded-lg" placeholder="Ingresa el título de la reunión"
+            required />
         </div>
         <div>
-          <label for="fecha-reunion" class="block font-medium">Fecha</label>
-          <input
-            v-model="reunion.date"
-            type="datetime-local"
-            id="fecha-reunion"
-            class="w-full p-2 border border-gray-300 rounded-lg"
-            required
-          />
+          <label for="date-reunion" class="block font-medium">Fecha</label>
+          <input v-model="reunion.date" type="datetime-local" id="date-reunion"
+            class="w-full p-2 border border-gray-300 rounded-lg" required />
         </div>
         <div class="flex justify-end space-x-4">
-          <button
-            type="button"
-            @click="toggleEditReunionForm"
-            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-          >
+          <button type="button" @click="toggleEditReunionForm"
+            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
             Cancelar
           </button>
-          <button
-            type="submit"
-            class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
-          >
+          <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
             Guardar Cambios
           </button>
         </div>
@@ -64,54 +43,32 @@
     <!-- Sección de puntos de la reunión -->
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-bold">Puntos de la Reunión</h2>
-      <button
-        @click="toggleNewPointForm"
-        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center"
-      >
+      <button @click="toggleNewPointForm"
+        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center">
         <i class="text-sm font-bold">Añadir punto</i>
       </button>
     </div>
 
     <!-- Formulario para añadir un nuevo punto -->
-    <div
-      v-if="showNewPointForm"
-      class="bg-gray-100 p-4 rounded-lg shadow-md mb-6"
-    >
+    <div v-if="showNewPointForm" class="bg-gray-100 p-4 rounded-lg shadow-md mb-6">
       <h3 class="text-lg font-semibold mb-4">Añadir Nuevo Punto</h3>
       <form @submit.prevent="addPoint" class="space-y-4">
         <div>
           <label for="new-titulo" class="block font-medium">Título</label>
-          <input
-            v-model="newPoint.titulo" 
-            type="text"
-            id="new-titulo"
-            class="w-full p-2 border border-gray-300 rounded-lg"
-            placeholder="Ingresa el título del punto"
-            required
-          />
+          <input v-model="newPoint.titulo" type="text" id="new-titulo"
+            class="w-full p-2 border border-gray-300 rounded-lg" placeholder="Ingresa el título del punto" required />
         </div>
         <div>
           <label for="new-content" class="block font-medium">Contenido</label>
-          <textarea
-            v-model="newPoint.content"
-            id="new-content"
-            class="w-full p-2 border border-gray-300 rounded-lg"
-            placeholder="Ingresa el contenido del punto"
-            rows="3"
-          ></textarea>
+          <textarea v-model="newPoint.content" id="new-content" class="w-full p-2 border border-gray-300 rounded-lg"
+            placeholder="Ingresa el contenido del punto" rows="3"></textarea>
         </div>
         <div class="flex justify-end space-x-4">
-          <button
-            type="button"
-            @click="toggleNewPointForm"
-            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-          >
+          <button type="button" @click="toggleNewPointForm"
+            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
             Cancelar
           </button>
-          <button
-            type="submit"
-            class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
-          >
+          <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
             Añadir Punto
           </button>
         </div>
@@ -120,89 +77,55 @@
 
     <!-- Listado de puntos -->
     <ul class="space-y-4">
-      <li
-        v-for="(point, index) in points"
-        :key="point.id"
-        class="border border-gray-300 rounded-lg p-4 bg-white shadow-md"
-      >
+      <li v-for="(point, index) in points" :key="point.id"
+        class="border border-gray-300 rounded-lg p-4 bg-white shadow-md">
         <div class="flex justify-between items-center">
           <div class="flex items-center space-x-3">
-            <input
-              type="checkbox"
-              :checked="point.done"
-              @change="togglePointDone(point.id, $event.target.checked)"
-              class="form-checkbox h-6 w-6 text-blue-600"
-            />
+            <input type="checkbox" :checked="point.done" @change="togglePointDone(point.id, $event.target.checked)"
+              class="form-checkbox h-6 w-6 text-blue-600" />
             <strong class="text-ml">{{ point.titulo }}</strong>
           </div>
           <div class="flex space-x-2">
-            <button
-              @click="toggleEditPointForm(index)"
-              class="px-3 py-1 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 flex items-center"
-            >
+            <button @click="toggleEditPointForm(index)"
+              class="px-3 py-1 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 flex items-center">
               <i class="fa-solid fa-pen-to-square"></i>
             </button>
-            <button
-              @click="deletePoint(point.id)"
-              class="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 flex items-center"
-            >
+            <button @click="deletePoint(point.id)"
+              class="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 flex items-center">
               <i class="fa-solid fa-trash"></i>
             </button>
-            <button
-              @click="toggleContentVisibility(index)"
-              class="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center"
-            >
-            <i :class="point.showContent ? 'fa-solid fa-minus' : 'fa-solid fa-chevron-down'"></i>
-          </button>
+            <button @click="toggleContentVisibility(index)"
+              class="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center">
+              <i :class="point.showContent ? 'fa-solid fa-minus' : 'fa-solid fa-chevron-down'"></i>
+            </button>
           </div>
         </div>
 
         <!-- Contenido del punto -->
-        <div
-          v-if="point.showContent"
-          class="mt-4 bg-gray-100 p-4 rounded-lg"
-        >
-        <p class="text-gray-600" v-html="formatContent(point.content)"></p>
+        <div v-if="point.showContent" class="mt-4 bg-gray-100 p-4 rounded-lg">
+          <p class="text-gray-600" v-html="formatContent(point.content)"></p>
         </div>
 
         <!-- Formulario para editar punto -->
-        <div
-          v-if="editingIndex === index"
-          class="mt-4 bg-gray-100 p-4 rounded-lg shadow-md"
-        >
+        <div v-if="editingIndex === index" class="mt-4 bg-gray-100 p-4 rounded-lg shadow-md">
           <h4 class="font-semibold mb-4">Editar Punto</h4>
           <form @submit.prevent="updatePointReunion(editPointData.id, index)" class="space-y-4">
             <div>
               <label for="edit-titulo" class="block font-medium">Título</label>
-              <input
-                v-model="editPointData.titulo"
-                type="text"
-                id="edit-titulo"
-                class="w-full p-2 border border-gray-300 rounded-lg"
-                required
-              />
+              <input v-model="editPointData.titulo" type="text" id="edit-titulo"
+                class="w-full p-2 border border-gray-300 rounded-lg" required />
             </div>
             <div>
               <label for="edit-content" class="block font-medium">Contenido</label>
-              <textarea
-                v-model="editPointData.content"
-                id="edit-content"
-                class="w-full p-2 border border-gray-300 rounded-lg"
-                rows="3"
-              ></textarea>
+              <textarea v-model="editPointData.content" id="edit-content"
+                class="w-full p-2 border border-gray-300 rounded-lg" rows="3"></textarea>
             </div>
             <div class="flex justify-end space-x-4">
-              <button
-                type="button"
-                @click="cancelEdit"
-                class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-              >
+              <button type="button" @click="cancelEdit"
+                class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
                 Cancelar
               </button>
-              <button
-                type="submit"
-                class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
-              >
+              <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
                 Guardar Cambios
               </button>
             </div>
@@ -251,8 +174,8 @@ export default defineComponent({
     });
 
     const formatContent = (text) => {
-  return text.replace(/\n/g, "<br>");
-};
+      return text.replace(/\n/g, "<br>");
+    };
 
     const formatDate = (dateString) => {
       return new Date(dateString).toLocaleString();
@@ -416,6 +339,7 @@ export default defineComponent({
   cursor: pointer;
   transition: background-color 0.2s;
 }
+
 .form-checkbox:checked {
   background-color: #3b82f6;
   border-color: #3b82f6;

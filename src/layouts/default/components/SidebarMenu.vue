@@ -80,7 +80,41 @@
 
             <ul>
               <li v-for="route in filteredRiffValleyRoutes" :key="route.to" class="mt-1">
-                <router-link :to="route.to" class="flex items-center justify-start py-2 pl-8 pr-4 text-sm font-medium rounded-primary
+
+                <!-- CON HIJOS (ej: Discos) -->
+                <div v-if="route.children && route.children.length > 0">
+                  <details class="group/child">
+                    <summary class="flex items-center justify-start py-2 pl-8 pr-4 text-sm font-medium rounded-primary
+             transition-all duration-300
+             hover:bg-gray-700 hover:text-white cursor-pointer list-none">
+                      <div class="flex items-center justify-between w-full">
+                        <div class="flex items-center">
+                          <i :class="[route.icon, 'text-base w-5 text-center mr-3']"></i>
+                          {{ route.label }}
+                        </div>
+
+                        <i class="fa-solid fa-chevron-down text-[10px]
+                  transition-transform duration-200
+                  group-open/child:rotate-180"></i>
+                      </div>
+                    </summary>
+
+                    <ul>
+                      <li v-for="child in route.children" :key="child.to" class="mt-1">
+                        <router-link :to="child.to" class="flex items-center justify-start py-2 pl-12 pr-4 text-sm font-medium rounded-primary
+                 transition-all duration-300
+                 hover:bg-gray-700 hover:text-white"
+                          :active-class="'bg-gradient-to-r from-[#2f66c9] to-[#0064d6] text-white'" @click="closeMenu">
+                          <i :class="[child.icon, 'text-base w-5 text-center mr-3']"></i>
+                          {{ child.label }}
+                        </router-link>
+                      </li>
+                    </ul>
+                  </details>
+                </div>
+
+                <!-- SIN HIJOS (ej: Calendario, Reuniones) -->
+                <router-link v-else :to="route.to" class="flex items-center justify-start py-2 pl-8 pr-4 text-sm font-medium rounded-primary
                  transition-all duration-300
                  hover:bg-gray-700 hover:text-white"
                   :active-class="'bg-gradient-to-r from-[#2f66c9] to-[#0064d6] text-white'" @click="closeMenu">
@@ -174,6 +208,14 @@
       </ul>
     </div>
 
+    <!-- Version link -->
+    <div class="flex justify-end px-4 mb-2 shrink-0">
+      <router-link to="/patch-notes"
+        class="text-xs font-medium text-white/50 hover:text-white transition-colors uppercase tracking-wider">
+        {{ versionDisplay }}
+      </router-link>
+    </div>
+
     <!-- Divider corporativo -->
     <div class="h-[1px] w-full bg-rv-gradient"></div>
 
@@ -192,9 +234,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, watch, ref, onMounted } from 'vue';
+import { defineComponent, computed, ref, onMounted } from 'vue';
 import { useAuthStore } from '@stores/auth/auth.ts';
-import { getLatestProductionVersion } from '@services/versions/versions';
+import { getLatestPublicVersion } from '@services/versions/versions';
 import routesData from './routes.json';
 
 // Tipo actualizado con 'new-discs'
@@ -214,7 +256,7 @@ export default defineComponent({
     menuVisible: { type: Boolean, required: true },
   },
   emits: ['close-menu'],
-  setup(props, { emit }) {
+  setup(_, { emit }) {
     const authStore = useAuthStore();
     const allRoutes = routesData as AppRoute[];
     const latestVersion = ref<string | null>(null);
@@ -262,14 +304,21 @@ export default defineComponent({
       filterByRole(allRoutes.filter((r) => r.type === 'bottom'))
     );
 
-    // Fetch latest production version
+    // Fetch latest public version
     onMounted(async () => {
-      latestVersion.value = await getLatestProductionVersion();
+      try {
+        const data = await getLatestPublicVersion();
+        if (data) {
+          latestVersion.value = data.version;
+        }
+      } catch (e) {
+        console.error(e);
+      }
     });
 
     // Computed version display with fallback
     const versionDisplay = computed(() => {
-      return latestVersion.value ? `version ${latestVersion.value}` : 'version -';
+      return latestVersion.value ? `version ${latestVersion.value}` : 'version-';
     });
 
     return {

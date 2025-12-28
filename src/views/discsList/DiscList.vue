@@ -5,8 +5,9 @@
 </h1>
 
     <DiscFilters :searchQuery="searchQuery" :selectedGenre="selectedGenre" :selectedWeek="selectedWeek" :genres="genres"
-      @update:searchQuery="searchQuery = $event" @update:selectedGenre="selectedGenre = $event"
-      @update:selectedWeek="selectedWeek = $event" selectClass="w-full" wrapperClass=""
+      :selectedCountry="selectedCountry" :countries="countries" @update:searchQuery="searchQuery = $event"
+      @update:selectedGenre="selectedGenre = $event" @update:selectedWeek="selectedWeek = $event"
+      @update:selectedCountry="selectedCountry = $event" selectClass="w-full" wrapperClass=""
       @resetAndFetch="resetAndFetch" />
 
     <div class="filters-wrap flex justify-start space-x-2 mb-6">
@@ -58,7 +59,7 @@
       </label>
     </div>
     <!-- donde hoy tienes el select de orden -->
-    <div v-if="viewMode === 'rates' || viewMode === 'covers' || viewMode === 'favorites'"
+    <div v-if="viewMode === 'all' || viewMode === 'rates' || viewMode === 'covers' || viewMode === 'favorites'"
       class="mb-6 flex justify-start">
       <SimpleSelect class="select-pill w-full md:w-64" v-model="orderBy" :options="orderOptionsForTab"
         :placeholder="'Ordenar por'" />
@@ -88,6 +89,7 @@ import { getDiscs } from "@services/discs/discs";
 import DiscCard from "@components/DiscCardComponent.vue";
 import Datepicker from "@vuepic/vue-datepicker";
 import { getGenres } from "@services/genres/genres";
+import { getCountries } from "@services/countries/countries";
 import { getRatesByUser } from "@services/rates/rates";
 import { getFavoritesByUser } from "@services/favorites/favorites";
 import { getPendingsByUser } from "@services/pendings/pendings";
@@ -104,7 +106,7 @@ export default defineComponent({
     SimpleSelect,
   },
   setup() {
-    const discs = ref([]);
+    const discs = ref<any[]>([]);
     const limit = ref(20);
     const offset = ref(0);
     const totalItems = ref(0);
@@ -123,6 +125,10 @@ export default defineComponent({
     const selectedWeek = ref(null);
     const genres = ref<any[]>([]);
     const selectedGenre = ref("");
+    const countries = ref<any[]>([]);
+    const selectedCountry = ref("");
+    const countriesLoaded = ref(false);
+    const menuVisible = ref(false);
 
     const orderBy = ref<string>("disc.releaseDate:DESC,artist.name:ASC");
     const orderOptions = [
@@ -155,6 +161,11 @@ export default defineComponent({
       }
     };
 
+    const fetchCountries = async () => {
+      const countriesResponse = await getCountries(250, 0);
+      countries.value = countriesResponse.data.sort((a, b) => a.name.localeCompare(b.name));
+    };
+
     const fetchData = async (reset = false) => {
       let type;
       if (loading.value) return;
@@ -181,6 +192,7 @@ export default defineComponent({
             searchQuery.value,
             selectedWeek.value,
             selectedGenre.value,
+            selectedCountry.value,
             type,
             orderBy.value
           );
@@ -209,6 +221,7 @@ export default defineComponent({
             searchQuery.value,
             selectedWeek.value,
             selectedGenre.value,
+            selectedCountry.value,
             type,
             orderBy.value
           );
@@ -236,6 +249,7 @@ export default defineComponent({
             searchQuery.value,
             selectedWeek.value,
             selectedGenre.value,
+            selectedCountry.value,
             type,
             orderBy.value
           );
@@ -269,7 +283,8 @@ export default defineComponent({
             offset.value,
             searchQuery.value,
             selectedWeek.value,
-            selectedGenre.value
+            selectedGenre.value,
+            selectedCountry.value
           );
           totalPendings.value = response.totalItems;
           discs.value.push(
@@ -292,12 +307,26 @@ export default defineComponent({
             }))
           );
         } else {
+          let voted;
+          let votedType;
+          let actualOrderBy = orderBy.value;
+
+          if (orderBy.value.startsWith("UNVOTED:")) {
+            voted = false;
+            votedType = orderBy.value.split(":")[1];
+            actualOrderBy = "disc.releaseDate:DESC,artist.name:ASC";
+          }
+
           response = await getDiscs(
             limit.value,
             offset.value,
             searchQuery.value,
             selectedWeek.value,
-            selectedGenre.value
+            selectedGenre.value,
+            selectedCountry.value,
+            actualOrderBy,
+            voted,
+            votedType
           );
           totalDisc.value = response.totalItems;
           discs.value.push(...response.data);
@@ -320,6 +349,8 @@ export default defineComponent({
       RATE_ASC: { label: "Nota", value: "rate.rate:ASC,disc.releaseDate:DESC", icon: "down" },
       COVER_DESC: { label: "Portada", value: "rate.cover:DESC,artist.name:ASC", icon: "up" },
       COVER_ASC: { label: "Portada", value: "rate.cover:ASC,artist.name:ASC", icon: "down" },
+      UNVOTED_RATE: { label: "Discos sin votar", value: "UNVOTED:rate" },
+      UNVOTED_COVER: { label: "Portadas sin votar", value: "UNVOTED:cover" },
     };
 
     const defaultOrderByForTab = computed(() => {
@@ -340,7 +371,7 @@ export default defineComponent({
         case "favorites":
           return [ORDER.NEWS_DESC, ORDER.DATE_ASC, ORDER.RATE_DESC, ORDER.RATE_ASC, ORDER.COVER_DESC, ORDER.COVER_ASC];
         default:
-          return [];
+          return [ORDER.NEWS_DESC, ORDER.DATE_ASC, ORDER.UNVOTED_RATE, ORDER.UNVOTED_COVER];
       }
     });
 
@@ -359,12 +390,13 @@ export default defineComponent({
       orderBy.value = defaultOrderByForTab.value;
     });
 
-    watch([viewMode, searchQuery, selectedWeek, selectedGenre, orderBy], () => {
+    watch([viewMode, searchQuery, selectedWeek, selectedGenre, selectedCountry, orderBy], () => {
       resetAndFetch();
     });
 
     onMounted(() => {
       fetchGenres();
+      fetchCountries();
       fetchData();
       setupObserver();
     });
@@ -380,8 +412,12 @@ export default defineComponent({
       searchQuery,
       selectedWeek,
       selectedGenre,
+      selectedCountry,
       genres,
+      countries,
       viewMode,
+      menuVisible,
+      countriesLoaded,
       loadMore,
       totalDisc,
       totalRates,

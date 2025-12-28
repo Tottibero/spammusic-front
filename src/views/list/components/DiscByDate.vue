@@ -1,7 +1,7 @@
 <template>
   <div class="max-w-7xl mx-auto mt-10">
     <h3 class="text-2xl font-bold mb-8 text-center">
-      Discs for {{ type === "month" ? "Month" : "Week" }}: {{ formattedDate }}
+      Discs for {{ ["month", "video"].includes(type) ? "Month" : "Week" }}: {{ formattedDate }}
     </h3>
 
     <!-- Filtros -->
@@ -127,7 +127,7 @@ export default defineComponent({
     type: {
       type: String,
       required: true,
-      validator: (value: string) => ["week", "month"].includes(value),
+      validator: (value: string) => ["week", "month", "video"].includes(value),
     },
     artistCountry: {
       type: Object as PropType<{ id: string; name: string; isoCode: string }>,
@@ -224,7 +224,7 @@ export default defineComponent({
                 )
               ).toLocaleDateString()
               : null,
-          releaseDate: props.type === "month" ? group.releaseDate : null,
+          releaseDate: ["month", "video"].includes(props.type) ? group.releaseDate : null,
           discs: group.discs,
         }));
 

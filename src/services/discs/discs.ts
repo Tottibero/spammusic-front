@@ -43,10 +43,16 @@ export interface DiscsStatsResponse {
 export async function getDiscsDated(
   limit: number,
   offset: number,
-  dateRange?: any
+  dateRange?: any,
+  country?: string
 ): Promise<DiscsResponse> {
   const response = await api.get<DiscsResponse>("/discs/date", {
-    params: { limit, offset, dateRange }, // Pasa limit y offset como parámetros
+    params: {
+      limit,
+      offset,
+      dateRange,
+      ...(country && { country, countryId: country })
+    },
   });
 
   return response.data;
@@ -57,7 +63,11 @@ export async function getDiscs(
   offset: number,
   query?: string,
   dateRange?: any,
-  genre?: string
+  genre?: string,
+  country?: string,
+  orderBy?: string,
+  voted?: boolean,
+  votedType?: string
 ): Promise<DiscsResponse> {
   const response = await api.get<DiscsResponse>("/discs", {
     params: {
@@ -65,7 +75,12 @@ export async function getDiscs(
       offset,
       query, // Incluye el query en los parámetros si está definido
       dateRange,
-      genre
+      genre,
+      country,
+      orderBy,
+      voted,
+      votedType,
+      ...(country && { countryId: country })
     },
   });
   return response.data;
@@ -96,11 +111,12 @@ export async function deleteDisc(id: string): Promise<void> {
   await api.delete(`/discs/${id}`);
 }
 
-export async function getTopRatedOrFeaturedAndStats(dateRange?: [string, string], genreId?: string): Promise<DiscsStatsResponse> {
+export async function getTopRatedOrFeaturedAndStats(dateRange?: [string, string], genreId?: string, country?: string): Promise<DiscsStatsResponse> {
   const response = await api.get<DiscsStatsResponse>("/discs/homeDiscs", {
     params: {
-      ...(dateRange && { dateRange }),
-      ...(genreId && { genreId })
+      ...((dateRange) && { dateRange }),
+      ...((genreId) && { genreId }),
+      ...((country) && { country, countryId: country })
     },
   });
   return response.data;

@@ -62,6 +62,12 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresAuth: true, requiresRole: "riffValley" },
   },
   {
+    path: "/content-calendar",
+    name: "ContentCalendar",
+    component: () => import("/src/views/contentCalendar/ContentCalendar.vue"),
+    meta: { requiresAuth: true, requiresRole: "riffValley" },
+  },
+  {
     path: "/articles",
     name: "Articles",
     component: () => import("/src/views/articles/ArticlesList.vue"),
@@ -175,6 +181,49 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("/src/views/patch-notes/PatchNotes.vue"),
     meta: { requiresAuth: true },
   },
+  {
+    path: "/discos/radar",
+    name: "RadarNovedades",
+    component: () => import("/src/views/discos/RadarNovedades.vue"),
+    meta: { requiresAuth: true, requiresRole: "riffValley" },
+  },
+  {
+    path: "/discos/radar/:id",
+    name: "RadarDetalle",
+    component: () => import("/src/views/discos/RadarDetalle.vue"),
+    meta: { requiresAuth: true, requiresRole: "riffValley" },
+  },
+  {
+    path: "/discos/mejores",
+    name: "MejoresDiscos",
+    component: () => import("/src/views/discos/MejoresDiscos.vue"),
+    meta: { requiresAuth: true, requiresRole: "riffValley" },
+  },
+  {
+    path: "/discos/mejores/:id",
+    name: "MejoresDetalle",
+    component: () => import("/src/views/discos/MejoresDetalle.vue"),
+    meta: { requiresAuth: true, requiresRole: "riffValley" },
+  },
+  {
+    path: "/videos",
+    name: "VideoLists",
+    component: () => import("/src/views/videos/VideoLists.vue"),
+    meta: { requiresAuth: true, requiresRole: "riffValley" },
+  },
+  {
+    path: "/videos/:id",
+    name: "VideoDetalle",
+    component: () => import("/src/views/videos/VideoDetalle.vue"),
+    meta: { requiresAuth: true, requiresRole: "riffValley" },
+  },
+  {
+    path: "/maintenance",
+    name: "Maintenance",
+    component: () => import("/src/views/maintenance/MaintenancePage.vue"),
+    meta: { requiresAuth: false },
+  },
+
 
 ];
 
@@ -185,6 +234,24 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   const authStore = useAuthStore();
+
+  // 1. Lógica de Mantenimiento
+  // Puedes activar esto con la variable de entorno VITE_MAINTENANCE_MODE=true
+  // O descomentar la verificación por hostname si prefieres esa lógica específica
+  // const isProdUrl = window.location.hostname === 'spammusic.netlify.app';
+  const isMaintenance = import.meta.env.VITE_MAINTENANCE_MODE === 'true'; // || isProdUrl;
+
+  if (isMaintenance) {
+    // Si estamos en mantenimiento, permitir solo acceso a la página de mantenimiento
+    if (to.name !== 'Maintenance') {
+      return { name: "Maintenance" };
+    }
+  } else {
+    // Si NO estamos en mantenimiento, redirigir fuera de la página de mantenimiento si intentan acceder
+    if (to.name === 'Maintenance') {
+      return { name: "Home" };
+    }
+  }
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     return { name: "Login" };
