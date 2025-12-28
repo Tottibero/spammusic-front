@@ -73,10 +73,17 @@
     </div>
 
     <!-- Modal con backdrop blur -->
-    <dialog ref="modalRef" class="modal backdrop-blur-sm">
-      <div class="modal-box max-w-4xl max-h-[85vh] overflow-y-auto shadow-2xl p-8" v-if="selectedVersion">
-        <!-- Botón cerrar en esquina superior derecha -->
-        <button @click="closeModal" class="btn btn-sm btn-circle btn-ghost absolute right-4 top-4">
+    <!-- Modal Custom Overlay -->
+    <div v-if="selectedVersion"
+      class="fixed inset-0 z-50 flex items-center justify-center md:left-72 transition-opacity duration-300">
+      <!-- Backdrop -->
+      <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" @click="closeModal"></div>
+
+      <!-- Modal Content -->
+      <div
+        class="relative bg-white rounded-box max-w-4xl w-full max-h-[85vh] overflow-y-auto shadow-2xl p-8 m-4 animate-fade-in-up">
+        <!-- Botón cerrar -->
+        <button @click="closeModal" class="btn btn-sm btn-circle btn-ghost absolute right-4 top-4 z-10">
           ✕
         </button>
 
@@ -86,7 +93,6 @@
             <h2 class="text-4xl font-bold text-gray-800">
               v{{ selectedVersion.version }}
             </h2>
-            <!-- Telegram link después del título -->
             <a v-if="selectedVersion.link" :href="selectedVersion.link" target="_blank" rel="noopener noreferrer"
               class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-base font-semibold shadow-md hover:shadow-lg"
               title="Ver en Telegram">
@@ -143,10 +149,7 @@
           <span>No hay cambios registrados para esta versión</span>
         </div>
       </div>
-
-      <!-- Fondo del modal (clickeable para cerrar) con backdrop blur -->
-      <div class="modal-backdrop bg-black/30 backdrop-blur-sm" @click="closeModal"></div>
-    </dialog>
+    </div>
   </div>
 </template>
 
@@ -163,7 +166,7 @@ export default defineComponent({
     const currentPage = ref(1);
     const totalPages = ref(1);
     const loadMoreTrigger = ref<HTMLElement | null>(null);
-    const modalRef = ref<HTMLDialogElement | null>(null);
+    // const modalRef = ref<HTMLDialogElement | null>(null); // Removed
     const selectedVersion = ref<Version | null>(null);
 
     const hasMore = ref(false);
@@ -206,11 +209,10 @@ export default defineComponent({
     // Modal functions
     const openModal = (version: Version) => {
       selectedVersion.value = version;
-      modalRef.value?.showModal();
     };
 
     const closeModal = () => {
-      modalRef.value?.close();
+      selectedVersion.value = null;
     };
 
     // Intersection Observer para scroll infinito
@@ -339,7 +341,6 @@ export default defineComponent({
       hasMore,
       loadMoreTrigger,
       loadMore,
-      modalRef,
       selectedVersion,
       openModal,
       closeModal,

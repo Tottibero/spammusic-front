@@ -80,7 +80,7 @@
 
             <ul>
               <li v-for="route in filteredRiffValleyRoutes" :key="route.to" class="mt-1">
-                
+
                 <!-- CON HIJOS (ej: Discos) -->
                 <div v-if="route.children && route.children.length > 0">
                   <details class="group/child">
@@ -192,7 +192,7 @@
           </details>
         </li>
 
-        
+
 
         <li v-if="filteredBottomRoutes.length > 0" class="my-2 border-t border-gray-700/50"></li>
 
@@ -209,10 +209,19 @@
       </ul>
     </div>
 
+    <!-- Version link -->
+    <div class="flex justify-end px-4 mb-2 shrink-0">
+      <router-link to="/patch-notes"
+        class="text-xs font-medium text-white/50 hover:text-white transition-colors uppercase tracking-wider">
+        {{ versionDisplay }}
+      </router-link>
+    </div>
+
     <!-- Divider corporativo -->
     <div class="h-[1px] w-full bg-rv-gradient"></div>
 
     <div class="p-2 shrink-0">
+
       <button @click="handleLogout" class="w-full bg-transparent flex items-center justify-start py-2 px-4 text-sm font-medium rounded-primary
          transition-all duration-300
          border-0 outline-none focus:outline-none focus-visible:outline-none
@@ -227,9 +236,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, watch, ref, onMounted } from 'vue';
+import { defineComponent, computed, ref, onMounted } from 'vue';
 import { useAuthStore } from '@stores/auth/auth.ts';
-import { getLatestProductionVersion } from '@services/versions/versions';
+import { getLatestPublicVersion } from '@services/versions/versions';
 import routesData from './routes.json';
 
 // Tipo actualizado con 'new-discs'
@@ -249,7 +258,7 @@ export default defineComponent({
     menuVisible: { type: Boolean, required: true },
   },
   emits: ['close-menu'],
-  setup(props, { emit }) {
+  setup(_, { emit }) {
     const authStore = useAuthStore();
     const allRoutes = routesData as AppRoute[];
     const latestVersion = ref<string | null>(null);
@@ -297,14 +306,21 @@ export default defineComponent({
       filterByRole(allRoutes.filter((r) => r.type === 'bottom'))
     );
 
-    // Fetch latest production version
+    // Fetch latest public version
     onMounted(async () => {
-      latestVersion.value = await getLatestProductionVersion();
+      try {
+        const data = await getLatestPublicVersion();
+        if (data) {
+          latestVersion.value = data.version;
+        }
+      } catch (e) {
+        console.error(e);
+      }
     });
 
     // Computed version display with fallback
     const versionDisplay = computed(() => {
-      return latestVersion.value ? `version ${latestVersion.value}` : 'version -';
+      return latestVersion.value ? `version ${latestVersion.value}` : 'version-';
     });
 
     return {
