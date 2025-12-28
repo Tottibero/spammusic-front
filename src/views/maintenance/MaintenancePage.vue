@@ -6,19 +6,15 @@
                 <div class="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mx-auto">
                     <span class="text-6xl">🛠️</span>
                 </div>
-                <!-- Decoración -->
-                <div class="absolute top-0 right-1/4 animate-bounce-slow">
-                    <span class="text-2xl">⚙️</span>
-                </div>
             </div>
 
             <!-- Título -->
             <h1 class="text-3xl font-bold text-gray-800 mb-4">
-                Mantenimiento Programado
+                Mantenimiento
             </h1>
 
             <!-- Mensaje -->
-            <p class="text-gray-600 mb-8 text-lg leading-relaxed">
+            <p class="text-gray-300 mb-8 text-lg leading-relaxed">
                 Estamos realizando mejoras en <span class="font-bold text-primary">Riff Valley</span> para brindarte una
                 mejor experiencia.
                 <br>
@@ -40,8 +36,8 @@
             <!-- Footer info -->
             <div class="mt-8 pt-6 border-t border-gray-100">
                 <p class="text-sm text-gray-400">
-                    ¿Necesitas ayuda urgente? Contáctanos en
-                    <a href="https://t.me/+zVadIcsfRKw2ZmQ0" target="_blank"
+                    ¿Necesitas ayuda? Contáctanos en
+                    <a href="https://t.me/+82736120501" target="_blank"
                         class="text-blue-500 hover:underline">Telegram</a>
                 </p>
             </div>
