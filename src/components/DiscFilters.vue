@@ -1,83 +1,121 @@
 <template>
-<div
-  class="mb-4 gap-0 filters-pills"
-  :class="[
-    wrapperClass,
-    externalRow1 ? 'contents' : 'flex flex-col'
-  ]"
->
-<!-- Fila 1: Buscar + Género -->
-<div v-if="externalRow1" class="contents">
-  <input
-    v-if="showSearchQuery"
-    v-model="searchQuery"
-    type="text"
-    placeholder="Buscar álbum o artista..."
-    class="pill-control w-full min-w-0"
-  />
+  <div
+    class="mb-4 gap-0 filters-pills"
+    :class="[
+      wrapperClass,
+      externalRow1 ? 'contents' : 'flex flex-col'
+    ]"
+  >
+    <!-- Fila 1: Buscar + País + Género -->
+    <div v-if="externalRow1" class="contents">
+      <input
+        v-if="showSearchQuery"
+        v-model="searchQuery"
+        type="text"
+        placeholder="Buscar álbum o artista..."
+        class="pill-control w-full min-w-0"
+      />
 
-  <SearchableSelect
-    v-if="showCountryFilter"
-    v-model="selectedCountry"
-    :options="countries"
-    placeholder="Buscar país..."
-    triggerPlaceholder="Selecciona un país"
-    allLabel="Todos los países"
-    title="name"
-    trackby="id"
-    :max="150"
-    class="select-pill w-full min-w-0"
-    :class="selectClass"
-  />
+      <SearchableSelect
+        v-if="showCountryFilter"
+        v-model="selectedCountry"
+        :options="countries"
+        placeholder="Buscar país..."
+        triggerPlaceholder="Selecciona un país"
+        allLabel="Todos los países"
+        title="name"
+        trackby="id"
+        :max="150"
+        class="select-pill w-full min-w-0"
+        :class="selectClass"
+      />
 
-  <SearchableSelect
-    v-model="selectedGenre"
-    :options="genres"
-    placeholder="Selecciona un género"
-    title="name"
-    trackby="id"
-    :max="150"
-    class="select-pill w-full min-w-0"
-    :class="selectClass"
-  />
-</div>
+      <SearchableSelect
+        v-model="selectedGenre"
+        :options="genres"
+        placeholder="Selecciona un género"
+        title="name"
+        trackby="id"
+        :max="150"
+        class="select-pill w-full min-w-0"
+        :class="selectClass"
+      />
+    </div>
 
-<div v-else class="grid grid-cols-1 md:grid-cols-3 gap-2">
-  <input
-    v-if="showSearchQuery"
-    v-model="searchQuery"
-    type="text"
-    placeholder="Buscar álbum o artista..."
-    class="pill-control"
-  />
+    <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-2">
+      <input
+        v-if="showSearchQuery"
+        v-model="searchQuery"
+        type="text"
+        placeholder="Buscar álbum o artista..."
+        class="pill-control"
+      />
 
-  <SearchableSelect
-    v-if="showCountryFilter"
-    v-model="selectedCountry"
-    :options="countries"
-    placeholder="Buscar país..."
-    triggerPlaceholder="Selecciona un país"
-    allLabel="Todos los países"
-    title="name"
-    trackby="id"
-    :max="150"
-    class="select-pill w-full"
-    :class="selectClass"
-  />
+      <SearchableSelect
+        v-if="showCountryFilter"
+        v-model="selectedCountry"
+        :options="countries"
+        placeholder="Buscar país..."
+        triggerPlaceholder="Selecciona un país"
+        allLabel="Todos los países"
+        title="name"
+        trackby="id"
+        :max="150"
+        class="select-pill w-full"
+        :class="selectClass"
+      />
 
-  <SearchableSelect
-    v-model="selectedGenre"
-    :options="genres"
-    placeholder="Selecciona un género"
-    title="name"
-    trackby="id"
-    :max="150"
-    class="select-pill w-full"
-    :class="selectClass"
-  />
-</div>
-</div>
+      <SearchableSelect
+        v-model="selectedGenre"
+        :options="genres"
+        placeholder="Selecciona un género"
+        title="name"
+        trackby="id"
+        :max="150"
+        class="select-pill w-full"
+        :class="selectClass"
+      />
+    </div>
+
+    <!-- Fila 2: Año / Mes / Semana (vuelve a estar donde estaba) -->
+    <div
+      v-if="showWeekPicker"
+      class="mt-4 mb-2"
+      :class="externalRow1 ? 'col-span-full' : ''"
+    >
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+        <!-- AÑO -->
+        <SimpleSelect
+          class="select-pill w-full"
+          :options="yearsOptions"
+          v-model="weeksYear"
+          :group-label="weeksYear === 0 ? 'Año – Todos' : `Año – ${weeksYear}`"
+          placeholder="Año"
+        />
+
+        <!-- MES -->
+        <SimpleSelect
+          v-if="weeksYear !== 0"
+          class="select-pill w-full"
+          :options="monthsOptions"
+          v-model="weeksMonth"
+          placeholder="Mes"
+        />
+
+        <!-- SEMANAS -->
+        <SimpleSelect
+          v-if="weeksYear !== 0 && weeksMonth"
+          class="select-pill w-full"
+          :options="periodOptions"
+          v-model="selectedPeriodKey"
+          :group-label="`Semanas – ${monthNames[weeksMonth - 1]} ${weeksYear}`"
+          placeholder="Semana"
+        />
+      </div>
+    </div>
+  </div>
 </template>
+
 
 
 <script lang="ts">
