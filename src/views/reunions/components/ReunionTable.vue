@@ -47,6 +47,11 @@
                 title="Editar punto">
                 <i class="fa-solid fa-edit"></i>
               </button>
+              <button @click.stop="confirmDeletePoint(reunion.id, point)"
+                class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 flex items-center gap-1"
+                title="Eliminar punto">
+                <i class="fa-solid fa-trash"></i>
+              </button>
 
               <!-- Icono expandir/contraer -->
               <i class="fa-solid text-gray-400 text-xs mt-1 cursor-pointer"
@@ -103,7 +108,8 @@
 </template>
 
 <script>
-import { getReunionDetails, updatePoint, postPoint } from '@services/reunions/reunions';
+import { getReunionDetails } from '@services/reunions/reunions';
+import { deletePoint, postPoint, updatePoint } from '@services/points/point';
 import SwalService from '@services/swal/SwalService';
 
 export default {
@@ -154,10 +160,7 @@ export default {
     async reloadReunion(reunionId) {
       try {
         const updatedReunion = await getReunionDetails(reunionId);
-        const index = this.reuniones.findIndex(r => r.id === reunionId);
-        if (index !== -1) {
-          this.reuniones[index] = updatedReunion;
-        }
+        this.$emit('update', updatedReunion);
         SwalService.success('Reunión actualizada');
       } catch (error) {
         console.error('Error al recargar reunión:', error);
@@ -202,7 +205,11 @@ export default {
           SwalService.success('Punto actualizado');
         } else {
           // Crear nuevo punto
-          await postPoint(this.currentReunionId, this.pointForm);
+          await postPoint({
+            titulo: this.pointForm.titulo,
+            content: this.pointForm.content,
+            reunionId: this.currentReunionId
+          });
           SwalService.success('Punto añadido');
         }
 
@@ -212,6 +219,24 @@ export default {
       } catch (error) {
         console.error('Error al guardar punto:', error);
         SwalService.error('No se pudo guardar el punto');
+      }
+    },
+    async confirmDeletePoint(reunionId, point) {
+      const result = await SwalService.confirm(
+        '¿Eliminar punto?',
+        `¿Estás seguro de que quieres eliminar "${point.titulo}"?`
+      );
+
+      if (result.isConfirmed) {
+        try {
+          await deletePoint(point.id);
+          SwalService.success('Punto eliminado');
+          // Recargar la reunión para actualizar la lista
+          await this.reloadReunion(reunionId);
+        } catch (error) {
+          console.error('Error al eliminar punto:', error);
+          SwalService.error('No se pudo eliminar el punto');
+        }
       }
     },
   },

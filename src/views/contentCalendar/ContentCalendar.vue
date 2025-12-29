@@ -129,14 +129,16 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Publicación</label>
-                        <input v-model="editingContent.publicationDate" type="date"
+                        <input v-model="editingContent.publicationDate" type="datetime-local"
                             class="w-full border border-gray-300 rounded-lg px-3 py-2" />
-                        <button v-if="editingContent.publicationDate && !['reunion', 'radar', 'best'].includes(editingContent.type)"
+                        <button
+                            v-if="editingContent.publicationDate && !['reunion', 'radar', 'best'].includes(editingContent.type)"
                             @click="editingContent.publicationDate = ''"
                             class="text-xs text-gray-500 hover:text-gray-700 mt-1">
                             Quitar fecha (mover a backlog)
                         </button>
-                        <p v-if="['reunion', 'radar', 'best'].includes(editingContent.type)" class="text-xs text-amber-600 mt-1">
+                        <p v-if="['reunion', 'radar', 'best'].includes(editingContent.type)"
+                            class="text-xs text-amber-600 mt-1">
                             ⚠️ Este tipo de contenido requiere fecha obligatoria
                         </p>
                     </div>
@@ -175,7 +177,7 @@
         <!-- Create Content Modal -->
         <div v-if="showCreateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
             @click.self="showCreateModal = false">
-            <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <div class="bg-white rounded-lg p-6 w-full max-w-2xl">
                 <h3 class="text-lg font-bold mb-4">Nuevo Contenido</h3>
 
                 <div class="space-y-4">
@@ -215,38 +217,97 @@
                         </select>
                     </div>
 
-                    <div v-if="newContent.type === 'radar'" class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                Fecha Lista <span class="text-red-600">*</span>
-                            </label>
-                            <input v-model="newContent.publicationDate" type="date"
-                                class="w-full border border-gray-300 rounded-lg px-3 py-2"
-                                :min="minListDate" :max="maxListDate"
-                                :class="{ 'border-red-500': !newContent.publicationDate }" />
+                    <!-- Radar: Year + Month + Week selectors -->
+                    <div v-if="newContent.type === 'radar'" class="space-y-4">
+                        <div class="grid grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Año <span class="text-red-600">*</span>
+                                </label>
+                                <select v-model="newContent.selectedYear" @change="handleYearChange"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                                    <option :value="2025">2025</option>
+                                    <option :value="2026">2026</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Mes <span class="text-red-600">*</span>
+                                </label>
+                                <select v-model="newContent.selectedMonth" @change="updateRadarListDate"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                                    <option v-for="month in 12" :key="month" :value="month">
+                                        {{ getMonthName(month) }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Semana <span class="text-red-600">*</span>
+                                </label>
+                                <select v-model="newContent.selectedWeek" @change="updateRadarListDate"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                                    <option
+                                        v-for="week in getWeeksInMonth(newContent.selectedMonth, newContent.selectedYear)"
+                                        :key="week" :value="week">
+                                        Semana {{ week }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div v-if="newContent.listDate" class="text-sm text-gray-600">
+                            📅 Fecha de lista: <strong>{{ formatDisplayDate(newContent.listDate) }}</strong>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 Fecha Cierre
                             </label>
                             <input v-model="newContent.closeDate" type="date"
-                                class="w-full border border-gray-300 rounded-lg px-3 py-2"
-                                :min="minCloseDate" :max="maxCloseDate" />
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2" :min="newContent.listDate" />
                         </div>
-                        <p class="col-span-2 text-xs text-gray-500">
-                            La fecha de lista debe ser esta semana (Lunes-Domingo). Cierre máximo el miércoles siguiente.
-                        </p>
                     </div>
 
+                    <!-- Best/Video: Year + Month selector -->
+                    <div v-else-if="['best', 'video'].includes(newContent.type)" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Año <span class="text-red-600">*</span>
+                                </label>
+                                <select v-model="newContent.selectedYear" @change="handleYearChange"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                                    <option :value="2025">2025</option>
+                                    <option :value="2026">2026</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Mes <span class="text-red-600">*</span>
+                                </label>
+                                <select v-model="newContent.selectedMonth" @change="updateBestVideoListDate"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                                    <option v-for="month in 12" :key="month" :value="month">
+                                        {{ getMonthName(month) }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div v-if="newContent.listDate" class="text-sm text-gray-600">
+                            📅 Fecha de lista: <strong>{{ formatDisplayDate(newContent.listDate) }}</strong> (día 15 del
+                            mes)
+                        </div>
+                    </div>
+
+                    <!-- Other types: Regular publication date -->
                     <div v-else>
                         <label class="block text-sm font-medium text-gray-700 mb-1">
                             Fecha de Publicación
-                            <span v-if="['reunion', 'best'].includes(newContent.type)" class="text-red-600">*</span>
+                            <span v-if="newContent.type === 'reunion'" class="text-red-600">*</span>
                         </label>
-                        <input v-model="newContent.publicationDate" type="date"
+                        <input v-model="newContent.publicationDate" type="datetime-local"
                             class="w-full border border-gray-300 rounded-lg px-3 py-2"
-                            :class="{ 'border-red-500': ['reunion', 'best'].includes(newContent.type) && !newContent.publicationDate }" />
-                        <p v-if="['reunion', 'best'].includes(newContent.type)" class="text-xs text-gray-500 mt-1">
+                            :class="{ 'border-red-500': newContent.type === 'reunion' && !newContent.publicationDate }" />
+                        <p v-if="newContent.type === 'reunion'" class="text-xs text-gray-500 mt-1">
                             Este tipo de contenido requiere una fecha obligatoria
                         </p>
                     </div>
@@ -266,58 +327,54 @@
         </div>
 
         <!-- Event Actions Modal -->
-        <div v-if="showActionsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity"
+        <div v-if="showActionsModal"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity"
             @click.self="showActionsModal = false">
-            
+
             <!-- Modal Ampliado para Radar -->
-            <div v-if="selectedContent?.type === 'radar'" class="bg-white rounded-xl shadow-2xl w-full max-w-4xl p-6 flex flex-col max-h-[90vh]">
+            <div v-if="selectedContent?.type === 'radar'"
+                class="bg-white rounded-xl shadow-2xl w-full max-w-4xl p-6 flex flex-col max-h-[90vh]">
                 <div class="flex justify-between items-center mb-6 border-b pb-4">
                     <div>
                         <h3 class="text-2xl font-bold text-gray-800">{{ selectedContent?.name }}</h3>
                         <p class="text-gray-500 text-sm mt-1">Gestión de asignaciones y detalles</p>
                     </div>
-                    
+
                     <div class="flex items-center gap-4">
-                        <div v-if="radarDetails" class="flex items-center gap-2 bg-indigo-900/10 p-1 rounded-lg border border-indigo-500/20 mr-2">
-                            <div class="flex items-center gap-2 px-3 py-1.5 bg-indigo-900/80 rounded-md text-white border border-indigo-500/30 shadow-sm" title="Fecha Lista">
-                              <i class="fa-regular fa-calendar text-indigo-300 text-xs"></i>
-                              <input 
-                                type="date" 
-                                :value="formatRadarDate(radarDetails.listDate)"
-                                :min="radarMinListDate"
-                                :max="radarMaxListDate"
-                                @change="(e) => updateRadarField('listDate', (e.target as HTMLInputElement).value)"
-                                class="bg-transparent border-none p-0 text-white text-xs font-bold focus:ring-0 cursor-pointer w-[80px]"
-                              />
+                        <div v-if="radarDetails"
+                            class="flex items-center gap-2 bg-indigo-900/10 p-1 rounded-lg border border-indigo-500/20 mr-2">
+                            <div class="flex items-center gap-2 px-3 py-1.5 bg-indigo-900/80 rounded-md text-white border border-indigo-500/30 shadow-sm"
+                                title="Fecha Lista">
+                                <i class="fa-regular fa-calendar text-indigo-300 text-xs"></i>
+                                <input type="date" :value="formatRadarDate(radarDetails.listDate)"
+                                    :min="radarMinListDate" :max="radarMaxListDate"
+                                    @change="(e) => updateRadarField('listDate', (e.target as HTMLInputElement).value)"
+                                    class="bg-transparent border-none p-0 text-white text-xs font-bold focus:ring-0 cursor-pointer w-[80px]" />
                             </div>
-                            <div class="flex items-center gap-2 px-3 py-1.5 bg-indigo-900/80 rounded-md text-white border border-indigo-500/30 shadow-sm" title="Fecha Cierre">
-                               <i class="fa-regular fa-clock text-indigo-300 text-xs"></i>
-                               <input 
-                                type="date" 
-                                :value="formatRadarDate(radarDetails.closeDate)"
-                                 :min="radarMinCloseDate"
-                                :max="radarMaxCloseDate"
-                                 @change="(e) => updateRadarField('closeDate', (e.target as HTMLInputElement).value)"
-                                class="bg-transparent border-none p-0 text-white text-xs font-bold focus:ring-0 cursor-pointer w-[80px]"
-                              />
+                            <div class="flex items-center gap-2 px-3 py-1.5 bg-indigo-900/80 rounded-md text-white border border-indigo-500/30 shadow-sm"
+                                title="Fecha Cierre">
+                                <i class="fa-regular fa-clock text-indigo-300 text-xs"></i>
+                                <input type="date" :value="formatRadarDate(radarDetails.closeDate)"
+                                    :min="radarMinCloseDate" :max="radarMaxCloseDate"
+                                    @change="(e) => updateRadarField('closeDate', (e.target as HTMLInputElement).value)"
+                                    class="bg-transparent border-none p-0 text-white text-xs font-bold focus:ring-0 cursor-pointer w-[80px]" />
                             </div>
-                         </div>
+                        </div>
 
                         <div v-if="radarDetails" class="relative">
-                            <select 
-                                v-model="radarDetails.status" 
-                                @change="updateListStatus(radarDetails)"
+                            <select v-model="radarDetails.status" @change="updateListStatus(radarDetails)"
                                 :class="getStatusClass(radarDetails.status)"
-                                class="appearance-none pl-4 pr-8 py-2 border rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer transition-colors focus:ring-1 focus:ring-indigo-200 shadow-sm"
-                            >
+                                class="appearance-none pl-4 pr-8 py-2 border rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer transition-colors focus:ring-1 focus:ring-indigo-200 shadow-sm">
                                 <option value="new" class="text-gray-900">Nueva</option>
                                 <option value="assigned" class="text-gray-900">Asignada</option>
                                 <option value="published" class="text-gray-900">Publicada</option>
                             </select>
-                             <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[10px] pointer-events-none" :class="radarDetails.status === 'new' ? 'text-red-100' : (radarDetails.status === 'assigned' ? 'text-orange-100' : 'text-green-100')"></i>
+                            <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[10px] pointer-events-none"
+                                :class="radarDetails.status === 'new' ? 'text-red-100' : (radarDetails.status === 'assigned' ? 'text-orange-100' : 'text-green-100')"></i>
                         </div>
 
-                        <button @click="showActionsModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <button @click="showActionsModal = false"
+                            class="text-gray-400 hover:text-gray-600 transition-colors">
                             <i class="fa-solid fa-xmark text-2xl"></i>
                         </button>
                     </div>
@@ -327,7 +384,7 @@
                     <div v-if="loadingRadarDetails" class="flex justify-center py-10">
                         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
                     </div>
-                    
+
                     <div v-else-if="radarDetails && radarDetails.asignations && radarDetails.asignations.length > 0">
                         <table class="w-full text-left border-collapse">
                             <thead>
@@ -340,7 +397,8 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="asig in radarDetails.asignations" :key="asig.id" class="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
+                                <tr v-for="asig in radarDetails.asignations" :key="asig.id"
+                                    class="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
                                     <td class="py-3 px-4">
                                         <div class="flex flex-col">
                                             <span class="font-medium text-gray-800">{{ asig.disc?.name || 'Desconocido' }}</span>
@@ -349,12 +407,13 @@
                                     </td>
                                     <td class="py-3 px-4 text-center">
                                         <div class="flex items-center justify-center gap-2">
-                                            <a v-if="asig.disc?.link" :href="asig.disc.link" target="_blank" 
-                                               class="w-8 h-8 flex items-center justify-center bg-gray-50 text-green-600 rounded-full hover:bg-green-100 transition-colors"
-                                               title="Spotify">
+                                            <a v-if="asig.disc?.link" :href="asig.disc.link" target="_blank"
+                                                class="w-8 h-8 flex items-center justify-center bg-gray-50 text-green-600 rounded-full hover:bg-green-100 transition-colors"
+                                                title="Spotify">
                                                 <i class="fa-brands fa-spotify text-sm"></i>
                                             </a>
-                                            <button @click="copyArtistAndDisc(asig.disc?.artist?.name || '', asig.disc?.name || '')" 
+                                            <button
+                                                @click="copyArtistAndDisc(asig.disc?.artist?.name || '', asig.disc?.name || '')"
                                                 class="w-8 h-8 flex items-center justify-center bg-gray-50 text-purple-600 rounded-full hover:bg-purple-100 transition-colors"
                                                 title="Copiar Info">
                                                 <i class="fa-solid fa-clipboard text-sm"></i>
@@ -368,48 +427,51 @@
                                     </td>
                                     <td class="py-3 px-4">
                                         <div class="flex items-center gap-2">
-                                            <img v-if="asig.user?.image" :src="asig.user.image" class="w-6 h-6 rounded-full object-cover" />
-                                            <div v-else class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500">
+                                            <img v-if="asig.user?.image" :src="asig.user.image"
+                                                class="w-6 h-6 rounded-full object-cover" />
+                                            <div v-else
+                                                class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500">
                                                 {{ asig.user?.username?.charAt(0).toUpperCase() || '?' }}
                                             </div>
-                                            <span class="text-sm text-gray-700">{{ asig.user?.username || 'Sin asignar' }}</span>
+                                            <span class="text-sm text-gray-700">{{ asig.user?.username || 'Sin asignar'
+                                            }}</span>
                                         </div>
                                     </td>
                                     <td class="py-3 px-4 text-center">
-                                         <span v-if="asig.position > 0" class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">
+                                        <span v-if="asig.position > 0"
+                                            class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">
                                             {{ asig.position }}
                                         </span>
                                         <span v-else class="text-gray-400">-</span>
                                     </td>
                                     <td class="py-3 px-4 text-center">
-                                       <label class="inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" :checked="asig.done" 
-                                                @change="toggleAsignation(asig)"
+                                        <label class="inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" :checked="asig.done" @change="toggleAsignation(asig)"
                                                 class="form-checkbox h-5 w-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 transition duration-150 ease-in-out">
-                                       </label>
+                                        </label>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <div v-else class="text-center py-10 text-gray-500 bg-gray-50 rounded-lg">
                         No hay asignaciones en esta lista.
                     </div>
                 </div>
 
                 <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                    <button @click="deleteRadarList" 
+                    <button @click="deleteRadarList"
                         class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 flex items-center gap-2 transition-colors">
                         <i class="fa-solid fa-trash"></i>
                         Borrar Lista
                     </button>
-                    <button @click="router.push(`/discos/radar/${selectedContent.list?.id}`)" 
+                    <button @click="router.push(`/discos/radar/${selectedContent.list?.id}`)"
                         class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 flex items-center gap-2 transition-colors">
                         <i class="fa-solid fa-arrow-up-right-from-square"></i>
                         Ir al Detalle
                     </button>
-                     <button @click="showActionsModal = false"
+                    <button @click="showActionsModal = false"
                         class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
                         Cerrar
                     </button>
@@ -417,19 +479,24 @@
             </div>
 
             <!-- Modal Diseño Sutil para Fotos -->
-            <div v-else-if="selectedContent?.type === 'photos'" class="bg-white rounded-2xl p-8 w-full max-w-2xl shadow-2xl relative overflow-hidden">
+            <div v-else-if="selectedContent?.type === 'photos'"
+                class="bg-white rounded-2xl p-8 w-full max-w-2xl shadow-2xl relative overflow-hidden">
                 <!-- Decorative background blob -->
-                <div class="absolute top-0 right-0 w-64 h-64 bg-pink-50 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+                <div
+                    class="absolute top-0 right-0 w-64 h-64 bg-pink-50 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none">
+                </div>
 
-                 <div class="relative z-10">
+                <div class="relative z-10">
                     <!-- Header Actions -->
                     <div class="flex justify-between items-start mb-6">
                         <div class="flex items-center gap-2">
-                             <span class="px-2 py-1 bg-pink-100 text-pink-700 text-xs font-bold uppercase tracking-wider rounded-md">
+                            <span
+                                class="px-2 py-1 bg-pink-100 text-pink-700 text-xs font-bold uppercase tracking-wider rounded-md">
                                 Fotos
-                             </span>
+                            </span>
                         </div>
-                        <button @click="showActionsModal = false" class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100">
+                        <button @click="showActionsModal = false"
+                            class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100">
                             <i class="fa-solid fa-xmark text-xl"></i>
                         </button>
                     </div>
@@ -448,25 +515,27 @@
                             <!-- Left Column: Notes -->
                             <div class="space-y-4">
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Notas</label>
+                                    <label
+                                        class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Notas</label>
                                     <textarea v-model="editingContent.notes"
-                                        class="w-full border-0 bg-gray-50 rounded-xl px-4 py-3 text-gray-700 focus:ring-2 focus:ring-pink-100 focus:bg-white transition-all resize-none text-sm leading-relaxed" 
+                                        class="w-full border-0 bg-gray-50 rounded-xl px-4 py-3 text-gray-700 focus:ring-2 focus:ring-pink-100 focus:bg-white transition-all resize-none text-sm leading-relaxed"
                                         rows="6"
                                         placeholder="Añade detalles sobre las fotos (ubicación, banda, fotógrafo...)"></textarea>
                                 </div>
                             </div>
-                            
+
                             <!-- Right Column: Date & Author -->
                             <div class="space-y-6">
                                 <div class="bg-gray-50 rounded-xl p-5 space-y-5">
                                     <!-- Date -->
                                     <div>
-                                        <label class="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                                        <label
+                                            class="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
                                             <i class="fa-regular fa-calendar"></i> Fecha de Publicación
                                         </label>
-                                        <input v-model="editingContent.publicationDate" type="date"
+                                        <input v-model="editingContent.publicationDate" type="datetime-local"
                                             class="w-full border-gray-200 rounded-lg text-sm focus:border-pink-300 focus:ring focus:ring-pink-200 focus:ring-opacity-50" />
-                                         <button v-if="editingContent.publicationDate"
+                                        <button v-if="editingContent.publicationDate"
                                             @click="editingContent.publicationDate = ''"
                                             class="text-xs text-gray-400 hover:text-pink-600 mt-2 flex items-center gap-1 transition-colors">
                                             <i class="fa-solid fa-arrow-rotate-left"></i> Mover a backlog
@@ -475,7 +544,8 @@
 
                                     <!-- Author -->
                                     <div>
-                                        <label class="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                                        <label
+                                            class="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
                                             <i class="fa-regular fa-user"></i> Autor
                                         </label>
                                         <select v-model="editingContent.authorId"
@@ -499,7 +569,118 @@
                             <i class="fa-regular fa-trash-can text-lg group-hover:scale-110 transition-transform"></i>
                             <span class="text-sm font-medium">Eliminar</span>
                         </button>
-                        
+
+                        <div class="flex gap-3">
+                            <button @click="showActionsModal = false"
+                                class="px-6 py-2.5 text-gray-600 hover:bg-gray-100 font-medium rounded-xl transition-colors">
+                                Cancelar
+                            </button>
+                            <button @click="handleUpdateContent"
+                                class="px-6 py-2.5 bg-gray-900 text-white font-medium rounded-xl hover:bg-gray-800 shadow-lg shadow-gray-200 hover:shadow-xl transition-all transform hover:-translate-y-0.5">
+                                Guardar Cambios
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Modal para Reuniones -->
+            <div v-else-if="selectedContent?.type === 'reunion'"
+                class="bg-white rounded-2xl p-8 w-full max-w-2xl shadow-2xl relative overflow-hidden">
+                <!-- Decorative background blob -->
+                <div
+                    class="absolute top-0 right-0 w-64 h-64 bg-orange-50 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none">
+                </div>
+
+                <div class="relative z-10">
+                    <!-- Header Actions -->
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-2">
+                            <span
+                                class="px-2 py-1 bg-orange-100 text-orange-700 text-xs font-bold uppercase tracking-wider rounded-md">
+                                Reunión
+                            </span>
+                        </div>
+                        <button @click="showActionsModal = false"
+                            class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100">
+                            <i class="fa-solid fa-xmark text-xl"></i>
+                        </button>
+                    </div>
+
+                    <!-- Main Content -->
+                    <div class="space-y-6">
+                        <!-- Title Input (Massive & Clean) -->
+                        <div>
+                            <input v-model="editingContent.name" type="text"
+                                class="w-full text-3xl font-bold text-gray-900 placeholder-gray-300 border-none focus:ring-0 p-0 bg-transparent"
+                                placeholder="Título de la reunión..." />
+                            <button @click="goToReunions"
+                                class="mt-2 text-xs text-gray-400 hover:text-orange-600 transition-colors flex items-center gap-1">
+                                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                                <span>Ver en página de reuniones</span>
+                            </button>
+                        </div>
+
+                        <!-- Grid for Meta Info -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Left Column: Notes -->
+                            <div class="space-y-4">
+                                <div>
+                                    <label
+                                        class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Notas</label>
+                                    <textarea v-model="editingContent.notes"
+                                        class="w-full border-0 bg-gray-50 rounded-xl px-4 py-3 text-gray-700 focus:ring-2 focus:ring-orange-100 focus:bg-white transition-all resize-none text-sm leading-relaxed"
+                                        rows="6"
+                                        placeholder="Añade detalles sobre la reunión (agenda, temas a tratar...)"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Right Column: Date & Author -->
+                            <div class="space-y-6">
+                                <div class="bg-gray-50 rounded-xl p-5 space-y-5">
+                                    <!-- Date -->
+                                    <div>
+                                        <label
+                                            class="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                                            <i class="fa-regular fa-calendar"></i> Fecha de Reunión <span
+                                                class="text-red-600">*</span>
+                                        </label>
+                                        <input v-model="editingContent.publicationDate" type="datetime-local"
+                                            class="w-full border-gray-200 rounded-lg text-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50" />
+                                        <p class="text-xs text-amber-600 mt-2">
+                                            ⚠️ Las reuniones requieren fecha obligatoria
+                                        </p>
+                                    </div>
+
+                                    <!-- Author -->
+                                    <div>
+                                        <label
+                                            class="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                                            <i class="fa-regular fa-user"></i> Autor
+                                        </label>
+                                        <select v-model="editingContent.authorId"
+                                            class="w-full border-gray-200 rounded-lg text-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50">
+                                            <option value="">Seleccionar autor...</option>
+                                            <option v-for="user in rvUsers" :key="user.id" :value="user.id">
+                                                {{ user.username }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Actions -->
+                    <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-100">
+                        <button @click="confirmDeleteContent"
+                            class="group flex items-center gap-2 text-gray-400 hover:text-red-600 transition-colors px-4 py-2 rounded-lg hover:bg-red-50"
+                            title="Eliminar permanentemente">
+                            <i class="fa-regular fa-trash-can text-lg group-hover:scale-110 transition-transform"></i>
+                            <span class="text-sm font-medium">Eliminar</span>
+                        </button>
+
                         <div class="flex gap-3">
                             <button @click="showActionsModal = false"
                                 class="px-6 py-2.5 text-gray-600 hover:bg-gray-100 font-medium rounded-xl transition-colors">
@@ -519,12 +700,6 @@
                 <h3 class="text-lg font-bold mb-4">{{ selectedContent?.name }}</h3>
 
                 <div class="space-y-3">
-                    <button v-if="selectedContent?.type === 'reunion'" @click="goToReunions"
-                        class="w-full px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 flex items-center justify-center gap-2">
-                        <span>📅</span>
-                        <span>Ir a Reuniones</span>
-                    </button>
-
                     <button @click="editFromActions"
                         class="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center justify-center gap-2">
                         <span>✏️</span>
@@ -623,7 +798,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import FullCalendar from '@fullcalendar/vue3';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin, { Draggable } from '@fullcalendar/interaction';
@@ -667,51 +842,55 @@ const newContent = ref({
     notes: '',
     publicationDate: '',
     closeDate: '',
-    authorId: ''
+    authorId: '',
+    listDate: '',
+    selectedMonth: new Date().getMonth() + 1,
+    selectedWeek: 1,
+    selectedYear: new Date().getFullYear()
 });
 
 const minListDate = computed(() => {
-  if (!newContent.value.publicationDate) return undefined;
-  // Lunes de la semana actual
-  const d = new Date(newContent.value.publicationDate);
-  d.setHours(0, 0, 0, 0);
-  const day = d.getDay(); 
-  // day: 0 (Sun) to 6 (Sat)
-  // Monday is 1
-  const diff = day === 0 ? -6 : 1 - day; 
-  d.setDate(d.getDate() + diff);
-  return d.toISOString().split('T')[0];
+    if (!newContent.value.publicationDate) return undefined;
+    // Lunes de la semana actual
+    const d = new Date(newContent.value.publicationDate);
+    d.setHours(0, 0, 0, 0);
+    const day = d.getDay();
+    // day: 0 (Sun) to 6 (Sat)
+    // Monday is 1
+    const diff = day === 0 ? -6 : 1 - day;
+    d.setDate(d.getDate() + diff);
+    return d.toISOString().split('T')[0];
 });
 
 const maxListDate = computed(() => {
-  if (!newContent.value.publicationDate) return undefined;
-  // Próximo domingo
-  const d = new Date(newContent.value.publicationDate);
-  const day = d.getDay();
-  const diff = day === 0 ? 0 : 7 - day; 
-  d.setDate(d.getDate() + diff);
-  return d.toISOString().split('T')[0];
+    if (!newContent.value.publicationDate) return undefined;
+    // Próximo domingo
+    const d = new Date(newContent.value.publicationDate);
+    const day = d.getDay();
+    const diff = day === 0 ? 0 : 7 - day;
+    d.setDate(d.getDate() + diff);
+    return d.toISOString().split('T')[0];
 });
 
 const minCloseDate = computed(() => {
-  if (!newContent.value.publicationDate) return undefined;
-  // Close date can be the same as list date
-  const d = new Date(newContent.value.publicationDate);
-  d.setHours(0, 0, 0, 0);
-  return d.toISOString().split('T')[0];
+    if (!newContent.value.publicationDate) return undefined;
+    // Close date can be the same as list date
+    const d = new Date(newContent.value.publicationDate);
+    d.setHours(0, 0, 0, 0);
+    return d.toISOString().split('T')[0];
 });
 
 const maxCloseDate = computed(() => {
-   if (!newContent.value.publicationDate) return undefined;
-   // Miércoles siguiente
-   const d = new Date(newContent.value.publicationDate);
-   const day = d.getDay();
-   const diffToSunday = day === 0 ? 0 : 7 - day;
-   d.setDate(d.getDate() + diffToSunday);
-   
-   // Ahora sumamos 3 días para llegar al miércoles
-   d.setDate(d.getDate() + 3);
-   return d.toISOString().split('T')[0];
+    if (!newContent.value.publicationDate) return undefined;
+    // Miércoles siguiente
+    const d = new Date(newContent.value.publicationDate);
+    const day = d.getDay();
+    const diffToSunday = day === 0 ? 0 : 7 - day;
+    d.setDate(d.getDate() + diffToSunday);
+
+    // Ahora sumamos 3 días para llegar al miércoles
+    d.setDate(d.getDate() + 3);
+    return d.toISOString().split('T')[0];
 });
 
 const editingContent = ref({
@@ -842,14 +1021,14 @@ const calendarOptions = ref({
             selectedContent.value = content;
             showActionsModal.value = true;
 
-            // Pre-fill editing content for photos for the direct modal
-            if (content.type === 'photos') {
+            // Pre-fill editing content for photos and reunions for the direct modal
+            if (content.type === 'photos' || content.type === 'reunion') {
                 editingContentId.value = content.id;
                 editingContent.value = {
                     type: content.type,
                     name: content.name,
                     notes: content.notes || '',
-                    publicationDate: content.publicationDate || '',
+                    publicationDate: toDatetimeLocal(content.publicationDate || ''),
                     authorId: content.author?.id || ''
                 };
             }
@@ -1045,9 +1224,10 @@ async function handleCreateContent() {
             type: newContent.value.type,
             name: newContent.value.name,
             notes: newContent.value.notes || undefined,
-            publicationDate: newContent.value.publicationDate || undefined,
+            publicationDate: newContent.value.publicationDate ? new Date(newContent.value.publicationDate).toISOString() : undefined,
             closeDate: newContent.value.closeDate || undefined,
-            authorId: newContent.value.authorId
+            authorId: newContent.value.authorId,
+            listDate: newContent.value.listDate || undefined
         });
 
         newContent.value = {
@@ -1056,7 +1236,11 @@ async function handleCreateContent() {
             notes: '',
             publicationDate: '',
             closeDate: '',
-            authorId: ''
+            authorId: '',
+            listDate: '',
+            selectedMonth: new Date().getMonth() + 1,
+            selectedWeek: 1,
+            selectedYear: new Date().getFullYear()
         };
         showCreateModal.value = false;
         // Reload backlog since new content might be created without date
@@ -1075,7 +1259,7 @@ function openEditModal(content: Content) {
         type: content.type,
         name: content.name,
         notes: content.notes || '',
-        publicationDate: content.publicationDate || '',
+        publicationDate: toDatetimeLocal(content.publicationDate || ''),
         authorId: content.author?.id || ''
     };
 
@@ -1097,6 +1281,7 @@ function goToReunions() {
     showActionsModal.value = false;
     router.push('/reunions');
 }
+
 
 function editFromActions() {
     if (selectedContent.value) {
@@ -1138,7 +1323,7 @@ async function toggleAsignation(asig: any) {
     const newState = !asig.done;
     // Optimistic UI update
     asig.done = newState;
-    
+
     try {
         await updateAsignationService(asig.id, { done: newState });
     } catch (e) {
@@ -1150,13 +1335,13 @@ async function toggleAsignation(asig: any) {
 
 async function deleteRadarList() {
     if (!selectedContent.value?.list?.id) return;
-    
+
     const result = await SwalService.confirm(
-        '¿Eliminar Lista?', 
+        '¿Eliminar Lista?',
         'Estás a punto de eliminar la lista asociada a este radar. Esta acción no se puede deshacer.',
         'warning'
     );
-    
+
     if (result.isConfirmed) {
         try {
             await deleteList(selectedContent.value.list.id);
@@ -1186,7 +1371,7 @@ async function handleUpdateContent() {
             type: editingContent.value.type,
             name: editingContent.value.name,
             notes: editingContent.value.notes || undefined,
-            publicationDate: editingContent.value.publicationDate || null,
+            publicationDate: editingContent.value.publicationDate ? new Date(editingContent.value.publicationDate).toISOString() : null,
             authorId: editingContent.value.authorId
         });
 
@@ -1256,44 +1441,44 @@ async function updateListStatus(list: any) {
 }
 
 const radarMaxListDate = computed(() => {
-  if (!radarDetails.value?.listDate) return undefined;
-  const d = new Date(radarDetails.value.listDate);
-  const day = d.getDay();
-  const diff = day === 0 ? 0 : 7 - day; 
-  d.setDate(d.getDate() + diff);
-  return d.toISOString().split('T')[0];
+    if (!radarDetails.value?.listDate) return undefined;
+    const d = new Date(radarDetails.value.listDate);
+    const day = d.getDay();
+    const diff = day === 0 ? 0 : 7 - day;
+    d.setDate(d.getDate() + diff);
+    return d.toISOString().split('T')[0];
 });
 
 const radarMaxCloseDate = computed(() => {
-   if (!radarDetails.value?.listDate) return undefined;
-   const d = new Date(radarDetails.value.listDate);
-   const day = d.getDay();
-   const diffToSunday = day === 0 ? 0 : 7 - day;
-   d.setDate(d.getDate() + diffToSunday);
-   d.setDate(d.getDate() + 3);
-   return d.toISOString().split('T')[0];
+    if (!radarDetails.value?.listDate) return undefined;
+    const d = new Date(radarDetails.value.listDate);
+    const day = d.getDay();
+    const diffToSunday = day === 0 ? 0 : 7 - day;
+    d.setDate(d.getDate() + diffToSunday);
+    d.setDate(d.getDate() + 3);
+    return d.toISOString().split('T')[0];
 });
 
 const radarMinListDate = computed(() => {
-  if (!radarDetails.value?.listDate) return undefined;
-  const d = new Date(radarDetails.value.listDate);
-  d.setHours(0, 0, 0, 0);
-  const day = d.getDay(); 
-  const diff = day === 0 ? -6 : 1 - day; 
-  d.setDate(d.getDate() + diff);
-  return d.toISOString().split('T')[0];
+    if (!radarDetails.value?.listDate) return undefined;
+    const d = new Date(radarDetails.value.listDate);
+    d.setHours(0, 0, 0, 0);
+    const day = d.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    d.setDate(d.getDate() + diff);
+    return d.toISOString().split('T')[0];
 });
 
 const radarMinCloseDate = computed(() => {
-  if (!radarDetails.value?.listDate) return undefined;
-  const d = new Date(radarDetails.value.listDate);
-  d.setHours(0, 0, 0, 0); 
-  return d.toISOString().split('T')[0];
+    if (!radarDetails.value?.listDate) return undefined;
+    const d = new Date(radarDetails.value.listDate);
+    d.setHours(0, 0, 0, 0);
+    return d.toISOString().split('T')[0];
 });
 
 function formatRadarDate(dateString: string) {
-  if (!dateString) return '';
-  return new Date(dateString).toISOString().split('T')[0];
+    if (!dateString) return '';
+    return new Date(dateString).toISOString().split('T')[0];
 }
 
 async function updateRadarField(field: string, value: any) {
@@ -1363,7 +1548,111 @@ onMounted(async () => {
             }
         });
     }
+
+    // Initialize listDate for current month
+    updateBestVideoListDate();
+    updateRadarListDate();
 });
+
+// Watch for modal opening or type change to auto-fill name
+watch([() => showCreateModal.value, () => newContent.value.type], ([isOpen, type]) => {
+    if (isOpen && (type === 'radar' || type === 'best')) {
+        // Auto-fill name based on type
+        if (type === 'radar') {
+            const monthName = getMonthName(newContent.value.selectedMonth);
+            newContent.value.name = `Discos ${monthName} Semana ${newContent.value.selectedWeek}`;
+        } else if (type === 'best') {
+            const monthName = getMonthName(newContent.value.selectedMonth);
+            newContent.value.name = `Mejores Discos de ${monthName}`;
+        }
+    }
+});
+
+function toDatetimeLocal(dateStr: string) {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const offsetMs = date.getTimezoneOffset() * 60 * 1000;
+    const localDate = new Date(date.getTime() - offsetMs);
+    return localDate.toISOString().slice(0, 16);
+}
+
+function getMonthName(month: number): string {
+    const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    return months[month - 1];
+}
+
+function getWeeksInMonth(month: number, year: number): number {
+    const firstDay = new Date(year, month - 1, 1);
+    const lastDay = new Date(year, month, 0);
+
+    // Get the first Monday
+    let current = new Date(firstDay);
+    const dayOfWeek = current.getDay();
+    const daysUntilMonday = dayOfWeek === 0 ? 1 : (8 - dayOfWeek) % 7;
+    if (daysUntilMonday > 0) {
+        current.setDate(current.getDate() + daysUntilMonday);
+    }
+
+    let weekCount = 0;
+    while (current <= lastDay) {
+        weekCount++;
+        current.setDate(current.getDate() + 7);
+    }
+
+    return Math.max(weekCount, 1);
+}
+
+function getFridayOfWeek(month: number, week: number, year: number): string {
+    const firstDay = new Date(year, month - 1, 1);
+
+    // Find the first Monday of the month
+    let monday = new Date(firstDay);
+    const dayOfWeek = monday.getDay();
+    const daysUntilMonday = dayOfWeek === 0 ? 1 : (8 - dayOfWeek) % 7;
+    monday.setDate(monday.getDate() + daysUntilMonday);
+
+    // Add weeks to get to the desired week
+    monday.setDate(monday.getDate() + (week - 1) * 7);
+
+    // Get Friday of that week (Monday + 4 days)
+    const friday = new Date(monday);
+    friday.setDate(friday.getDate() + 4);
+
+    return friday.toISOString().split('T')[0];
+}
+
+function updateRadarListDate() {
+    newContent.value.listDate = getFridayOfWeek(newContent.value.selectedMonth, newContent.value.selectedWeek, newContent.value.selectedYear);
+}
+
+function updateBestVideoListDate() {
+    const date = new Date(newContent.value.selectedYear, newContent.value.selectedMonth - 1, 15);
+    newContent.value.listDate = date.toISOString().split('T')[0];
+}
+
+function handleYearChange() {
+    // Reset month to January when year changes
+    newContent.value.selectedMonth = 1;
+    newContent.value.selectedWeek = 1;
+
+    // Update listDate based on content type
+    if (newContent.value.type === 'radar') {
+        updateRadarListDate();
+    } else if (['best', 'video'].includes(newContent.value.type)) {
+        updateBestVideoListDate();
+    }
+}
+
+
+function formatDisplayDate(dateStr: string): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+}
 </script>
 
 <style scoped>
