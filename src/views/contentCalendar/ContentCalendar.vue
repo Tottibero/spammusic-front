@@ -307,6 +307,18 @@
                             📅 Fecha de lista: <strong>{{ formatDisplayDate(newContent.listDate) }}</strong> (día 15 del
                             mes)
                         </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Fecha de Publicación <span v-if="newContent.type === 'best'"
+                                    class="text-red-600">*</span>
+                            </label>
+                            <input v-model="newContent.publicationDate" type="datetime-local"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                :class="{ 'border-red-500': newContent.type === 'best' && !newContent.publicationDate }" />
+                            <p v-if="newContent.type === 'best'" class="text-xs text-gray-500 mt-1">
+                                Este tipo de contenido requiere una fecha obligatoria
+                            </p>
+                        </div>
                     </div>
 
                     <!-- Other types: Regular publication date -->
@@ -445,7 +457,7 @@
                                                 {{ asig.user?.username?.charAt(0).toUpperCase() || '?' }}
                                             </div>
                                             <span class="text-sm text-gray-700">{{ asig.user?.username || 'Sin asignar'
-                                                }}</span>
+                                            }}</span>
                                         </div>
                                     </td>
                                     <td class="py-3 px-4 text-center">
