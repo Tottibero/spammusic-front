@@ -258,23 +258,12 @@
                         <div v-if="newContent.listDate" class="text-sm text-gray-600">
                             📅 Fecha de lista: <strong>{{ formatDisplayDate(newContent.listDate) }}</strong>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Fecha de Publicación <span class="text-red-600">*</span>
-                                </label>
-                                <input v-model="newContent.publicationDate" type="datetime-local"
-                                    class="w-full border border-gray-300 rounded-lg px-3 py-2"
-                                    :class="{ 'border-red-500': !newContent.publicationDate }" />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Fecha Cierre
-                                </label>
-                                <input v-model="newContent.closeDate" type="date"
-                                    class="w-full border border-gray-300 rounded-lg px-3 py-2"
-                                    :min="newContent.listDate" />
-                            </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Fecha Cierre
+                            </label>
+                            <input v-model="newContent.closeDate" type="date"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2" :min="newContent.listDate" />
                         </div>
                     </div>
 
