@@ -258,12 +258,23 @@
                         <div v-if="newContent.listDate" class="text-sm text-gray-600">
                             📅 Fecha de lista: <strong>{{ formatDisplayDate(newContent.listDate) }}</strong>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                Fecha Cierre
-                            </label>
-                            <input v-model="newContent.closeDate" type="date"
-                                class="w-full border border-gray-300 rounded-lg px-3 py-2" :min="newContent.listDate" />
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Fecha de Publicación <span class="text-red-600">*</span>
+                                </label>
+                                <input v-model="newContent.publicationDate" type="datetime-local"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                    :class="{ 'border-red-500': !newContent.publicationDate }" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Fecha Cierre
+                                </label>
+                                <input v-model="newContent.closeDate" type="date"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                    :min="newContent.listDate" />
+                            </div>
                         </div>
                     </div>
 
@@ -413,8 +424,8 @@
                                     class="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
                                     <td class="py-3 px-4">
                                         <div class="flex flex-col">
-                                            <span class="font-medium text-gray-800">{{ asig.disc?.name || 'Desconocido' }}</span>
-                                            <span class="text-xs text-gray-500">{{ asig.disc?.artist?.name || 'Artista desconocido' }}</span>
+                                            <span class="font-medium text-gray-800">{{ asig.disc?.name || "Desconocido" }}</span>
+                                            <span class="text-xs text-gray-500">{{ asig.disc?.artist?.name || "Artista desconocido" }}</span>
                                         </div>
                                     </td>
                                     <td class="py-3 px-4 text-center">
@@ -446,7 +457,7 @@
                                                 {{ asig.user?.username?.charAt(0).toUpperCase() || '?' }}
                                             </div>
                                             <span class="text-sm text-gray-700">{{ asig.user?.username || 'Sin asignar'
-                                            }}</span>
+                                                }}</span>
                                         </div>
                                     </td>
                                     <td class="py-3 px-4 text-center">
@@ -1636,6 +1647,43 @@ function getFridayOfWeek(month: number, week: number, year: number): string {
 
 function updateRadarListDate() {
     newContent.value.listDate = getFridayOfWeek(newContent.value.selectedMonth, newContent.value.selectedWeek, newContent.value.selectedYear);
+
+    // Auto-generate radar name: "Discos Enero Semana 1"
+    const monthName = getMonthName(newContent.value.selectedMonth);
+    newContent.value.name = `Discos ${monthName} Semana ${newContent.value.selectedWeek}`;
+
+    // Calculate Saturday and Sunday of the selected week
+    const year = newContent.value.selectedYear;
+    const month = newContent.value.selectedMonth;
+    const week = newContent.value.selectedWeek;
+
+    const firstDay = new Date(year, month - 1, 1);
+
+    // Find the first Monday of the month
+    let monday = new Date(firstDay);
+    const dayOfWeek = monday.getDay();
+    const daysUntilMonday = dayOfWeek === 0 ? 1 : (8 - dayOfWeek) % 7;
+    monday.setDate(monday.getDate() + daysUntilMonday);
+
+    // Add weeks to get to the desired week
+    monday.setDate(monday.getDate() + (week - 1) * 7);
+
+    // Get Saturday (Monday + 5 days) at 19:00
+    const saturday = new Date(monday);
+    saturday.setDate(saturday.getDate() + 5);
+    saturday.setHours(19, 0, 0, 0);
+
+    // Get Sunday (Monday + 6 days) at 19:00
+    const sunday = new Date(monday);
+    sunday.setDate(sunday.getDate() + 6);
+    sunday.setHours(19, 0, 0, 0);
+
+    // Set publication date (Saturday 19:00) in datetime-local format
+    const saturdayLocal = new Date(saturday.getTime() - saturday.getTimezoneOffset() * 60000);
+    newContent.value.publicationDate = saturdayLocal.toISOString().slice(0, 16);
+
+    // Set close date (Sunday) in date format
+    newContent.value.closeDate = sunday.toISOString().split('T')[0];
 }
 
 function updateBestVideoListDate() {
