@@ -418,7 +418,7 @@ export default defineComponent({
     };
 
     watch(selectedYear, () => {
-      selectMonth(selectedMonth.value);
+      selectMonth(0); // Cargar enero al cambiar el año
     });
 
     onMounted(() => {
