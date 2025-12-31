@@ -34,7 +34,8 @@
     <div class="flex-1 overflow-y-auto p-6">
       <!-- Reuniones Actuales -->
       <div class="mb-8">
-        <ReunionTable title="Reuniones Actuales" :reuniones="reunionesPresentes" @edit="openEditModal" />
+        <ReunionTable title="Reuniones Actuales" :reuniones="reunionesPresentes" @edit="openEditModal"
+          @update="handleReunionUpdate" />
       </div>
 
       <!-- Reuniones Pasadas -->
@@ -218,6 +219,13 @@ export default {
     },
     handleReunionUpdated() {
       this.fetchReuniones();
+    },
+    handleReunionUpdate(updatedReunion) {
+      const index = this.reuniones.findIndex(r => r.id === updatedReunion.id);
+      if (index !== -1) {
+        // Usamos splice para asegurar la reactividad en Vue 2/3
+        this.reuniones.splice(index, 1, updatedReunion);
+      }
     },
     toggleForm() {
       this.showForm = !this.showForm;

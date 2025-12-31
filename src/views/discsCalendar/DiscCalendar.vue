@@ -5,30 +5,15 @@
     </h1>
 
     <!-- FILTROS SUPERIORES -->
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-start mb-6">
-  <DiscFilters
-    :externalRow1="true"
-    :searchQuery="searchQuery"
-    :selectedGenre="selectedGenre"
-    :selectedCountry="selectedCountry"
-    :genres="genreOptions"
-    :countries="countries"
-    :showWeekPicker="false"
-    :showCountryFilter="false"
-    @update:searchQuery="searchQuery = $event"
-    @update:selectedGenre="selectedGenre = $event"
-    @update:selectedCountry="selectedCountry = $event"
-    selectClass="w-full min-w-0"
-    @reset-and-fetch="resetAndFetch"
-  />
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-start mb-6">
+      <DiscFilters :externalRow1="true" :searchQuery="searchQuery" :selectedGenre="selectedGenre"
+        :selectedCountry="selectedCountry" :genres="genreOptions" :countries="countries" :showWeekPicker="false"
+        :showCountryFilter="false" @update:searchQuery="searchQuery = $event"
+        @update:selectedGenre="selectedGenre = $event" @update:selectedCountry="selectedCountry = $event"
+        selectClass="w-full min-w-0" @reset-and-fetch="resetAndFetch" />
 
-  <SimpleSelect
-    v-model="selectedYear"
-    :options="yearOptions"
-    placeholder="Año"
-    class="w-full min-w-0"
-  />
-</div>
+      <SimpleSelect v-model="selectedYear" :options="yearOptions" placeholder="Año" class="w-full min-w-0" />
+    </div>
 
 
     <div>
@@ -558,7 +543,7 @@ export default defineComponent({
     };
 
     watch(selectedYear, () => {
-      selectMonth(selectedMonth.value);
+      selectMonth(0); // Cargar enero al cambiar el año
     });
 
     onMounted(() => {
