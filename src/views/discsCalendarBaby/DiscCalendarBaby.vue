@@ -4,86 +4,72 @@
       Calendario
     </h1>
 
-    <!-- Filtros -->
-    <DiscFilters :searchQuery="searchQuery" :selectedGenre="selectedGenre" :selectedCountry="selectedCountry"
-      :genres="genres" :countries="countries" :showWeekPicker="false" :showCountryFilter="false"
-      @update:searchQuery="searchQuery = $event" @update:selectedGenre="selectedGenre = $event"
-      @update:selectedCountry="selectedCountry = $event" selectClass="w-[280px] sm:w-[300px] w-full"
-      @reset-and-fetch="resetAndFetch" />
-    
-    <div>
-      <div class="flex justify-center mb-4">
-        <SimpleSelect
-          v-model="selectedYear"
-          :options="yearOptions"
-          placeholder="Selecciona un año"
-          class="w-40"
-        />
-      </div>
-      <div class="flex flex-wrap justify-center gap-2 mb-6 mt-6 overflow-x-auto">
-        <button v-for="(month, index) in months" :key="index" @click="selectMonth(index)" class="px-4 py-2 rounded-full transition-all duration-200 whitespace-nowrap shadow-sm mb-1 font-semibold
+    <!-- Fila única: Search + Género + Año -->
+    <div class="mb-4 grid grid-cols-1 md:grid-cols-3 gap-2 items-start">
+      <DiscFilters :searchQuery="searchQuery" :selectedGenre="selectedGenre" :selectedCountry="selectedCountry"
+        :genres="genres" :countries="countries" :showWeekPicker="false" :showCountryFilter="false" :externalRow1="true"
+        wrapperClass="contents" selectClass="w-full" @update:searchQuery="searchQuery = $event"
+        @update:selectedGenre="selectedGenre = $event" @update:selectedCountry="selectedCountry = $event"
+        @reset-and-fetch="resetAndFetch" />
+
+      <SimpleSelect v-model="selectedYear" :options="yearOptions" placeholder="Selecciona un año" class="w-full"
+        selectClass="w-full" />
+    </div>
+
+    <div class="flex flex-wrap justify-center gap-2 mb-6 mt-6 overflow-x-auto">
+      <button v-for="(month, index) in months" :key="index" @click="selectMonth(index)" class="px-4 py-2 rounded-full transition-all duration-200 whitespace-nowrap shadow-sm mb-1 font-semibold
            border-rv-navy/15
            focus:outline-none focus:ring-0 focus:ring-offset-0" :class="selectedMonth === index
             ? 'bg-gradient-to-tr from-rv-blue to-rv-blueDark text-white shadow-md border-transparent'
             : 'bg-white text-rv-navy hover:border-rv-blue border-2 hover:shadow-md'">
-          {{ month }}
+        {{ month }}
+      </button>
+    </div>
+
+    <!-- Lista de discos agrupados (resto del template) -->
+    <div v-for="(group, index) in filteredGroupedDiscs" :key="group.releaseDate" class="mb-8">
+      <!-- ... (resto del contenido del v-for, incluyendo el encabezado del grupo, el botón de toggle, etc.) ... -->
+      <div class="group flex justify-between items-center px-5 py-3 rounded-full cursor-pointer transition-all duration-200 shadow-sm
+         border border-rv-navy/10" :class="groupState[index]
+          ? 'bg-gradient-to-r from-rv-navy to-rv-navy/80 shadow-md'
+          : 'bg-white hover:bg-gradient-to-r from-rv-navy to-rv-navy/80 hover:text-white hover:shadow-md'"
+        @click="toggleGroup(index)">
+        <h3 class="text-xl sm:text-2xl font-semibold transition-colors duration-200"
+          :class="groupState[index] ? 'text-white' : 'text-rv-navy group-hover:text-white'">
+          {{ formatDate(group.releaseDate) }}
+        </h3>
+
+        <button class="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200
+           focus:outline-none focus:ring-0 focus:ring-offset-0" :class="groupState[index]
+            ? 'bg-rv-pink text-white text-xl'
+            : 'bg-rv-pink text-white hover:bg-rv-pink text-xl hover:text-white'">
+          <i class="fas fa-chevron-down transition-transform duration-200"
+            :class="groupState[index] ? 'rotate-180' : ''"></i>
         </button>
       </div>
 
-      <!-- Lista de discos agrupados (resto del template) -->
-      <div v-for="(group, index) in filteredGroupedDiscs" :key="group.releaseDate" class="mb-8">
-        <!-- ... (resto del contenido del v-for, incluyendo el encabezado del grupo, el botón de toggle, etc.) ... -->
-<div
-  class="group flex justify-between items-center px-5 py-3 rounded-full cursor-pointer transition-all duration-200 shadow-sm
-         border border-rv-navy/10"
-  :class="groupState[index]
-    ? 'bg-gradient-to-r from-rv-navy to-rv-navy/80 shadow-md'
-    : 'bg-white hover:bg-gradient-to-r from-rv-navy to-rv-navy/80 hover:text-white hover:shadow-md'"
-  @click="toggleGroup(index)"
->
-  <h3
-    class="text-xl sm:text-2xl font-semibold transition-colors duration-200"
-    :class="groupState[index] ? 'text-white' : 'text-rv-navy group-hover:text-white'"
-  >
-    {{ formatDate(group.releaseDate) }}
-  </h3>
+      <!-- Contenido del grupo desplegable -->
+      <transition name="fade-slide" mode="out-in">
+        <div v-if="groupState[index]" class="mt-4 overflow-x-auto">
 
-  <button
-    class="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200
-           focus:outline-none focus:ring-0 focus:ring-offset-0"
-    :class="groupState[index]
-      ? 'bg-rv-pink text-white text-xl'
-      : 'bg-rv-pink text-white hover:bg-rv-pink text-xl hover:text-white'"
-  >
-    <i
-      class="fas fa-chevron-down transition-transform duration-200"
-      :class="groupState[index] ? 'rotate-180' : ''"
-    ></i>
-  </button>
-</div>
-
-        <!-- Contenido del grupo desplegable -->
-        <transition name="fade-slide" mode="out-in">
-          <div v-if="groupState[index]" class="mt-4 overflow-x-auto">
-
-            <!-- Lista de discos -->
-            <ul class="w-full">
-              <li v-for="disc in group.discs" :key="disc.id"
-                class="flex flex-col md:flex-row md:justify-between p-4 border-b w-full">
-                <DiscComponent :disc="disc" :genres="genres" :artistCountry="disc.artist?.country"
-                  @disc-deleted="removeDisc" @date-changed="handleDateChange" />
-              </li>
-            </ul>
-          </div>
-        </transition>
-      </div>
-    </div>
-
-    <!-- Cargar más -->
-    <div ref="loadMore" class="text-center py-6">
-      <span v-if="loading" class="text-gray-600">Cargando discos...</span>
+          <!-- Lista de discos -->
+          <ul class="w-full">
+            <li v-for="disc in group.discs" :key="disc.id"
+              class="flex flex-col md:flex-row md:justify-between p-4 border-b w-full">
+              <DiscComponent :disc="disc" :genres="genres" :artistCountry="disc.artist?.country"
+                @disc-deleted="removeDisc" @date-changed="handleDateChange" />
+            </li>
+          </ul>
+        </div>
+      </transition>
     </div>
   </div>
+
+  <!-- Cargar más -->
+  <div ref="loadMore" class="text-center py-6">
+    <span v-if="loading" class="text-gray-600">Cargando discos...</span>
+  </div>
+
 </template>
 
 <script lang="ts">
@@ -123,15 +109,15 @@ export default defineComponent({
     const selectedYear = ref(new Date().getFullYear());
 
     const yearOptions = computed(() => {
-        const currentYear = new Date().getFullYear();
-        const currentMonth = new Date().getMonth();
-        const startYear = 2025;
-        const endYear = (currentMonth === 11 ? currentYear + 1 : currentYear);
-        const years = [];
-        for (let i = startYear; i <= endYear; i++) {
-            years.push({ value: i, label: String(i) });
-        }
-        return years;
+      const currentYear = new Date().getFullYear();
+      const currentMonth = new Date().getMonth();
+      const startYear = 2025;
+      const endYear = (currentMonth === 11 ? currentYear + 1 : currentYear);
+      const years = [];
+      for (let i = startYear; i <= endYear; i++) {
+        years.push({ value: i, label: String(i) });
+      }
+      return years;
     });
 
     // --- Filtros ---
@@ -430,9 +416,9 @@ export default defineComponent({
 
       fetchDiscs();
     };
-    
+
     watch(selectedYear, () => {
-        selectMonth(selectedMonth.value);
+      selectMonth(selectedMonth.value);
     });
 
     onMounted(() => {

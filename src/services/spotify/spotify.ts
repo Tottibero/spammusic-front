@@ -25,28 +25,30 @@ export const SPOTIFY_TIPOS: SpotifyTipo[] = ['festival', 'especial', 'genero', '
 
 export interface Spotify {
   id: string;
-  nombre: string;
-  estado: SpotifyEstado;
-  enlace: string;
-  tipo: SpotifyTipo;
-  fechaActualizacion: string; // ISO
+  name: string;
+  status: SpotifyEstado;
+  link: string;
+  type: SpotifyTipo;
+  updateDate: string; // ISO
   createdAt: string; // ISO
   updatedAt: string; // ISO
+  user?: { id: string; username: string; image?: string }; // Usuario asignado
 }
 
 // =========================
 // DTOs (frontend)
 // =========================
 export interface CreateSpotifyDto {
-  nombre: string;
-  estado: SpotifyEstado;
-  enlace: string;
-  tipo: SpotifyTipo;
+  name: string;
+  status: SpotifyEstado;
+  link: string;
+  type: SpotifyTipo;
   /** ISO8601, ej "2025-09-22T10:00:00Z" */
-  fechaActualizacion: string;
+  updateDate: string;
+  userId?: string;
 }
 
-export interface UpdateSpotifyDto extends Partial<CreateSpotifyDto> {}
+export interface UpdateSpotifyDto extends Partial<CreateSpotifyDto> { }
 
 // Utils
 export const toISO = (d: Date) => d.toISOString();
@@ -59,12 +61,22 @@ export interface ListSpotifyParams {
   offset?: number;
   /** búsqueda por texto si la añades en el backend (nombre, etc.) */
   q?: string;
-  estado?: SpotifyEstado;
-  tipo?: SpotifyTipo;
+  status?: SpotifyEstado;
+  type?: SpotifyTipo;
 }
 
 export async function listSpotify(params: ListSpotifyParams = {}): Promise<Spotify[]> {
   const { data } = await api.get<Spotify[]>('/spotify', { params });
+  return data;
+}
+
+export async function getSpotifyFestivals(): Promise<Spotify[]> {
+  const { data } = await api.get<Spotify[]>('/spotify/festivals');
+  return data;
+}
+
+export async function getSpotifyGenres(): Promise<Spotify[]> {
+  const { data } = await api.get<Spotify[]>('/spotify/genres');
   return data;
 }
 

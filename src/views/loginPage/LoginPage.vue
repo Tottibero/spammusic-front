@@ -1,5 +1,6 @@
 <template>
-<div class="min-h-[100svh] flex flex-col items-center justify-center">
+<div class="min-h-[100svh] flex flex-col items-center justify-center
+            scale-[0.92] sm:scale-100 origin-center">
 
     <!-- CARD ÚNICA -->
     <div class="w-full max-w-sm shadow-lg rounded-3xl overflow-hidden bg-white">

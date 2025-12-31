@@ -29,3 +29,8 @@ export async function getSuperusers(): Promise<Superuser[]> {
   const response = await api.get<Superuser[]>("/auth/users/superusers");
   return response.data;
 }
+
+export async function getUsersRv(): Promise<Superuser[]> {
+  const response = await api.get<Superuser[]>("/auth/usersRv");
+  return response.data;
+}

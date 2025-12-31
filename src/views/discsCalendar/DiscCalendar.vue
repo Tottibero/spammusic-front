@@ -5,18 +5,31 @@
     </h1>
 
     <!-- FILTROS SUPERIORES -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-start mb-6">
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-start mb-6">
+  <DiscFilters
+    :externalRow1="true"
+    :searchQuery="searchQuery"
+    :selectedGenre="selectedGenre"
+    :selectedCountry="selectedCountry"
+    :genres="genreOptions"
+    :countries="countries"
+    :showWeekPicker="false"
+    :showCountryFilter="false"
+    @update:searchQuery="searchQuery = $event"
+    @update:selectedGenre="selectedGenre = $event"
+    @update:selectedCountry="selectedCountry = $event"
+    selectClass="w-full min-w-0"
+    @reset-and-fetch="resetAndFetch"
+  />
 
-      <!-- Search + género (DiscFilters) -->
-      <DiscFilters class="sm:col-span-2" :searchQuery="searchQuery" :selectedGenre="selectedGenre"
-        :selectedCountry="selectedCountry" :genres="genreOptions" :countries="countries" :showWeekPicker="false"
-        :showCountryFilter="false" @update:searchQuery="searchQuery = $event" @update:selectedGenre="selectedGenre = $event"
-        @update:selectedCountry="selectedCountry = $event" selectClass="w-full" @reset-and-fetch="resetAndFetch" />
+  <SimpleSelect
+    v-model="selectedYear"
+    :options="yearOptions"
+    placeholder="Año"
+    class="w-full min-w-0"
+  />
+</div>
 
-      <!-- Año -->
-      <SimpleSelect v-model="selectedYear" :options="yearOptions" placeholder="Año" class="w-full" />
-
-    </div>
 
     <div>
       <div class="flex flex-wrap justify-center gap-2 mb-6 mt-6 overflow-x-auto">

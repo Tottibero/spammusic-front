@@ -70,7 +70,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/articles",
     name: "Articles",
-    component: () => import("/src/views/articles/ArticlesList.vue"),
+    component: () => import("/src/views/articles/ArticlesKanban.vue"),
     meta: { requiresAuth: true, requiresRole: "riffValley" },
   },
   {
@@ -176,6 +176,18 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresAuth: true },
   },
   {
+    path: "/spotify/festivales",
+    name: "SpotifyFestivales",
+    component: () => import("/src/views/spotify/SpotifyFestivalsKanban.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/spotify/generos",
+    name: "SpotifyGeneros",
+    component: () => import("/src/views/spotify/SpotifyGenresKanban.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
     path: "/patch-notes",
     name: "PatchNotes",
     component: () => import("/src/views/patch-notes/PatchNotes.vue"),
@@ -239,6 +251,7 @@ router.beforeEach((to) => {
   // Puedes activar esto con la variable de entorno VITE_MAINTENANCE_MODE=true
   // O descomentar la verificación por hostname si prefieres esa lógica específica
   // const isProdUrl = window.location.hostname === 'spammusic.netlify.app';
+  console.log('MAINTENANCE_MODE:', import.meta.env.VITE_MAINTENANCE_MODE);
   const isMaintenance = import.meta.env.VITE_MAINTENANCE_MODE === 'true'; // || isProdUrl;
 
   if (isMaintenance) {

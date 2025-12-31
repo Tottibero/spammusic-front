@@ -6,28 +6,25 @@
                 <div class="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mx-auto">
                     <span class="text-6xl">🛠️</span>
                 </div>
-                <!-- Decoración -->
-                <div class="absolute top-0 right-1/4 animate-bounce-slow">
-                    <span class="text-2xl">⚙️</span>
-                </div>
             </div>
 
             <!-- Título -->
             <h1 class="text-3xl font-bold text-gray-800 mb-4">
-                Mantenimiento Programado
+                Mantenimiento
             </h1>
 
             <!-- Mensaje -->
-            <p class="text-gray-600 mb-8 text-lg leading-relaxed">
+            <p class="text-gray-800 mb-8 text-lg leading-relaxed">
                 Estamos realizando mejoras en <span class="font-bold text-primary">Riff Valley</span> para brindarte una
                 mejor experiencia.
                 <br>
-                Por favor, vuelve a intentarlo en unos minutos.
+                Se informará por el canal <a href="https://t.me/spammusicapp" target="_blank"
+                    class="text-blue-500 hover:underline">Telegram</a>.
             </p>
 
             <!-- Botón Recargar -->
             <button @click="reloadPage"
-                class="btn btn-primary btn-lg w-full sm:w-auto min-w-[200px] shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
+                class="bg-gray-200 btn btn-primary btn-lg w-full sm:w-auto min-w-[200px] shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -39,7 +36,7 @@
             <!-- Footer info -->
             <div class="mt-8 pt-6 border-t border-gray-100">
                 <p class="text-sm text-gray-400">
-                    ¿Necesitas ayuda urgente? Contáctanos en
+                    ¿Necesitas ayuda? Contáctanos en
                     <a href="https://t.me/+82736120501" target="_blank"
                         class="text-blue-500 hover:underline">Telegram</a>
                 </p>
