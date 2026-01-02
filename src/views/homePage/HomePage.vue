@@ -92,8 +92,7 @@
 
       <button @click="selectedPeriod = 'week'" :class="selectedPeriod === 'week'
         ? 'bg-rv-navy text-white font-semibold'
-        : 'bg-gray-200 text-rv-navy hover:bg-rv-navy hover:text-white'"
-        class="px-4 py-1.5 rounded-full shadow-md text-md transition-all duration-200
+        : 'bg-gray-200 text-rv-navy hover:bg-rv-navy hover:text-white'" class="px-4 py-1.5 rounded-full shadow-md text-md transition-all duration-200
        border-0 outline-none focus:outline-none focus-visible:outline-none
        ring-0 focus:ring-0 focus-visible:ring-0">
         Semana
@@ -101,8 +100,7 @@
 
       <button @click="selectedPeriod = 'month'" :class="selectedPeriod === 'month'
         ? 'bg-rv-navy text-white font-semibold'
-        : 'bg-gray-200 text-rv-navy hover:bg-rv-navy hover:text-white'"
-        class="px-4 py-1.5 rounded-full shadow-md text-md transition-all duration-200
+        : 'bg-gray-200 text-rv-navy hover:bg-rv-navy hover:text-white'" class="px-4 py-1.5 rounded-full shadow-md text-md transition-all duration-200
        border-0 outline-none focus:outline-none focus-visible:outline-none
        ring-0 focus:ring-0 focus-visible:ring-0">
         Mes
@@ -110,8 +108,7 @@
 
       <button @click="selectedPeriod = 'year'" :class="selectedPeriod === 'year'
         ? 'bg-rv-navy text-white font-semibold'
-        : 'bg-gray-200 text-rv-navy hover:bg-rv-navy hover:text-white'"
-        class="px-4 py-1.5 rounded-full shadow-md text-md transition-all duration-200
+        : 'bg-gray-200 text-rv-navy hover:bg-rv-navy hover:text-white'" class="px-4 py-1.5 rounded-full shadow-md text-md transition-all duration-200
        border-0 outline-none focus:outline-none focus-visible:outline-none
        ring-0 focus:ring-0 focus-visible:ring-0">
         Año
@@ -119,8 +116,7 @@
 
       <button @click="{ selectedPeriod = 'all'; fetchDiscs(); }" :class="selectedPeriod === 'all'
         ? 'bg-rv-navy text-white font-semibold'
-        : 'bg-gray-200 text-rv-navy hover:bg-rv-navy hover:text-white'"
-        class="px-4 py-1.5 rounded-full shadow-md text-md transition-all duration-200
+        : 'bg-gray-200 text-rv-navy hover:bg-rv-navy hover:text-white'" class="px-4 py-1.5 rounded-full shadow-md text-md transition-all duration-200
        border-0 outline-none focus:outline-none focus-visible:outline-none
        ring-0 focus:ring-0 focus-visible:ring-0">
         Todos
@@ -128,13 +124,9 @@
 
 
       <div v-if="selectedPeriod !== 'all'" class="relative">
-        <select
-  v-model="selectedOption"
-  @change="fetchDiscs"
-  class="min-w-[12rem] px-4 pr-9 py-1.5 rounded-full shadow-md text-md font-semibold
+        <select v-model="selectedOption" @change="fetchDiscs" class="min-w-[12rem] px-4 pr-9 py-1.5 rounded-full shadow-md text-md font-semibold
          bg-rv-navy text-white appearance-none cursor-pointer
-         focus:outline-none"
->
+         focus:outline-none">
           <option v-for="option in optionsForSelect" :key="option.label" :value="option">
             {{ option.label }}
           </option>
@@ -157,7 +149,7 @@
         :averageCover="disc.averageCover" :rate="disc.userRate?.rate" :cover="disc.userRate?.cover"
         :isNew="!disc.userRate" :userDiscRate="disc.userRate?.id" :favoriteId="disc.userFavoriteId"
         :pendingId="disc.pendingId" :comment-count="disc.commentCount" :rateCount="disc.voteCount"
-        :artistCountry="disc.artist?.country" />
+        :artistCountry="disc.artist?.country" :debut="disc.debut" />
     </div>
   </div>
 
