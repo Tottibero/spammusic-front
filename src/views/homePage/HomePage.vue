@@ -1,10 +1,26 @@
 <template>
   <div :class="{ 'menu-open': menuVisible }" class="max-w-[100rem] mx-auto mt-10 px-4">
-    <div class="bg-white shadow-lg rounded-lg p-4 sm:p-6 mb-4 max-w-[90vw] md:max-w-[100rem] mx-auto">
+    <div class="bg-white shadow-lg rounded-lg p-4 sm:p-6 mb-4 max-w-[90vw] md:max-w-[100rem] mx-auto relative">
+      <div class="absolute top-4 right-4 z-10">
+        <div class="relative">
+          <select v-model="selectedStatsYear" @change="fetchDiscs" class="px-4 pr-9 py-1 rounded-full shadow-md text-sm font-semibold
+                   bg-rv-navy text-white appearance-none cursor-pointer
+                   focus:outline-none border-none ring-0 w-auto">
+            <option v-for="option in availableStatsYears" :key="option.value" :value="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+          <!-- chevron -->
+          <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white"
+            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
         <!-- Estadísticas de la App -->
         <div class="text-center md:border-r border-gray-200 pb-4 md:pb-0 md:pr-4 text-sm sm:text-base md:text-lg">
-          <h3 class="text-2xl md:text-3xl font-bold mb-4 text-rv-navy">
+          <h3 class="text-2xl md:text-3xl font-bold text-rv-navy mb-4">
             Estadísticas de discos
           </h3>
           <p class="text-lg md:text-xl text-rv-navy">
@@ -22,12 +38,14 @@
         </div>
         <!-- Top Usuarios -->
         <div class="text-center">
-          <h3 class="text-2xl md:text-3xl font-bold mb-4 text-rv-navy">Top usuarios</h3>
+          <h3 class="text-2xl md:text-3xl font-bold mb-4 text-rv-navy">
+            {{ selectedStatsYear === 'all' ? 'Top usuarios' : `Top usuarios ${selectedStatsYear}` }}
+          </h3>
           <div class="mb-4">
             <h4 class="text-lg md:text-2xl font-semibold mb-2 text-rv-navy">
               Más discos votados
             </h4>
-            <ul class="list-none">
+            <ul v-if="topUsersByRates.length > 0" class="list-none">
               <li v-for="(user, index) in topUsersByRates" :key="user.user.id"
                 class="flex items-center justify-center mb-2 text-sm md:text-base">
                 <span class="mr-2" v-html="getTrophyIcon(index)"></span>
@@ -35,12 +53,13 @@
                 <span class="ml-2 text-rv-navy">- {{ user.rateCount }} votos</span>
               </li>
             </ul>
+            <p v-else class="text-gray-500 italic">No hay datos</p>
           </div>
           <div>
             <h4 class="text-lg md:text-2xl font-semibold mb-2 text-rv-navy">
               Más portadas votadas
             </h4>
-            <ul class="list-none">
+            <ul v-if="topUsersByCover.length > 0" class="list-none">
               <li v-for="(user, index) in topUsersByCover" :key="user.user.id"
                 class="flex items-center justify-center mb-2">
                 <span class="mr-2" v-html="getTrophyIcon(index)"></span>
@@ -48,6 +67,7 @@
                 <span class="ml-2 text-rv-navy">- {{ user.totalCover }} votos</span>
               </li>
             </ul>
+            <p v-else class="text-gray-500 italic">No hay datos</p>
           </div>
           <!-- Botón para abrir estadísticas detalladas -->
           <div class="mt-8">
@@ -123,20 +143,38 @@
       </button>
 
 
-      <div v-if="selectedPeriod !== 'all'" class="relative">
-        <select v-model="selectedOption" @change="fetchDiscs" class="min-w-[12rem] px-4 pr-9 py-1.5 rounded-full shadow-md text-md font-semibold
-         bg-rv-navy text-white appearance-none cursor-pointer
-         focus:outline-none">
-          <option v-for="option in optionsForSelect" :key="option.label" :value="option">
-            {{ option.label }}
-          </option>
-        </select>
+      <div v-if="selectedPeriod !== 'all'" class="relative flex gap-4">
+        <div class="relative">
+          <select v-model="selectedOption" @change="fetchDiscs" class="min-w-[12rem] px-4 pr-9 py-1.5 rounded-full shadow-md text-md font-semibold
+                   bg-rv-navy text-white appearance-none cursor-pointer
+                   focus:outline-none">
+            <option v-for="option in optionsForSelect" :key="option.label" :value="option">
+              {{ option.label }}
+            </option>
+          </select>
 
-        <!-- chevron -->
-        <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white"
-          xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-        </svg>
+          <!-- chevron -->
+          <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white"
+            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+
+        <!-- Selector de Año (solo visible si es Semana o Mes) -->
+        <div v-if="selectedPeriod === 'week' || selectedPeriod === 'month'" class="relative">
+          <select v-model="selectedYear" class="min-w-[6rem] px-4 pr-9 py-1.5 rounded-full shadow-md text-md font-semibold
+                   bg-rv-navy text-white appearance-none cursor-pointer
+                   focus:outline-none">
+            <option v-for="year in availableYears" :key="year" :value="year">
+              {{ year }}
+            </option>
+          </select>
+          <!-- chevron -->
+          <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white"
+            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
       </div>
     </div>
 
@@ -186,8 +224,37 @@ export default defineComponent({
 
     // Período seleccionado: 'week' (por defecto), 'month', 'year' o 'all'
     const selectedPeriod = ref("week");
+
+    // Año seleccionado para filtros de semana y mes
+    const selectedYear = ref(new Date().getFullYear());
+
+    // Año seleccionado para las estadísticas (parte superior)
+    const selectedStatsYear = ref<number | string>(new Date().getFullYear());
+
     // Almacena el rango seleccionado mediante el <select>
     const selectedOption = ref<{ start: string; end: string; label: string } | null>(null);
+
+    const availableYears = computed(() => {
+      const years: number[] = [];
+      const currentYear = new Date().getFullYear();
+      const currentMonth = new Date().getMonth();
+      const startYear = 2025;
+      const endYear = (currentMonth === 11 ? currentYear + 1 : currentYear);
+      for (let i = endYear; i >= startYear; i--) {
+        years.push(i);
+      }
+      return years;
+    });
+
+    const availableStatsYears = computed(() => {
+      const options: { value: number | string; label: string }[] = availableYears.value.map(year => ({
+        value: year,
+        label: `${year}`
+      }));
+      // Agregar opción "Todos" al principio
+      options.unshift({ value: 'all', label: 'Todos' });
+      return options;
+    });
 
     // Filtros
     const searchQuery = ref("");
@@ -224,19 +291,32 @@ export default defineComponent({
     // -------------------------
 
     // Opciones para "Semana": generar semanas (de viernes a jueves) desde el primer viernes del año hasta la semana actual
+    // Opciones para "Semana": generar semanas (de viernes a jueves) desde el primer viernes del año seleccionado hasta la semana actual o fin de año
     const weekOptions = computed(() => {
       const options: Array<{ start: string; end: string; label: string }> = [];
+      const year = selectedYear.value;
       const currentYear = new Date().getFullYear();
-      // Buscar el primer viernes del año
-      let firstFriday = new Date(currentYear, 0, 1);
+      const isCurrentYear = year === currentYear;
+
+      // Buscar el primer viernes del año seleccionado
+      let firstFriday = new Date(year, 0, 1);
       while (firstFriday.getDay() !== 5) {
         firstFriday.setDate(firstFriday.getDate() + 1);
       }
-      // Calcular el inicio de la semana actual (último viernes)
-      const today = new Date();
-      const offset = (today.getDay() - 5 + 7) % 7;
-      const currentWeekStart = new Date(today);
-      currentWeekStart.setDate(today.getDate() - offset);
+
+      // Calcular límite final
+      let endLimitDate: Date;
+      if (isCurrentYear) {
+        // Calcular el inicio de la semana actual (último viernes)
+        const today = new Date();
+        const offset = (today.getDay() - 5 + 7) % 7;
+        const currentWeekStart = new Date(today);
+        currentWeekStart.setDate(today.getDate() - offset);
+        endLimitDate = currentWeekStart;
+      } else {
+        // Fin del año seleccionado
+        endLimitDate = new Date(year, 11, 31);
+      }
 
       const monthNames = [
         "enero", "febrero", "marzo", "abril", "mayo", "junio",
@@ -244,7 +324,10 @@ export default defineComponent({
       ];
 
       let current = new Date(firstFriday);
-      while (current <= currentWeekStart) {
+      while (current <= endLimitDate) {
+        // Si nos pasamos el año (puede pasar al final de diciembre), paramos si el año de incio de semana es mayor
+        if (current.getFullYear() > year) break;
+
         const startDate = new Date(current);
         const endDate = new Date(current);
         endDate.setDate(current.getDate() + 6);
@@ -260,27 +343,39 @@ export default defineComponent({
 
     // Opciones para "Mes": se agrega una opción por defecto de "30 días naturales"
     // y a continuación se incluyen las opciones de meses calendario
+    // Opciones para "Mes": se agrega una opción por defecto de "30 días naturales"
+    // y a continuación se incluyen las opciones de meses calendario del año seleccionado
     const monthOptions = computed(() => {
       const options: Array<{ start: string; end: string; label: string }> = [];
       const today = new Date();
-      // Opción "30 días naturales": últimos 30 días (incluyendo hoy)
-      const naturalStart = new Date(today);
-      naturalStart.setDate(today.getDate() - 29);
-      options.push({
-        start: formatLocalDate(naturalStart),
-        end: formatLocalDate(today),
-        label: "30 días naturales",
-      });
-      // Opciones para cada mes calendario hasta el mes actual
       const currentYear = today.getFullYear();
-      const currentMonth = today.getMonth();
+      const year = selectedYear.value;
+
+      // Opción "30 días naturales": últimos 30 días (incluyendo hoy)
+      // Mostrar solo si estamos viendo el año actual, o tal vez siempre? 
+      // Por simplicidad y consistencia, la dejamos si el año seleccionado es el actual.
+      if (year === currentYear) {
+        const naturalStart = new Date(today);
+        naturalStart.setDate(today.getDate() - 29);
+        options.push({
+          start: formatLocalDate(naturalStart),
+          end: formatLocalDate(today),
+          label: "30 días naturales",
+        });
+      }
+
+      // Opciones para cada mes calendario hasta el mes actual (si es año actual) o todo el año
       const monthNames = [
         "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
         "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
       ];
-      for (let month = 0; month <= currentMonth; month++) {
-        const startDate = new Date(currentYear, month, 1);
-        const endDate = new Date(currentYear, month + 1, 0);
+
+      const lastMonthIndex = (year === currentYear) ? today.getMonth() : 11;
+
+      for (let month = 0; month <= lastMonthIndex; month++) {
+        // Evitar generar meses futuros si por alguna razón year > currentYear y month > hoy (aunque está controlado por lógica de availableYears)
+        const startDate = new Date(year, month, 1);
+        const endDate = new Date(year, month + 1, 0);
         const startStr = formatLocalDate(startDate);
         const endStr = formatLocalDate(endDate);
         const label = `${monthNames[month]} (${startDate.getDate()}-${endDate.getDate()})`;
@@ -296,7 +391,7 @@ export default defineComponent({
       const currentMonth = new Date().getMonth();
       const startYear = 2025;
       const endYear = (currentMonth === 11 ? currentYear + 1 : currentYear);
-      for (let i = startYear; i <= endYear; i++) {
+      for (let i = endYear; i >= startYear; i--) {
         const startDate = new Date(i, 0, 1);
         const endDate = new Date(i, 11, 31);
         const startStr = formatLocalDate(startDate);
@@ -327,11 +422,24 @@ export default defineComponent({
         } else {
           dateRange = undefined;
         }
+
         console.log('Fetching discs with genre:', selectedGenre.value);
+
+        // Rango para stats y distribution basado en selectedStatsYear
+        let statsRange: [string, string] | undefined = undefined;
+
+        if (selectedStatsYear.value !== 'all') {
+          const statsStart = `${selectedStatsYear.value}-01-01`;
+          const statsEnd = `${selectedStatsYear.value}-12-31`;
+          statsRange = [statsStart, statsEnd];
+        }
+
         const response: DiscsStatsResponse = await getTopRatedOrFeaturedAndStats(
           dateRange,
           selectedGenre.value ? selectedGenre.value : undefined,
-          selectedCountry.value ? selectedCountry.value : undefined
+          selectedCountry.value ? selectedCountry.value : undefined,
+          statsRange,
+          statsRange
         );
         discs.value = response.discs.map((disc) => ({
           ...disc,
@@ -353,11 +461,20 @@ export default defineComponent({
     // ---------------------------------
     // Actualiza la opción seleccionada cuando cambia el período
     // ---------------------------------
-    watch([selectedPeriod, selectedGenre, selectedCountry], () => {
-      console.log('Period, Genre or Country changed:', { period: selectedPeriod.value, genre: selectedGenre.value, country: selectedCountry.value });
+    // ---------------------------------
+    // Actualiza la opción seleccionada cuando cambia el período, género, país o año
+    // ---------------------------------
+    watch([selectedPeriod, selectedGenre, selectedCountry, selectedYear, selectedStatsYear], () => {
+      console.log('Period, Genre, Country or Year changed:', { period: selectedPeriod.value, genre: selectedGenre.value, country: selectedCountry.value, year: selectedYear.value });
       if (selectedPeriod.value === "week") {
         selectedOption.value = weekOptions.value[weekOptions.value.length - 1];
       } else if (selectedPeriod.value === "month") {
+        // Si hay opciones, seleccionar la primera (o la ultima? para meses suele ser mejor ver el ultimo o 30 dias).
+        // Originalmente seleccionaba index 0 que era "30 dias" o Enero. 
+        // Si no hay "30 dias" (año pasado), index 0 es Enero.
+        // Tal vez para meses pasados queramos ver Diciembre?
+        // El codigo original: selectedOption.value = monthOptions.value[0];
+        // Mantendremos esa logica por ahora.
         selectedOption.value = monthOptions.value[0];
       } else if (selectedPeriod.value === "year") {
         selectedOption.value = yearOptions.value[0];
@@ -400,6 +517,10 @@ export default defineComponent({
       ratingDistribution,
       selectedPeriod,
       selectedOption,
+      selectedYear,
+      selectedStatsYear,
+      availableYears,
+      availableStatsYears,
       optionsForSelect,
       fetchDiscs,
       getTrophyIcon,
