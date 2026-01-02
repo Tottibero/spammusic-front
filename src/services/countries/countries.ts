@@ -20,7 +20,7 @@ export async function getCountries(
   offset: number
 ): Promise<CountriesResponse> {
   const response = await api.get<CountriesResponse>("/countries", {
-    params: { limit, offset },
+    params: { limit: 500, offset },
   });
   return response.data;
 }
