@@ -115,45 +115,98 @@ export const obtenerGeneroArtistaSpotify = async (
 export const buscarEnlacesSpotify = async (discs: any[]): Promise<any[] | undefined> => {
   const token = await obtenerTokenSpotify();
   if (!token) {
-      console.error("No se pudo obtener el token de Spotify");
-      return undefined;
+    console.error("No se pudo obtener el token de Spotify");
+    return undefined;
   }
 
   const updatedDiscs = [];
 
   for (const disc of discs) {
-      // Comprobación clave: Si ya tiene un enlace, no buscar.
-      if (disc.link && disc.link !== "No se encontró el álbum" && disc.link !== "Error al realizar la búsqueda") {
-          console.log(`Disco ya buscado: ${disc.name}`);
-          updatedDiscs.push(disc); // Añadir el disco tal cual, ya que no necesita actualización.
-          continue; // Saltar al siguiente disco en el bucle.
+    // Comprobación clave: Si ya tiene un enlace, no buscar.
+    if (disc.link && disc.link !== "No se encontró el álbum" && disc.link !== "Error al realizar la búsqueda") {
+      console.log(`Disco ya buscado: ${disc.name}`);
+      updatedDiscs.push(disc); // Añadir el disco tal cual, ya que no necesita actualización.
+      continue; // Saltar al siguiente disco en el bucle.
+    }
+
+
+    try {
+      const query = encodeURIComponent(`album:${disc.name} artist:${disc.artist.name}`);
+      const response = await axios.get(
+        `https://api.spotify.com/v1/search?q=${query}&type=album&limit=1`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data.albums.items.length > 0) {
+        const album = response.data.albums.items[0];
+        disc.link = album.external_urls.spotify;
+        disc.image = album.images?.[0]?.url || null;
+      } else {
+        disc.link = "No se encontró el álbum";
       }
-
-
-      try {
-          const query = encodeURIComponent(`album:${disc.name} artist:${disc.artist.name}`);
-          const response = await axios.get(
-              `https://api.spotify.com/v1/search?q=${query}&type=album&limit=1`,
-              {
-                  headers: {
-                      Authorization: `Bearer ${token}`,
-                  },
-              }
-          );
-
-          if (response.data.albums.items.length > 0) {
-              const album = response.data.albums.items[0];
-              disc.link = album.external_urls.spotify;
-              disc.image = album.images?.[0]?.url || null;
-          } else {
-              disc.link = "No se encontró el álbum";
-          }
-      } catch (error) {
-          console.error(`Error al buscar el álbum ${disc.name}:`, error);
-          disc.link = "Error al realizar la búsqueda";
-      }
-      updatedDiscs.push(disc); // Añade *siempre* el disco, haya sido actualizado o no.
+    } catch (error) {
+      console.error(`Error al buscar el álbum ${disc.name}:`, error);
+      disc.link = "Error al realizar la búsqueda";
+    }
+    updatedDiscs.push(disc); // Añade *siempre* el disco, haya sido actualizado o no.
   }
 
   return updatedDiscs;
+};
+
+/**
+ * Busca canciones en Spotify (requiere token de usuario).
+ * @param {string} query - El término de búsqueda via text.
+ * @param {string} userToken - Token de acceso del usuario (Implicit Flow).
+ * @returns {Promise<any[] | undefined>} Retorna lista de tracks.
+ */
+export const searchTracks = async (query: string, userToken: string): Promise<any[] | undefined> => {
+  try {
+    const response = await axios.get("https://api.spotify.com/v1/search", {
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+      params: {
+        q: query,
+        type: "track",
+        limit: 10,
+      },
+    });
+    return response.data.tracks.items;
+  } catch (error) {
+    console.error("Error buscando canciones:", error);
+    return undefined;
+  }
+};
+
+/**
+ * Añade una canción a una playlist.
+ * @param {string} playlistId - ID de la playlist.
+ * @param {string} trackUri - URI de la canción (spotify:track:...).
+ * @param {string} userToken - Token de acceso del usuario.
+ * @returns {Promise<boolean>} True si tuvo éxito.
+ */
+export const addTrackToPlaylist = async (playlistId: string, trackUri: string, userToken: string): Promise<boolean> => {
+  try {
+    await axios.post(
+      `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
+      {
+        uris: [trackUri] // Body must be JSON with uris array or similar
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+    return true;
+  } catch (error) {
+    console.error("Error añadiendo canción a playlist:", error);
+    return false;
+  }
 };

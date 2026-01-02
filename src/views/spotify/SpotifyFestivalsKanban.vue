@@ -107,6 +107,13 @@
                                         title="Abrir en Spotify">
                                         <i class="fa-brands fa-spotify text-base"></i>
                                     </a>
+
+                                    <!-- Detail -->
+                                    <button @click="goToDetail(item.id)"
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors"
+                                        title="Ver detalle">
+                                        <i class="fa-solid fa-eye text-xs"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -146,6 +153,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, reactive, nextTick } from 'vue';
+import { useRouter } from 'vue-router';
 import {
     getSpotifyFestivals,
     createSpotify,
@@ -209,6 +217,7 @@ const columns: Column[] = [
 // --- State ---
 const items = ref<Spotify[]>([]);
 const users = ref<Superuser[]>([]);
+const router = useRouter();
 const loading = ref(false);
 const error = ref<string | null>(null);
 const draggedItem = ref<Spotify | null>(null);
@@ -436,6 +445,9 @@ async function confirmDelete(item: Spotify) {
 // --- Lifecycle ---
 onMounted(reload);
 
+function goToDetail(id: string) {
+    router.push({ name: 'SpotifyDetail', params: { id } });
+}
 </script>
 
 <style scoped>

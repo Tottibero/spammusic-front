@@ -274,7 +274,7 @@ export default defineComponent({
     };
 
     const fetchCountries = async () => {
-      const countriesResponse = await getCountries(250, 0);
+      const countriesResponse = await getCountries(500, 0);
       countries.value = countriesResponse.data.sort((a, b) => a.name.localeCompare(b.name));
     };
 

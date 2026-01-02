@@ -176,6 +176,18 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresAuth: true },
   },
   {
+    path: "/spotify/:id",
+    name: "SpotifyDetail",
+    component: () => import("/src/views/spotify/SpotifyDetail.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/spotify/callback",
+    name: "SpotifyCallback",
+    component: () => import("/src/views/spotify/SpotifyCallback.vue"),
+    meta: { requiresAuth: false },
+  },
+  {
     path: "/spotify/festivales",
     name: "SpotifyFestivales",
     component: () => import("/src/views/spotify/SpotifyFestivalsKanban.vue"),

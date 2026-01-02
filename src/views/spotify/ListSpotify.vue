@@ -60,23 +60,26 @@
             <td colspan="6" class="px-4 py-6 text-center text-gray-500">Sin resultados</td>
           </tr>
           <tr v-for="r in rows" :key="r.id" class="border-t hover:bg-gray-50/50">
-            <td class="px-4 py-3 font-medium">{{ r.nombre }}</td>
+            <td class="px-4 py-3 font-medium">{{ r.name }}</td>
             <td class="px-4 py-3">
               <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1"
-                :class="pillClass(r.estado)">
-                {{ displayEstado(r.estado) }}
+                :class="pillClass(r.status)">
+                {{ displayEstado(r.status) }}
               </span>
             </td>
-            <td v-if="!fixedType" class="px-4 py-3">{{ r.tipo }}</td>
+            <td v-if="!fixedType" class="px-4 py-3">{{ r.type }}</td>
             <td class="px-4 py-3">
-              <a :href="r.enlace" target="_blank" rel="noopener"
+              <a :href="r.link" target="_blank" rel="noopener"
                 class="underline underline-offset-2 text-blue-600 hover:text-blue-700">Abrir</a>
             </td>
             <td class="px-4 py-3">
-              {{ fmtDate(r.fechaActualizacion) }}
+              {{ fmtDate(r.updateDate) }}
             </td>
             <td class="px-4 py-3">
               <div class="flex items-center justify-end gap-2">
+                <button class="rounded-lg px-3 py-1 border hover:bg-gray-100" @click="goToDetail(r.id)">
+                  Ver
+                </button>
                 <button class="rounded-lg px-3 py-1 border hover:bg-gray-100" @click="openEdit(r)">
                   Editar
                 </button>
@@ -177,7 +180,7 @@
       <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl space-y-4">
         <h3 class="text-lg font-semibold">Eliminar lista</h3>
         <p class="text-sm text-gray-600">
-          ¿Seguro que quieres borrar <span class="font-semibold">{{ toDelete?.nombre }}</span>? Esta acción no se puede
+          ¿Seguro que quieres borrar <span class="font-semibold">{{ toDelete?.name }}</span>? Esta acción no se puede
           deshacer.
         </p>
         <div class="flex items-center justify-end gap-2">
@@ -201,6 +204,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import {
   listSpotify,
   getSpotifyFestivals,
@@ -221,6 +225,8 @@ const rows = ref<Spotify[]>([]);
 const limit = ref(10);
 const page = ref(0);
 const canNext = ref(false);
+
+const router = useRouter();
 
 const props = defineProps<{
   fixedType?: 'festival' | 'genero' | string;
@@ -364,11 +370,11 @@ function openCreate() {
 function openEdit(r: Spotify) {
   Object.assign(form, {
     id: r.id,
-    nombre: r.nombre,
-    estado: r.estado,
-    tipo: r.tipo,
-    enlace: r.enlace,
-    fechaActualizacionLocal: toLocalInputFromISO(r.fechaActualizacion),
+    nombre: r.name,
+    estado: r.status,
+    tipo: r.type,
+    enlace: r.link,
+    fechaActualizacionLocal: toLocalInputFromISO(r.updateDate),
   });
   editing.value = true;
   showForm.value = true;
@@ -386,11 +392,11 @@ async function submitForm() {
   submitting.value = true;
   try {
     const payload = {
-      nombre: form.nombre.trim(),
-      estado: form.estado as SpotifyEstado,
-      tipo: form.tipo as SpotifyTipo,
-      enlace: form.enlace.trim(),
-      fechaActualizacion: toISOFromLocal(form.fechaActualizacionLocal)!,
+      name: form.nombre.trim(),
+      status: form.estado as SpotifyEstado,
+      type: form.tipo as SpotifyTipo,
+      link: form.enlace.trim(),
+      updateDate: toISOFromLocal(form.fechaActualizacionLocal)!,
     };
 
     if (editing.value && form.id) {
@@ -475,6 +481,10 @@ watch(() => props.fixedType, () => {
   filters.tipo = '';
   reload();
 });
+
+function goToDetail(id: string) {
+  router.push({ name: 'SpotifyDetail', params: { id } });
+}
 </script>
 
 <style scoped>
