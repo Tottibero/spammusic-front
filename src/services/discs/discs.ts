@@ -37,6 +37,9 @@ export interface DiscsStatsResponse {
   discs: Disc[];
   totalDiscs: number;
   totalVotes: number;
+  ratingDistribution: { rate: number; count: number }[];
+  topUsersByRates: any[];
+  topUsersByCover: any[];
 }
 
 // Servicios

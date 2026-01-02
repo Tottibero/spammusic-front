@@ -120,11 +120,27 @@ export default defineComponent({
     watch(
       () => props.ratingDistribution,
       (newData) => {
-        chartData.value.labels = newData.map((item) => item.rate);
-        chartData.value.datasets[0].data = newData.map((item) => item.count);
-        chartData.value.datasets[0].backgroundColor = newData.map((item) =>
-          getColorForRate(item.rate)
-        );
+        if (newData && newData.length > 0) {
+          chartData.value = {
+            labels: newData.map((item) => item.rate),
+            datasets: [
+              {
+                backgroundColor: newData.map((item) => getColorForRate(item.rate)),
+                data: newData.map((item) => item.count),
+              },
+            ],
+          };
+        } else {
+          chartData.value = {
+            labels: [],
+            datasets: [
+              {
+                backgroundColor: [],
+                data: [],
+              },
+            ],
+          };
+        }
         // Si llega newData (aunque sea vacío), asumimos que se cargó.
         loaded.value = true;
       },
