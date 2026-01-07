@@ -130,10 +130,45 @@ const emit = defineEmits<{
     'navigate-reunions': [];
 }>();
 
+// Helper to format date for datetime-local input (YYYY-MM-DDThh:mm)
+// Helper to format date for datetime-local input (YYYY-MM-DDThh:mm)
+function formatForInput(dateStr: string): string {
+    if (!dateStr) return '';
+
+    // Check if it's an ISO string with Z (UTC)
+    if (dateStr.endsWith('Z')) {
+        // If it's effectively "Midnight UTC", treat as "Floating" (keep visual 00:00)
+        // This avoids timezone shifts for date-only content (like Radar)
+        if (dateStr.endsWith('T00:00:00.000Z') || dateStr.endsWith('T00:00:00Z')) {
+            return dateStr.slice(0, 16);
+        }
+
+        // Otherwise (REUNIONS etc with specific time), convert to LOCAL time for display
+        // "2026-01-27T14:18:00Z" -> "2026-01-27T15:18" (in UTC+1)
+        const date = new Date(dateStr);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
+    // Fallback for non-Z strings
+    if (dateStr.length >= 16) {
+        return dateStr.slice(0, 16);
+    }
+    // If it's just a date "YYYY-MM-DD"
+    if (dateStr.length === 10) {
+        return dateStr + 'T00:00';
+    }
+    return dateStr;
+}
+
 const formData = ref({
     name: props.content.name,
     notes: props.content.notes || '',
-    publicationDate: props.content.publicationDate || '',
+    publicationDate: formatForInput(props.content.publicationDate || ''),
     authorId: (props.content as any).authorId || props.content.author?.id || ''
 });
 
@@ -142,10 +177,25 @@ watch(() => props.content, (newContent) => {
     formData.value = {
         name: newContent.name,
         notes: newContent.notes || '',
-        publicationDate: newContent.publicationDate || '',
+        publicationDate: formatForInput(newContent.publicationDate || ''),
         authorId: (newContent as any).authorId || newContent.author?.id || ''
     };
 }, { deep: true });
+
+// Watch for publication date changes to auto-update reunion name
+watch(() => formData.value.publicationDate, (newDate) => {
+    if (newDate) {
+        const date = new Date(newDate);
+        if (!isNaN(date.getTime())) {
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            // Check if name is already formatted or default, to avoid overwriting custom titles?
+            // User requested "automatic", usually implies overwrite or when empty/pattern match.
+            // For now, let's update it directly as per request "make title automatic".
+            formData.value.name = `Reunión del ${day}/${month}`;
+        }
+    }
+});
 
 function handleUpdate() {
     emit('update', { ...formData.value });
