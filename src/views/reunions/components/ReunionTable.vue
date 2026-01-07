@@ -6,19 +6,21 @@
       <div v-for="reunion in reuniones" :key="reunion.id"
         class="border border-gray-300 rounded-lg p-4 bg-white shadow-md">
         <!-- Header de la tarjeta -->
-        <div class="flex justify-between items-center mb-3">
+        <div class="flex justify-between items-center mb-3 cursor-pointer" @click="toggleReunion(reunion.id)">
           <div class="flex items-baseline gap-3">
+            <i class="fa-solid fa-chevron-down transition-transform duration-300 text-gray-400"
+              :class="{ 'rotate-180': !isReunionCollapsed(reunion.id) }"></i>
             <strong class="text-lg">{{ reunion.title }}</strong>
             <p class="text-sm text-gray-600">{{ formatDate(reunion.date) }}</p>
           </div>
           <div class="flex gap-2">
-            <button @click="openAddPointModal(reunion.id)"
+            <button @click.stop="openAddPointModal(reunion.id)"
               class="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center gap-2"
               title="Añadir punto">
               <i class="fa-solid fa-plus"></i>
               <span>Añadir</span>
             </button>
-            <button @click="reloadReunion(reunion.id)"
+            <button @click.stop="reloadReunion(reunion.id)"
               class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm flex items-center gap-2"
               title="Recargar">
               <i class="fa-solid fa-rotate-right"></i>
@@ -28,7 +30,7 @@
         </div>
 
         <!-- Lista de puntos -->
-        <div class="space-y-2">
+        <div v-show="!isReunionCollapsed(reunion.id)" class="space-y-2">
           <div v-for="point in reunion.points" :key="point.id"
             class="border border-gray-200 rounded-lg p-2 hover:bg-gray-50 transition-colors">
             <div class="flex items-start gap-2">
@@ -128,9 +130,41 @@ export default {
         content: '',
         done: false,
       },
+      collapsedReunions: {}, // Map of reunionId -> boolean (true = collapsed)
     };
   },
+  watch: {
+    reuniones: {
+      handler(newVal) {
+        this.initializeCollapsedState();
+      },
+      deep: true,
+      immediate: true
+    }
+  },
   methods: {
+    initializeCollapsedState() {
+      // Collapse all except the first one (closest to today)
+      // Assuming 'reuniones' is already sorted or we rely on the order passed
+      // If not sorted, user requirement "first one that is the next closest" usually implies 
+      // the list is sorted by date ascending for future events.
+      if (!this.reuniones || this.reuniones.length === 0) return;
+
+      this.collapsedReunions = {};
+      this.reuniones.forEach((reunion, index) => {
+        // Expand first item (index 0), collapse others
+        this.collapsedReunions[reunion.id] = index !== 0;
+      });
+    },
+    toggleReunion(reunionId) {
+      this.collapsedReunions[reunionId] = !this.collapsedReunions[reunionId];
+    },
+    isReunionCollapsed(reunionId) {
+      // If key doesn't exist, default to collapsed (true) except if logic failed? 
+      // But we initialize headers. Let's make it robust.
+      // Default true (collapsed) if undefined
+      return this.collapsedReunions[reunionId] === undefined ? true : this.collapsedReunions[reunionId];
+    },
     togglePoint(pointId) {
       this.expandedPoint = this.expandedPoint === pointId ? null : pointId;
     },
