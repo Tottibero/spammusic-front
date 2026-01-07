@@ -1,11 +1,7 @@
 <template>
   <div class="w-full h-[360px] sm:h-96">
-    <Bar
-      v-if="loaded"
-      :key="isMobile ? 'mobile' : 'desktop'"
-      :data="chartData"
-      :options="isMobile ? mobileOptions : desktopOptions"
-    />
+    <Bar v-if="loaded" :key="isMobile ? 'mobile' : 'desktop'" :data="chartData"
+      :options="isMobile ? mobileOptions : desktopOptions" />
     <p v-else class="text-center text-white/60">
       Cargando gráfico…
     </p>
@@ -113,40 +109,40 @@ export default defineComponent({
     /* -------------------------
      * MOBILE options (horizontal + aire)
      * ------------------------- */
-const mobileOptions: ChartOptions<"bar"> = {
-  responsive: true,
-  maintainAspectRatio: false,
-  indexAxis: "y",
-  layout: {
-    padding: {
-      left: 0,
-      right: 0,
-    },
-  },
-  plugins: {
-    legend: { display: false },
-  },
-  scales: {
-    x: {
-      beginAtZero: true,
-      ticks: {
-        color: "white",
-        precision: 0,
+    const mobileOptions: ChartOptions<"bar"> = {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: "y",
+      layout: {
+        padding: {
+          left: 0,
+          right: 0,
+        },
       },
-      grid: {
-        color: "rgba(255,255,255,0.1)",
+      plugins: {
+        legend: { display: false },
       },
-    },
-    y: {
-      ticks: {
-        color: "white",
-        autoSkip: false,
-        padding: 12, // 👈 más aire entre etiquetas
+      scales: {
+        x: {
+          beginAtZero: true,
+          ticks: {
+            color: "white",
+            precision: 0,
+          },
+          grid: {
+            color: "rgba(255,255,255,0.1)",
+          },
+        },
+        y: {
+          ticks: {
+            color: "white",
+            autoSkip: false,
+            padding: 12, // 👈 más aire entre etiquetas
+          },
+          grid: { display: false },
+        },
       },
-      grid: { display: false },
-    },
-  },
-};
+    };
 
 
     /* -------------------------
@@ -157,22 +153,32 @@ const mobileOptions: ChartOptions<"bar"> = {
       (data) => {
         if (!data.length) return;
 
-        chartData.value.labels = data.map(d => d.genre);
-        chartData.value.datasets[0].data = data.map(d => d.count);
-        chartData.value.datasets[0].backgroundColor = data.map(
-          (_, i) => palette[i % palette.length]
-        );
+        const labels = data.map(d => d.genre);
+        const datasetData = data.map(d => d.count);
+        const backgroundColor = data.map((_, i) => palette[i % palette.length]);
 
         // 🔥 Espaciado SOLO en móvil
+        let extraProps = {};
         if (isMobile.value) {
-          chartData.value.datasets[0].barThickness = 16;
-          chartData.value.datasets[0].categoryPercentage = 0.6;
-          chartData.value.datasets[0].barPercentage = 0.9;
-        } else {
-          delete chartData.value.datasets[0].barThickness;
-          delete chartData.value.datasets[0].categoryPercentage;
-          delete chartData.value.datasets[0].barPercentage;
+          extraProps = {
+            barThickness: 16,
+            categoryPercentage: 0.6,
+            barPercentage: 0.9,
+          };
         }
+
+        // Assign a NEW object to trigger reactivity
+        chartData.value = {
+          labels,
+          datasets: [
+            {
+              label: "Votos",
+              data: datasetData,
+              backgroundColor,
+              ...extraProps,
+            },
+          ],
+        };
 
         loaded.value = true;
       },
