@@ -1,3 +1,7 @@
+## <small>1.10.2 (2026-01-07)</small>
+
+* fix: stadistics reactivity (#65) ([fc702f1](https://github.com/Tottibero/spammusic-front/commit/fc702f1)), closes [#65](https://github.com/Tottibero/spammusic-front/issues/65)
+
 ## <small>1.10.1 (2026-01-07)</small>
 
 * fix: radars (#64) ([efd8776](https://github.com/Tottibero/spammusic-front/commit/efd8776)), closes [#64](https://github.com/Tottibero/spammusic-front/issues/64)
