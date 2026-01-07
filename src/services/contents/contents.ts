@@ -63,6 +63,7 @@ export interface UpdateContentDto {
     name?: string;
     notes?: string;
     publicationDate?: string | null;
+    closeDate?: string | null;
     reunionId?: string;
     authorId?: string;
 }

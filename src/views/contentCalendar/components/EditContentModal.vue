@@ -40,9 +40,14 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Publicación</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Fecha de Publicación
+                        <span v-if="['reunion', 'radar', 'best'].includes(formData.type)" class="text-red-600">*</span>
+                    </label>
                     <input v-model="formData.publicationDate" type="datetime-local"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2" />
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2"
+                        :min="formData.type === 'radar' && formData.listDate ? formatDateTime(formData.listDate) : undefined" />
+
                     <button v-if="formData.publicationDate && !['reunion', 'radar', 'best'].includes(formData.type)"
                         @click="formData.publicationDate = ''" class="text-xs text-gray-500 hover:text-gray-700 mt-1">
                         Quitar fecha (mover a backlog)
@@ -50,6 +55,19 @@
                     <p v-if="['reunion', 'radar', 'best'].includes(formData.type)" class="text-xs text-amber-600 mt-1">
                         ⚠️ Este tipo de contenido requiere fecha obligatoria
                     </p>
+                </div>
+
+                <div v-if="formData.type === 'radar'">
+                    <div v-if="formData.listDate" class="mb-4 text-sm text-gray-600">
+                        📅 Fecha de lista: <strong>{{ formatDisplayDate(formData.listDate) }}</strong>
+                    </div>
+
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Fecha Cierre
+                    </label>
+                    <input v-model="formData.closeDate" type="date"
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2"
+                        :min="formData.publicationDate ? formData.publicationDate.split('T')[0] : (formData.listDate ? formData.listDate : undefined)" />
                 </div>
 
                 <div>
@@ -104,7 +122,9 @@ const formData = ref({
     name: props.content.name,
     notes: props.content.notes || '',
     publicationDate: props.content.publicationDate || '',
-    authorId: props.content.author?.id || ''
+    closeDate: props.content.closeDate || '',
+    authorId: props.content.author?.id || '',
+    listDate: props.content.list?.listDate || ''
 });
 
 // Watch for content changes
@@ -114,11 +134,27 @@ watch(() => props.content, (newContent) => {
         name: newContent.name,
         notes: newContent.notes || '',
         publicationDate: newContent.publicationDate || '',
-        authorId: newContent.author?.id || ''
+        closeDate: newContent.closeDate || '',
+        authorId: newContent.author?.id || '',
+        listDate: newContent.list?.listDate || ''
     };
 }, { deep: true });
 
 function handleUpdate() {
     emit('update', { ...formData.value });
+}
+
+function formatDisplayDate(dateStr: string): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
+function formatDateTime(dateStr: string): string {
+    if (!dateStr) return '';
+    return dateStr + 'T00:00';
 }
 </script>
