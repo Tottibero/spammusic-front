@@ -138,7 +138,7 @@ const newContent = ref({
     selectedYear: new Date().getFullYear()
 });
 
-const editingContent = ref({
+const editingContent = ref<any>({
     type: 'article' as ContentType,
     name: '',
     notes: '',
@@ -164,23 +164,58 @@ const backlogItems = computed(() => {
 });
 
 // Calendar events (content with publicationDate)
+// Calendar events (content with publicationDate)
 const calendarEvents = computed(() => {
     return allContents.value
         .filter(c => c.publicationDate)
-        .map(c => ({
-            id: c.id,
-            title: c.name,
-            start: c.publicationDate,
-            end: c.closeDate ? new Date(new Date(c.closeDate).setDate(new Date(c.closeDate).getDate() + 1)).toISOString().split('T')[0] : undefined,
-            backgroundColor: getContentTypeColor(c.type).bg,
-            borderColor: getContentTypeColor(c.type).border,
-            extendedProps: {
-                contentType: c.type,
-                notes: c.notes,
-                author: c.author,
-                list: c.list
+        .map(c => {
+            let start = c.publicationDate;
+            let allDay = false;
+
+            // Handle ISO strings with midnight UTC time
+            // If it's effectively "midnight UTC" (T00:00:00.000Z), treat as date-only (All Day) 
+            // for types that are date-based (not time-sensitive meetings)
+            // This prevents timezone shifts displaying it on previous day
+            const isMidnightUTC = start.endsWith('T00:00:00.000Z') || start.endsWith('T00:00:00Z');
+
+            if (isMidnightUTC || c.type === 'reunion') {
+                start = start.split('T')[0];
+                allDay = true;
             }
-        }));
+
+            // Calculate end date for FullCalendar (exclusive)
+            let end = undefined;
+            if (c.closeDate) {
+                // Parse closeDate securely. If ISO, take date part.
+                const closeDateStr = c.closeDate.split('T')[0]; // "YYYY-MM-DD"
+                // Add 1 day
+                const d = new Date(closeDateStr);
+                d.setDate(d.getDate() + 1);
+                const calculatedEnd = d.toISOString().split('T')[0];
+
+                // Sanity check: end date must be after start date
+                // Comparison works for ISO strings "YYYY-MM-DD..."
+                if (calculatedEnd > start) {
+                    end = calculatedEnd;
+                }
+            }
+
+            return {
+                id: c.id,
+                title: c.name,
+                start: start,
+                end: end,
+                allDay: allDay,
+                backgroundColor: getContentTypeColor(c.type).bg,
+                borderColor: getContentTypeColor(c.type).border,
+                extendedProps: {
+                    contentType: c.type,
+                    notes: c.notes,
+                    author: c.author,
+                    list: c.list
+                }
+            };
+        });
 });
 
 const calendarOptions = ref({
@@ -273,7 +308,7 @@ const calendarOptions = ref({
                     type: content.type,
                     name: content.name,
                     notes: content.notes || '',
-                    publicationDate: toDatetimeLocal(content.publicationDate || ''),
+                    publicationDate: content.publicationDate || '',
                     authorId: content.author?.id || ''
                 };
             }
@@ -482,7 +517,7 @@ function openEditModal(content: Content) {
         type: content.type,
         name: content.name,
         notes: content.notes || '',
-        publicationDate: toDatetimeLocal(content.publicationDate || ''),
+        publicationDate: content.publicationDate || '',
         authorId: content.author?.id || ''
     };
 
@@ -710,13 +745,7 @@ onMounted(async () => {
     }
 });
 
-function toDatetimeLocal(dateStr: string) {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    const offsetMs = date.getTimezoneOffset() * 60 * 1000;
-    const localDate = new Date(date.getTime() - offsetMs);
-    return localDate.toISOString().slice(0, 16);
-}
+
 
 function navigateToRadarDetail() {
     if (selectedContent.value?.list?.id) {

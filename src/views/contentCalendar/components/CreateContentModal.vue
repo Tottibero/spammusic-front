@@ -201,6 +201,10 @@ const formData = ref({
 // Watch for modal opening or type change to auto-fill name
 watch([() => props.show, () => formData.value.type], ([isOpen, type]) => {
     if (isOpen) {
+        // Reset dates that might have been set by other types
+        formData.value.listDate = '';
+        formData.value.closeDate = '';
+
         if (type === 'radar') {
             updateRadarListDate();
         } else if (['best', 'video'].includes(type)) {
@@ -211,6 +215,18 @@ watch([() => props.show, () => formData.value.type], ([isOpen, type]) => {
         const riffValleyUser = props.rvUsers.find(u => u.username === 'RiffValley');
         if (riffValleyUser && !formData.value.authorId) {
             formData.value.authorId = riffValleyUser.id;
+        }
+    }
+});
+
+// Watch for publication date changes to auto-update reunion name
+watch(() => formData.value.publicationDate, (newDate) => {
+    if (formData.value.type === 'reunion' && newDate) {
+        const date = new Date(newDate);
+        if (!isNaN(date.getTime())) {
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            formData.value.name = `Reunión del ${day}/${month}`;
         }
     }
 });
