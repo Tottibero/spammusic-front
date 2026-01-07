@@ -1,3 +1,15 @@
+## <small>1.10.1 (2026-01-07)</small>
+
+* fix: radars (#64) ([efd8776](https://github.com/Tottibero/spammusic-front/commit/efd8776)), closes [#64](https://github.com/Tottibero/spammusic-front/issues/64)
+* Fix/countries call (#62) ([54a704a](https://github.com/Tottibero/spammusic-front/commit/54a704a)), closes [#62](https://github.com/Tottibero/spammusic-front/issues/62)
+* Fix/countries call (#63) ([e85f078](https://github.com/Tottibero/spammusic-front/commit/e85f078)), closes [#63](https://github.com/Tottibero/spammusic-front/issues/63)
+* Fix/delete points (#55) ([2fbe749](https://github.com/Tottibero/spammusic-front/commit/2fbe749)), closes [#55](https://github.com/Tottibero/spammusic-front/issues/55)
+* Fix/delete points (#56) ([62d2425](https://github.com/Tottibero/spammusic-front/commit/62d2425)), closes [#56](https://github.com/Tottibero/spammusic-front/issues/56)
+* Fix/home page (#57) ([843d7df](https://github.com/Tottibero/spammusic-front/commit/843d7df)), closes [#57](https://github.com/Tottibero/spammusic-front/issues/57)
+* Fix/home page (#59) ([30914ec](https://github.com/Tottibero/spammusic-front/commit/30914ec)), closes [#59](https://github.com/Tottibero/spammusic-front/issues/59)
+* Fix/home page (#60) ([a43e81c](https://github.com/Tottibero/spammusic-front/commit/a43e81c)), closes [#60](https://github.com/Tottibero/spammusic-front/issues/60)
+* Fix/home page (#61) ([ab8bd08](https://github.com/Tottibero/spammusic-front/commit/ab8bd08)), closes [#61](https://github.com/Tottibero/spammusic-front/issues/61)
+
 ## 1.10.0 (2025-12-29)
 
 * feat(calendario): cambios en muchas cosas (#54) ([39fb720](https://github.com/Tottibero/spammusic-front/commit/39fb720)), closes [#54](https://github.com/Tottibero/spammusic-front/issues/54)

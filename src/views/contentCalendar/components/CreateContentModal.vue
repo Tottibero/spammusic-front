@@ -86,14 +86,16 @@
                             </label>
                             <input v-model="formData.publicationDate" type="datetime-local"
                                 class="w-full border border-gray-300 rounded-lg px-3 py-2"
-                                :class="{ 'border-red-500': !formData.publicationDate }" />
+                                :class="{ 'border-red-500': !formData.publicationDate }"
+                                :min="formData.listDate ? formatDateTime(formData.listDate) : undefined" />
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 Fecha Cierre
                             </label>
                             <input v-model="formData.closeDate" type="date"
-                                class="w-full border border-gray-300 rounded-lg px-3 py-2" :min="formData.listDate" />
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                :min="formData.publicationDate ? formData.publicationDate.split('T')[0] : (formData.listDate ? formData.listDate : undefined)" />
                         </div>
                     </div>
                 </div>
@@ -204,6 +206,12 @@ watch([() => props.show, () => formData.value.type], ([isOpen, type]) => {
         } else if (['best', 'video'].includes(type)) {
             updateBestVideoListDate();
         }
+
+        // Auto-select RiffValley user
+        const riffValleyUser = props.rvUsers.find(u => u.username === 'RiffValley');
+        if (riffValleyUser && !formData.value.authorId) {
+            formData.value.authorId = riffValleyUser.id;
+        }
     }
 });
 
@@ -244,48 +252,34 @@ function getFridayOfWeek(month: number, week: number, year: number): string {
     monday.setDate(monday.getDate() + (week - 1) * 7);
 
     const friday = new Date(monday);
-    friday.setDate(friday.getDate() + 4);
+    friday.setDate(friday.getDate() + 5);
 
     return friday.toISOString().split('T')[0];
 }
 
 function updateRadarListDate() {
+    // List generated on Friday
     formData.value.listDate = getFridayOfWeek(formData.value.selectedMonth, formData.value.selectedWeek, formData.value.selectedYear);
 
     // Auto-generate radar name
     const monthName = getMonthName(formData.value.selectedMonth);
     formData.value.name = `Discos ${monthName} Semana ${formData.value.selectedWeek}`;
 
-    // Calculate Saturday and Sunday of the selected week
-    const year = formData.value.selectedYear;
-    const month = formData.value.selectedMonth;
-    const week = formData.value.selectedWeek;
+    // Set publication date default to Saturday (Friday + 1 day) at 12:00 to avoid timezone issues
+    const listDateObj = new Date(formData.value.listDate);
+    const saturday = new Date(listDateObj);
+    saturday.setDate(saturday.getDate() + 1);
+    formData.value.publicationDate = saturday.toISOString().split('T')[0] + 'T12:00';
 
-    const firstDay = new Date(year, month - 1, 1);
-
-    let monday = new Date(firstDay);
-    const dayOfWeek = monday.getDay();
-    const daysUntilMonday = dayOfWeek === 0 ? 1 : (8 - dayOfWeek) % 7;
-    monday.setDate(monday.getDate() + daysUntilMonday);
-
-    monday.setDate(monday.getDate() + (week - 1) * 7);
-
-    // Get Saturday (Monday + 5 days) at 19:00
-    const saturday = new Date(monday);
-    saturday.setDate(saturday.getDate() + 5);
-    saturday.setHours(19, 0, 0, 0);
-
-    // Get Sunday (Monday + 6 days)
-    const sunday = new Date(monday);
-    sunday.setDate(sunday.getDate() + 6);
-    sunday.setHours(19, 0, 0, 0);
-
-    // Set publication date (Saturday 19:00) in datetime-local format
-    const saturdayLocal = new Date(saturday.getTime() - saturday.getTimezoneOffset() * 60000);
-    formData.value.publicationDate = saturdayLocal.toISOString().slice(0, 16);
-
-    // Set close date (Sunday) in date format
+    // Set closeDate default to Sunday (Friday + 2 days)
+    const sunday = new Date(listDateObj);
+    sunday.setDate(sunday.getDate() + 2);
     formData.value.closeDate = sunday.toISOString().split('T')[0];
+}
+
+function formatDateTime(dateStr: string): string {
+    if (!dateStr) return '';
+    return dateStr + 'T00:00';
 }
 
 function updateBestVideoListDate() {

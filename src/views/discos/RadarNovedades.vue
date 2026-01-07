@@ -11,12 +11,12 @@
           </div>
           <h2 class="text-xl font-bold text-gray-800">Actuales</h2>
         </div>
-        
+
         <div v-if="currentLists.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           <div v-for="list in currentLists" :key="list.id"
             class="group bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden cursor-pointer flex flex-col h-full"
             @click="goToListDetail(list.id)">
-            
+
             <div class="p-3 flex-1 flex flex-col">
               <!-- Header con Status -->
               <div class="flex justify-between items-start mb-2">
@@ -24,20 +24,22 @@
                   :class="getStatusClass(list.status)">
                   {{ getStatusLabel(list.status) }}
                 </span>
-                <i class="fa-solid fa-chevron-right text-gray-300 group-hover:text-indigo-500 transition-colors text-xs"></i>
+                <i
+                  class="fa-solid fa-chevron-right text-gray-300 group-hover:text-indigo-500 transition-colors text-xs"></i>
               </div>
 
               <!-- Título -->
-              <h3 class="font-bold text-base text-gray-900 mb-2 line-clamp-2 leading-tight group-hover:text-indigo-600 transition-colors">
+              <h3
+                class="font-bold text-base text-gray-900 mb-2 line-clamp-2 leading-tight group-hover:text-indigo-600 transition-colors">
                 {{ list.name }}
               </h3>
-              
+
               <div class="mt-auto space-y-2">
                 <!-- Fechas -->
                 <div class="space-y-1 py-2 border-t border-gray-100">
                   <div class="flex items-center text-xs text-gray-600">
                     <i class="fa-regular fa-calendar w-4 text-gray-400"></i>
-                    <span>{{ formatDate(list.listDate) }}</span>
+                    <span>{{ formatDate(list.releaseDate || list.listDate) }}</span>
                   </div>
                   <div v-if="list.closeDate" class="flex items-center text-xs text-red-600 font-medium">
                     <i class="fa-regular fa-clock w-4 text-red-400"></i>
@@ -46,18 +48,16 @@
                 </div>
 
                 <!-- Avatares de asignaciones -->
-                <div v-if="list.asignations && list.asignations.length > 0" class="pt-1 flex items-center justify-between">
+                <div v-if="list.asignations && list.asignations.length > 0"
+                  class="pt-1 flex items-center justify-between">
                   <div class="flex items-center">
                     <div class="flex -space-x-2">
-                      <img v-for="(user, index) in getUniqueAssignees(list.asignations).slice(0, 5)" 
-                        :key="user.id"
-                        :src="user.image || '/avatar/avatar37.png'" 
-                        :alt="user.username"
-                        :title="user.username"
+                      <img v-for="(user, index) in getUniqueAssignees(list.asignations).slice(0, 5)" :key="user.id"
+                        :src="user.image || '/avatar/avatar37.png'" :alt="user.username" :title="user.username"
                         class="w-6 h-6 rounded-full border-2 border-white ring-1 ring-gray-100 object-cover bg-gray-50"
                         :style="{ zIndex: 5 - index }" />
                     </div>
-                    <span v-if="getUniqueAssignees(list.asignations).length > 5" 
+                    <span v-if="getUniqueAssignees(list.asignations).length > 5"
                       class="ml-2 text-[10px] font-medium text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full">
                       +{{ getUniqueAssignees(list.asignations).length - 5 }}
                     </span>
@@ -65,12 +65,14 @@
                 </div>
               </div>
             </div>
-            
+
             <!-- Barra decorativa inferior -->
-            <div class="h-0.5 w-0 group-hover:w-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-500"></div>
+            <div
+              class="h-0.5 w-0 group-hover:w-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-500">
+            </div>
           </div>
         </div>
-        
+
         <div v-else class="bg-white rounded-lg p-6 text-center border-2 border-dashed border-gray-200">
           <div class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-2">
             <i class="fa-solid fa-list text-gray-400 text-lg"></i>
@@ -89,7 +91,7 @@
             </div>
             <h2 class="text-xl font-bold text-gray-800">Anteriores</h2>
           </div>
-          
+
           <div class="flex gap-1 p-1 bg-white rounded-lg border border-gray-200 shadow-sm text-sm">
             <select v-model="selectedYear" @change="loadPastLists"
               class="border-none bg-transparent py-1 pl-2 pr-6 text-gray-700 font-medium focus:ring-0 cursor-pointer hover:bg-gray-50 rounded text-xs">
@@ -107,7 +109,7 @@
           <div v-for="list in pastLists" :key="list.id"
             class="group bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden cursor-pointer flex flex-col h-full opacity-90 hover:opacity-100"
             @click="goToListDetail(list.id)">
-            
+
             <div class="p-3 flex-1 flex flex-col">
               <!-- Header con Status -->
               <div class="flex justify-between items-start mb-2">
@@ -115,20 +117,22 @@
                   :class="getStatusClass(list.status)">
                   {{ getStatusLabel(list.status) }}
                 </span>
-                <i class="fa-solid fa-chevron-right text-gray-300 group-hover:text-indigo-500 transition-colors text-xs"></i>
+                <i
+                  class="fa-solid fa-chevron-right text-gray-300 group-hover:text-indigo-500 transition-colors text-xs"></i>
               </div>
 
               <!-- Título -->
-              <h3 class="font-bold text-base text-gray-900 mb-2 line-clamp-2 leading-tight group-hover:text-indigo-600 transition-colors">
+              <h3
+                class="font-bold text-base text-gray-900 mb-2 line-clamp-2 leading-tight group-hover:text-indigo-600 transition-colors">
                 {{ list.name }}
               </h3>
-              
+
               <div class="mt-auto space-y-2">
                 <!-- Fechas -->
                 <div class="space-y-1 py-3 border-t border-gray-100">
                   <div class="flex items-center text-xs text-gray-600">
                     <i class="fa-regular fa-calendar w-4 text-gray-400"></i>
-                    <span>{{ formatDate(list.listDate) }}</span>
+                    <span>{{ formatDate(list.releaseDate || list.listDate) }}</span>
                   </div>
                   <div v-if="list.closeDate" class="flex items-center text-xs text-gray-500">
                     <i class="fa-regular fa-clock w-4 text-gray-400"></i>
@@ -137,18 +141,16 @@
                 </div>
 
                 <!-- Avatares de asignaciones -->
-                <div v-if="list.asignations && list.asignations.length > 0" class="pt-1 flex items-center justify-between">
+                <div v-if="list.asignations && list.asignations.length > 0"
+                  class="pt-1 flex items-center justify-between">
                   <div class="flex items-center">
                     <div class="flex -space-x-2">
-                      <img v-for="(user, index) in getUniqueAssignees(list.asignations).slice(0, 5)" 
-                        :key="user.id"
-                        :src="user.image || '/avatar/avatar37.png'" 
-                        :alt="user.username"
-                        :title="user.username"
+                      <img v-for="(user, index) in getUniqueAssignees(list.asignations).slice(0, 5)" :key="user.id"
+                        :src="user.image || '/avatar/avatar37.png'" :alt="user.username" :title="user.username"
                         class="w-6 h-6 rounded-full border-2 border-white ring-1 ring-gray-100 object-cover bg-gray-50"
                         :style="{ zIndex: 5 - index }" />
                     </div>
-                    <span v-if="getUniqueAssignees(list.asignations).length > 5" 
+                    <span v-if="getUniqueAssignees(list.asignations).length > 5"
                       class="ml-2 text-[10px] font-medium text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full">
                       +{{ getUniqueAssignees(list.asignations).length - 5 }}
                     </span>
@@ -158,13 +160,14 @@
             </div>
           </div>
         </div>
-        
+
         <div v-else class="bg-white rounded-lg p-6 text-center border-2 border-dashed border-gray-200">
           <div class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-2">
             <i class="fa-regular fa-folder-open text-gray-400 text-lg"></i>
           </div>
           <h3 class="text-base font-medium text-gray-900">No hay listas anteriores</h3>
-          <p class="text-sm text-gray-500">No se encontraron listas para {{ monthNames[selectedMonth - 1] }} del {{ selectedYear }}.</p>
+          <p class="text-sm text-gray-500">No se encontraron listas para {{ monthNames[selectedMonth - 1] }} del {{
+            selectedYear }}.</p>
         </div>
       </section>
     </div>

@@ -1,10 +1,26 @@
 <template>
   <div :class="{ 'menu-open': menuVisible }" class="max-w-[100rem] mx-auto mt-10 px-4">
-    <div class="bg-white shadow-lg rounded-lg p-4 sm:p-6 mb-4 max-w-[90vw] md:max-w-[100rem] mx-auto">
+    <div class="bg-white shadow-lg rounded-lg p-4 sm:p-6 mb-4 max-w-[90vw] md:max-w-[100rem] mx-auto relative">
+      <div class="absolute top-4 right-4 z-10">
+        <div class="relative">
+          <select v-model="selectedStatsYear" @change="fetchDiscs" class="px-4 pr-9 py-1 rounded-full shadow-md text-sm font-semibold
+                   bg-rv-navy text-white appearance-none cursor-pointer
+                   focus:outline-none border-none ring-0 w-auto">
+            <option v-for="option in availableStatsYears" :key="option.value" :value="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+          <!-- chevron -->
+          <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white"
+            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
         <!-- Estadísticas de la App -->
         <div class="text-center md:border-r border-gray-200 pb-4 md:pb-0 md:pr-4 text-sm sm:text-base md:text-lg">
-          <h3 class="text-2xl md:text-3xl font-bold mb-4 text-rv-navy">
+          <h3 class="text-2xl md:text-3xl font-bold text-rv-navy mb-4">
             Estadísticas de discos
           </h3>
           <p class="text-lg md:text-xl text-rv-navy">
@@ -22,12 +38,14 @@
         </div>
         <!-- Top Usuarios -->
         <div class="text-center">
-          <h3 class="text-2xl md:text-3xl font-bold mb-4 text-rv-navy">Top usuarios</h3>
+          <h3 class="text-2xl md:text-3xl font-bold mb-4 text-rv-navy">
+            {{ selectedStatsYear === 'all' ? 'Top usuarios' : `Top usuarios ${selectedStatsYear}` }}
+          </h3>
           <div class="mb-4">
             <h4 class="text-lg md:text-2xl font-semibold mb-2 text-rv-navy">
               Más discos votados
             </h4>
-            <ul class="list-none">
+            <ul v-if="topUsersByRates.length > 0" class="list-none">
               <li v-for="(user, index) in topUsersByRates" :key="user.user.id"
                 class="flex items-center justify-center mb-2 text-sm md:text-base">
                 <span class="mr-2" v-html="getTrophyIcon(index)"></span>
@@ -35,12 +53,13 @@
                 <span class="ml-2 text-rv-navy">- {{ user.rateCount }} votos</span>
               </li>
             </ul>
+            <p v-else class="text-gray-500 italic">No hay datos</p>
           </div>
           <div>
             <h4 class="text-lg md:text-2xl font-semibold mb-2 text-rv-navy">
               Más portadas votadas
             </h4>
-            <ul class="list-none">
+            <ul v-if="topUsersByCover.length > 0" class="list-none">
               <li v-for="(user, index) in topUsersByCover" :key="user.user.id"
                 class="flex items-center justify-center mb-2">
                 <span class="mr-2" v-html="getTrophyIcon(index)"></span>
@@ -48,6 +67,7 @@
                 <span class="ml-2 text-rv-navy">- {{ user.totalCover }} votos</span>
               </li>
             </ul>
+            <p v-else class="text-gray-500 italic">No hay datos</p>
           </div>
           <!-- Botón para abrir estadísticas detalladas -->
           <div class="mt-8">
@@ -167,7 +187,7 @@
         :averageCover="disc.averageCover" :rate="disc.userRate?.rate" :cover="disc.userRate?.cover"
         :isNew="!disc.userRate" :userDiscRate="disc.userRate?.id" :favoriteId="disc.userFavoriteId"
         :pendingId="disc.pendingId" :comment-count="disc.commentCount" :rateCount="disc.voteCount"
-        :artistCountry="disc.artist?.country" />
+        :artistCountry="disc.artist?.country" :debut="disc.debut" />
     </div>
   </div>
 
@@ -208,6 +228,9 @@ export default defineComponent({
     // Año seleccionado para filtros de semana y mes
     const selectedYear = ref(new Date().getFullYear());
 
+    // Año seleccionado para las estadísticas (parte superior)
+    const selectedStatsYear = ref<number | string>(new Date().getFullYear());
+
     // Almacena el rango seleccionado mediante el <select>
     const selectedOption = ref<{ start: string; end: string; label: string } | null>(null);
 
@@ -221,6 +244,16 @@ export default defineComponent({
         years.push(i);
       }
       return years;
+    });
+
+    const availableStatsYears = computed(() => {
+      const options: { value: number | string; label: string }[] = availableYears.value.map(year => ({
+        value: year,
+        label: `${year}`
+      }));
+      // Agregar opción "Todos" al principio
+      options.unshift({ value: 'all', label: 'Todos' });
+      return options;
     });
 
     // Filtros
@@ -389,11 +422,24 @@ export default defineComponent({
         } else {
           dateRange = undefined;
         }
+
         console.log('Fetching discs with genre:', selectedGenre.value);
+
+        // Rango para stats y distribution basado en selectedStatsYear
+        let statsRange: [string, string] | undefined = undefined;
+
+        if (selectedStatsYear.value !== 'all') {
+          const statsStart = `${selectedStatsYear.value}-01-01`;
+          const statsEnd = `${selectedStatsYear.value}-12-31`;
+          statsRange = [statsStart, statsEnd];
+        }
+
         const response: DiscsStatsResponse = await getTopRatedOrFeaturedAndStats(
           dateRange,
           selectedGenre.value ? selectedGenre.value : undefined,
-          selectedCountry.value ? selectedCountry.value : undefined
+          selectedCountry.value ? selectedCountry.value : undefined,
+          statsRange,
+          statsRange
         );
         discs.value = response.discs.map((disc) => ({
           ...disc,
@@ -418,7 +464,7 @@ export default defineComponent({
     // ---------------------------------
     // Actualiza la opción seleccionada cuando cambia el período, género, país o año
     // ---------------------------------
-    watch([selectedPeriod, selectedGenre, selectedCountry, selectedYear], () => {
+    watch([selectedPeriod, selectedGenre, selectedCountry, selectedYear, selectedStatsYear], () => {
       console.log('Period, Genre, Country or Year changed:', { period: selectedPeriod.value, genre: selectedGenre.value, country: selectedCountry.value, year: selectedYear.value });
       if (selectedPeriod.value === "week") {
         selectedOption.value = weekOptions.value[weekOptions.value.length - 1];
@@ -472,7 +518,9 @@ export default defineComponent({
       selectedPeriod,
       selectedOption,
       selectedYear,
+      selectedStatsYear,
       availableYears,
+      availableStatsYears,
       optionsForSelect,
       fetchDiscs,
       getTrophyIcon,
