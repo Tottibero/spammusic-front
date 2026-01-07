@@ -1,8 +1,8 @@
 <template>
-<div class="w-full h-96 flex justify-center min-w-0">
-  <Pie v-if="loaded" :data="chartData" :options="chartOptions" />
-  <p v-else class="text-center text-gray-500">Cargando gráfico...</p>
-</div>
+  <div class="w-full h-96 flex justify-center min-w-0">
+    <Pie v-if="loaded" :data="chartData" :options="chartOptions" />
+    <p v-else class="text-center text-gray-500">Cargando gráfico...</p>
+  </div>
 </template>
 
 <script lang="ts">
@@ -65,31 +65,31 @@ export default defineComponent({
       ],
     });
 
-const isMobile = () => window.matchMedia("(max-width: 640px)").matches;
+    const isMobile = () => window.matchMedia("(max-width: 640px)").matches;
 
-const buildOptions = (): ChartOptions<"pie"> => ({
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      display: true,
-      position: isMobile() ? "bottom" : "right",
-      labels: {
-        color: "white",
-        boxWidth: 10,
-        boxHeight: 10,
-        padding: 10,
-        font: { size: isMobile() ? 10 : 12 },
+    const buildOptions = (): ChartOptions<"pie"> => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: isMobile() ? "bottom" : "right",
+          labels: {
+            color: "white",
+            boxWidth: 10,
+            boxHeight: 10,
+            padding: 10,
+            font: { size: isMobile() ? 10 : 12 },
+          },
+        },
       },
-    },
-  },
-});
+    });
 
-const chartOptions = ref<ChartOptions<"pie">>(buildOptions());
+    const chartOptions = ref<ChartOptions<"pie">>(buildOptions());
 
-window.addEventListener("resize", () => {
-  chartOptions.value = buildOptions();
-});
+    window.addEventListener("resize", () => {
+      chartOptions.value = buildOptions();
+    });
 
 
     watch(
@@ -98,11 +98,25 @@ window.addEventListener("resize", () => {
         if (newData.length > 0) {
           // Ensure scores are sorted 0-10
           const sortedData = [...newData].sort((a, b) => a.score - b.score);
-          
-          chartData.value.labels = sortedData.map((item) => item.score.toString());
-          chartData.value.datasets[0].data = sortedData.map((item) => item.count);
+
+          const labels = sortedData.map((item) => item.score.toString());
+          const data = sortedData.map((item) => item.count);
           // Map colors based on score value
-          chartData.value.datasets[0].backgroundColor = sortedData.map((item) => palette[item.score] || "#cccccc");
+          const backgroundColor = sortedData.map((item) => palette[item.score] || "#cccccc");
+
+          chartData.value = {
+            labels,
+            datasets: [
+              {
+                label: 'Votos',
+                backgroundColor,
+                data,
+                borderColor: '#1f2937', // Match bg-gray-800
+                borderWidth: 2,
+              },
+            ],
+          };
+
           loaded.value = true;
         }
       },

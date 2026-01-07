@@ -1,11 +1,7 @@
 <template>
   <div class="w-full h-[320px] sm:h-96">
-    <component
-      v-if="loaded"
-      :is="isMobile ? Bar : Line"
-      :data="chartData"
-      :options="isMobile ? barOptions : lineOptions"
-    />
+    <component v-if="loaded" :is="isMobile ? Bar : Line" :data="chartData"
+      :options="isMobile ? barOptions : lineOptions" />
     <p v-else class="text-center text-white/60">
       Cargando gráfico…
     </p>
@@ -75,7 +71,7 @@ export default defineComponent({
     /* ---------------------------
      * Chart data
      * --------------------------- */
-    const chartData = ref({
+    const chartData = ref<any>({
       labels: [] as string[],
       datasets: [
         {
@@ -150,8 +146,18 @@ export default defineComponent({
 
         if (isMobile.value) {
           // ✅ MÓVIL → solo meses (12 barras)
-          chartData.value.labels = props.monthlyVotes.map(m => m.month);
-          chartData.value.datasets[0].data = props.monthlyVotes.map(m => m.count);
+          chartData.value = {
+            labels: props.monthlyVotes.map(m => m.month),
+            datasets: [
+              {
+                label: "Votos",
+                data: props.monthlyVotes.map(m => m.count),
+                backgroundColor: "#36A2EB",
+                borderColor: "#36A2EB",
+                borderWidth: 2,
+              },
+            ],
+          };
         } else {
           // ✅ DESKTOP → semanas
           const labels: string[] = [];
@@ -168,8 +174,18 @@ export default defineComponent({
             });
           });
 
-          chartData.value.labels = labels;
-          chartData.value.datasets[0].data = data;
+          chartData.value = {
+            labels,
+            datasets: [
+              {
+                label: "Votos",
+                data,
+                backgroundColor: "#36A2EB",
+                borderColor: "#36A2EB",
+                borderWidth: 2,
+              },
+            ],
+          };
         }
 
         loaded.value = true;
