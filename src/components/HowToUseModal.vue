@@ -90,10 +90,10 @@
 
                         <div>
                             <h2 class="text-xl font-semibold">
-                                ¿Qué es Spam Music?
+                                ¿Qué es Riff Valley app?
                             </h2>
                             <p class="text-gray-700">
-                                <strong>Spam Music</strong> es un proyecto que hemos creado un grupo de amigos, paralelo
+                                <strong>Riff Valley app</strong> es un proyecto que hemos creado un grupo de amigos, paralelo
                                 al medio
                                 digital <a href="https://www.riffvalley.es/" target="_blank"
                                     class="text-blue-600 underline hover:text-blue-800">Riff Valley</a>.
@@ -137,7 +137,7 @@
 
                         <div class="mt-4 text-center">
                             <a href="http://paypal.me/RiffValley" target="_blank"
-                                class="inline-block bg-gradient-to-r from-[#d9e021] to-[#fcee21] text-black font-semibold px-6 py-2 rounded-full shadow transition duration-200">
+                                class="inline-block bg-rv-pink text-white font-semibold px-6 py-2 hover:bg-rv-pink/80 hover:text-white rounded-full shadow transition duration-200">
                                 Ir al PayPal
                             </a>
                         </div>
@@ -149,7 +149,7 @@
                             <p class="text-gray-700">
                                 Creemos mucho en este proyecto y te necesitamos para seguir creciendo. No dudes en
                                 seguir nuestro
-                                <a href="https://t.me/spammusicapp" target="_blank"
+                                <a href="https://t.me/riffvalleyapp" target="_blank"
                                     class="text-blue-600 underline hover:text-blue-800 transition">
                                     canal de Telegram
                                 </a>
