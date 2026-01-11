@@ -1,22 +1,37 @@
 <template>
   <div :class="{ 'menu-open': menuVisible }" class="max-w-[100rem] mx-auto mt-10 px-4">
     <div class="bg-white shadow-lg rounded-lg p-4 sm:p-6 mb-4 max-w-[90vw] md:max-w-[100rem] mx-auto relative">
-      <div class="absolute top-4 right-4 z-10">
-        <div class="relative">
-          <select v-model="selectedStatsYear" @change="fetchDiscs" class="px-4 pr-9 py-1 rounded-full shadow-md text-sm font-semibold
-                   bg-rv-navy text-white appearance-none cursor-pointer
-                   focus:outline-none border-none ring-0 w-auto">
-            <option v-for="option in availableStatsYears" :key="option.value" :value="option.value">
-              {{ option.label }}
-            </option>
-          </select>
-          <!-- chevron -->
-          <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white"
-            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-          </svg>
-        </div>
-      </div>
+<!-- Selector de año (centrado, sin superposición) -->
+<div class="flex justify-center -mt-1 mb-4">
+  <div class="relative inline-flex">
+    <select
+      v-model="selectedStatsYear"
+      @change="fetchDiscs"
+      class="px-4 pr-9 py-1 rounded-full shadow-md text-sm font-semibold
+             bg-rv-navy text-white appearance-none cursor-pointer
+             focus:outline-none border-none ring-0 w-auto"
+    >
+      <option
+        v-for="option in availableStatsYears"
+        :key="option.value"
+        :value="option.value"
+      >
+        {{ option.label }}
+      </option>
+    </select>
+
+    <!-- chevron -->
+    <svg
+      class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+    </svg>
+  </div>
+</div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
         <!-- Estadísticas de la App -->
         <div class="text-center md:border-r border-gray-200 pb-4 md:pb-0 md:pr-4 text-sm sm:text-base md:text-lg">
