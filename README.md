@@ -1,4 +1,4 @@
-# 🎵 Spam Music Front
+# 🎵 Riff Valley Front
 
 ## 📋 Requisitos
 

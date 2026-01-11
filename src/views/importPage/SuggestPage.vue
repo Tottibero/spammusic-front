@@ -3,7 +3,7 @@
     <h1 class="text-3xl font-bold mb-2">Sugerir discos</h1>
     <p class="text-center font-serif text-gray-500 text-md mb-4">
       Puedes sugerir nuevos discos completando los campos de abajo (tanto fecha como datos del disco).<br />
-      El equipo de Spam Music los revisará y aceptará en caso de que sean válidos.
+      El equipo de Riff Valley los revisará y aceptará en caso de que sean válidos.
     </p>
 
     <!-- Input de fecha -->
@@ -76,7 +76,7 @@ export default defineComponent({
         emailSent.value = false;
         error.value = '';
 
-        const subject = encodeURIComponent('Petición disco Spam Music app');
+        const subject = encodeURIComponent('Petición disco Riff Valley app');
         const body = encodeURIComponent(`Fecha sugerida: ${selectedDate.value}\n\nDiscos sugeridos:\n${albumText.value}`);
 
         const mailtoLink = `mailto:contacto@riffvalley.es?subject=${subject}&body=${body}`;
