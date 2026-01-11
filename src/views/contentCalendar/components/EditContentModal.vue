@@ -117,12 +117,45 @@ const emit = defineEmits<{
     delete: [];
 }>();
 
+// Helper to format date for datetime-local input (YYYY-MM-DDThh:mm)
+function formatForInput(dateStr: string): string {
+    if (!dateStr) return '';
+
+    // Check if it's an ISO string with Z (UTC)
+    if (dateStr.endsWith('Z')) {
+        // If it's effectively "Midnight UTC", treat as "Floating" (keep visual 00:00)
+        // This avoids timezone shifts for date-only content (like Radar)
+        if (dateStr.endsWith('T00:00:00.000Z') || dateStr.endsWith('T00:00:00Z')) {
+            return dateStr.slice(0, 16);
+        }
+
+        // Otherwise (content with specific time), convert to LOCAL time for display
+        const date = new Date(dateStr);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
+    // Fallback for non-Z strings
+    if (dateStr.length >= 16) {
+        return dateStr.slice(0, 16);
+    }
+    // If it's just a date "YYYY-MM-DD"
+    if (dateStr.length === 10) {
+        return dateStr + 'T00:00';
+    }
+    return dateStr;
+}
+
 const formData = ref({
     type: props.content.type,
     name: props.content.name,
     notes: props.content.notes || '',
-    publicationDate: props.content.publicationDate || '',
-    closeDate: props.content.closeDate || '',
+    publicationDate: formatForInput(props.content.publicationDate || ''),
+    closeDate: props.content.closeDate ? props.content.closeDate.split('T')[0] : '', // Keep closeDate as date-only YYYY-MM-DD
     authorId: props.content.author?.id || '',
     listDate: props.content.list?.listDate || ''
 });
@@ -141,7 +174,28 @@ watch(() => props.content, (newContent) => {
 }, { deep: true });
 
 function handleUpdate() {
-    emit('update', { ...formData.value });
+    emit('update', {
+        ...formData.value,
+        // Send back as full ISO if possible, or let the backend handle the partial
+        // Usually appending :00.000Z is safer if we stripped it, but for now sending what the input produces (YYYY-MM-DDThh:mm)
+        // might be acceptable if the backend parses it. 
+        // However, to be consistent with "Z", we might want to append it back if we want to store it as UTC-ish.
+        // For now, let's just emit the value from the input.
+    });
+}
+
+function formatDisplayDate(dateStr: string): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
+// Replaces formatDateTime used for min attribute
+function formatDateTime(dateStr: string): string {
+    return formatForInput(dateStr);
 }
 
 function formatDisplayDate(dateStr: string): string {

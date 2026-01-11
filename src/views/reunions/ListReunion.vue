@@ -40,76 +40,84 @@
 
       <!-- Reuniones Pasadas -->
       <div>
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xl font-bold">Reuniones Pasadas</h2>
+        <div
+          class="flex items-center justify-between mb-4 cursor-pointer hover:bg-gray-100 p-2 rounded-lg transition-colors"
+          @click="showPastReunions = !showPastReunions">
+          <div class="flex items-center gap-2">
+            <h2 class="text-xl font-bold">Reuniones Pasadas</h2>
+            <i class="fa-solid fa-chevron-down transition-transform duration-300"
+              :class="{ 'rotate-180': showPastReunions }"></i>
+          </div>
           <span class="text-sm text-gray-500">{{ reunionesPasadas.length }} reuniones</span>
         </div>
 
         <!-- Navegación por selects -->
-        <div v-if="reunionesPasadas.length > 0">
-          <!-- Selects de Año y Mes -->
-          <div class="flex gap-3 mb-4">
-            <div class="flex-1">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Año</label>
-              <select v-model="selectedYear" class="select select-bordered w-full">
-                <option :value="null">Selecciona un año</option>
-                <option v-for="ano in anosDisponibles" :key="ano" :value="ano">
-                  {{ ano }}
-                </option>
-              </select>
-            </div>
-
-            <div class="flex-1" v-if="selectedYear">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Mes</label>
-              <select v-model="selectedMonth" class="select select-bordered w-full">
-                <option :value="null">Selecciona un mes</option>
-                <option v-for="mes in mesesDisponibles" :key="mes" :value="mes">
-                  {{ getNombreMes(mes) }}
-                </option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Reuniones del mes seleccionado -->
-          <div v-if="selectedMonth !== null" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div v-for="reunion in reunionesFiltradas" :key="reunion.id"
-              class="border border-gray-300 rounded-lg p-4 bg-white hover:shadow-lg cursor-pointer transition-all"
-              @click="openEditModal(reunion.id)">
-              <h4 class="font-bold text-gray-900">{{ reunion.title }}</h4>
-              <p class="text-sm text-gray-600 mt-1">{{ formatDate(reunion.date) }}</p>
-              <div v-if="reunion.points && reunion.points.length > 0" class="mt-2 pt-2 border-t border-gray-200">
-                <p class="text-xs text-gray-500 mb-1">{{ reunion.points.length }} puntos</p>
-                <div class="flex gap-1">
-                  <span v-for="point in reunion.points.slice(0, 5)" :key="point.id">
-                    <i class="fa-solid fa-check text-green-600 text-xs" v-if="point.done"></i>
-                    <i class="fa-regular fa-circle text-gray-400 text-xs" v-else></i>
-                  </span>
-                  <span v-if="reunion.points.length > 5" class="text-xs text-gray-500">+{{ reunion.points.length - 5
-                    }}</span>
-                </div>
+        <div v-show="showPastReunions">
+          <div v-if="reunionesPasadas.length > 0">
+            <!-- Selects de Año y Mes -->
+            <div class="flex gap-3 mb-4">
+              <div class="flex-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Año</label>
+                <select v-model="selectedYear" class="select select-bordered w-full">
+                  <option :value="null">Selecciona un año</option>
+                  <option v-for="ano in anosDisponibles" :key="ano" :value="ano">
+                    {{ ano }}
+                  </option>
+                </select>
               </div>
-              <button
-                class="w-full mt-3 px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm flex items-center justify-center gap-2">
-                <i class="fa-solid fa-eye"></i>
-                <span>Ver Detalle</span>
-              </button>
+
+              <div class="flex-1" v-if="selectedYear">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Mes</label>
+                <select v-model="selectedMonth" class="select select-bordered w-full">
+                  <option :value="null">Selecciona un mes</option>
+                  <option v-for="mes in mesesDisponibles" :key="mes" :value="mes">
+                    {{ getNombreMes(mes) }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Reuniones del mes seleccionado -->
+            <div v-if="selectedMonth !== null" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div v-for="reunion in reunionesFiltradas" :key="reunion.id"
+                class="border border-gray-300 rounded-lg p-4 bg-white hover:shadow-lg cursor-pointer transition-all"
+                @click="openEditModal(reunion.id)">
+                <h4 class="font-bold text-gray-900">{{ reunion.title }}</h4>
+                <p class="text-sm text-gray-600 mt-1">{{ formatDate(reunion.date) }}</p>
+                <div v-if="reunion.points && reunion.points.length > 0" class="mt-2 pt-2 border-t border-gray-200">
+                  <p class="text-xs text-gray-500 mb-1">{{ reunion.points.length }} puntos</p>
+                  <div class="flex gap-1">
+                    <span v-for="point in reunion.points.slice(0, 5)" :key="point.id">
+                      <i class="fa-solid fa-check text-green-600 text-xs" v-if="point.done"></i>
+                      <i class="fa-regular fa-circle text-gray-400 text-xs" v-else></i>
+                    </span>
+                    <span v-if="reunion.points.length > 5" class="text-xs text-gray-500">+{{ reunion.points.length - 5
+                    }}</span>
+                  </div>
+                </div>
+                <button
+                  class="w-full mt-3 px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm flex items-center justify-center gap-2">
+                  <i class="fa-solid fa-eye"></i>
+                  <span>Ver Detalle</span>
+                </button>
+              </div>
+            </div>
+
+            <div v-else-if="selectedYear" class="text-center py-8 text-gray-400">
+              <i class="fa-solid fa-calendar-xmark text-4xl mb-2"></i>
+              <p>Selecciona un mes para ver las reuniones</p>
+            </div>
+
+            <div v-else class="text-center py-8 text-gray-400">
+              <i class="fa-solid fa-calendar text-4xl mb-2"></i>
+              <p>Selecciona un año para comenzar</p>
             </div>
           </div>
 
-          <div v-else-if="selectedYear" class="text-center py-8 text-gray-400">
-            <i class="fa-solid fa-calendar-xmark text-4xl mb-2"></i>
-            <p>Selecciona un mes para ver las reuniones</p>
+          <div v-else class="text-center py-12 text-gray-400">
+            <i class="fa-solid fa-inbox text-4xl mb-2"></i>
+            <p>No hay reuniones pasadas</p>
           </div>
-
-          <div v-else class="text-center py-8 text-gray-400">
-            <i class="fa-solid fa-calendar text-4xl mb-2"></i>
-            <p>Selecciona un año para comenzar</p>
-          </div>
-        </div>
-
-        <div v-else class="text-center py-12 text-gray-400">
-          <i class="fa-solid fa-inbox text-4xl mb-2"></i>
-          <p>No hay reuniones pasadas</p>
         </div>
       </div>
     </div>
@@ -137,6 +145,7 @@ export default {
       reuniones: [],
       selectedYear: null,
       selectedMonth: null,
+      showPastReunions: false,
     };
   },
   computed: {
@@ -148,7 +157,7 @@ export default {
         const fechaReunion = new Date(r.date);
         fechaReunion.setHours(0, 0, 0, 0);
         return fechaReunion >= hoy;
-      });
+      }).sort((a, b) => new Date(a.date) - new Date(b.date));
     },
 
     reunionesPasadas() {

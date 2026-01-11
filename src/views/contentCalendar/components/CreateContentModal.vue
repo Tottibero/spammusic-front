@@ -201,6 +201,10 @@ const formData = ref({
 // Watch for modal opening or type change to auto-fill name
 watch([() => props.show, () => formData.value.type], ([isOpen, type]) => {
     if (isOpen) {
+        // Reset dates that might have been set by other types
+        formData.value.listDate = '';
+        formData.value.closeDate = '';
+
         if (type === 'radar') {
             updateRadarListDate();
         } else if (['best', 'video'].includes(type)) {
