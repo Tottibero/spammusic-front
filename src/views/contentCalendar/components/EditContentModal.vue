@@ -184,19 +184,7 @@ function handleUpdate() {
     });
 }
 
-function formatDisplayDate(dateStr: string): string {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-}
 
-// Replaces formatDateTime used for min attribute
-function formatDateTime(dateStr: string): string {
-    return formatForInput(dateStr);
-}
 
 function formatDisplayDate(dateStr: string): string {
     if (!dateStr) return '';
