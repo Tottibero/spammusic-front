@@ -166,8 +166,8 @@ watch(() => props.content, (newContent) => {
         type: newContent.type,
         name: newContent.name,
         notes: newContent.notes || '',
-        publicationDate: formatForInput(newContent.publicationDate || ''),
-        closeDate: newContent.closeDate ? newContent.closeDate.split('T')[0] : '',
+        publicationDate: newContent.publicationDate || '',
+        closeDate: newContent.closeDate || '',
         authorId: newContent.author?.id || '',
         listDate: newContent.list?.listDate || ''
     };
@@ -196,5 +196,19 @@ function formatDisplayDate(dateStr: string): string {
 // Replaces formatDateTime used for min attribute
 function formatDateTime(dateStr: string): string {
     return formatForInput(dateStr);
+}
+
+function formatDisplayDate(dateStr: string): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
+function formatDateTime(dateStr: string): string {
+    if (!dateStr) return '';
+    return dateStr + 'T00:00';
 }
 </script>
